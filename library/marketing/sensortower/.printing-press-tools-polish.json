@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-17T17:49:40.370011Z",
+  "cli_dir": "\u003ccli-dir\u003e/sensortower-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learn-loop file; 'learnings list' Short is accurate and appropriately brief for a simple list command. A richer default belongs in the generator template, not a hand-edit here."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-17T17:44:49.803538Z"
+  }
+}

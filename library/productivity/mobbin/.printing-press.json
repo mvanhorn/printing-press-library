@@ -1,0 +1,65 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-09T02:15:58.01809Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "mobbin",
+  "display_name": "Mobbin",
+  "cli_name": "mobbin-pp-cli",
+  "creator": {
+    "handle": "darinkishore",
+    "name": "Darin Kishore"
+  },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
+  "owner": "darinkishore",
+  "printer": "darinkishore",
+  "printer_name": "Darin Kishore",
+  "spec_path": "mobbin-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:e1e391b55b0ec7447f5e09d0185546addf108aec5465b09f612e7072f05f2e5f",
+  "run_id": "20260708-153634-73e98316",
+  "category": "productivity",
+  "description": "Every Mobbin screen, flow, and pattern — searchable offline, deckable in one command, with longitudinal drift no Mobbin tool ships.",
+  "mcp_binary": "mobbin-pp-mcp",
+  "mcp_tool_count": 22,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Pattern Deck Export",
+      "command": "deck",
+      "description": "Build a design-crit deck for a pattern across an industry: searches matching screens, downloads full-res images from the Bytescale CDN, packages a zip with a manifest CSV."
+    },
+    {
+      "name": "Offline Pattern Bench",
+      "command": "bench",
+      "description": "Cross-app leaderboard for any pattern from the local store: count, last seen, top apps that ship it."
+    },
+    {
+      "name": "Flow Audit with Delta",
+      "command": "audit",
+      "description": "Time-windowed flow audit across an industry: app, flow name, step count, captured_at — with --since support for delta-since-last-quarter reports."
+    },
+    {
+      "name": "Version Drift Watch",
+      "command": "drift",
+      "description": "Diff an app's flows + screens between local snapshots; surface what changed (added/removed/screen count)."
+    },
+    {
+      "name": "Batch Full-Res Grab",
+      "command": "grab",
+      "description": "Batch-download matching screens at 1920px from Bytescale with deterministic filenames and a manifest.json side-car for downstream tooling."
+    },
+    {
+      "name": "Cross-Platform Parity",
+      "command": "cross",
+      "description": "Fan out a pattern query across web AND iOS for one app set; join results on app slug; output a side-by-side parity manifest."
+    }
+  ]
+}

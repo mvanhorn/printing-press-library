@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "gl-inet-pp-mcp",
+  "display_name": "GL.iNet",
+  "version": "0.0.0",
+  "description": "The first maintained CLI for GL.iNet travel routers — named config profiles, travel macros, and version-aware diagnostics no other GL.iNet tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gl-inet-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gl-inet-pp-mcp",
+      "args": [],
+      "env": {
+        "GL_INET_PASSWORD": "${user_config.gl_inet_password}",
+        "GL_INET_USER": "${user_config.gl_inet_user}"
+      }
+    }
+  },
+  "user_config": {
+    "gl_inet_password": {
+      "type": "string",
+      "title": "GL_INET_PASSWORD",
+      "description": "Optional. Sets GL_INET_PASSWORD for the GL.iNet MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    },
+    "gl_inet_user": {
+      "type": "string",
+      "title": "GL_INET_USER",
+      "description": "Optional. Sets GL_INET_USER for the GL.iNet MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

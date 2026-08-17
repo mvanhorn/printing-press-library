@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ht-ml-sites-example-fix",
+  "applied_at": "2026-06-26",
+  "base_run_id": "20260625-202846-acc7c150",
+  "base_printing_press_version": "4.26.0",
+  "summary": "Correct the generated `sites` read command example and live happy-args.",
+  "reason": "The single GET-by-id resource renders as `sites <site_id>` (there is no `sites get` subcommand); the generated example said `sites get e5051f46`, which routes the literal 'get' as the id and 404s. Repointed example/happy-args at a real public site so the live gate exercises a working read.",
+  "files": [
+    "internal/cli/promoted_sites.go"
+  ],
+  "validated_outcome": "Live dogfood `sites` happy path passes against the real API."
+}

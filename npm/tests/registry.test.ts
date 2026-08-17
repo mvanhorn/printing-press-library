@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readdir, readFile } from "node:fs/promises";
+import { join, relative } from "node:path";
 import {
   cliBinaryName,
   cliSkillName,
@@ -21,6 +23,12 @@ test("parseRegistry validates and returns registry entries", () => {
         description: "Sports scores",
         search_terms: ["NBA scores", "sports standings"],
         path: "library/sports/espn",
+        release: {
+          cli_name: "espn-pp-cli",
+          version: "2026.6.1",
+          released_at: "2026-06-01T00:00:00Z",
+          source_commit: "0123456789abcdef0123456789abcdef01234567",
+        },
       },
     ],
   });
@@ -28,6 +36,12 @@ test("parseRegistry validates and returns registry entries", () => {
   assert.equal(registry.entries.length, 1);
   assert.equal(registry.entries[0]?.name, "espn");
   assert.deepEqual(registry.entries[0]?.search_terms, ["NBA scores", "sports standings"]);
+  assert.deepEqual(registry.entries[0]?.release, {
+    cli_name: "espn-pp-cli",
+    version: "2026.6.1",
+    released_at: "2026-06-01T00:00:00Z",
+    source_commit: "0123456789abcdef0123456789abcdef01234567",
+  });
 });
 
 test("parseRegistry treats null optional search_terms as absent", () => {
@@ -313,6 +327,34 @@ test("fetchGoModulePath reads go.mod next to a registry entry", async () => {
   );
 });
 
+test("library modules avoid invalid explicit Go v0/v1 suffixes", async () => {
+  const libraryRoot = join(process.cwd(), "..", "library");
+  const offenders: string[] = [];
+
+  for (const goModPath of await collectGoModPaths(libraryRoot)) {
+    const modulePath = parseGoModulePath(await readFile(goModPath, "utf8"));
+    if (modulePath && /\/v[01]$/.test(modulePath)) {
+      offenders.push(`${relative(process.cwd(), goModPath)}: ${modulePath}`);
+    }
+  }
+
+  assert.deepEqual(offenders, []);
+});
+
 test("parseGoModulePath returns null when no module declaration exists", () => {
   assert.equal(parseGoModulePath("go 1.23\n"), null);
 });
+
+async function collectGoModPaths(dir: string): Promise<string[]> {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const paths: string[] = [];
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      paths.push(...(await collectGoModPaths(fullPath)));
+    } else if (entry.isFile() && entry.name === "go.mod") {
+      paths.push(fullPath);
+    }
+  }
+  return paths;
+}

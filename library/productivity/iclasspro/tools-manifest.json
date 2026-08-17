@@ -1,0 +1,447 @@
+{
+  "api_name": "iclasspro",
+  "base_url": "https://app.iclasspro.com/api/open/v1",
+  "description": "The only iClassPro tool that remembers yesterday — a queryable local mirror of any gym's catalog, with the search and filter surface the portal keeps to itself.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bookings_list",
+      "description": "Booking menu tiles for a location; camp tiles carry the typeId that 'camps list' requires. Required: account, location-id. Returns array of BookingMenuItem.",
+      "method": "GET",
+      "path": "/{account}/bookings/{locationId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "int",
+          "location": "path",
+          "description": "Location id from 'locations'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "camps_get",
+      "description": "Full camp detail including HTML description, per-session blocks, room, instructors, and deletion/expiry flags. Required: account, camp-id. Returns the CampDetail.",
+      "method": "GET",
+      "path": "/{account}/camps/{campId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "camp-id",
+          "wire_name": "campId",
+          "type": "int",
+          "location": "path",
+          "description": "Camp id from 'camps list'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "camps_list",
+      "description": "List camps for one camp type. typeId comes from 'bookings', NOT from 'programs camps'. Required: account. Optional: location-id, type-id, sort-by (plus 2 more). Returns array of Camp.",
+      "method": "GET",
+      "path": "/{account}/camps",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "int",
+          "location": "query",
+          "description": "Location id from 'locations'"
+        },
+        {
+          "name": "type-id",
+          "wire_name": "typeId",
+          "type": "int",
+          "location": "query",
+          "description": "Camp type id from 'bookings' targetParams.typeId. Passing a programId from 'programs camps' silently returns no camps"
+        },
+        {
+          "name": "sort-by",
+          "wire_name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order (honored on camps; ignored on classes)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number; total is reported as totalRecords"
+        }
+      ]
+    },
+    {
+      "name": "classes_get",
+      "description": "Full class detail including the HTML description the list endpoint omits. Required: account, class-id. Returns the ClassDetail.",
+      "method": "GET",
+      "path": "/{account}/classes/{classId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "class-id",
+          "wire_name": "classId",
+          "type": "int",
+          "location": "path",
+          "description": "Class id from 'classes list'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classes_list",
+      "description": "List classes with server-side filtering. Only the flags below are honored upstream; any other filter is applied locally. Required: account. Optional: location-id, q, openings (plus 9 more). Returns array of Class.",
+      "method": "GET",
+      "path": "/{account}/classes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "int",
+          "location": "query",
+          "description": "Location id from 'locations'"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search over class names (server-side; verified 96 results to 30 for 'ninja')"
+        },
+        {
+          "name": "openings",
+          "type": "int",
+          "location": "query",
+          "description": "Set to 1 to return only classes with at least one opening (server-side)"
+        },
+        {
+          "name": "programs",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated program ids from 'programs classes' (server-side)"
+        },
+        {
+          "name": "levels",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated level ids from 'levels' (server-side)"
+        },
+        {
+          "name": "instructors",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated instructor ids from 'instructors' (server-side; ids, not names)"
+        },
+        {
+          "name": "days",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated day numbers, 1=Sunday through 7=Saturday (server-side)"
+        },
+        {
+          "name": "ages",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated ages in years (server-side)"
+        },
+        {
+          "name": "genders",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated gender ids (server-side)"
+        },
+        {
+          "name": "sessions",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated session ids from 'sessions' (server-side)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number; total is reported as totalRecords"
+        }
+      ]
+    },
+    {
+      "name": "instructors_list",
+      "description": "Instructors who teach classes; ids are valid values for 'classes list --instructors'. Required: account, location-id. Returns array of Instructor.",
+      "method": "GET",
+      "path": "/{account}/instructors/{locationId}/classes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "int",
+          "location": "path",
+          "description": "Location id from 'locations'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "levels_list",
+      "description": "Active skill levels with display colors; ids are valid values for 'classes list --levels'. Required: account, location-id. Returns array of Level.",
+      "method": "GET",
+      "path": "/{account}/levels/active/{locationId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "int",
+          "location": "path",
+          "description": "Location id from 'locations'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_list",
+      "description": "List every location on an iClassPro account, with contact details and portal branding. Required: account. Returns array of Location.",
+      "method": "GET",
+      "path": "/{account}/locations",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug, e.g. scottsdalegymnastics (the path segment in portal.iclasspro.com/\u003cslug\u003e)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "news_get",
+      "description": "Fetch a single portal news article by id. Required: account, article-id. Returns the NewsArticle.",
+      "method": "GET",
+      "path": "/{account}/news/{articleId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "article-id",
+          "wire_name": "articleId",
+          "type": "int",
+          "location": "path",
+          "description": "News article id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "parties_availability",
+      "description": "Dates a party can be booked at a location. Required: account, location-id. Returns the PartyAvailability.",
+      "method": "GET",
+      "path": "/{account}/parties/create/{locationId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "int",
+          "location": "path",
+          "description": "Location id from 'locations'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list",
+      "description": "Retail products with pricing, sale state, variations, and inventory. Required: account, location-id. Returns array of Product.",
+      "method": "GET",
+      "path": "/{account}/products/{locationId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "int",
+          "location": "path",
+          "description": "Location id from 'locations'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "programs_appointments",
+      "description": "Appointment program categories; returns a plan-gate message on accounts without the appointments subscription. Required: account, location-id.",
+      "method": "GET",
+      "path": "/{account}/appointment-programs/{locationId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "int",
+          "location": "path",
+          "description": "Location id from 'locations'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "programs_camps",
+      "description": "Camp program categories. These ids are programIds, NOT the typeIds 'camps list' needs — use 'bookings' for those. Required: account, location-id. Returns array of Program.",
+      "method": "GET",
+      "path": "/{account}/camp-programs/{locationId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "int",
+          "location": "path",
+          "description": "Location id from 'locations'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "programs_classes",
+      "description": "Class program categories; ids are valid values for 'classes list --programs'. Required: account, location-id. Returns array of Program.",
+      "method": "GET",
+      "path": "/{account}/class-programs/{locationId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        },
+        {
+          "name": "location-id",
+          "wire_name": "locationId",
+          "type": "int",
+          "location": "path",
+          "description": "Location id from 'locations'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_list",
+      "description": "Sessions for an account; ids are valid values for 'classes list --sessions'. Required: account. Returns array of Session.",
+      "method": "GET",
+      "path": "/{account}/sessions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "path",
+          "description": "Portal slug",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -79,13 +79,10 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
-	// Env-var token wins over file-stored AccessToken (env > config convention).
 	if c.AccessToken != "" {
-		c.AuthSource = "env:SUPABASE_ACCESS_TOKEN"
-		return "Bearer " + c.AccessToken
-	}
-	if c.AccessToken != "" {
-		c.AuthSource = "oauth2"
+		if c.AuthSource == "" {
+			c.AuthSource = "oauth2"
+		}
 		return "Bearer " + c.AccessToken
 	}
 	return ""

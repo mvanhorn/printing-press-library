@@ -16,46 +16,45 @@ func newTiktokListShop3Cmd(flags *rootFlags) *cobra.Command {
 	var flagProductId string
 	var flagRegion string
 	var flagPage string
+	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-shop-3",
-		Short:       "Fetches customer reviews for a TikTok Shop product by URL or product_id. Returns `product_reviews`, an array of...",
+		Short:       "Fetches customer reviews for a TikTok Shop product by URL or product_id.",
 		Example:     "  scrape-creators-pp-cli tiktok list-shop-3",
-		Annotations: map[string]string{"pp:endpoint": "tiktok.list-shop-3", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-shop-3", "pp:method": "GET", "pp:path": "/v1/tiktok/shop/product/reviews", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/v1/tiktok/shop/product/reviews"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/tiktok/shop/product/reviews"
-			params := map[string]string{}
-			if flagUrl != "" {
-				params["url"] = fmt.Sprintf("%v", flagUrl)
-			}
-			if flagProductId != "" {
-				params["product_id"] = fmt.Sprintf("%v", flagProductId)
-			}
-			if flagRegion != "" {
-				params["region"] = fmt.Sprintf("%v", flagRegion)
-			}
-			if flagPage != "" {
-				params["page"] = fmt.Sprintf("%v", flagPage)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "tiktok", false, path, params, nil)
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "tiktok", path, map[string]string{
+				"url":        formatCLIParamValue(flagUrl),
+				"product_id": formatCLIParamValue(flagProductId),
+				"region":     formatCLIParamValue(flagRegion),
+				"page":       formatCLIParamValue(flagPage),
+			}, nil, flagAll, "page", "page", "", 100, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			outputData := collectionItemsForOutput(data, path)
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -66,12 +65,16 @@ func newTiktokListShop3Cmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -81,13 +84,18 @@ func newTiktokListShop3Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagUrl, "url", "", "The URL of the product (required if product_id is not provided)")
 	cmd.Flags().StringVar(&flagProductId, "product-id", "", "The ID of the product (required if url is not provided)")
-	cmd.Flags().StringVar(&flagRegion, "region", "", "The region of the product. This is *very* important.")
+	cmd.Flags().StringVar(&flagRegion, "region", "", "The region of the product.")
 	cmd.Flags().StringVar(&flagPage, "page", "", "The page number of the reviews")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

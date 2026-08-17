@@ -1,0 +1,309 @@
+name: github-contents
+description: "Download files and folders from GitHub repositories, preserving structure"
+version: "0.1.0"
+base_url: "https://api.github.com"
+category: developer-tools
+health_check_path: "/rate_limit"
+required_headers:
+  - name: Accept
+    value: "application/vnd.github+json"
+  - name: X-GitHub-Api-Version
+    value: "2022-11-28"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - GITHUB_TOKEN
+    - GH_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/github-contents-pp-cli/config.toml"
+
+resources:
+  repos:
+    description: "Repository metadata (default branch, visibility, size)"
+    endpoints:
+      get:
+        method: GET
+        path: "/repos/{owner}/{repo}"
+        description: "Get repository metadata including the default branch"
+        params:
+          - name: owner
+            type: string
+            required: true
+            positional: true
+            description: "Repository owner (user or org), e.g. mjwoon"
+          - name: repo
+            type: string
+            required: true
+            positional: true
+            description: "Repository name, e.g. AI-readings"
+        response:
+          type: object
+          item: Repo
+      branches:
+        method: GET
+        path: "/repos/{owner}/{repo}/branches"
+        description: "List branches of a repository"
+        params:
+          - name: owner
+            type: string
+            required: true
+            positional: true
+            description: "Repository owner"
+          - name: repo
+            type: string
+            required: true
+            positional: true
+            description: "Repository name"
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 100
+            description: "Results per page (max 100)"
+        response:
+          type: array
+          item: Branch
+      commits:
+        method: GET
+        path: "/repos/{owner}/{repo}/commits"
+        description: "List commits, optionally filtered to a path (newest first)"
+        params:
+          - name: owner
+            type: string
+            required: true
+            positional: true
+            description: "Repository owner"
+          - name: repo
+            type: string
+            required: true
+            positional: true
+            description: "Repository name"
+          - name: path
+            type: string
+            description: "Only commits touching this file or directory path"
+          - name: sha
+            flag_name: ref
+            aliases: [sha]
+            type: string
+            description: "Branch, tag, or commit SHA to start listing from"
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 30
+            description: "Results per page (max 100)"
+        response:
+          type: array
+          item: Commit
+
+  contents:
+    description: "List directories and read files via the repository contents API"
+    endpoints:
+      get:
+        method: GET
+        path: "/repos/{owner}/{repo}/contents/{path}"
+        description: "Get a directory listing (JSON array) or file metadata+content (JSON object, base64, files up to 1 MB). Use trees get for large/deep listings and blobs get or download_url for files over 1 MB."
+        params:
+          - name: owner
+            type: string
+            required: true
+            positional: true
+            description: "Repository owner"
+          - name: repo
+            type: string
+            required: true
+            positional: true
+            description: "Repository name"
+          - name: path
+            type: string
+            required: true
+            positional: true
+            description: "Path inside the repo, e.g. books or books/mathematics (use '' for repo root)"
+          - name: ref
+            type: string
+            description: "Branch, tag, or commit SHA (defaults to the default branch)"
+        response:
+          type: array
+          item: ContentEntry
+
+  trees:
+    description: "Git trees — one-request recursive listings of an entire repo or subtree"
+    endpoints:
+      get:
+        method: GET
+        path: "/repos/{owner}/{repo}/git/trees/{tree_sha}"
+        description: "Get a git tree. With --recursive, returns every file under it in one request (check the truncated flag on huge repos)"
+        params:
+          - name: owner
+            type: string
+            required: true
+            positional: true
+            description: "Repository owner"
+          - name: repo
+            type: string
+            required: true
+            positional: true
+            description: "Repository name"
+          - name: tree_sha
+            flag_name: tree-sha
+            type: string
+            required: true
+            positional: true
+            description: "Tree SHA, branch name, or commit SHA"
+          - name: recursive
+            type: bool
+            description: "Return all nested entries in one response"
+        response:
+          type: object
+          item: Tree
+
+  blobs:
+    description: "Raw git blobs — fetch file content by SHA (works for files up to 100 MB)"
+    endpoints:
+      get:
+        method: GET
+        path: "/repos/{owner}/{repo}/git/blobs/{file_sha}"
+        description: "Get a blob (base64-encoded content) by its git SHA"
+        params:
+          - name: owner
+            type: string
+            required: true
+            positional: true
+            description: "Repository owner"
+          - name: repo
+            type: string
+            required: true
+            positional: true
+            description: "Repository name"
+          - name: file_sha
+            flag_name: file-sha
+            type: string
+            required: true
+            positional: true
+            description: "Blob SHA from a tree or contents listing"
+        response:
+          type: object
+          item: Blob
+
+  releases:
+    description: "Repository releases and their downloadable assets"
+    endpoints:
+      list:
+        method: GET
+        path: "/repos/{owner}/{repo}/releases"
+        description: "List releases with their assets"
+        params:
+          - name: owner
+            type: string
+            required: true
+            positional: true
+            description: "Repository owner"
+          - name: repo
+            type: string
+            required: true
+            positional: true
+            description: "Repository name"
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 30
+            description: "Results per page (max 100)"
+        response:
+          type: array
+          item: Release
+      latest:
+        method: GET
+        path: "/repos/{owner}/{repo}/releases/latest"
+        description: "Get the latest published release"
+        params:
+          - name: owner
+            type: string
+            required: true
+            positional: true
+            description: "Repository owner"
+          - name: repo
+            type: string
+            required: true
+            positional: true
+            description: "Repository name"
+        response:
+          type: object
+          item: Release
+
+  rate-limit:
+    description: "API quota status — check headroom before and during bulk downloads"
+    endpoints:
+      show:
+        method: GET
+        path: "/rate_limit"
+        description: "Show remaining API quota (5000/h with a token, 60/h without)"
+        response:
+          type: object
+          item: RateLimit
+
+types:
+  Repo:
+    fields:
+      - name: full_name
+        type: string
+      - name: default_branch
+        type: string
+      - name: private
+        type: bool
+      - name: size
+        type: int
+      - name: description
+        type: string
+  Branch:
+    fields:
+      - name: name
+        type: string
+  Commit:
+    fields:
+      - name: sha
+        type: string
+  ContentEntry:
+    fields:
+      - name: name
+        type: string
+      - name: path
+        type: string
+      - name: sha
+        type: string
+      - name: size
+        type: int
+      - name: type
+        type: string
+      - name: download_url
+        type: string
+  Tree:
+    fields:
+      - name: sha
+        type: string
+      - name: truncated
+        type: bool
+  Blob:
+    fields:
+      - name: sha
+        type: string
+      - name: size
+        type: int
+      - name: content
+        type: string
+      - name: encoding
+        type: string
+  Release:
+    fields:
+      - name: tag_name
+        type: string
+      - name: name
+        type: string
+      - name: published_at
+        type: string
+  RateLimit:
+    fields:
+      - name: rate
+        type: string

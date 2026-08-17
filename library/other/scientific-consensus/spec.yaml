@@ -1,0 +1,426 @@
+openapi: 3.0.0
+info:
+  title: Scientific Consensus (via OpenAlex)
+  version: 1.0.0
+  description: >
+    Aggregate scholarly literature from OpenAlex (primary), PubMed, Crossref,
+    Europe PMC, and Semantic Scholar into evidence summaries, consensus scores,
+    and study-design pyramids. OpenAlex is the free, keyless scholarly graph that
+    carries citation counts, author affiliations, institutions, topics, and work
+    types powering offline research analytics. Secondary sources are added via the
+    aggregator pattern and surfaced under the `sources` command tree.
+  contact:
+    name: OpenAlex API Documentation
+    url: https://docs.openalex.org/
+x-mcp:
+  transport: [stdio, http]
+servers:
+  - url: https://api.openalex.org
+    description: OpenAlex API (free, no auth)
+security: []
+paths:
+  /works:
+    get:
+      operationId: searchWorks
+      summary: Search scholarly works
+      tags: [works]
+      parameters:
+        - name: search
+          in: query
+          schema: {type: string}
+          description: Full-text search across title, abstract, and fulltext
+          example: vitamin d respiratory infection
+        - name: filter
+          in: query
+          schema: {type: string}
+          description: >
+            OpenAlex filter expression. Scope by date with
+            from_publication_date:2023-01-01,to_publication_date:2024-12-31,
+            open access with is_oa:true, type with type:review, or topic with
+            primary_topic.id:T10906.
+          example: "from_publication_date:2024-01-01,type:article"
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [cited_by_count:desc, publication_date:desc, relevance_score:desc]
+          description: Sort order for results
+        - name: group_by
+          in: query
+          schema: {type: string}
+          description: >
+            Group results into facet counts instead of returning works. Use for
+            analytics, e.g. group_by=publication_year, group_by=type,
+            group_by=authorships.institutions.id, group_by=primary_topic.id.
+          example: publication_year
+        - name: per-page
+          in: query
+          schema: {type: integer, default: 25, maximum: 200}
+          description: Results per page (max 200)
+        - name: page
+          in: query
+          schema: {type: integer, default: 1}
+          description: Page number for pagination
+        - name: select
+          in: query
+          schema: {type: string}
+          description: Comma-separated fields to return (reduces payload size)
+          example: id,doi,title,authorships,cited_by_count,publication_date
+      responses:
+        '200':
+          description: Work list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta: {type: object}
+                  results:
+                    type: array
+                    items: {$ref: '#/components/schemas/Work'}
+  /works/{id}:
+    get:
+      operationId: getWork
+      summary: Get a single work by OpenAlex ID, DOI, or PMID
+      tags: [works]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string}
+          description: "OpenAlex work ID (W...), DOI prefixed doi:, or PMID prefixed pmid:"
+          example: "doi:10.1016/S0140-6736(20)30183-5"
+      responses:
+        '200':
+          description: Work
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Work'}
+  /authors:
+    get:
+      operationId: searchAuthors
+      summary: Search authors
+      tags: [authors]
+      parameters:
+        - name: search
+          in: query
+          schema: {type: string}
+          description: Author name search
+          example: Anthony Fauci
+        - name: filter
+          in: query
+          schema: {type: string}
+          description: OpenAlex author filter (e.g. last_known_institutions.id:I27837315)
+        - name: group_by
+          in: query
+          schema: {type: string}
+          description: Group into facet counts (e.g. group_by=last_known_institutions.id)
+        - name: per-page
+          in: query
+          schema: {type: integer, default: 25, maximum: 200}
+        - name: page
+          in: query
+          schema: {type: integer, default: 1}
+      responses:
+        '200':
+          description: Author list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta: {type: object}
+                  results:
+                    type: array
+                    items: {$ref: '#/components/schemas/Author'}
+  /authors/{id}:
+    get:
+      operationId: getAuthor
+      summary: Get a single author by OpenAlex ID
+      tags: [authors]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string}
+          description: OpenAlex author ID (A...)
+          example: "A5023888391"
+      responses:
+        '200':
+          description: Author
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Author'}
+  /institutions:
+    get:
+      operationId: searchInstitutions
+      summary: Search institutions
+      tags: [institutions]
+      parameters:
+        - name: search
+          in: query
+          schema: {type: string}
+          example: Harvard University
+        - name: filter
+          in: query
+          schema: {type: string}
+          description: OpenAlex institution filter (e.g. country_code:us)
+        - name: group_by
+          in: query
+          schema: {type: string}
+        - name: per-page
+          in: query
+          schema: {type: integer, default: 25, maximum: 200}
+        - name: page
+          in: query
+          schema: {type: integer, default: 1}
+      responses:
+        '200':
+          description: Institution list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta: {type: object}
+                  results:
+                    type: array
+                    items: {$ref: '#/components/schemas/Institution'}
+  /institutions/{id}:
+    get:
+      operationId: getInstitution
+      summary: Get a single institution by OpenAlex ID
+      tags: [institutions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string}
+          example: "I136199984"
+      responses:
+        '200':
+          description: Institution
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Institution'}
+  /sources:
+    get:
+      operationId: searchSources
+      summary: Search sources (journals)
+      tags: [sources]
+      parameters:
+        - name: search
+          in: query
+          schema: {type: string}
+          example: Lancet
+        - name: filter
+          in: query
+          schema: {type: string}
+        - name: group_by
+          in: query
+          schema: {type: string}
+        - name: per-page
+          in: query
+          schema: {type: integer, default: 25, maximum: 200}
+        - name: page
+          in: query
+          schema: {type: integer, default: 1}
+      responses:
+        '200':
+          description: Source list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta: {type: object}
+                  results:
+                    type: array
+                    items: {$ref: '#/components/schemas/Source'}
+  /sources/{id}:
+    get:
+      operationId: getSource
+      summary: Get a journal (source) by ISSN or OpenAlex ID
+      tags: [sources]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string}
+          description: "ISSN prefixed issn: (e.g. issn:0140-6736) or OpenAlex source ID (S...)"
+          example: "issn:0140-6736"
+      responses:
+        '200':
+          description: Source
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Source'}
+  /topics:
+    get:
+      operationId: searchTopics
+      summary: Search topics
+      tags: [topics]
+      parameters:
+        - name: search
+          in: query
+          schema: {type: string}
+          example: vitamin d
+        - name: filter
+          in: query
+          schema: {type: string}
+        - name: per-page
+          in: query
+          schema: {type: integer, default: 25, maximum: 200}
+        - name: page
+          in: query
+          schema: {type: integer, default: 1}
+      responses:
+        '200':
+          description: Topic list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta: {type: object}
+                  results:
+                    type: array
+                    items: {$ref: '#/components/schemas/Topic'}
+  /funders:
+    get:
+      operationId: searchFunders
+      summary: Search funders
+      tags: [funders]
+      parameters:
+        - name: search
+          in: query
+          schema: {type: string}
+          example: National Institutes of Health
+        - name: filter
+          in: query
+          schema: {type: string}
+        - name: per-page
+          in: query
+          schema: {type: integer, default: 25, maximum: 200}
+        - name: page
+          in: query
+          schema: {type: integer, default: 1}
+      responses:
+        '200':
+          description: Funder list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta: {type: object}
+                  results:
+                    type: array
+                    items: {$ref: '#/components/schemas/Funder'}
+components:
+  schemas:
+    Work:
+      type: object
+      properties:
+        id: {type: string}
+        doi: {type: string}
+        title: {type: string}
+        display_name: {type: string}
+        publication_date: {type: string}
+        publication_year: {type: integer}
+        cited_by_count: {type: integer}
+        is_oa: {type: boolean}
+        type: {type: string}
+        authorships:
+          type: array
+          items:
+            type: object
+            properties:
+              author_position: {type: string}
+              author:
+                type: object
+                properties:
+                  id: {type: string}
+                  display_name: {type: string}
+              institutions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: {type: string}
+                    display_name: {type: string}
+                    country_code: {type: string}
+        primary_topic:
+          type: object
+          properties:
+            id: {type: string}
+            display_name: {type: string}
+        primary_location:
+          type: object
+          properties:
+            source:
+              type: object
+              properties:
+                id: {type: string}
+                display_name: {type: string}
+                issn_l: {type: string}
+    Author:
+      type: object
+      properties:
+        id: {type: string}
+        display_name: {type: string}
+        works_count: {type: integer}
+        cited_by_count: {type: integer}
+        last_known_institutions:
+          type: array
+          items:
+            type: object
+            properties:
+              id: {type: string}
+              display_name: {type: string}
+    Institution:
+      type: object
+      properties:
+        id: {type: string}
+        display_name: {type: string}
+        country_code: {type: string}
+        works_count: {type: integer}
+        cited_by_count: {type: integer}
+        type: {type: string}
+    Source:
+      type: object
+      properties:
+        id: {type: string}
+        display_name: {type: string}
+        issn_l: {type: string}
+        works_count: {type: integer}
+        cited_by_count: {type: integer}
+        host_organization_name: {type: string}
+    Topic:
+      type: object
+      properties:
+        id: {type: string}
+        display_name: {type: string}
+        works_count: {type: integer}
+        description: {type: string}
+    Funder:
+      type: object
+      properties:
+        id: {type: string}
+        display_name: {type: string}
+        works_count: {type: integer}
+        cited_by_count: {type: integer}
+        grants_count: {type: integer}
+tags:
+  - name: works
+    description: Search and retrieve scholarly works
+  - name: authors
+    description: Search and retrieve authors
+  - name: institutions
+    description: Search and retrieve institutions
+  - name: sources
+    description: Journal (source) metadata
+  - name: topics
+    description: Research topics
+  - name: funders
+    description: Research funders

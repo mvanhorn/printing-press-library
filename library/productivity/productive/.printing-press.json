@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-04T13:06:21.895003Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "productive",
+  "display_name": "Productive",
+  "cli_name": "productive-pp-cli",
+  "creator": {
+    "handle": "dericknwq",
+    "name": "Derick Ng"
+  },
+  "owner": "dericknwq",
+  "printer": "dericknwq",
+  "printer_name": "Derick Ng",
+  "spec_path": "productive-spec.json",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:840d1a3c8a9fe826f813231f03a20ab7161d14cb192d0500447d3c5a40ca1bbe",
+  "run_id": "20260704-155923-ab89631d",
+  "category": "productivity",
+  "description": "Full Productive.io v2 API client — list/get across ~48 resource types, generic create/update/delete, 11 report types, and a local sync/search/export/tail data layer, plus first-class revenue-recognition commands (recognized-revenue, invoiced, reconcile, aging).",
+  "mcp_binary": "productive-pp-mcp",
+  "mcp_tool_count": 85,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PRODUCTIVE_API_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Recognized revenue by budget × month",
+      "command": "recognized-revenue",
+      "description": "Pull recognized (earned) revenue grouped by budget and month across a date range in one call."
+    },
+    {
+      "name": "Invoiced by budget × month",
+      "command": "invoiced",
+      "description": "Net finalized invoiced amount attributed per budget per month, drafts reported separately."
+    },
+    {
+      "name": "Reconcile recognized vs invoiced",
+      "command": "reconcile",
+      "description": "Join recognized revenue and invoiced amounts per budget×month and flag the deltas."
+    },
+    {
+      "name": "Bulk raw export for reconciliation workflows",
+      "command": "export",
+      "description": "Stream full paginated pulls of any resource to JSONL or JSON (auto-paginated, no memory pressure)."
+    },
+    {
+      "name": "Offline sync, SQL and search",
+      "command": "sync",
+      "description": "Mirror any resource into local SQLite, then query it with SQL and full-text search offline."
+    },
+    {
+      "name": "AR aging / unpaid invoices",
+      "command": "aging",
+      "description": "Bucket unpaid invoice amounts by age past their due date."
+    }
+  ]
+}

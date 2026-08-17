@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "api_name": "dnsmadeeasy",
+  "run_id": "20260709-145756-391a5493",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 10,
+  "tests_passed": 10,
+  "tests_failed": 0,
+  "auth_context": { "type": "api_key", "api_key_available": true, "browser_session_available": false },
+  "note": "read-only live pass; write commands (bulk-apply, acme-purge) exercised in preview mode only"
+}

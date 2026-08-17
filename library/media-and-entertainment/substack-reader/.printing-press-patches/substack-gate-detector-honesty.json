@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-07-10",
+  "base_run_id": "20260710-081225",
+  "base_printing_press_version": "4.28.0",
+  "id": "substack-gate-detector-honesty",
+  "summary": "Gate-detector honesty: never label a paid post 'entitled' from the rendered-vs-wordcount ratio alone; entitlement requires an authenticated fetch plus the per-user is_viewed field.",
+  "reason": "Substack returns a substantial preview for paid posts anonymously, so a word-count ratio >=0.8 can look like a full body even when unauthenticated. internal/substack/render.go reports tier 'full' for a high-ratio anonymous read and only reports 'entitled' when the fetch was authenticated and the post carries is_viewed — keeping the full-vs-preview / entitlement signal honest.",
+  "files": [
+    "internal/substack/render.go"
+  ],
+  "validated_outcome": "Hermetic render tests pin the tier labels (internal/substack render_test.go green under go1.26.5). A free post reads as tier full with the complete body (verified live: astralcodexten/introducing-plan-a -> access free, full body). Greptile P2 hardening (PR #1486): HTMLToText now strips whole <script>/<style> blocks (tag AND inner text) before the generic tag stripper, so embedded JS/CSS can no longer leak into rendered prose and inflate WordCount — which would otherwise skew the fullBodyRatio entitlement gate. Regression: internal/substack render_test.go TestHTMLToTextStripsScriptAndStyle (asserts no script/style tokens survive and WordCount counts only prose)."
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "browserbase-mcp-descriptions",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260813-205859-c0b56b36",
+  "base_printing_press_version": "4.30.2",
+  "summary": "mcp-descriptions.json override with richer tool descriptions for 5 thin generated MCP tools.",
+  "reason": "Generator emits terse spec-derived descriptions for certificates/contexts/extensions/projects tools; agents benefit from behavior-grounded text.",
+  "files": ["mcp-descriptions.json"],
+  "validated_outcome": "tools-audit: no pending findings"
+}

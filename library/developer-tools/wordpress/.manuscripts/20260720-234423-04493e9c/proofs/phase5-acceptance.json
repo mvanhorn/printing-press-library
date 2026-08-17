@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "wordpress",
+  "run_id": "20260720-234423-04493e9c",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 547,
+  "tests_passed": 547,
+  "tests_skipped": 399,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

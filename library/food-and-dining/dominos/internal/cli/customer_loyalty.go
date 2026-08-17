@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/dominos/internal/config"
-
 	"github.com/spf13/cobra"
 )
 
@@ -21,18 +19,9 @@ func newCustomerLoyaltyCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  dominos-pp-cli customer loyalty            # uses saved CustomerID\n  dominos-pp-cli customer loyalty <customerID>  # explicit override",
 		Annotations: map[string]string{"pp:endpoint": "customer.loyalty", "pp:method": "GET", "pp:path": "/power/customer/{customerID}/loyalty", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var customerID string
-			if len(args) > 0 {
-				customerID = args[0]
-			} else {
-				cfg, err := config.Load(flags.configPath)
-				if err != nil {
-					return configErr(err)
-				}
-				customerID = cfg.DominosCustomerID
-				if customerID == "" {
-					return usageErr(fmt.Errorf("no CustomerID — run 'dominos-pp-cli auth login' or pass <customerID> explicitly"))
-				}
+			customerID, err := resolveCustomerID(flags, args)
+			if err != nil {
+				return err
 			}
 			c, err := flags.newClient()
 			if err != nil {

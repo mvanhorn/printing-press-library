@@ -17,7 +17,7 @@ func newDraftsDeleteCmd(flags *rootFlags) *cobra.Command {
 		Use:         "delete <draft_id>",
 		Short:       "Delete a draft",
 		Example:     "  substack-pp-cli drafts delete 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "drafts.delete", "pp:method": "DELETE", "pp:path": "https://{publication}.substack.com/api/v1/drafts/{draft_id}"},
+		Annotations: map[string]string{"pp:endpoint": "drafts.delete", "pp:method": "DELETE", "pp:path": "https://substack.com/api/v1/drafts/{draft_id}?publication_id={publication_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -27,9 +27,13 @@ func newDraftsDeleteCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "https://{publication}.substack.com/api/v1/drafts/{draft_id}"
+			path := globalAPIPath("/drafts/{draft_id}")
 			path = replacePathParam(path, "draft_id", args[0])
-			params := map[string]string{}
+			publicationID, err := writerPublicationID(cmd.Context(), c, flags)
+			if err != nil {
+				return err
+			}
+			params := map[string]string{"publication_id": publicationID}
 			data, statusCode, err := c.DeleteWithParams(cmd.Context(), path, params)
 			if err != nil {
 				return classifyDeleteError(err, flags)

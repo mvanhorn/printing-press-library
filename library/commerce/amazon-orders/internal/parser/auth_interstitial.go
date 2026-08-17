@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -18,9 +19,42 @@ var authInterstitialTitleMarkers = []string{
 	"sign-in",
 	"sign in",
 	"signin",
+	"iniciar sesión",
+	"iniciar sesion",
 	"robot check",
 	"authentication required",
 	"captcha",
+}
+
+var orderHistoryTitleMarkers = []string{
+	"your orders",
+	"mis pedidos",
+	"tus pedidos",
+	"meine bestellungen",
+	"ihre bestellungen",
+	"vos commandes",
+	"mes commandes",
+	"i miei ordini",
+	"meus pedidos",
+	"seus pedidos",
+	"注文履歴",
+	"我的订单",
+	"我的訂單",
+}
+
+// authInterstitialPageError describes an Amazon sign-in, account-claim, CAPTCHA,
+// or identity-verification page served in place of authenticated buyer HTML.
+type authInterstitialPageError struct {
+	Reason string
+}
+
+func (e *authInterstitialPageError) Error() string {
+	return fmt.Sprintf("amazon returned a sign-in/interstitial page (%s); the browser session is not authenticated — run 'amazon-orders-pp-cli auth login --chrome' (or 'auth refresh') and retry", e.Reason)
+}
+
+func IsAuthInterstitialError(err error) bool {
+	var target *authInterstitialPageError
+	return errors.As(err, &target)
 }
 
 // DetectAuthInterstitial reports whether htmlBytes is an Amazon sign-in,
@@ -78,13 +112,39 @@ func DetectAuthInterstitial(htmlBytes []byte) (bool, string) {
 	return false, ""
 }
 
+// DetectOrderHistoryPage reports whether htmlBytes looks like Amazon's
+// authenticated order-history surface, not just any non-login HTTP 200 HTML.
+func DetectOrderHistoryPage(htmlBytes []byte) bool {
+	if len(htmlBytes) == 0 {
+		return false
+	}
+	body := string(htmlBytes)
+	lower := strings.ToLower(body)
+
+	if m := titleRegex.FindStringSubmatch(body); len(m) > 1 {
+		title := strings.ToLower(strings.TrimSpace(m[1]))
+		for _, marker := range orderHistoryTitleMarkers {
+			if strings.Contains(title, marker) {
+				return true
+			}
+		}
+	}
+
+	return strings.Contains(lower, "order-card") ||
+		strings.Contains(lower, "js-order-card") ||
+		strings.Contains(lower, "/your-orders/order-details") ||
+		strings.Contains(lower, "order #") ||
+		strings.Contains(lower, "pedido #") ||
+		strings.Contains(lower, "pedido realizado")
+}
+
 // AuthInterstitialError returns a non-nil error describing the interstitial
 // when htmlBytes is an Amazon sign-in/claim/challenge page, and nil otherwise.
 // Callers fetching live HTML use it to fail loudly with a re-auth hint instead
 // of silently parsing zero orders out of a sign-in page.
 func AuthInterstitialError(htmlBytes []byte) error {
 	if ok, reason := DetectAuthInterstitial(htmlBytes); ok {
-		return fmt.Errorf("amazon returned a sign-in/interstitial page (%s); the browser session is not authenticated — run 'amazon-orders-pp-cli auth login --chrome' (or 'auth refresh') and retry", reason)
+		return &authInterstitialPageError{Reason: reason}
 	}
 	return nil
 }

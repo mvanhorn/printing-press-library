@@ -1,0 +1,2202 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Api Documentation",
+    "version": "1.0",
+    "title": "Api Documentation",
+    "termsOfService": "urn:tos",
+    "contact": {},
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "host": "api-int.dapi.dev.finra.org",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "async-executions-controller",
+      "description": "Async Executions Controller"
+    },
+    {
+      "name": "account-authorizer-controller",
+      "description": "Account Authorizer Controller"
+    },
+    { "name": "data-controller", "description": "Data Controller" },
+    {
+      "name": "app-env-config-controller",
+      "description": "App Env Config Controller"
+    },
+    {
+      "name": "dataset-configs-controller",
+      "description": "Dataset Configs Controller"
+    },
+    {
+      "name": "org-customer-controller",
+      "description": "Org Customer Controller"
+    },
+    {
+      "name": "resource-usage-event-controller",
+      "description": "Resource Usage Event Controller"
+    },
+    { "name": "versions-controller", "description": "Versions Controller" },
+    { "name": "health-controller", "description": "Health Controller" },
+    {
+      "name": "async-requests-controller",
+      "description": "Async Requests Controller"
+    },
+    {
+      "name": "user-accounts-controller",
+      "description": "User Accounts Controller"
+    },
+    {
+      "name": "isso-credentials-controller",
+      "description": "Isso Credentials Controller"
+    },
+    {
+      "name": "resource-manifest-config-controller",
+      "description": "Resource Manifest Config Controller"
+    },
+    { "name": "datasets-controller", "description": "Datasets Controller" },
+    { "name": "partition-controller", "description": "Partition Controller" },
+    { "name": "meta-data-controller", "description": "Meta Data Controller" }
+  ],
+  "paths": {
+    "/accountAuthorizer": {
+      "post": {
+        "tags": ["account-authorizer-controller"],
+        "summary": "Check if user request is authorized",
+        "operationId": "postAccountAuthorizeUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "authReq",
+            "description": "authReq",
+            "required": true,
+            "schema": { "$ref": "#/definitions/AccountAuthRequest" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized",
+            "schema": { "type": "string" }
+          },
+          "400": { "description": "Bad request" },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/appEnvConfig": {
+      "get": {
+        "tags": ["app-env-config-controller"],
+        "summary": "Returns app environment config",
+        "operationId": "getAppEnvConfigUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved appEnvConfig",
+            "schema": { "$ref": "#/definitions/AppEnvConfig" }
+          },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "post": {
+        "tags": ["app-env-config-controller"],
+        "summary": "Update the app environment config",
+        "operationId": "postDatasetConfigUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "appEnvConfig",
+            "description": "appEnvConfig",
+            "required": true,
+            "schema": { "$ref": "#/definitions/AppEnvConfig" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/AppEnvConfig" }
+          },
+          "201": {
+            "description": "Successfully created",
+            "schema": { "$ref": "#/definitions/AppEnvConfig" }
+          },
+          "400": { "description": "Bad request" },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/async-executions": {
+      "post": {
+        "tags": ["async-executions-controller"],
+        "summary": "Replay an async request",
+        "operationId": "postReplayExecutionUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "req",
+            "description": "req",
+            "required": true,
+            "schema": { "$ref": "#/definitions/AsyncReplayRequest" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "string" } },
+          "202": {
+            "description": "Successfully submitted",
+            "schema": { "type": "string" }
+          },
+          "400": { "description": "Bad request" },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/async-executions/{requestId}": {
+      "get": {
+        "tags": ["async-executions-controller"],
+        "summary": "Returns the StepFunction logs of an async request",
+        "operationId": "getAsyncExecutionUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "description": "Request Id",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved logs",
+            "schema": { "type": "string" }
+          },
+          "403": { "description": "Access is denied." },
+          "404": { "description": "Execution is not found" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/async-requests/group/{group}/name/{name}/{requestId}": {
+      "get": {
+        "tags": ["async-requests-controller"],
+        "summary": "Returns a list of datasets",
+        "description": "Get status of async request",
+        "operationId": "getAsyncRequestStatusUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "path",
+            "description": "Dataset group",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Dataset name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "requestId",
+            "in": "path",
+            "description": "Request id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Success", "schema": { "type": "string" } },
+          "400": { "description": "Bad request" },
+          "401": {
+            "description": "You are not authorized to view the resource"
+          },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/data/group/{group}/name/{name}": {
+      "get": {
+        "tags": ["data-controller"],
+        "summary": "Returns data",
+        "description": "Returns data for the specified dataset with basic selection criteria. All data is returned synchronously in the HTTPS response stream.",
+        "operationId": "getDataUsingGET_1",
+        "consumes": ["application/json"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "path",
+            "description": "Name of the group or category of the data. Setting this parameter returns only dataset(s) belonging to that group.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Unique name of the data within the group. Setting this parameter with group returns one unique dataset. Setting this parameter without group can return one or more dataset(s) across group(s).",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma delimited list of field names to retrieve. If null, then all fields returned.",
+            "required": false,
+            "type": "array",
+            "items": { "type": "string" },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "sortFields",
+            "in": "query",
+            "description": "Comma delimited list of field names to sort by.",
+            "required": false,
+            "type": "array",
+            "items": { "type": "string" },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Record number to start with (inclusive). Default is 0. Range of records to be returned is offsetRecord plus limit. If offsetRecord is 0 and limit is 20, then records 0 to 19 are returned for a total of 20 records.",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "minimum": 0,
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of records to return",
+            "required": false,
+            "type": "integer",
+            "default": 1000,
+            "minimum": 1,
+            "format": "int64"
+          },
+          {
+            "name": "delimiter",
+            "in": "query",
+            "description": "Single character delimiter to use for text/plain Accept formats.",
+            "required": false,
+            "type": "string",
+            "default": ","
+          },
+          {
+            "name": "quoteValues",
+            "in": "query",
+            "description": "True or false if field values for text/plain should be in double quotes.",
+            "required": false,
+            "type": "boolean",
+            "default": true
+          },
+          {
+            "name": "async",
+            "in": "query",
+            "description": "True or false for if this call should be done asynchronously",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved data",
+            "schema": { "type": "string" }
+          },
+          "400": { "description": "Bad request" },
+          "401": {
+            "description": "You are not authorized to view the resource"
+          },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "post": {
+        "tags": ["data-controller"],
+        "summary": "Returns data",
+        "description": "Returns data for the specified dataset with advanced selection criteria including value comparison and date range filters. All data is returned synchronously in the HTTPS response stream.",
+        "operationId": "postQueryUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dsRequest",
+            "description": "dsRequest",
+            "required": true,
+            "schema": { "$ref": "#/definitions/DataRequest" }
+          },
+          {
+            "name": "group",
+            "in": "path",
+            "description": "Dataset group",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Dataset name",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved data",
+            "schema": { "type": "string" }
+          },
+          "400": { "description": "Bad request" },
+          "401": {
+            "description": "You are not authorized to view the resource"
+          },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/data/group/{group}/name/{name}/id/{id}": {
+      "get": {
+        "tags": ["data-controller"],
+        "summary": "Returns a record",
+        "description": "Returns a single record for the specified dataset given the group, name, and id. Data is returned synchronously in the HTTPS response stream.",
+        "operationId": "getDataUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "path",
+            "description": "Name of the group or category of the data. Setting this parameter returns only dataset(s) belonging to that group.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Unique name of the data within the group. Setting this parameter with group returns one unique dataset. Setting this parameter without group can return one or more dataset(s) across group(s).",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Value of the primaryId.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma delimited list of field names to retrieve. If null, then all fields returned.",
+            "required": false,
+            "type": "array",
+            "items": { "type": "string" },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "delimiter",
+            "in": "query",
+            "description": "Single character delimiter to use for text/plain Accept formats.",
+            "required": false,
+            "type": "string",
+            "default": ","
+          },
+          {
+            "name": "quoteValues",
+            "in": "query",
+            "description": "True or false if field values for text/plain should be in double quotes.",
+            "required": false,
+            "type": "boolean",
+            "default": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved data",
+            "schema": { "type": "string" }
+          },
+          "400": { "description": "Bad request" },
+          "401": {
+            "description": "You are not authorized to view the resource"
+          },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/datasetConfigs": {
+      "get": {
+        "tags": ["dataset-configs-controller"],
+        "summary": "Returns a list of datasetConfigs",
+        "description": "Returns all dataConfigs if group or name are not specified. Otherwise, returns matching datasetConfig(s)",
+        "operationId": "getDatasetConfigsUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Dataset group",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Dataset name",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved datasetConfig(s)",
+            "schema": { "$ref": "#/definitions/DatasetConfigs" }
+          },
+          "403": { "description": "Access is denied." },
+          "404": { "description": "DatasetConfig is not found" },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "post": {
+        "tags": ["dataset-configs-controller"],
+        "summary": "Create a datasetConfig",
+        "description": "Create a DatasetConfig. A given DatasetConfig is first validated by running a user specified DataRequest.",
+        "operationId": "postDatasetConfigUsingPOST_1",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dataConfigRequest",
+            "description": "dataConfigRequest",
+            "required": true,
+            "schema": { "$ref": "#/definitions/DataConfigRequest" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/DatasetConfig" }
+          },
+          "201": {
+            "description": "Successfully created",
+            "schema": { "$ref": "#/definitions/DatasetConfig" }
+          },
+          "400": { "description": "Bad request" },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/datasetConfigs/group/{group}/name/{name}": {
+      "put": {
+        "tags": ["dataset-configs-controller"],
+        "summary": "Update a datasetConfig",
+        "description": "Update a DatasetConfig. A given DatasetConfig is first validated by running a user specified DataRequest.",
+        "operationId": "putDatasetConfigUsingPUT",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "path",
+            "description": "Dataset group",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Dataset name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "dataConfigRequest",
+            "description": "dataConfigRequest",
+            "required": true,
+            "schema": { "$ref": "#/definitions/DataConfigRequest" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated",
+            "schema": { "$ref": "#/definitions/DatasetConfig" }
+          },
+          "400": { "description": "Bad request" },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "delete": {
+        "tags": ["dataset-configs-controller"],
+        "summary": "Delete a datasetConfig",
+        "description": "Delete a DatasetConfig by data group and name.",
+        "operationId": "deleteDatasetConfigUsingDELETE",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "path",
+            "description": "Dataset group",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Dataset name",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": { "description": "OK" },
+          "204": { "description": "Successfully deleted" },
+          "403": { "description": "Access is denied." },
+          "404": { "description": "DatasetConfig not found" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/datasets": {
+      "get": {
+        "tags": ["datasets-controller"],
+        "summary": "Returns a list of datasets",
+        "description": "Returns a list of all datasets.  Each dataset entry includes the lookup key for the respective data, which is the combination of the \"group\" and \"name\".  Each dataset is defined to be external or internal, where only internal datasets are viewable by Finra clients.",
+        "operationId": "getDatasetsUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Dataset group",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Dataset name",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "issoCredKeys",
+            "in": "query",
+            "description": "issoCredKeys",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list",
+            "schema": { "$ref": "#/definitions/Datasets" }
+          },
+          "400": { "description": "Bad request" },
+          "401": {
+            "description": "You are not authorized to view the resource"
+          },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["health-controller"],
+        "summary": "getHealth",
+        "operationId": "getHealthUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["text/plain"],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "string" } }
+        }
+      }
+    },
+    "/issoCredentials": {
+      "get": {
+        "tags": ["isso-credentials-controller"],
+        "summary": "Returns a list of ISSO credentials",
+        "description": "Returns a list of issoUsers.",
+        "operationId": "getAllIssoCredentialsUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved issoUsers",
+            "schema": { "type": "string" }
+          },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "post": {
+        "tags": ["isso-credentials-controller"],
+        "summary": "Create an issoUser",
+        "description": "Create an issoUser.",
+        "operationId": "postIssoUserUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "issoCred",
+            "description": "issoCred",
+            "required": true,
+            "schema": { "$ref": "#/definitions/IssoCredential" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/IssoCredential" }
+          },
+          "201": {
+            "description": "Successfully created",
+            "schema": { "$ref": "#/definitions/IssoCredential" }
+          },
+          "400": { "description": "Invalid IssoUser request body" },
+          "403": { "description": "Access is denied" },
+          "409": { "description": "IssoUser is already created" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/issoCredentials/{credentialKey}": {
+      "get": {
+        "tags": ["isso-credentials-controller"],
+        "summary": "Returns an issoUser",
+        "description": "Returns an issoUser.",
+        "operationId": "getIssoCredentialUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "credentialKey",
+            "in": "path",
+            "description": "credentialKey. Returns all issoCreds if not specified",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved issoUsers",
+            "schema": { "$ref": "#/definitions/IssoCredential" }
+          },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "IssoUser is not found for a given userPrincipalName"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "put": {
+        "tags": ["isso-credentials-controller"],
+        "summary": "Update an issoUser",
+        "description": "Update an issoUser.",
+        "operationId": "putIssoUserUsingPUT",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "credentialKey",
+            "in": "path",
+            "description": "credentialKey",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "issoCred",
+            "description": "issoCred",
+            "required": true,
+            "schema": { "$ref": "#/definitions/IssoCredential" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated",
+            "schema": { "$ref": "#/definitions/IssoCredential" }
+          },
+          "400": { "description": "Invalid request" },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "delete": {
+        "tags": ["isso-credentials-controller"],
+        "summary": "Delete an issoCredential",
+        "description": "Delete an isso credential by credential key.",
+        "operationId": "deleteIssoUserUsingDELETE",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "credentialKey",
+            "in": "path",
+            "description": "credentialKey",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": { "description": "OK" },
+          "204": { "description": "Successfully deleted" },
+          "403": { "description": "Access is denied." },
+          "404": { "description": "IssoUser not found" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/metadata/group/{group}/name/{name}": {
+      "get": {
+        "tags": ["meta-data-controller"],
+        "summary": "Returns meta data",
+        "operationId": "getMetaDataUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "path",
+            "description": "Dataset group",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Dataset name",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved data",
+            "schema": { "$ref": "#/definitions/DatasetMetaData" }
+          },
+          "400": { "description": "Bad request" },
+          "401": {
+            "description": "You are not authorized to view the resource"
+          },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/orgCustomer": {
+      "get": {
+        "tags": ["org-customer-controller"],
+        "summary": "Returns list of all org customers",
+        "description": "Returns list of all org customers",
+        "operationId": "getAllOrgCustomersUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all org customers",
+            "schema": { "type": "array", "items": { "type": "object" } }
+          },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "post": {
+        "tags": ["org-customer-controller"],
+        "summary": "Create an org customer",
+        "description": "Create an org customer",
+        "operationId": "createOrgCustomerUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "orgCustomer",
+            "description": "orgCustomer",
+            "required": true,
+            "schema": { "$ref": "#/definitions/OrgCustomer" }
+          },
+          {
+            "name": "overwriteHistory",
+            "in": "query",
+            "description": "True or false to overwrite history.",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "skipUFI",
+            "in": "query",
+            "description": "True or false to skip UFI customer.",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/OrgCustomer" }
+          },
+          "201": {
+            "description": "Successfully created",
+            "schema": { "$ref": "#/definitions/OrgCustomer" }
+          },
+          "400": { "description": "Invalid org customer request body" },
+          "403": { "description": "Access is denied" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/orgCustomer/orgId/{orgId}": {
+      "get": {
+        "tags": ["org-customer-controller"],
+        "summary": "Returns an org customer",
+        "description": "Returns an org customer.",
+        "operationId": "getOrgCustomerByIdUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "orgId",
+            "in": "path",
+            "description": "Org ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved an org customer",
+            "schema": { "$ref": "#/definitions/OrgCustomer" }
+          },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "Org customer is not found for a given orgId"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "put": {
+        "tags": ["org-customer-controller"],
+        "summary": "Update an org customer",
+        "description": "Update an org customer",
+        "operationId": "updateOrgCustomerByIdUsingPUT",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "orgId",
+            "in": "path",
+            "description": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "orgCustomer",
+            "description": "orgCustomer",
+            "required": true,
+            "schema": { "$ref": "#/definitions/OrgCustomer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated",
+            "schema": { "$ref": "#/definitions/OrgCustomer" }
+          },
+          "400": { "description": "Invalid request" },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/partitions": {
+      "put": {
+        "tags": ["partition-controller"],
+        "summary": "Publish a partition to RDS Cache",
+        "description": "Publish the specified dataset partition to the RDS Cache",
+        "operationId": "publishUsingPUT",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dapiPublishRequest",
+            "description": "dapiPublishRequest",
+            "required": true,
+            "schema": { "$ref": "#/definitions/DapiPublishRequest" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Publish Request Sent",
+            "schema": { "type": "string" }
+          },
+          "400": { "description": "Bad request" },
+          "401": {
+            "description": "You are not authorized to view the resource"
+          },
+          "403": { "description": "Forbidden" },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "405": { "description": "Method Not Allowed" },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "delete": {
+        "tags": ["partition-controller"],
+        "summary": "Unpublish a partition from RDS Cache",
+        "description": "Unpublish the specified partition from the RDS Cache",
+        "operationId": "unpublishUsingDELETE",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dapiUnpublishRequest",
+            "description": "dapiUnpublishRequest",
+            "required": true,
+            "schema": { "$ref": "#/definitions/DapiUnpublishRequest" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "string" } },
+          "204": {
+            "description": "Unpublish Request Sent",
+            "schema": { "type": "string" }
+          },
+          "400": { "description": "Bad Unpublish request" },
+          "401": {
+            "description": "You are not authorized to view the resource"
+          },
+          "403": { "description": "Forbidden" },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "405": { "description": "Method Not Allowed" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/partitions/group/{group}/name/{name}": {
+      "get": {
+        "tags": ["partition-controller"],
+        "summary": "Returns a list of partition(s) for the given dataset",
+        "description": "Returns all available partitions for all datasets that match the group or name",
+        "operationId": "getAvailablePartitionsUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "path",
+            "description": "Dataset group name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Dataset name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "getDetails",
+            "in": "query",
+            "description": "Get Details",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved partitions(s)",
+            "schema": { "$ref": "#/definitions/PartitionAvailabilityResponse" }
+          },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "No Partitions found" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/resourceManifest": {
+      "get": {
+        "tags": ["resource-manifest-config-controller"],
+        "summary": "Returns resource manifest config",
+        "operationId": "getResourceManifestConfigUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved resourceManifest",
+            "schema": { "$ref": "#/definitions/ResourceManifest" }
+          },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "post": {
+        "tags": ["resource-manifest-config-controller"],
+        "summary": "Update the resorce manifest config",
+        "operationId": "postResourceManifestConfigUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "resourceManifestConfig",
+            "description": "resourceManifestConfig",
+            "required": true,
+            "schema": { "$ref": "#/definitions/ResourceManifest" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResourceManifest" }
+          },
+          "201": {
+            "description": "Successfully created",
+            "schema": { "$ref": "#/definitions/ResourceManifest" }
+          },
+          "400": { "description": "Bad request" },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/resourceUsageEvent": {
+      "post": {
+        "tags": ["resource-usage-event-controller"],
+        "summary": "Validates and sends the ResourceUsageEvent to SQS",
+        "operationId": "postResourceUsageEventUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "resourceUsageEventVOStr",
+            "description": "ResourceUsageEvent",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully message posted to sqs.",
+            "schema": { "type": "string" }
+          },
+          "400": { "description": "Bad request" },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/resourceUsageEvent/getUsageByEventId/{eventId}": {
+      "get": {
+        "tags": ["resource-usage-event-controller"],
+        "summary": "Returns resource usage by event id",
+        "operationId": "getUsageByEventIdUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "description": "eventId",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved resource usage",
+            "schema": { "$ref": "#/definitions/ResourceUsageEventWithIDVO" }
+          },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/resourceUsageEvent/getUsageByUserAndAction/{userId}/{action}": {
+      "get": {
+        "tags": ["resource-usage-event-controller"],
+        "summary": "Returns resource usage by user id and action",
+        "operationId": "getUsageByUserAndActionUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User Id",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "action",
+            "in": "path",
+            "description": "Action",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved resource usage",
+            "schema": { "$ref": "#/definitions/ResourceUsageEventWithIDVO" }
+          },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/resourceUsageEvent/getUsageByUserAndStatus/{userId}/{status}": {
+      "get": {
+        "tags": ["resource-usage-event-controller"],
+        "summary": "Returns resource usage by user id and status",
+        "operationId": "getUsageByUserAndStatusUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User Id",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "path",
+            "description": "Status",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved resource usage",
+            "schema": { "$ref": "#/definitions/ResourceUsageEventWithIDVO" }
+          },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/resourceUsageEvent/getUsageByUserId/{userId}": {
+      "get": {
+        "tags": ["resource-usage-event-controller"],
+        "summary": "Returns resource usage by user id",
+        "operationId": "getUsageByUserIdUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User Id",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved resource usage",
+            "schema": { "$ref": "#/definitions/ResourceUsageEventWithIDVO" }
+          },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/resourceUsageEvent/saveUsageEvent": {
+      "post": {
+        "tags": ["resource-usage-event-controller"],
+        "summary": "Saves the ResourceUsageEventWithIDVO",
+        "operationId": "saveUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "resourceUsageEventVO",
+            "description": "ResourceUsageEvent",
+            "required": true,
+            "schema": { "$ref": "#/definitions/ResourceUsageEventWithIDVO" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "type": "integer", "format": "int64" }
+          },
+          "201": {
+            "description": "Successfully created",
+            "schema": { "type": "integer", "format": "int64" }
+          },
+          "400": { "description": "Bad request" },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/resourceUsageEvent/updateUsageEvent": {
+      "post": {
+        "tags": ["resource-usage-event-controller"],
+        "summary": "Updates the ResourceUsageEventWithIDVO",
+        "operationId": "updateUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "resourceUsageEventVO",
+            "description": "ResourceUsageEvent",
+            "required": true,
+            "schema": { "$ref": "#/definitions/ResourceUsageEventWithIDVO" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "type": "integer", "format": "int64" }
+          },
+          "201": {
+            "description": "Successfully updated.",
+            "schema": { "type": "integer", "format": "int64" }
+          },
+          "400": { "description": "Bad request" },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/userAccounts": {
+      "get": {
+        "tags": ["user-accounts-controller"],
+        "summary": "Returns list of all user accounts",
+        "description": "Returns list of all user accounts",
+        "operationId": "getAllUserAccountsUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all user accounts",
+            "schema": { "type": "array", "items": { "type": "object" } }
+          },
+          "403": { "description": "Access is denied." },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "post": {
+        "tags": ["user-accounts-controller"],
+        "summary": "Create a user account",
+        "description": "Create a user account",
+        "operationId": "createUserAccountUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userAccount",
+            "description": "userAccount",
+            "required": true,
+            "schema": { "$ref": "#/definitions/UserAccount" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/UserAccount" }
+          },
+          "201": {
+            "description": "Successfully created",
+            "schema": { "$ref": "#/definitions/UserAccount" }
+          },
+          "400": { "description": "Invalid IssoUser request body" },
+          "403": { "description": "Access is denied" },
+          "409": { "description": "User account is already created" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/userAccounts/adminUser/{adminUser}": {
+      "get": {
+        "tags": ["user-accounts-controller"],
+        "summary": "Returns a user account",
+        "description": "Returns a user account.",
+        "operationId": "getUserAccountByAdminUserUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "adminUser",
+            "in": "path",
+            "description": "adminUserId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved a user account",
+            "schema": { "$ref": "#/definitions/UserAccount" }
+          },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "User account is not found for a given userId"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/userAccounts/orgId/{orgId}": {
+      "get": {
+        "tags": ["user-accounts-controller"],
+        "summary": "Returns a user account",
+        "description": "Returns a user account.",
+        "operationId": "getUserAccountByOrgIdUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "orgId",
+            "in": "path",
+            "description": "orgId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved a user account",
+            "schema": { "$ref": "#/definitions/UserAccount" }
+          },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "User account is not found for a given userId"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "put": {
+        "tags": ["user-accounts-controller"],
+        "summary": "Update account status by Org Id",
+        "description": "Update account status by Org Id",
+        "operationId": "updateUserAccountStatusByOrgIdUsingPUT",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "orgId",
+            "in": "path",
+            "description": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accountStatus",
+            "in": "query",
+            "description": "accountStatus",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated",
+            "schema": { "type": "array", "items": { "type": "object" } }
+          },
+          "400": { "description": "Invalid request" },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/userAccounts/userId/{userId}": {
+      "get": {
+        "tags": ["user-accounts-controller"],
+        "summary": "Returns a user account",
+        "description": "Returns a user account.",
+        "operationId": "getUserAccountByIdUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ewsUserId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved a user account",
+            "schema": { "$ref": "#/definitions/UserAccount" }
+          },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "User account is not found for a given userId"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "put": {
+        "tags": ["user-accounts-controller"],
+        "summary": "Update  a user account",
+        "description": "Update  a user account",
+        "operationId": "updateUserAccountByIdUsingPUT",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "userId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "userAccount",
+            "description": "userAccount",
+            "required": true,
+            "schema": { "$ref": "#/definitions/UserAccount" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated",
+            "schema": { "$ref": "#/definitions/UserAccount" }
+          },
+          "400": { "description": "Invalid request" },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "The resource you were trying to reach is not found"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "delete": {
+        "tags": ["user-accounts-controller"],
+        "summary": "Deletes UserAccount",
+        "description": "Deletes user account",
+        "operationId": "deleteUserAccountUsingDELETE",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "userId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted a user account",
+            "schema": { "$ref": "#/definitions/UserAccount" }
+          },
+          "403": { "description": "Access is denied." },
+          "404": {
+            "description": "User account is not found for a given userId"
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    },
+    "/versions": {
+      "get": {
+        "tags": ["versions-controller"],
+        "summary": "Returns API version information",
+        "operationId": "getVersionsUsingGET",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved versions",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/ApiVersion" }
+            }
+          },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AccountAuthRequest": {
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "orgClass": { "type": "string" },
+        "orgId": { "type": "integer", "format": "int32" },
+        "resourceId": { "type": "string" },
+        "servicingApp": { "type": "string" },
+        "userId": { "type": "string" }
+      }
+    },
+    "ApiVersion": {
+      "type": "object",
+      "properties": {
+        "datePublished": { "type": "string" },
+        "revisions": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "AppEnvConfig": {
+      "type": "object",
+      "properties": {
+        "ags": { "type": "string" },
+        "asyncFileTimeToLiveMinutes": { "type": "integer", "format": "int32" },
+        "asyncMaxLimit": { "type": "integer", "format": "int64" },
+        "asyncMaxOffset": { "type": "integer", "format": "int64" },
+        "asyncRateLimitAnonymousFactor": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "asyncRateLimitTimeInterval": { "type": "integer", "format": "int32" },
+        "asyncRateLimitTimeUnit": { "type": "string" },
+        "asyncRateLimitValue": { "type": "integer", "format": "int32" },
+        "asyncStepFunctionArn": { "type": "string" },
+        "athenaMaxPartitions": { "type": "integer", "format": "int32" },
+        "beastLoggingQueueUrl": { "type": "string" },
+        "component": { "type": "string" },
+        "corsAllowedOrigins": { "type": "string" },
+        "crdRefApi": { "type": "string" },
+        "dapiBucket": { "type": "string" },
+        "daslJdbcPoolInitialSize": { "type": "integer", "format": "int32" },
+        "daslJdbcPoolMaxActive": { "type": "integer", "format": "int32" },
+        "daslJdbcUrl": { "type": "string" },
+        "daslUserName": { "type": "string" },
+        "defaultLimitSize": { "type": "integer", "format": "int64" },
+        "documentVersion": { "type": "integer", "format": "int64" },
+        "emailAlertList": { "type": "string" },
+        "herdBaseUrl": { "type": "string" },
+        "herdBaseUrlDns": { "type": "string" },
+        "jdbcFetchSize": { "type": "integer", "format": "int32" },
+        "jdbcPoolInitialSize": { "type": "integer", "format": "int32" },
+        "jdbcPoolMaxActive": { "type": "integer", "format": "int32" },
+        "maxLimitSize": { "type": "integer", "format": "int64" },
+        "pciDatasets": { "type": "string" },
+        "pciFields": { "type": "string" },
+        "rdsEast1": { "type": "string" },
+        "rdsEast2": { "type": "string" },
+        "resourceUsageCheckQueueUrl": { "type": "string" },
+        "resourceUsageEventQueueUrl": { "type": "string" },
+        "sdlc": { "type": "string" },
+        "stagingFolder": { "type": "string" },
+        "toggleONAccountAuthCheckFeature": { "type": "boolean" },
+        "topicArn": { "type": "string" }
+      }
+    },
+    "AsyncReplayRequest": {
+      "type": "object",
+      "properties": { "asyncRequestId": { "type": "string" } }
+    },
+    "AvailablePartition": {
+      "type": "object",
+      "properties": {
+        "dataVersion": { "type": "integer", "format": "int32" },
+        "formatVersion": { "type": "integer", "format": "int32" },
+        "partitions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "AvailablePartitions": {
+      "type": "object",
+      "properties": {
+        "availablePartitions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/AvailablePartition" }
+        },
+        "datasetGroup": { "type": "string" },
+        "datasetName": { "type": "string" },
+        "partitionAvailabilityRequest": {
+          "$ref": "#/definitions/PartitionAvailabilityRequest"
+        },
+        "partitionFields": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "BusinessObjectFormatKey": {
+      "type": "object",
+      "required": [
+        "businessObjectDefinitionName",
+        "businessObjectFormatFileType",
+        "businessObjectFormatUsage",
+        "namespace"
+      ],
+      "properties": {
+        "businessObjectDefinitionName": {
+          "type": "string",
+          "description": "The name of the Business Object Definition to which a Business Object Format is related"
+        },
+        "businessObjectFormatFileType": {
+          "type": "string",
+          "description": "A File Type known to the system that describes the file type of data stored under a Business Object Format"
+        },
+        "businessObjectFormatUsage": {
+          "type": "string",
+          "description": "The Usage of this Business Object Format - a string describing how this format is used. Often used as a label for the Business                   Object Format. Does not have to be unique in the system, the Usage string is frequently shared across formats for multiple Business Object                   Definitions                "
+        },
+        "businessObjectFormatVersion": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The numeric version of a Business Object Format. Each time a format is registered, the new version will be the previous version                   + 1                "
+        },
+        "namespace": {
+          "type": "string",
+          "description": "The Namespace to which a Business Object Format is related"
+        }
+      }
+    },
+    "CompareFilter": {
+      "type": "object",
+      "properties": {
+        "compareType": {
+          "type": "string",
+          "example": "EQUAL",
+          "enum": ["EQUAL", "NOT_EQUAL", "GREATER", "LESSER", "GTE", "LTE"]
+        },
+        "fieldName": { "type": "string", "example": "fieldName" },
+        "fieldValue": { "type": "string", "example": "fieldValue" }
+      }
+    },
+    "Credential": {
+      "type": "object",
+      "properties": {
+        "datasetGroup": { "type": "string" },
+        "datasetName": { "type": "string" },
+        "securityLevel": { "type": "string" }
+      }
+    },
+    "DapiPublishRequest": {
+      "type": "object",
+      "properties": {
+        "dataVersion": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Data Version"
+        },
+        "datasetGroup": {
+          "type": "string",
+          "description": "Dataset Group Name"
+        },
+        "datasetName": { "type": "string", "description": "Dataset Name" },
+        "formatVersion": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Schema Version"
+        },
+        "partitions": {
+          "type": "object",
+          "description": "Map of partition fields and values for the specific dataset.",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "DapiUnpublishRequest": {
+      "type": "object",
+      "properties": {
+        "dataVersion": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Data Version"
+        },
+        "datasetGroup": {
+          "type": "string",
+          "description": "Dataset Group Name"
+        },
+        "datasetName": { "type": "string", "description": "Dataset Name" },
+        "formatVersion": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Schema Version"
+        },
+        "partitions": {
+          "type": "object",
+          "description": "Map of partition fields and values for the specific dataset.",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "DataConfigRequest": {
+      "type": "object",
+      "properties": {
+        "dataRequests": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/DataRequest" }
+        },
+        "datasetConfig": { "$ref": "#/definitions/DatasetConfig" }
+      }
+    },
+    "DataRequest": {
+      "type": "object",
+      "properties": {
+        "async": {
+          "type": "boolean",
+          "example": false,
+          "description": "True/false to run request in async mode."
+        },
+        "compareFilters": {
+          "type": "array",
+          "description": "List of value comparison filters.",
+          "items": { "$ref": "#/definitions/CompareFilter" }
+        },
+        "dateRangeFilters": {
+          "type": "array",
+          "description": "List of date range filters.",
+          "items": { "$ref": "#/definitions/DateRangeFilter" }
+        },
+        "delimiter": {
+          "type": "string",
+          "example": ",",
+          "description": "Character delimiter to use for text/plain Accept types. Default is comma."
+        },
+        "domainFilters": {
+          "type": "array",
+          "description": "List of domain filters.",
+          "items": { "$ref": "#/definitions/DomainFilter" }
+        },
+        "fields": {
+          "type": "array",
+          "description": "Comma delimited list of field names to retrieve. Default is all fields.",
+          "items": { "type": "string" }
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int64",
+          "example": 10,
+          "description": "Returned record limit. Populating this value will override 'size'."
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int64",
+          "example": 0,
+          "description": "Record number to start with (inclusive). Populating this value will override 'page'"
+        },
+        "orFilters": {
+          "type": "array",
+          "description": "OR filter",
+          "items": { "$ref": "#/definitions/OrFilter" }
+        },
+        "primaryIdValue": {
+          "type": "string",
+          "description": "Id passed in path parameter"
+        },
+        "quoteValues": {
+          "type": "boolean",
+          "example": true,
+          "description": "true or false if text/plain field values should be quoted. Default is true."
+        },
+        "sortFields": {
+          "type": "array",
+          "description": "List of fields to sort by.",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "Dataset": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "example": "OTC public data",
+          "description": "Description of the data for this dataset."
+        },
+        "entitlement": {
+          "type": "string",
+          "example": "true",
+          "description": "Denotes the entitlement required to view this dataset"
+        },
+        "group": {
+          "type": "string",
+          "example": "DAPI_TEST",
+          "description": "Name of the group or category of the data. Setting this parameter returns only dataset(s) belonging to that group."
+        },
+        "name": {
+          "type": "string",
+          "example": "otc",
+          "description": "Unique name of the data within the group. Setting this parameter with group returns one unique dataset. Setting this parameter without group can return one or more dataset(s) across group(s)."
+        },
+        "nativeFormat": {
+          "type": "string",
+          "example": "CSV",
+          "description": "Native format of the data"
+        },
+        "securityLevel": {
+          "type": "string",
+          "example": "PUBLIC",
+          "description": "Security level of the data for this dataset",
+          "enum": ["PUBLIC", "CONF", "RCI", "PCI"]
+        },
+        "supportedFormats": {
+          "type": "array",
+          "example": "CSV,JSON",
+          "description": "List of supported data formats. For each format listed, it is expected that the dataset will be able to convert in between them upon user request.",
+          "items": { "type": "string", "enum": ["CSV", "JSON"] }
+        },
+        "supportedMethods": {
+          "type": "array",
+          "example": "GET,POST",
+          "description": "The HTTP methods supported by this dataset.",
+          "items": { "type": "string", "enum": ["GET", "POST"] }
+        },
+        "supportsGetById": {
+          "type": "boolean",
+          "example": true,
+          "description": "Denotes if this dataset supports getting a single record by primary id field."
+        },
+        "supportsQuery": {
+          "type": "boolean",
+          "example": true,
+          "description": "Denotes whether this dataset supports query parameters (limit/offset, filters, etc)."
+        },
+        "supportsRecordLimit": {
+          "type": "boolean",
+          "example": true,
+          "description": "Denotes whether this dataset supports client specifying a record limit."
+        },
+        "supportsRecordOffset": {
+          "type": "boolean",
+          "example": true,
+          "description": "Denotes whether this dataset supports client specifying a record offset."
+        },
+        "usage": {
+          "type": "string",
+          "example": "INTERNAL",
+          "description": "Whether or not data is external or internal only.",
+          "enum": ["INTERNAL", "EXTERNAL"]
+        }
+      }
+    },
+    "DatasetConfig": {
+      "type": "object",
+      "properties": {
+        "ags": { "type": "string" },
+        "configs": { "type": "object" },
+        "dataStore": { "type": "string" },
+        "datasetGroup": { "type": "string" },
+        "datasetName": { "type": "string" },
+        "description": { "type": "string" },
+        "documentVersion": { "type": "integer", "format": "int64" },
+        "entitlement": { "type": "string" },
+        "internalParams": { "type": "array", "items": { "type": "string" } },
+        "lambdaAuthorizer": { "type": "string" },
+        "lastModified": { "type": "string" },
+        "metaData": { "$ref": "#/definitions/DatasetMetaData" },
+        "metaDataBofKey": { "$ref": "#/definitions/BusinessObjectFormatKey" },
+        "nativeDataFormat": { "type": "string" },
+        "owner": { "type": "string" },
+        "preCompareFilters": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/CompareFilter" }
+        },
+        "preDateRangeFilters": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/DateRangeFilter" }
+        },
+        "preDomainFilters": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/DomainFilter" }
+        },
+        "preOrFilters": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/OrFilter" }
+        },
+        "queryAdapterClassName": { "type": "string" },
+        "securityLevel": { "type": "string" },
+        "supportedFormats": { "type": "array", "items": { "type": "string" } },
+        "supportsOnlySync": { "type": "boolean" },
+        "supportsQuery": { "type": "boolean" },
+        "supportsRecordLimit": { "type": "boolean" },
+        "supportsRecordOffset": { "type": "boolean" },
+        "usage": { "type": "string" }
+      }
+    },
+    "DatasetConfigs": {
+      "type": "object",
+      "properties": {
+        "datasetConfigs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/DatasetConfig" }
+        }
+      }
+    },
+    "DatasetMetaData": {
+      "type": "object",
+      "properties": {
+        "datasetGroup": { "type": "string" },
+        "datasetName": { "type": "string" },
+        "description": { "type": "string" },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Field" }
+        },
+        "nativeFormat": {
+          "type": "string",
+          "description": "Holds native format information. If for example source is an XML file, then this value can be an XSD."
+        },
+        "partitionFields": { "type": "array", "items": { "type": "string" } },
+        "primaryIdField": { "type": "string" }
+      }
+    },
+    "Datasets": {
+      "type": "object",
+      "properties": {
+        "datasets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Dataset" }
+        }
+      }
+    },
+    "DateRangeFilter": {
+      "type": "object",
+      "properties": {
+        "endDate": { "type": "string", "example": "2017-02-11 12:12:12.000" },
+        "fieldName": { "type": "string", "example": "fieldName" },
+        "startDate": { "type": "string", "example": "2017-02-10 12:12:12.000" }
+      }
+    },
+    "DomainFilter": {
+      "type": "object",
+      "properties": {
+        "fieldName": { "type": "string" },
+        "values": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "Field": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "format": { "type": "string" },
+        "name": { "type": "string" },
+        "nativeName": { "type": "string" },
+        "type": { "type": "string" }
+      }
+    },
+    "Group": {
+      "type": "object",
+      "properties": {
+        "allowedOrgClasses": { "type": "array", "items": { "type": "string" } },
+        "chargeId": { "type": "string" },
+        "description": { "type": "string" },
+        "marketVisible": { "type": "boolean" },
+        "marketedName": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "$ref": "#/definitions/Price" },
+        "resources": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "IssoCredential": {
+      "type": "object",
+      "properties": {
+        "credentialKey": { "type": "string" },
+        "credentials": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Credential" }
+        },
+        "documentVersion": { "type": "integer", "format": "int64" }
+      }
+    },
+    "OrFilter": {
+      "type": "object",
+      "properties": {
+        "compareFilters": {
+          "type": "array",
+          "description": "List of comparison filters.",
+          "items": { "$ref": "#/definitions/CompareFilter" }
+        },
+        "domainFilters": {
+          "type": "array",
+          "description": "List of domain filters",
+          "items": { "$ref": "#/definitions/DomainFilter" }
+        }
+      }
+    },
+    "OrgCustomer": {
+      "type": "object",
+      "properties": {
+        "city": { "type": "string" },
+        "contactName": { "type": "string" },
+        "country": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerName2": { "type": "string" },
+        "documentVersion": { "type": "integer", "format": "int64" },
+        "email": { "type": "string" },
+        "fax": { "type": "string" },
+        "orgClass": { "type": "string" },
+        "orgId": { "type": "string" },
+        "phone": { "type": "string" },
+        "state": { "type": "string" },
+        "status": { "type": "string" },
+        "statusHistory": { "type": "array", "items": { "type": "string" } },
+        "streetAddress": { "type": "string" },
+        "streetAddress2": { "type": "string" },
+        "streetAddress3": { "type": "string" },
+        "streetAddress4": { "type": "string" },
+        "transmissionId": { "type": "string" },
+        "zipcode": { "type": "string" }
+      }
+    },
+    "PartitionAvailabilityRequest": {
+      "type": "object",
+      "properties": {
+        "getDetails": { "type": "boolean" },
+        "group": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+    "PartitionAvailabilityResponse": {
+      "type": "object",
+      "properties": {
+        "message": { "type": "string" },
+        "partitionAvailabilityRequest": {
+          "$ref": "#/definitions/PartitionAvailabilityRequest"
+        },
+        "requestId": { "type": "string" },
+        "statusCode": { "type": "integer", "format": "int32" },
+        "statusDescription": { "type": "string" }
+      }
+    },
+    "Price": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number", "format": "double" },
+        "interval": { "type": "string" }
+      }
+    },
+    "Resource": {
+      "type": "object",
+      "properties": {
+        "actions": { "type": "array", "items": { "type": "string" } },
+        "description": { "type": "string" },
+        "entitlements": { "type": "array", "items": { "type": "string" } },
+        "monetized": { "type": "boolean" },
+        "resourceId": { "type": "string" },
+        "servicingApp": { "type": "string" }
+      }
+    },
+    "ResourceManifest": {
+      "type": "object",
+      "properties": {
+        "ags": { "type": "string" },
+        "component": { "type": "string" },
+        "documentVersion": { "type": "integer", "format": "int64" },
+        "groups": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Group" }
+        },
+        "lastModified": { "type": "string" },
+        "overageChargeId": { "type": "string" },
+        "overagePrice": { "type": "number", "format": "double" },
+        "resources": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Resource" }
+        }
+      }
+    },
+    "ResourceUsageEventWithIDVO": {
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "bytesRead": { "type": "integer", "format": "int64" },
+        "bytesWritten": { "type": "integer", "format": "int64" },
+        "eventId": { "type": "integer", "format": "int64" },
+        "orgClass": { "type": "string" },
+        "orgId": { "type": "integer", "format": "int64" },
+        "requestEndTime": { "type": "string" },
+        "requestId": { "type": "string" },
+        "requestStartTime": { "type": "string" },
+        "resourceId": { "type": "string" },
+        "servicingApp": { "type": "string" },
+        "status": { "type": "string" },
+        "userId": { "type": "string" }
+      }
+    },
+    "UserAccount": {
+      "type": "object",
+      "properties": {
+        "accountHistory": { "type": "array", "items": { "type": "string" } },
+        "accountStatus": { "type": "string" },
+        "adminUser": { "type": "string" },
+        "currentMonthByteUsage": { "type": "integer", "format": "int64" },
+        "documentVersion": { "type": "integer", "format": "int64" },
+        "lastDateGroupUpdatedByUser": { "type": "string" },
+        "lastDateStatusUpdatedByUser": { "type": "string" },
+        "orgClass": { "type": "string" },
+        "orgId": { "type": "integer", "format": "int32" },
+        "registrationDate": { "type": "string" },
+        "resourceGroups": { "type": "array", "items": { "type": "string" } },
+        "userAlias": { "type": "string" },
+        "userId": { "type": "string" }
+      }
+    }
+  }
+}

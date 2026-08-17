@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T03:54:15.845223Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "ikon",
+  "display_name": "Ikon Pass",
+  "cli_name": "ikon-pp-cli",
+  "creator": {
+    "handle": "stellato",
+    "name": "Greg Stellato"
+  },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
+  "owner": "stellato",
+  "printer": "stellato",
+  "printer_name": "Greg Stellato",
+  "spec_path": "ikon-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:10af1d62cfd6f786600a4547e824e528cc81bae36351c5bc4edfdda1d8efd017",
+  "run_id": "20260614-225531-a02ed005",
+  "category": "travel",
+  "description": "Ikon Pass CLI for reservation availability, pass and voucher lookup, multi-season usage history, and offline change tracking.",
+  "mcp_binary": "ikon-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Most-visited resorts (multi-season)",
+      "command": "most-visited",
+      "description": "Rank the resorts you ski most across every season you've held an Ikon Pass, with per-season day counts.",
+      "rationale": "The API exposes usage only per single-season pass id, and those ids rotate yearly; only a tool that enumerates all your passes and joins their redemption histories can show lifetime totals.",
+      "example": "ikon-pp-cli most-visited --agent",
+      "why_it_matters": "Reach for this when the user asks where they ski most, how many days they've used over the years, or for a season-by-season breakdown.",
+      "group": "History that compounds"
+    },
+    {
+      "name": "Cross-resort trip planner",
+      "command": "plan",
+      "description": "Across every reservation-required resort, show which have your target dates open — one call instead of checking four resorts by hand.",
+      "rationale": "Requires fanning out the per-resort availability endpoint and joining the results against a date window locally; no single upstream call does this.",
+      "example": "ikon-pp-cli plan --from 2026-01-10 --to 2026-01-20",
+      "why_it_matters": "Use this when the user wants to ski a date range and doesn't care which of the reservable mountains it is.",
+      "group": "Reservation intelligence"
+    },
+    {
+      "name": "Availability calendar",
+      "command": "calendar",
+      "description": "Month grid of open vs full vs blackout vs closed days for a reservable resort.",
+      "rationale": "The API returns flat date arrays; rendering them as a navigable month view is local presentation the upstream UI gates behind login clicks.",
+      "example": "ikon-pp-cli calendar 14 --month 2026-01",
+      "why_it_matters": "Use this to eyeball a whole month of reservation openings for one resort at a glance.",
+      "group": "Reservation intelligence"
+    },
+    {
+      "name": "Reservation watch",
+      "command": "watch",
+      "description": "Poll a resort+date and alert the moment a currently-full day frees up.",
+      "rationale": "Requires repeated local polling and diffing of the availability endpoint against a target date — stateful behavior no single API call provides.",
+      "example": "ikon-pp-cli watch 14 2026-01-17",
+      "why_it_matters": "Use this when a desired reservation date is full and the user wants to grab it if someone cancels.",
+      "group": "Reservation intelligence"
+    },
+    {
+      "name": "Availability drift",
+      "command": "changes",
+      "description": "After each sync, report which dates opened or closed at your watched resorts since the last snapshot.",
+      "rationale": "Requires a local SQLite history of availability snapshots to diff against; the API is stateless and never reports change-over-time.",
+      "example": "ikon-pp-cli changes",
+      "why_it_matters": "Use this to see what reservation availability shifted day-over-day without re-reading every resort manually.",
+      "group": "History that compounds"
+    }
+  ]
+}

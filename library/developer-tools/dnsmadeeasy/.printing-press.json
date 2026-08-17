@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-09T14:30:44.71098Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "dnsmadeeasy",
+  "display_name": "Dnsmadeeasy",
+  "cli_name": "dnsmadeeasy-pp-cli",
+  "creator": {
+    "handle": "dericknwq",
+    "name": "Derick Ng"
+  },
+  "contributors": [],
+  "printer": "dericknwq",
+  "printer_name": "Derick Ng",
+  "spec_path": "dnsmadeeasy-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4d5bc840112926cd7ceac424a834bf61bf82e4561d5521fdffcd56c1284c583c",
+  "run_id": "20260709-145756-391a5493",
+  "category": "developer-tools",
+  "description": "Every DNS Made Easy operation, plus a local record store for cross-zone search, drift detection, and 'where is this IP used' — instant and offline.",
+  "mcp_binary": "dnsmadeeasy-pp-mcp",
+  "mcp_tool_count": 42,
+  "mcp_ready": "full",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "DNSMADEEASY_API_KEY",
+    "DNSMADEEASY_API_SECRET"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-zone value provenance",
+      "command": "where-used",
+      "description": "Find every zone and record whose value or CNAME/MX/ANAME target matches an IP, hostname, or string across your entire account."
+    },
+    {
+      "name": "Snapshot drift detection",
+      "command": "drift",
+      "description": "Diff the two most recent local sync snapshots and report which records were added, changed, or removed."
+    },
+    {
+      "name": "Zone export (BIND/JSON)",
+      "command": "export",
+      "description": "Serialize a zone's records from the local mirror to a standards-compliant BIND zone file or JSON, with no API call."
+    },
+    {
+      "name": "DNS-hygiene audit",
+      "command": "health",
+      "description": "Audit every zone for dangling CNAMEs, out-of-range TTLs, zones missing SPF/DMARC/CAA, and duplicate or conflicting records."
+    },
+    {
+      "name": "Cross-zone bulk record change",
+      "command": "bulk-apply",
+      "description": "Select records by value and type across all zones locally, preview the plan, then apply the change via the real multi-record update endpoint per affected zone."
+    },
+    {
+      "name": "Stale ACME challenge cleanup",
+      "command": "acme-purge",
+      "description": "Find _acme-challenge TXT records across all zones and delete stale or orphaned ones via the real multi-record delete endpoint."
+    }
+  ]
+}

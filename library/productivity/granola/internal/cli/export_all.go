@@ -48,10 +48,12 @@ markdown file (same shape as 'export'). Emits ndjson per meeting:
 			if err != nil {
 				return usageErr(err)
 			}
-			c, err := openGranolaCache()
+			// PATCH(dual-path-store-read): store first, cache fallback.
+			c, err := openGranolaRead(cmd.Context())
 			if err != nil {
 				return err
 			}
+			defer c.Close()
 			ids := selectDocsInWindow(c, from, to, limit)
 			_ = concurrency // serial for now; bursting Granola has a rate-limit cost
 			w := cmd.OutOrStdout()
@@ -63,7 +65,7 @@ markdown file (same shape as 'export'). Emits ndjson per meeting:
 						continue
 					}
 				}
-				a, err := buildArtifacts(id, flags.dataSource != "local", "")
+				a, err := buildArtifacts(cmd.Context(), id, flags.dataSource != "local", "")
 				if err != nil {
 					_ = emitNDJSONLine(w, map[string]any{"id": id, "status": "error", "error": err.Error()})
 					continue
@@ -90,11 +92,16 @@ markdown file (same shape as 'export'). Emits ndjson per meeting:
 
 // selectDocsInWindow returns the doc ids whose created_at lies inside the
 // window, sorted newest-first. limit=0 returns all matches.
-func selectDocsInWindow(c *granola.Cache, from, to time.Time, limit int) []string {
+//
+// PATCH(dual-path-store-read): takes the granolaRead seam rather than
+// *granola.Cache so every window-scanning command enumerates store meetings
+// as well as cache documents.
+func selectDocsInWindow(c *granolaRead, from, to time.Time, limit int) []string {
 	all := c.SortedDocumentIDs()
+	docs := c.Documents()
 	out := make([]string, 0, len(all))
 	for _, id := range all {
-		d := c.Documents[id]
+		d := docs[id]
 		t, err := granola.ParseISO(d.CreatedAt)
 		if err != nil || t.IsZero() {
 			continue

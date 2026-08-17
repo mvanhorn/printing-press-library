@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "findall_cancel-run": "Cancel an in-progress FindAll run by findall_id so candidates stop generating and billed work ends early. Required: findall_id (UUID path param). Returns the updated run status after cancel. Prefer this over waiting when enrichment is no longer needed."
+  }
+}

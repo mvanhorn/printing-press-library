@@ -1,0 +1,83 @@
+{
+  "run_id": "20260618-045052",
+  "captured_at": "2026-06-18T05:03:34Z",
+  "commands": [
+    {
+      "command": "us-data-pp-cli --help",
+      "exit_code": 0,
+      "result": "Displayed the Cobra command tree with cpi, unemployment, population, wages, industry, compare-regions, sources, doctor, version, and completion commands."
+    },
+    {
+      "command": "us-data-pp-cli --version",
+      "exit_code": 0,
+      "result": "us-data-pp-cli 1.0.0"
+    },
+    {
+      "command": "us-data-pp-cli sources --agent",
+      "exit_code": 0,
+      "result": "Returned source coverage JSON for BLS, Census, and BEA with the required environment variables."
+    },
+    {
+      "command": "us-data-pp-cli doctor --agent",
+      "exit_code": 0,
+      "result": "Returned status ok and confirmed BLS keyless commands are usable while Census and BEA need keys for live queries."
+    },
+    {
+      "command": "us-data-pp-cli cpi --agent",
+      "exit_code": 0,
+      "live": true,
+      "source": "BLS Public Data API v1",
+      "series_id": "CUUR0000SA0",
+      "latest_observation": {
+        "year": "2026",
+        "period": "M05",
+        "period_name": "May",
+        "value": "335.123"
+      }
+    },
+    {
+      "command": "us-data-pp-cli unemployment --agent",
+      "exit_code": 0,
+      "live": true,
+      "source": "BLS Public Data API v1",
+      "series_id": "LNS14000000",
+      "latest_observation": {
+        "year": "2026",
+        "period": "M05",
+        "period_name": "May",
+        "value": "4.3"
+      }
+    },
+    {
+      "command": "us-data-pp-cli population --place \"Austin, TX\" --agent",
+      "exit_code": 0,
+      "live": false,
+      "result": "Returned structured setup guidance because US_DATA_CENSUS_API_KEY is not configured."
+    },
+    {
+      "command": "us-data-pp-cli industry --naics 541511 --agent",
+      "exit_code": 0,
+      "live": false,
+      "result": "Returned structured setup guidance because US_DATA_BEA_API_KEY is not configured."
+    },
+    {
+      "command": "us-data-pp-cli wages --occupation 15-1252 --agent",
+      "exit_code": 0,
+      "live": false,
+      "result": "Returned source-backed expansion guidance instead of guessing an occupational wage proxy."
+    },
+    {
+      "command": "us-data-pp-cli compare-regions \"Seattle, WA\" \"Austin, TX\" --agent",
+      "exit_code": 0,
+      "live": false,
+      "result": "Returned a comparison shell with Census, BEA, and BLS mapping notices."
+    }
+  ],
+  "secrets": {
+    "captured": false,
+    "notes": [
+      "No Census or BEA API key was used or stored.",
+      "BLS validation used the public keyless v1 endpoint."
+    ]
+  }
+}

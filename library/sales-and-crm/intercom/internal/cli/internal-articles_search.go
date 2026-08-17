@@ -20,17 +20,16 @@ func newInternalArticlesSearchCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli internal-articles search",
 		Annotations: map[string]string{"pp:endpoint": "internal-articles.search", "pp:method": "GET", "pp:path": "/internal_articles/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/internal_articles/search"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/internal_articles/search"
 			params := map[string]string{}
 			if flagFolderId != "" {
-				params["folder_id"] = fmt.Sprintf("%v", flagFolderId)
+				params["folder_id"] = formatCLIParamValue(flagFolderId)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "internal-articles", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "internal-articles", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -75,7 +74,7 @@ func newInternalArticlesSearchCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagFolderId, "folder-id", "", "The ID of the folder to search in.")

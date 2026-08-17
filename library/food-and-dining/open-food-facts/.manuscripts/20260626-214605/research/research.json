@@ -1,0 +1,71 @@
+{
+  "api_name": "open-food-facts",
+  "issue": "https://github.com/mvanhorn/printing-press-library/issues/1375",
+  "sources": [
+    {
+      "name": "Open Food Facts API introduction",
+      "url": "https://openfoodfacts.github.io/openfoodfacts-server/api/",
+      "auth": "none for read operations",
+      "notes": [
+        "The documentation lists v3 as current and recommended for new integrations, with v3.6 as the latest v3 sub-version.",
+        "Product database data is voluntarily contributed and is not guaranteed accurate, complete, or reliable.",
+        "Read operations require a custom User-Agent but no API key or login."
+      ]
+    },
+    {
+      "name": "Open Food Facts rate limits",
+      "url": "https://openfoodfacts.github.io/openfoodfacts-server/api/#rate-limits",
+      "auth": "none for read operations",
+      "notes": [
+        "Product reads are documented at 15 requests per minute per IP address.",
+        "Search queries are documented at 10 requests per minute per IP address.",
+        "Open Food Facts asks clients needing more than a few hundred products to use CSV or JSONL exports instead of the live API."
+      ]
+    },
+    {
+      "name": "Open Food Facts search availability",
+      "url": "https://openfoodfacts.github.io/openfoodfacts-server/api/#search",
+      "auth": "none for read operations",
+      "notes": [
+        "Structured filter-based search is available through API v2 at /api/v2/search.",
+        "Structured search is not available in API v3.",
+        "Full-text search is not available in the v2/v3 server-side APIs."
+      ]
+    },
+    {
+      "name": "Open Food Facts authentication guidance",
+      "url": "https://openfoodfacts.github.io/openfoodfacts-server/api/#authentication",
+      "auth": "custom User-Agent for reads",
+      "notes": [
+        "Clients should send a custom User-Agent in the form AppName/Version (ContactEmail).",
+        "Write operations require authentication and are out of scope for this read-only print.",
+        "The CLI exposes OPEN_FOOD_FACTS_USER_AGENT and OPEN_FOOD_FACTS_CONTACT_EMAIL for responsible request identity."
+      ]
+    }
+  ],
+  "selected_commands": [
+    "product",
+    "search",
+    "nutrition",
+    "allergens",
+    "compare",
+    "category",
+    "sources",
+    "doctor"
+  ],
+  "auth_env_vars": [
+    "OPEN_FOOD_FACTS_USER_AGENT",
+    "OPEN_FOOD_FACTS_CONTACT_EMAIL",
+    "OPEN_FOOD_FACTS_BASE_URL"
+  ],
+  "non_goals": [
+    "product edits",
+    "image uploads",
+    "login or session workflows",
+    "write-side contribution flows",
+    "search-as-you-type loops",
+    "bulk harvesting or local database sync",
+    "medical or dietary advice",
+    "raw endpoint dump"
+  ]
+}

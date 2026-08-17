@@ -1,0 +1,97 @@
+{
+  "api_name": "janeapp",
+  "base_url": "https://REPLACE.janeapp.com",
+  "description": "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from the terminal — unified agenda, next-opening finder, and availability watch the patient portal can't do.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": ".janeapp.com",
+    "cookies": [
+      "_front_desk_session"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "disciplines_list",
+      "description": "List disciplines (service categories) with descriptions. Returns array of Discipline.",
+      "method": "GET",
+      "path": "/api/v2/disciplines",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "locations_list",
+      "description": "List clinic locations with address, contact info, and booking URL. Returns array of Location.",
+      "method": "GET",
+      "path": "/api/v2/locations",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "openings_list",
+      "description": "List available appointment openings for a staff member + treatment at a location over a date window. Jane caps num_days at 1..7; the CLI's next-opening/watch commands page across multiple windows automatically. Required: location_id, treatment_id, staff_member_id, start_date. Optional: num_days (default: 7). Returns array of StaffOpenings.",
+      "method": "GET",
+      "path": "/api/v2/openings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "location_id",
+          "type": "integer",
+          "location": "query",
+          "description": "Location ID (from `locations`).",
+          "required": true
+        },
+        {
+          "name": "treatment_id",
+          "type": "integer",
+          "location": "query",
+          "description": "Treatment ID (from `treatments`).",
+          "required": true
+        },
+        {
+          "name": "staff_member_id",
+          "type": "integer",
+          "location": "query",
+          "description": "Practitioner ID (from `staff`).",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Window start date (YYYY-MM-DD).",
+          "required": true
+        },
+        {
+          "name": "num_days",
+          "type": "integer",
+          "location": "query",
+          "description": "Window length in days (Jane allows 1..7)."
+        }
+      ]
+    },
+    {
+      "name": "staff_list",
+      "description": "List practitioners, their bookable treatment IDs, and online-booking availability. Returns array of StaffMember.",
+      "method": "GET",
+      "path": "/api/v2/staff_members",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "treatments_list",
+      "description": "List treatments (services) with price, duration, discipline, and whether they can be booked online. Returns the TreatmentList.",
+      "method": "GET",
+      "path": "/api/v2/treatments",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

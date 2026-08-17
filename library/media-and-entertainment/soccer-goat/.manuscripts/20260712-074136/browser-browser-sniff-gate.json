@@ -1,0 +1,9 @@
+{
+  "run_id": "20260712-074136",
+  "sources": [
+    {"source_name": "transfermarkt", "decision": "skip-silent", "reason": "community-api-clean-json-no-sniff-needed", "asked_at": "2026-07-12T07:45:00Z"},
+    {"source_name": "ea-fc", "decision": "skip-silent", "reason": "official-json-api-drop-api-clean", "asked_at": "2026-07-12T07:45:00Z"},
+    {"source_name": "sofifa-fifacm-potential", "decision": "approved", "reason": "user chose browser-capture for potential (Cloudflare best-effort)", "asked_at": "2026-07-12T07:44:00Z"},
+    {"source_name": "espn", "decision": "skip-silent", "reason": "official-json-api-espn-clean", "asked_at": "2026-07-12T07:45:00Z"}
+  ]
+}

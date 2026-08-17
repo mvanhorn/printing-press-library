@@ -3,7 +3,6 @@ package cli
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -34,20 +33,20 @@ func seedFirmatari(ctx context.Context, db *sql.DB) error {
 	}
 	stmt, err := tx.PrepareContext(ctx, `INSERT OR IGNORE INTO firmatari (nome, legisl, isis_expr) VALUES (?, ?, ?)`)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 	defer stmt.Close()
 	for _, f := range ddlFirmatariSeed {
 		if len(f.Legisl) == 0 {
 			if _, err := stmt.ExecContext(ctx, f.Nome, "", f.ISIS); err != nil {
-				tx.Rollback()
+				_ = tx.Rollback()
 				return err
 			}
 		} else {
 			for _, leg := range f.Legisl {
 				if _, err := stmt.ExecContext(ctx, f.Nome, leg, f.ISIS); err != nil {
-					tx.Rollback()
+					_ = tx.Rollback()
 					return err
 				}
 			}
@@ -155,9 +154,7 @@ Utile per scoprire i valori corretti da passare a --firmatario in 'ddl cerca'.`,
 			}
 
 			if flags.asJSON || (!humanFriendly && !isTerminal(cmd.OutOrStdout())) {
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(results)
+				return printJSONFiltered(cmd.OutOrStdout(), results, flags)
 			}
 
 			// Output tabellare: raggruppa le legislature per nome.

@@ -409,7 +409,7 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		}
 	}
 
-	rows, qerr := s.DB().Query(`SELECT resource_type, COALESCE(total_count, 0), last_synced_at FROM sync_state ORDER BY resource_type`)
+	rows, qerr := s.DB().Query(`SELECT resource_type, last_synced_at FROM sync_state ORDER BY resource_type`)
 	if qerr != nil {
 		// sync_state may not exist on a fresh DB that has migrated but not
 		// yet had any sync runs — treat as unknown rather than error.
@@ -425,12 +425,17 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	oldest := time.Duration(0)
 	for rows.Next() {
 		var rtype string
-		var count int64
 		var lastSynced sql.NullTime
-		if err := rows.Scan(&rtype, &count, &lastSynced); err != nil {
+		if err := rows.Scan(&rtype, &lastSynced); err != nil {
 			continue
 		}
-		r := map[string]any{"type": rtype, "rows": count}
+		// sync_state.total_count is the size of the last sync BATCH, not the
+		// live row count (Upsert dedupes across runs, so a later smaller
+		// batch can leave more rows than it just wrote) — query `resources`
+		// directly, same as `sync stale`, so the two commands never diverge.
+		var liveCount int64
+		_ = s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ?`, rtype).Scan(&liveCount)
+		r := map[string]any{"type": rtype, "rows": liveCount}
 		if lastSynced.Valid {
 			haveAny = true
 			r["last_synced_at"] = lastSynced.Time.UTC().Format(time.RFC3339)

@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-07-04T01:52:12.663592Z",
+  "cli_dir": "\u003ccli-dir\u003e/human-goat-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Brief but precise; teach.go is a DO-NOT-EDIT generated learning-loop file, so a hand-edit would be wiped on regen. Short accurately states the action; generator-template refinement is a retro candidate."
+    }
+  ]
+}

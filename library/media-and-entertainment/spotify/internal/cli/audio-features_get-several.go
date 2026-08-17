@@ -40,7 +40,7 @@ func newAudioFeaturesGetSeveralCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/audio-features", map[string]string{"ids": flagIds})
+			data, err := c.Get(cmd.Context(), "/audio-features", map[string]string{"ids": flagIds})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

@@ -1,0 +1,279 @@
+{
+  "api_name": "crestron",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "CrestronMasterTool",
+      "url": "https://github.com/alastairWH/CrestronMasterTool",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Crestron-EDK-Superscripts",
+      "url": "https://github.com/JaytheSpazz/Crestron-EDK-Superscripts",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "CrestronScripts",
+      "url": "https://github.com/intellectualrockstar/CrestronScripts",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Crestron-FTP-Scripts",
+      "url": "https://github.com/oniointeractive/Crestron-FTP-Scripts",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "crestron-mcp",
+      "url": "https://github.com/Desluca/crestron-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Crestron-Documentation",
+      "url": "https://github.com/StephenGenusa/Crestron-Documentation",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-02T21:00:00Z",
+  "novel_features": [
+    {
+      "name": "Fleet firmware status",
+      "command": "fleet status",
+      "description": "Check every model in your installed fleet against current firmware in one command.",
+      "rationale": "Firmware releases are family-scoped, so one release governs many models; resolving that many-to-many mapping requires a local series-to-model join that no single page provides.",
+      "example": "crestron-pp-cli fleet status --file fleet.txt --agent",
+      "why_it_matters": "Reach for this instead of checking models one at a time; it also catches releases that a per-model search would miss because the release is titled under a sibling model.",
+      "group": "Fleet lifecycle intelligence"
+    },
+    {
+      "name": "Release-note full-text search",
+      "command": "search",
+      "description": "Search every firmware release note and change log at once for a term.",
+      "rationale": "Release notes live on login-gated per-version pages and have never been searchable across versions anywhere.",
+      "example": "crestron-pp-cli search \"HDCP\" --type firmware_release --agent",
+      "why_it_matters": "Use this to answer 'which version fixed X' without opening a dozen version pages.",
+      "group": "Firmware knowledge base"
+    },
+    {
+      "name": "Release-note diff",
+      "command": "firmware diff",
+      "description": "Show what changed between two firmware versions for a model.",
+      "rationale": "Change logs exist only as separate per-version HTML pages with no diff view on the site.",
+      "example": "crestron-pp-cli firmware diff DM-NVX-384 7.3.5149.23092 7.4.0255.22319 --agent",
+      "why_it_matters": "Pick this when deciding whether an upgrade is worth scheduling on a live site.",
+      "group": "Firmware knowledge base"
+    },
+    {
+      "name": "Submittal package builder",
+      "command": "submittal",
+      "description": "Download every documentation asset for a list of models into per-model folders with a coverage report.",
+      "rationale": "The per-product resource endpoint returns roughly twenty assets spanning CAD, Revit, CSI Guide Specs, Security Reference Guides, manuals and spec sheets; nothing on the site fans that out over a model list.",
+      "example": "crestron-pp-cli submittal DM-NVX-384 --agent",
+      "why_it_matters": "Use this to assemble a CSI submittal package in one step instead of hundreds of individual downloads.",
+      "group": "Design and submittal workflow"
+    },
+    {
+      "name": "Lifecycle and replacement trace",
+      "command": "lifecycle",
+      "description": "Report whether a model is still sellable and trace its replacement chain.",
+      "rationale": "An unadvertised replacement-products endpoint plus the dated End-of-Sale notice stream let the successor chain be walked transitively and in bulk.",
+      "example": "crestron-pp-cli lifecycle UC-FCM-Z --agent",
+      "why_it_matters": "Reach for this when triaging an as-built list to find which parts can still be ordered and what replaced the rest.",
+      "group": "Fleet lifecycle intelligence"
+    },
+    {
+      "name": "Spec table comparison",
+      "command": "specs compare",
+      "description": "Compare two models field by field across the full specification table.",
+      "rationale": "The parsed specification table is stored locally, so two products can be aligned by section and key; the website renders one product at a time.",
+      "example": "crestron-pp-cli specs compare DM-NVX-360 DM-NVX-363 --agent",
+      "why_it_matters": "Use this when choosing between sibling models in the same series, which often differ in only a few spec rows.",
+      "group": "Design and submittal workflow"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Fleet firmware status",
+      "command": "fleet status",
+      "description": "Check every model in your installed fleet against current firmware in one command.",
+      "rationale": "Firmware releases are family-scoped, so one release governs many models; resolving that many-to-many mapping requires a local series-to-model join that no single page provides.",
+      "example": "crestron-pp-cli fleet status --file fleet.txt --agent",
+      "why_it_matters": "Reach for this instead of checking models one at a time; it also catches releases that a per-model search would miss because the release is titled under a sibling model.",
+      "group": "Fleet lifecycle intelligence"
+    },
+    {
+      "name": "Release-note full-text search",
+      "command": "search",
+      "description": "Search every firmware release note and change log at once for a term.",
+      "rationale": "Release notes live on login-gated per-version pages and have never been searchable across versions anywhere.",
+      "example": "crestron-pp-cli search \"HDCP\" --type firmware_release --agent",
+      "why_it_matters": "Use this to answer 'which version fixed X' without opening a dozen version pages.",
+      "group": "Firmware knowledge base"
+    },
+    {
+      "name": "Release-note diff",
+      "command": "firmware diff",
+      "description": "Show what changed between two firmware versions for a model.",
+      "rationale": "Change logs exist only as separate per-version HTML pages with no diff view on the site.",
+      "example": "crestron-pp-cli firmware diff DM-NVX-384 7.3.5149.23092 7.4.0255.22319 --agent",
+      "why_it_matters": "Pick this when deciding whether an upgrade is worth scheduling on a live site.",
+      "group": "Firmware knowledge base"
+    },
+    {
+      "name": "Submittal package builder",
+      "command": "submittal",
+      "description": "Download every documentation asset for a list of models into per-model folders with a coverage report.",
+      "rationale": "The per-product resource endpoint returns roughly twenty assets spanning CAD, Revit, CSI Guide Specs, Security Reference Guides, manuals and spec sheets; nothing on the site fans that out over a model list.",
+      "example": "crestron-pp-cli submittal DM-NVX-384 --agent",
+      "why_it_matters": "Use this to assemble a CSI submittal package in one step instead of hundreds of individual downloads.",
+      "group": "Design and submittal workflow"
+    },
+    {
+      "name": "Lifecycle and replacement trace",
+      "command": "lifecycle",
+      "description": "Report whether a model is still sellable and trace its replacement chain.",
+      "rationale": "An unadvertised replacement-products endpoint plus the dated End-of-Sale notice stream let the successor chain be walked transitively and in bulk.",
+      "example": "crestron-pp-cli lifecycle UC-FCM-Z --agent",
+      "why_it_matters": "Reach for this when triaging an as-built list to find which parts can still be ordered and what replaced the rest.",
+      "group": "Fleet lifecycle intelligence"
+    },
+    {
+      "name": "Spec table comparison",
+      "command": "specs compare",
+      "description": "Compare two models field by field across the full specification table.",
+      "rationale": "The parsed specification table is stored locally, so two products can be aligned by section and key; the website renders one product at a time.",
+      "example": "crestron-pp-cli specs compare DM-NVX-360 DM-NVX-363 --agent",
+      "why_it_matters": "Use this when choosing between sibling models in the same series, which often differ in only a few spec rows.",
+      "group": "Design and submittal workflow"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Crestron",
+    "headline": "Every Crestron product, spec sheet, and firmware release — searchable offline, with fleet-wide currency checks the website cannot do.",
+    "value_prop": "Crestron.com has no public API and no way to ask a question across more than one product at a time. This CLI mirrors the product catalog, the documentation library, and the firmware release history into local SQLite, then answers the questions integrators actually have: what firmware covers my installed models, what changed between two versions, which parts are discontinued and what replaced them. Sign in and it also unlocks release notes and firmware downloads.",
+    "auth_narrative": "Most of this CLI works with no account at all: the product catalog, specifications, spec sheets, manuals, certificates, CAD and Revit files, and firmware version numbers and release dates are all public. A Crestron account unlocks two more things — firmware release notes and the firmware binaries themselves. Run `crestron-pp-cli auth login --chrome` and the CLI imports your existing Crestron.com session cookies straight from Chrome; it never asks for or stores your password.",
+    "quickstart": [
+      {
+        "command": "crestron-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI can reach Crestron.com before syncing anything"
+      },
+      {
+        "command": "crestron-pp-cli sync --resources products,categories",
+        "comment": "build the local catalog mirror; this is what makes offline search possible"
+      },
+      {
+        "command": "crestron-pp-cli product get DM-NVX-360",
+        "comment": "look up a model by number to confirm the mirror is populated"
+      },
+      {
+        "command": "crestron-pp-cli specs show DM-NVX-360 --agent",
+        "comment": "read the full specification table as structured output"
+      },
+      {
+        "command": "crestron-pp-cli lifecycle UC-FCM-Z --agent",
+        "comment": "check whether a part is still sellable and what replaced it"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Firmware release notes come back empty or a download redirects to a sign-in page",
+        "fix": "Run `crestron-pp-cli auth login --chrome` — release notes and binaries require a Crestron account session."
+      },
+      {
+        "symptom": "`fleet status` reports a model as unknown",
+        "fix": "Run `crestron-pp-cli sync --resources products,releases` so the series-to-model mapping is populated."
+      },
+      {
+        "symptom": "Local results look out of date",
+        "fix": "Run `crestron-pp-cli sync` again to refresh the local mirror; re-running is always safe."
+      },
+      {
+        "symptom": "A search returns nothing for a model you know exists",
+        "fix": "Crestron groups firmware by family, so search the series instead, or use `crestron-pp-cli fleet status` which resolves the mapping for you."
+      }
+    ],
+    "when_to_use": "Use this CLI for any question about Crestron hardware that lives on Crestron.com rather than on a device: what a product is, what its specifications are, which firmware version is current, what changed in a release, which documentation exists for a model, and whether a part has been discontinued. It is especially strong for questions spanning many models at once, which the website cannot answer at all.",
+    "anti_triggers": [
+      "Do not use this CLI to control, configure, or communicate with Crestron hardware on a network — it never talks to devices. Use Crestron Toolbox or the Crestron EDK PowerShell modules for that.",
+      "Do not use this CLI to push or install firmware onto a control processor or touch panel; it only downloads the files.",
+      "Do not use this CLI for Crestron Home smart-home control such as lights, shades, or scenes.",
+      "Do not use this CLI to obtain dealer pricing — Crestron's public pricing endpoint returns no data for most models."
+    ],
+    "recipes": [
+      {
+        "title": "Audit a whole fleet for firmware currency",
+        "command": "crestron-pp-cli fleet status --file fleet.txt --agent --select model,installed,latest,days_behind",
+        "explanation": "Reads a plain list of model numbers and reports which are behind, resolving family-scoped releases so nothing is missed."
+      },
+      {
+        "title": "Find which firmware version fixed something",
+        "command": "crestron-pp-cli search \"Dante\" --type firmware_release --limit 10 --agent",
+        "explanation": "Full-text searches every synced release note and change log at once."
+      },
+      {
+        "title": "Narrow a verbose spec table to the fields you care about",
+        "command": "crestron-pp-cli specs show DM-NVX-360 --agent --select sections.name,sections.rows.key,sections.rows.value",
+        "explanation": "Specification tables run to dozens of rows across a dozen sections; selecting dotted paths keeps agent context small."
+      },
+      {
+        "title": "Assemble a submittal package for a project",
+        "command": "crestron-pp-cli submittal DM-NVX-384 TSW-1070 CP4N --out ./submittal --agent",
+        "explanation": "Downloads every documentation asset for each model into its own folder and reports which asset classes were missing."
+      },
+      {
+        "title": "Triage an as-built list for discontinued parts",
+        "command": "crestron-pp-cli lifecycle UC-FCM-Z --agent --select model,status,replaced_by",
+        "explanation": "Reports sellable status and the successor chain so a refresh estimate can be priced."
+      }
+    ],
+    "trigger_phrases": [
+      "what firmware is current for DM-NVX",
+      "find the spec sheet for a Crestron model",
+      "is this Crestron part discontinued",
+      "what changed in the latest Crestron firmware",
+      "compare two Crestron models",
+      "build a Crestron submittal package",
+      "use crestron",
+      "run crestron"
+    ]
+  }
+}

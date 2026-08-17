@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-08-07T06:08:38.6079626Z",
+  "cli_dir": "\u003ccli-dir\u003e\\weaviate-collections-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-07T05:31:33.0917982Z"
+  }
+}

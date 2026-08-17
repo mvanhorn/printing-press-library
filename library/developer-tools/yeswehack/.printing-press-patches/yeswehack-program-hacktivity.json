@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260510-215840",
+  "base_printing_press_version": "4.10.0",
+  "patches": [
+    {
+      "id": "program-hacktivity-endpoint",
+      "summary": "Route single-program hacktivity requests through /programs/{slug}/hacktivity.",
+      "reason": "The published global /v2/hacktivity endpoint returns the global feed even when a single program slug is passed, while the YesWeHack web app uses /programs/{slug}/hacktivity for project activity.",
+      "files": [
+        "internal/cli/hacktivity_list.go",
+        "internal/cli/program_hacktivity_helpers.go",
+        "internal/cli/program_hacktivity_helpers_test.go",
+        "internal/cli/programs.go",
+        "internal/cli/programs_hacktivity.go",
+        "spec.yaml"
+      ],
+      "validated_outcome": "Digital Flanders project hacktivity returned 706 rows via the project-specific endpoint."
+    },
+    {
+      "id": "hacktivity-synthetic-id",
+      "summary": "Generate deterministic row-hash local IDs for hacktivity rows that do not include an upstream primary key.",
+      "reason": "Hacktivity sync fetched rows but stored zero because each row lacked id, slug, name, uuid, or another generic fallback key.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/upsert_batch_test.go",
+        "internal/cli/hacktivity_learn.go",
+        "internal/cli/hacktivity_trends.go",
+        "internal/cli/programs_fit.go",
+        "internal/cli/transcend_helpers.go"
+      ],
+      "validated_outcome": "sync --resources hacktivity --latest-only stored 50 rows without no-extractable-ID warnings; hacktivity trends and learn returned filtered project rows."
+    },
+    {
+      "id": "program-hacktivity-envelope-array",
+      "summary": "Normalize program hacktivity item envelopes to arrays before output and caching.",
+      "reason": "The project-specific endpoint can return an items/pagination envelope for single-page reads, while the table renderer and --all path expect a top-level array.",
+      "files": [
+        "internal/cli/program_hacktivity_helpers.go",
+        "internal/cli/program_hacktivity_helpers_test.go"
+      ],
+      "validated_outcome": "programs hacktivity <slug> returns a consistent array shape for single-page and --all reads."
+    }
+  ]
+}

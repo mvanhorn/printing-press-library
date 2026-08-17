@@ -1,7 +1,9 @@
 .PHONY: build test lint install clean
 
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
+
 build:
-	go build -o bin/spotify-pp-cli ./cmd/spotify-pp-cli
+	go build -o bin/spotify-pp-cli$(BIN_EXT) ./cmd/spotify-pp-cli
 
 test:
 	go test ./...
@@ -16,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/spotify-pp-mcp ./cmd/spotify-pp-mcp
+	go build -o bin/spotify-pp-mcp$(BIN_EXT) ./cmd/spotify-pp-mcp
 
 install-mcp:
 	go install ./cmd/spotify-pp-mcp

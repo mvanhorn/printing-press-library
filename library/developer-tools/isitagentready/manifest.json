@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "isitagentready-pp-mcp",
+  "display_name": "Is It Agent Ready",
+  "version": "0.0.0",
+  "description": "The terminal scanner for AI-agent readiness: every check the web tool runs, plus copy-paste fixes, CI gating, scan history, and a local store the web UI has no answer for.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/isitagentready-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/isitagentready-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

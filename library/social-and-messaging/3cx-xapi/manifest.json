@@ -1,0 +1,63 @@
+{
+  "manifest_version": "0.3",
+  "name": "3cx-xapi-pp-mcp",
+  "display_name": "3CX XAPI",
+  "version": "1.0.0",
+  "description": "Every 3CX Configuration API (XAPI) object in one Go binary, with a local mirror of your whole PBX, offline search, config diffing, and cross-entity auditing no 3CX tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/3cx-xapi-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/3cx-xapi-pp-mcp",
+      "args": [],
+      "env": {
+        "API_3CX_XAPI_OAUTH_SCOPE": "${user_config.api_3cx_xapi_oauth_scope}",
+        "API_3CX_XAPI_USER_AGENT": "${user_config.api_3cx_xapi_user_agent}",
+        "TCX_CLIENT_ID": "${user_config.tcx_client_id}",
+        "TCX_CLIENT_SECRET": "${user_config.tcx_client_secret}"
+      }
+    }
+  },
+  "user_config": {
+    "api_3cx_xapi_oauth_scope": {
+      "type": "string",
+      "title": "API_3CX_XAPI_OAUTH_SCOPE",
+      "description": "Sets API_3CX_XAPI_OAUTH_SCOPE for the 3CX XAPI MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "api_3cx_xapi_user_agent": {
+      "type": "string",
+      "title": "API_3CX_XAPI_USER_AGENT",
+      "description": "Sets API_3CX_XAPI_USER_AGENT for the 3CX XAPI MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "tcx_client_id": {
+      "type": "string",
+      "title": "TCX_CLIENT_ID",
+      "description": "Sets TCX_CLIENT_ID for the 3CX XAPI MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "tcx_client_secret": {
+      "type": "string",
+      "title": "TCX_CLIENT_SECRET",
+      "description": "Sets TCX_CLIENT_SECRET for the 3CX XAPI MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

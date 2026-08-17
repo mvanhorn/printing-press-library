@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "yahoo-period1-overrides-range",
+  "applied_at": "2026-07-30",
+  "base_run_id": "20260524-221143",
+  "base_printing_press_version": "4.14.0",
+  "summary": "When chart period1 is non-zero, omit range so absolute historical intervals reach Yahoo unchanged.",
+  "reason": "The generated default range=1mo was serialized alongside period1 and period2, causing Yahoo to return only one month despite the documented period1 precedence. Tracked by printing-press-library issue #1632.",
+  "files": [
+    "internal/cli/promoted_chart.go",
+    "internal/cli/promoted_chart_test.go"
+  ],
+  "validated_outcome": "A pure request-construction regression test proves default range behavior is preserved while period1 and period1+period2 requests omit range."
+}

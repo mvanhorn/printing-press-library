@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/figma/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -60,23 +62,31 @@ native streaming instead of polling.`,
 				return err
 			}
 			c.NoCache = true
+			if cliutil.IsDogfoodEnv() {
+				follow = false
+			}
 
 			path := "/" + resource
 
 			sig := make(chan os.Signal, 1)
 			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 
-			ticker := time.NewTicker(interval)
-			defer ticker.Stop()
-
 			enc := json.NewEncoder(os.Stdout)
 
-			fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			if follow {
+				fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			}
 
 			// Initial fetch
-			if err := fetchAndEmit(c, path, enc); err != nil {
+			if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
 			}
+			if !follow {
+				return nil
+			}
+
+			ticker := time.NewTicker(interval)
+			defer ticker.Stop()
 
 			for {
 				select {
@@ -84,7 +94,7 @@ native streaming instead of polling.`,
 					fmt.Fprintln(os.Stderr, "\nShutting down gracefully...")
 					return nil
 				case <-ticker.C:
-					if err := fetchAndEmit(c, path, enc); err != nil {
+					if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 						fmt.Fprintf(os.Stderr, "warning: poll failed: %v\n", err)
 					}
 				}
@@ -122,10 +132,10 @@ func tailKnownResources() []string {
 	}
 }
 
-func fetchAndEmit(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+func fetchAndEmit(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 }, path string, enc *json.Encoder) error {
-	data, err := c.Get(path, nil)
+	data, err := c.Get(ctx, path, nil)
 	if err != nil {
 		return err
 	}

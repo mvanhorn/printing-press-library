@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "netlify-novel-command-correctness",
+  "applied_at": "2026-07-20",
+  "base_run_id": "netlify-session",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Preserve stable JSON schemas and chronological ordering across Netlify's local-mirror novel commands while excluding already-expired certificates from the expiring set.",
+  "reason": "Netlify timestamps may include explicit offsets, and the missing-mirror fallback must match each command's normal result type so agent consumers can decode first-run responses reliably.",
+  "files": [
+    "internal/cli/netlify_novel.go",
+    "internal/cli/netlify_novel_behavior_test.go",
+    "internal/cli/overview.go",
+    "internal/cli/since.go",
+    "internal/cli/dns_audit.go",
+    "internal/cli/env_drift.go",
+    "internal/cli/submissions_search.go"
+  ],
+  "validated_outcome": "Focused behavior tests cover offset-aware ordering, type-stable missing-mirror JSON, and exclusion of expired certificates."
+}

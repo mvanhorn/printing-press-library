@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "lever-pp-mcp",
+  "display_name": "Lever Postings",
+  "version": "1.0.0",
+  "description": "Public Lever postings API (https://api.lever.co/v0/postings). Every Lever customer exposes an open job board at api.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/lever-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/lever-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

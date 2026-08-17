@@ -1,0 +1,4832 @@
+{
+  "api_name": "roblox",
+  "base_url": "https://users.roblox.com",
+  "description": "Investigate Roblox's fragmented public web data from one agent-friendly CLI.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "cookie",
+    "env_vars": [
+      "ROBLOX_COOKIES"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ROBLOX_COOKIES",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": ".roblox.com",
+    "cookies": [
+      ".ROBLOSECURITY"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "asset-thumbnail-animated_list",
+      "description": "Thumbnails asset animated. Required: assetId.",
+      "method": "GET",
+      "path": "/v1/asset-thumbnail-animated",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "assetId",
+          "type": "int",
+          "location": "query",
+          "description": "The asset id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "asset-to-category_list",
+      "description": "Lists a mapping for assets to category IDs to convert from inventory ID to catalog ID. Creates a mapping to link 'Get More' button in inventory page to the relevant catalog page. Returns the AssetToCategoryListResponse.",
+      "method": "GET",
+      "path": "/v1/asset-to-category",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "asset-to-subcategory_list",
+      "description": "Lists a mapping for assets to subcategory IDs to convert from inventory ID to catalog ID. Creates a mapping to link 'Get More' button in inventory page to the relevant catalog page. Returns the AssetToSubcategoryListResponse.",
+      "method": "GET",
+      "path": "/v1/asset-to-subcategory",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "assets_list",
+      "description": "Thumbnails assets. Required: assetIds. Optional: returnPolicy (default: PlaceHolder), size (default: 30x30), format (default: Png) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/assets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "assetIds",
+          "type": "array",
+          "location": "query",
+          "description": "The asset ids.",
+          "required": true
+        },
+        {
+          "name": "returnPolicy",
+          "type": "string",
+          "location": "query",
+          "description": "Optional policy to use in selecting thumbnail to return (default = PlaceHolder)."
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "assets-thumbnail-3d_list",
+      "description": "Thumbnails assets. Required: assetId. Optional: useGltf (default: false).",
+      "method": "GET",
+      "path": "/v1/assets-thumbnail-3d",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "assetId",
+          "type": "int",
+          "location": "query",
+          "description": "The asset id.",
+          "required": true
+        },
+        {
+          "name": "useGltf",
+          "type": "bool",
+          "location": "query",
+          "description": "(optional) formatType"
+        }
+      ]
+    },
+    {
+      "name": "avatar_list-metadata",
+      "description": "Returns metadata used by the avatar page of the website.",
+      "method": "GET",
+      "path": "/v1/avatar/metadata",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "avatar-2_get-users",
+      "description": "Gets a list of outfits for the specified user. Required: userId. Optional: paginationToken, outfitType, page (default: 1) (plus 2 more). Returns array of RobloxApiAvatarModelsOutfitModel.",
+      "method": "GET",
+      "path": "/v2/avatar/users/{userId}/outfits",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user id.",
+          "required": true
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "The token received from the response to get the next page. For the first request, this value should be empty. Note : If no value is sent the 1st page will be returned."
+        },
+        {
+          "name": "outfitType",
+          "type": "string",
+          "location": "query",
+          "description": "The outfit type being searched for, null will return all outfitTypes."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number of the current page of requests, default is 1."
+        },
+        {
+          "name": "itemsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "The max number of outfits that can be returned."
+        },
+        {
+          "name": "isEditable",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether the outfits are editable. A null value will lead to no filtering."
+        }
+      ]
+    },
+    {
+      "name": "avatar-rules_list",
+      "description": "BodyColorsPalette is a list of valid brickColors you can choose for your avatar. WearableAssetTypes contains a list of asset types with names, ids, and the maximum number that you can wear at a time. Does not include packages because they cannot be worn on your avatar directly. PlayerAvatarTypes are the types of avatars you can choose between. Returns the RobloxApiAvatarModelsAvatarRulesModel.",
+      "method": "GET",
+      "path": "/v1/avatar-rules",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "avatar-users_avatar_get",
+      "description": "Includes assets, bodycolors, and playerAvatarType. Required: userId. Returns the RobloxApiAvatarModelsAvatarModelV2.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/avatar",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "avatar-users_currently-wearing_get",
+      "description": "Gets a list of asset ids that the user is currently wearing. Required: userId. Returns array of int.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/currently-wearing",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "avatar-users_outfits_get",
+      "description": "Deprecated, user v2. Gets a list of outfits for the specified user. Required: userId. Optional: outfitType, page (default: 1), itemsPerPage (default: 25) (plus 1 more). Returns array of RobloxApiAvatarModelsOutfitModel.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/outfits",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user id.",
+          "required": true
+        },
+        {
+          "name": "outfitType",
+          "type": "string",
+          "location": "query",
+          "description": "The outfit type being searched for, null will return all outfitTypes."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number of the current page of requests, default is 1."
+        },
+        {
+          "name": "itemsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "The max number of outfits that can be returned."
+        },
+        {
+          "name": "isEditable",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether the outfits are editable. A null value will lead to no filtering."
+        }
+      ]
+    },
+    {
+      "name": "badges_list",
+      "description": "Thumbnails badge icons. Required: badgeIds. Optional: size (default: 150x150), format (default: Png), isCircular (default: false).",
+      "method": "GET",
+      "path": "/v1/badges/icons",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "badgeIds",
+          "type": "array",
+          "location": "query",
+          "description": "The badge ids.",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "badges-2_get",
+      "description": "Gets badge information by the badge Id. Required: badgeId. Returns the RobloxBadgesApiBadgeResponse.",
+      "method": "GET",
+      "path": "/v1/badges/{badgeId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "badgeId",
+          "type": "int",
+          "location": "path",
+          "description": "The badge Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "badges-2_list",
+      "description": "Gets metadata about the badges system. Returns the RobloxBadgesApiBadgeMetadataResponse.",
+      "method": "GET",
+      "path": "/v1/badges/metadata",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "badges-2_icon_create",
+      "description": "Overwrites a badge icon with a new one. Required: badgeId. Optional: Files. Returns the new RobloxBadgesApiIconUploadResponse.",
+      "method": "POST",
+      "path": "/v1/badges/{badgeId}/icon",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "badgeId",
+          "type": "int",
+          "location": "path",
+          "description": "The badge Id.",
+          "required": true
+        },
+        {
+          "name": "Files",
+          "type": "string",
+          "location": "body",
+          "description": "Files"
+        }
+      ]
+    },
+    {
+      "name": "badges-users_badges_get",
+      "description": "Gets a list of badges a user has been awarded. Required: userId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxBadgesApiGetBadgesByUserResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/badges",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "badges-users_badges_get-users",
+      "description": "Gets timestamps for when badges were awarded to a user. Required: userId, badgeIds. Returns array of RobloxBadgesApiBadgeAwardResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/badges/awarded-dates",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id.",
+          "required": true
+        },
+        {
+          "name": "badgeIds",
+          "type": "array",
+          "location": "query",
+          "description": "The CSV of badge Ids.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "badges-users_badges_get-users-2",
+      "description": "Gets timestamp for when a single badge was awarded to a user. Required: userId, badgeId.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/badges/{badgeId}/awarded-date",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id.",
+          "required": true
+        },
+        {
+          "name": "badgeId",
+          "type": "int",
+          "location": "path",
+          "description": "Badge id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bundles_list",
+      "description": "Get bundle thumbnails for the given CSV of bundle ids. Required: bundleIds. Optional: size (default: 150x150), format (default: Png), isCircular (default: false).",
+      "method": "GET",
+      "path": "/v1/bundles/thumbnails",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "bundleIds",
+          "type": "array",
+          "location": "query",
+          "description": "CSV for the bundle ids to get bundle thumbnails",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "catalog-assets_bundles_get",
+      "description": "Lists the bundles a particular asset belongs to. Use the Id of the last bundle in the response to get the next page. Required: assetId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxCatalogApiBundleDetailsModel.",
+      "method": "GET",
+      "path": "/v1/assets/{assetId}/bundles",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "assetId",
+          "type": "int",
+          "location": "path",
+          "description": "Asset id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "catalog-bundles_list",
+      "description": "Returns details about the given bundleIds. Required: bundleIds.",
+      "method": "GET",
+      "path": "/v1/bundles/details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "bundleIds",
+          "type": "array",
+          "location": "query",
+          "description": "Bundle ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog-bundles_details_get",
+      "description": "Returns details about the given bundleId. Required: bundleId.",
+      "method": "GET",
+      "path": "/v1/bundles/{bundleId}/details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "bundleId",
+          "type": "int",
+          "location": "path",
+          "description": "Bundle id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog-bundles_recommendations_get",
+      "description": "Gets recommendations for a given bundle, bundleId of 0 returns randomized bundles - Accepts both public and authenticated users. Required: bundleId. Optional: numItems (default: 20).",
+      "method": "GET",
+      "path": "/v1/bundles/{bundleId}/recommendations",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "bundleId",
+          "type": "int",
+          "location": "path",
+          "description": "Bundle id",
+          "required": true
+        },
+        {
+          "name": "numItems",
+          "type": "int",
+          "location": "query",
+          "description": "The number of recommended items to return."
+        }
+      ]
+    },
+    {
+      "name": "catalog-search_list",
+      "description": "This endpoint is for search by item type ids. Optional: Taxonomy, AssetTypeIds, BundleTypeIds (plus 16 more). Returns array of RobloxCatalogApiCatalogSearchDetailedResponseItemV2.",
+      "method": "GET",
+      "path": "/v2/search/items/details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "Taxonomy",
+          "type": "string",
+          "location": "query",
+          "description": "Taxonomy"
+        },
+        {
+          "name": "AssetTypeIds",
+          "type": "array",
+          "location": "query",
+          "description": "Asset type ids"
+        },
+        {
+          "name": "BundleTypeIds",
+          "type": "array",
+          "location": "query",
+          "description": "Bundle type ids"
+        },
+        {
+          "name": "CategoryFilter",
+          "type": "int",
+          "location": "query",
+          "description": "Category filter"
+        },
+        {
+          "name": "SortAggregation",
+          "type": "int",
+          "location": "query",
+          "description": "Sort aggregation"
+        },
+        {
+          "name": "SortType",
+          "type": "int",
+          "location": "query",
+          "description": "Sort type"
+        },
+        {
+          "name": "CreatorType",
+          "type": "int",
+          "location": "query",
+          "description": "Creator type"
+        },
+        {
+          "name": "CreatorTargetId",
+          "type": "int",
+          "location": "query",
+          "description": "Creator target id"
+        },
+        {
+          "name": "CreatorName",
+          "type": "string",
+          "location": "query",
+          "description": "Creator name"
+        },
+        {
+          "name": "MaxPrice",
+          "type": "int",
+          "location": "query",
+          "description": "Max price"
+        },
+        {
+          "name": "MinPrice",
+          "type": "int",
+          "location": "query",
+          "description": "Min price"
+        },
+        {
+          "name": "Keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword"
+        },
+        {
+          "name": "IncludeNotForSale",
+          "type": "bool",
+          "location": "query",
+          "description": "Include not for sale"
+        },
+        {
+          "name": "TriggeredByTopicDiscovery",
+          "type": "bool",
+          "location": "query",
+          "description": "Triggered by topic discovery"
+        },
+        {
+          "name": "SalesTypeFilter",
+          "type": "int",
+          "location": "query",
+          "description": "Sales type filter"
+        },
+        {
+          "name": "Topics",
+          "type": "string",
+          "location": "query",
+          "description": "The input topics format is split by ','. E.g 'topics=cat,hat,red'."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "catalog-users_bundles_get",
+      "description": "Lists the bundles owned by a given user. Required: userId. Optional: cursor, limit (default: 10), sortOrder (default: 2). Returns array of RobloxCatalogApiOwnedBundleModel.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/bundles",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "sortOrder",
+          "type": "int",
+          "location": "query",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "catalog-users_bundles_get-users",
+      "description": "Get users. Required: userId, bundleType (default: 1), cursor. Optional: limit (default: 10), sortOrder (default: 2). Returns array of RobloxCatalogApiOwnedBundleModel.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/bundles/{bundleType}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "bundleType",
+          "type": "int",
+          "location": "path",
+          "description": "Bundle type",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "sortOrder",
+          "type": "int",
+          "location": "query",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "Lists Category Names and their Ids. Returns array of RobloxCatalogApiCategoryModel.",
+      "method": "GET",
+      "path": "/v1/categories",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "collectible-items_owners_get",
+      "description": "Gets a list of owners of a collectible item. Required: collectibleItemId. Optional: limit (default: 10), cursor, sortOrder (default: 1). Returns array of RobloxInventoryApiV2CollectibleItemOwnerResponse.",
+      "method": "GET",
+      "path": "/v2/collectible-items/{collectibleItemId}/owners",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "collectibleItemId",
+          "type": "string",
+          "location": "path",
+          "description": "The collectible item ID.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "int",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "developer-products_list",
+      "description": "Thumbnails developer product icons. Required: developerProductIds. Optional: size (default: 150x150), format (default: Png), isCircular (default: false).",
+      "method": "GET",
+      "path": "/v1/developer-products/icons",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "developerProductIds",
+          "type": "array",
+          "location": "query",
+          "description": "The developer product ids.",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "display-names_list",
+      "description": "Validate a display name for a new user. Required: displayName, birthdate. Returns the RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "GET",
+      "path": "/v1/display-names/validate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "query",
+          "description": "The display name.",
+          "required": true
+        },
+        {
+          "name": "birthdate",
+          "type": "string",
+          "location": "query",
+          "description": "The new user's birthdate",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "favorites_get",
+      "description": "Gets the favorite count for the given asset Id. Required: assetId.",
+      "method": "GET",
+      "path": "/v1/favorites/assets/{assetId}/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "assetId",
+          "type": "int",
+          "location": "path",
+          "description": "Asset id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "favorites_get-bundles",
+      "description": "Gets the favorite count for the given bundle Id. Required: bundleId.",
+      "method": "GET",
+      "path": "/v1/favorites/bundles/{bundleId}/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "bundleId",
+          "type": "int",
+          "location": "path",
+          "description": "Bundle id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "favorites_get-users",
+      "description": "Gets the favorite model for the asset and user. Required: userId, assetId. Returns the RobloxCatalogApiAssetFavoriteModel.",
+      "method": "GET",
+      "path": "/v1/favorites/users/{userId}/assets/{assetId}/favorite",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "assetId",
+          "type": "int",
+          "location": "path",
+          "description": "Asset id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "favorites_get-users-2",
+      "description": "Gets the favorite model for the bundle and user. Required: userId, bundleId. Returns the RobloxCatalogApiBundleFavoriteModel.",
+      "method": "GET",
+      "path": "/v1/favorites/users/{userId}/bundles/{bundleId}/favorite",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "bundleId",
+          "type": "int",
+          "location": "path",
+          "description": "Bundle id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "favorites_get-users-3",
+      "description": "Lists the marketplace assets favorited by a given user with the given assetTypeId. Required: userId, assetTypeId. Optional: limit (default: 10), cursor, sortOrder (default: Desc). Returns array of RobloxCatalogApiCatalogSearchDetailedResponseItem.",
+      "method": "GET",
+      "path": "/v1/favorites/users/{userId}/favorites/{assetTypeId}/assets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "assetTypeId",
+          "type": "int",
+          "location": "path",
+          "description": "Asset type id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "favorites_get-users-4",
+      "description": "Lists the bundles favorited by a given user with the given bundle subtypeId.Switched to EAAS style pagination cursors since July 2024. Required: userId, subtypeId. Optional: itemsPerPage (default: 24), cursor, isPrevious (default: false). Returns array of RobloxCatalogApiBundleDetailsModel.",
+      "method": "GET",
+      "path": "/v1/favorites/users/{userId}/favorites/{subtypeId}/bundles",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "subtypeId",
+          "type": "int",
+          "location": "path",
+          "description": "Subtype id",
+          "required": true
+        },
+        {
+          "name": "itemsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "isPrevious",
+          "type": "bool",
+          "location": "query",
+          "description": "Is previous"
+        }
+      ]
+    },
+    {
+      "name": "featured-content_list",
+      "description": "Gets the featured event for a group. Required: groupId. Returns the RobloxGroupsClientGroupFeaturedContentResponse.",
+      "method": "GET",
+      "path": "/v1/featured-content/event",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "query",
+          "description": "The group Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "friends-users_follow_create",
+      "description": "Creates the following between a user and user with targetUserId. Required: targetUserId. Optional: captchaId, captchaProvider, captchaToken (plus 1 more). Returns the new RobloxFriendsApiCaptchaStatusResponseModel.",
+      "method": "POST",
+      "path": "/v1/users/{targetUserId}/follow",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "targetUserId",
+          "type": "int",
+          "location": "path",
+          "description": "Target user id",
+          "required": true
+        },
+        {
+          "name": "captchaId",
+          "type": "string",
+          "location": "body",
+          "description": "Captcha id"
+        },
+        {
+          "name": "captchaProvider",
+          "type": "string",
+          "location": "body",
+          "description": "Captcha provider"
+        },
+        {
+          "name": "captchaToken",
+          "type": "string",
+          "location": "body",
+          "description": "Captcha token"
+        },
+        {
+          "name": "challengeId",
+          "type": "string",
+          "location": "body",
+          "description": "Challenge id"
+        }
+      ]
+    },
+    {
+      "name": "friends-users_followers_get",
+      "description": "Get all users that follow user with targetUserId in page response format. Required: targetUserId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxFriendsApiModelsResponseUserResponse.",
+      "method": "GET",
+      "path": "/v1/users/{targetUserId}/followers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "targetUserId",
+          "type": "int",
+          "location": "path",
+          "description": "Target user id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "friends-users_followers_get-users",
+      "description": "Get the number of following a user has. Required: targetUserId. Returns the RobloxFriendsApiFollowCountResponse.",
+      "method": "GET",
+      "path": "/v1/users/{targetUserId}/followers/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "targetUserId",
+          "type": "int",
+          "location": "path",
+          "description": "Target user id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "friends-users_followings_get",
+      "description": "Get all users that user with targetUserId is following in page response format. Required: targetUserId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxFriendsApiModelsResponseUserResponse.",
+      "method": "GET",
+      "path": "/v1/users/{targetUserId}/followings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "targetUserId",
+          "type": "int",
+          "location": "path",
+          "description": "Target user id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "friends-users_followings_get-users",
+      "description": "Get the number of following a user has. Required: targetUserId. Returns the RobloxFriendsApiFollowCountResponse.",
+      "method": "GET",
+      "path": "/v1/users/{targetUserId}/followings/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "targetUserId",
+          "type": "int",
+          "location": "path",
+          "description": "Target user id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "friends-users_friends_get",
+      "description": "Get list of all friends for the specified user. Required: userId. Optional: userSort. Returns array of RobloxFriendsApiModelsResponseUserResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/friends",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id to get the friends for.",
+          "required": true
+        },
+        {
+          "name": "userSort",
+          "type": "int",
+          "location": "query",
+          "description": "Specifies how to sort the returned friends."
+        }
+      ]
+    },
+    {
+      "name": "friends-users_friends_get-users",
+      "description": "Get the number of friends a user has. Required: userId. Returns the RobloxFriendsApiFriendsCountResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/friends/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "friends-users_friends_get-users-2",
+      "description": "Get a paginated list of all friends for the specified user. Required: userId. Optional: userSort (default: 2), cursor, limit (default: 50) (plus 1 more). Returns array of RobloxFriendsApiModelsResponseFriendResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/friends/find",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id to get the friends for.",
+          "required": true
+        },
+        {
+          "name": "userSort",
+          "type": "int",
+          "location": "query",
+          "description": "Specifies how to sort the returned friends."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "findFriendsType",
+          "type": "int",
+          "location": "query",
+          "description": "Find friends type"
+        }
+      ]
+    },
+    {
+      "name": "friends-users_friends_get-users-3",
+      "description": "Get list of inactive friends for the specified user. Required: userId. Returns array of RobloxFriendsApiModelsResponseUserResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/friends/inactive",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id to get the friends for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "friends-users_friends_get-users-4",
+      "description": "Get list of all online friends for the specified user. Required: userId. Optional: userSort. Returns array of RobloxFriendsApiModelsResponseUserPresenceResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/friends/online",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id to get the friends for.",
+          "required": true
+        },
+        {
+          "name": "userSort",
+          "type": "int",
+          "location": "query",
+          "description": "The sort order to return the friends."
+        }
+      ]
+    },
+    {
+      "name": "friends-users_friends_get-users-5",
+      "description": "Search for friends by name using a text query. Required: userId. Optional: query, cursor, limit (default: 20). Returns array of RobloxFriendsApiModelsResponseFriendResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/friends/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id to get the friends for.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The string to search names of friends for."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        }
+      ]
+    },
+    {
+      "name": "friends-users_friends_get-users-6",
+      "description": "Gets a list of friend statuses of specified users against the specified user. Required: userId, userIds. Returns array of RobloxFriendsApiFriendStatusResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/friends/statuses",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user to check the friend statuses against.",
+          "required": true
+        },
+        {
+          "name": "userIds",
+          "type": "array",
+          "location": "query",
+          "description": "User ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "friends-users_trusted-friends_get",
+      "description": "Get the number of trusted friends a user has. Required: userId. Returns the RobloxFriendsApiFriendsCountResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/trusted-friends/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "friends-users_unfollow_create",
+      "description": "Deletes the following between a user and user with targetUserId. Required: targetUserId. Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/users/{targetUserId}/unfollow",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "targetUserId",
+          "type": "int",
+          "location": "path",
+          "description": "Target user id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "game-passes_list",
+      "description": "Thumbnails game pass icons. Required: gamePassIds. Optional: size (default: 150x150), format (default: Png), isCircular (default: false).",
+      "method": "GET",
+      "path": "/v1/game-passes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "gamePassIds",
+          "type": "array",
+          "location": "query",
+          "description": "The game pass ids.",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "game-start-info_list",
+      "description": "The server will call this on game server start to request general information about the universe This is version 1.1, which returns an entry from the UniverseAvatarType enum. During mixed mode this may return unreliable results. Required: universeId.",
+      "method": "GET",
+      "path": "/v1/game-start-info",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "query",
+          "description": "Universe id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "games_get",
+      "description": "Get games recommendations based on a given universe. Required: universeId, PaginationKey, MaxRows, IsTruncatedResultsEnabled. Returns array of RobloxGamesApiModelsResponseGameResponseModel.",
+      "method": "GET",
+      "path": "/v1/games/recommendations/game/{universeId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "path",
+          "description": "The universe to base recommendations on",
+          "required": true
+        },
+        {
+          "name": "PaginationKey",
+          "type": "string",
+          "location": "query",
+          "description": "The key of a page, which includes the start row index and all other necessary information to query the data. This parameter is usually not needed for the first page.",
+          "required": true
+        },
+        {
+          "name": "MaxRows",
+          "type": "int",
+          "location": "query",
+          "description": "The requested number of rows.",
+          "required": true
+        },
+        {
+          "name": "IsTruncatedResultsEnabled",
+          "type": "bool",
+          "location": "query",
+          "description": "Truncated Results",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "games_list",
+      "description": "Gets a list of games' detail. Required: universeIds. Optional: fields. Returns array of RobloxGamesApiModelsResponseGameDetailResponse.",
+      "method": "GET",
+      "path": "/v1/games",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeIds",
+          "type": "array",
+          "location": "query",
+          "description": "A list of universe Ids. Cannot exceed a maximum of 50 IDs.",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Optional comma-separated list of field names to include in the response. When omitted, all fields are returned."
+        }
+      ]
+    },
+    {
+      "name": "games_list-gamesproductinfo",
+      "description": "Gets a list of games' product info, used to purchase a game. Required: universeIds. Returns array of RobloxGamesApiModelsResponseGameProductResponse.",
+      "method": "GET",
+      "path": "/v1/games/games-product-info",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeIds",
+          "type": "array",
+          "location": "query",
+          "description": "A list of universe Ids. Cannot exceed a maximum of 100 IDs.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "games_list-multigetplacedetails",
+      "description": "Get place details. Required: placeIds. Returns array of RobloxGamesApiModelsResponsePlaceDetails.",
+      "method": "GET",
+      "path": "/v1/games/multiget-place-details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "placeIds",
+          "type": "array",
+          "location": "query",
+          "description": "List of placeId to uniquely Identify a place",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "games_list-multigetplayabilitystatus",
+      "description": "Gets a list of universe playability statuses for the authenticated user. Required: universeIds. Returns array of RobloxGamesApiModelsResponsePlayabilityStatusResponse.",
+      "method": "GET",
+      "path": "/v1/games/multiget-playability-status",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeIds",
+          "type": "array",
+          "location": "query",
+          "description": "A list of universe Ids. Cannot exceed a maximum of 50 IDs.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "games_favorites_create",
+      "description": "Favors (or unfavors) a game for the authenticated user. Required: universeId. Optional: isFavorited. Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/games/{universeId}/favorites",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "path",
+          "description": "The Id of the universe.",
+          "required": true
+        },
+        {
+          "name": "isFavorited",
+          "type": "bool",
+          "location": "body",
+          "description": "true for favor the game, false for unfavor the game."
+        }
+      ]
+    },
+    {
+      "name": "games_favorites_get",
+      "description": "Returns if a game was marked as favorite for the authenticated user. Required: universeId.",
+      "method": "GET",
+      "path": "/v1/games/{universeId}/favorites",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "path",
+          "description": "The Id of the universe.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "games_favorites_get-games",
+      "description": "Get the favorites count of a specific game. Required: universeId. Returns the RobloxGamesApiModelsResponseGameFavoritesCountResponse.",
+      "method": "GET",
+      "path": "/v1/games/{universeId}/favorites/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "path",
+          "description": "The Id of the universe.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "games_media_get",
+      "description": "Get the game media data. Required: universeId. Returns array of RobloxGamesApiModelsResponseGameMediaItem.",
+      "method": "GET",
+      "path": "/v1/games/{universeId}/media",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the universe we get media data from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "games_servers_get",
+      "description": "Get the game server list. Required: placeId, serverType (default: 0). Optional: sortOrder (default: 2), excludeFullGames (default: false), limit (default: 10) (plus 1 more). Returns array of RobloxWebResponsesGamesGameServerResponse.",
+      "method": "GET",
+      "path": "/v1/games/{placeId}/servers/{serverType}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "placeId",
+          "type": "int",
+          "location": "path",
+          "description": "The Id of the place we are geting the server list for.",
+          "required": true
+        },
+        {
+          "name": "serverType",
+          "type": "int",
+          "location": "path",
+          "description": "The type of the server we geting the server list for.",
+          "required": true
+        },
+        {
+          "name": "sortOrder",
+          "type": "int",
+          "location": "query",
+          "description": "The sort order of the servers."
+        },
+        {
+          "name": "excludeFullGames",
+          "type": "bool",
+          "location": "query",
+          "description": "Exclude full servers."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        }
+      ]
+    },
+    {
+      "name": "games-2_media_get",
+      "description": "Get the game media data. Required: universeId. Optional: fetchAllExperienceRelatedMedia (default: false). Returns array of RobloxWebResponsesGamesGameMediaItemResponseV2.",
+      "method": "GET",
+      "path": "/v2/games/{universeId}/media",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the universe we get media data from.",
+          "required": true
+        },
+        {
+          "name": "fetchAllExperienceRelatedMedia",
+          "type": "bool",
+          "location": "query",
+          "description": "to tell if the API query is to fetch all related media for this experience"
+        }
+      ]
+    },
+    {
+      "name": "games-users_favorite_get",
+      "description": "Gets users favorite games. Required: userId. Optional: accessFilter (default: 2), limit (default: 10), cursor (plus 1 more). Returns array of RobloxWebResponsesGamesGameFavoriteResponseModel.",
+      "method": "GET",
+      "path": "/v2/users/{userId}/favorite/games",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id.",
+          "required": true
+        },
+        {
+          "name": "accessFilter",
+          "type": "int",
+          "location": "query",
+          "description": "Filtering option via access level."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "games-users_games_get",
+      "description": "Gets games created by the specified user. Required: userId. Optional: accessFilter (default: 2), limit (default: 10), cursor (plus 1 more). Returns array of RobloxWebResponsesGamesGameResponseV2.",
+      "method": "GET",
+      "path": "/v2/users/{userId}/games",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id.",
+          "required": true
+        },
+        {
+          "name": "accessFilter",
+          "type": "int",
+          "location": "query",
+          "description": "Filtering option via access level."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "groups_list",
+      "description": "Fetches thumbnail URLs for a list of groups. Ids that do not correspond to groups will be filtered out. Required: groupIds. Optional: size (default: 150x150), format (default: Png), isCircular (default: false).",
+      "method": "GET",
+      "path": "/v1/groups/icons",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupIds",
+          "type": "array",
+          "location": "query",
+          "description": "Group ids",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_get",
+      "description": "Gets group information. Required: groupId. Returns the RobloxGroupsApiGroupDetailResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_list",
+      "description": "Gets Groups contextual information: Max number of groups a user can be part of. Current number of groups a user is a member of. Whether to show/hide certain features based on device type. Returns the RobloxGroupsApiGroupsDisplayOptionsResponse.",
+      "method": "GET",
+      "path": "/v1/groups/metadata",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "groups-2_list-configuration",
+      "description": "Gets Group configuration contextual information. Returns the RobloxGroupsApiGroupConfigurationDisplayOptionsResponse.",
+      "method": "GET",
+      "path": "/v1/groups/configuration/metadata",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "groups-2_list-search",
+      "description": "Search for groups by keyword. Required: keyword. Optional: prioritizeExactMatch (default: false), limit (default: 10), cursor. Returns array of RobloxGroupsApiGroupSearchResponseItem.",
+      "method": "GET",
+      "path": "/v1/groups/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "The keyword or phrase to use as the search parameter.",
+          "required": true
+        },
+        {
+          "name": "prioritizeExactMatch",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether or not to prioritize the exact match for the keyword (optional, defaults to false)."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_list-search-2",
+      "description": "Should only be used for direct lookups where a user is inputting a group name, shouldn't be used for search pages. Required: groupName. Returns array of RobloxWebResponsesGroupsGroupBasicResponse.",
+      "method": "GET",
+      "path": "/v1/groups/search/lookup",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupName",
+          "type": "string",
+          "location": "query",
+          "description": "The group name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_list-search-3",
+      "description": "Although there is no reason for this to require an authenticated user right now, in the future, we will use coco to return different suggested groups based upon that user's request context. Returns array of string.",
+      "method": "GET",
+      "path": "/v1/groups/search/metadata",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "groups-2_audit-log_get",
+      "description": "Gets the Group's audit log. Required: groupId. Optional: actionType, userId, limit (default: 10) (plus 2 more). Returns array of RobloxGroupsApiModelsResponseGroupAuditLogResponseItem.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/audit-log",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group the user is in.",
+          "required": true
+        },
+        {
+          "name": "actionType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter for specific type of action performed"
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "query",
+          "description": "Filter for specific user id"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_bans_create",
+      "description": "Bans a user from a group. Required: groupId, userId. Returns the new RobloxGroupsApiGroupBanMemberResponse.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/bans/{userId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The Id of the user being banned.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_bans_delete",
+      "description": "Unbans a user from a group. Required: groupId, userId. Returns the RobloxWebWebApiApiEmptyResponseModel. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/groups/{groupId}/bans/{userId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The Id of the user being unbanned.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_bans_get",
+      "description": "Gets the bans for the group. Required: groupId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxGroupsApiGroupBanMemberResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/bans",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_bans_get-groups",
+      "description": "Fetch the group ban of a user from a group. Required: groupId, userId. Returns the RobloxGroupsApiGroupBanMemberResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/bans/{userId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_blocked-keywords_create",
+      "description": "Adds new blocked keyword(s) to the specified Group. Required: groupId. Optional: isPrivate, keywords. Returns array of RobloxGroupsClientBlockedKeywordModel.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/blocked-keywords",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "Group id",
+          "required": true
+        },
+        {
+          "name": "isPrivate",
+          "type": "bool",
+          "location": "body",
+          "description": "Is private"
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "body",
+          "description": "Keywords"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_blocked-keywords_delete",
+      "description": "Deletes a specific blocked keyword from the specified Group. Required: groupId, keywordId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/groups/{groupId}/blocked-keywords/{keywordId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "Group id",
+          "required": true
+        },
+        {
+          "name": "keywordId",
+          "type": "string",
+          "location": "path",
+          "description": "Keyword id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_blocked-keywords_get",
+      "description": "Retrieves a paginated list of blocked keywords for a specific Group. Required: groupId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxGroupsClientBlockedKeywordModel.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/blocked-keywords",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "Group id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_blocked-keywords_update",
+      "description": "Updates an existing blocked keyword for the specified Group. Required: groupId, keywordId. Optional: isPrivate, keyword. Returns the updated RobloxGroupsClientBlockedKeywordModel.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/blocked-keywords/{keywordId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "Group id",
+          "required": true
+        },
+        {
+          "name": "keywordId",
+          "type": "string",
+          "location": "path",
+          "description": "Keyword id",
+          "required": true
+        },
+        {
+          "name": "isPrivate",
+          "type": "bool",
+          "location": "body",
+          "description": "Is private"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "body",
+          "description": "Keyword"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_change-owner_create",
+      "description": "Changes the group owner to another user. Required: groupId. Optional: userId. Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/change-owner",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "body",
+          "description": "The user id."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_claim-ownership_create",
+      "description": "Claims ownership of the group as the authenticated user. Required: groupId. Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/claim-ownership",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_community-feature-freezes_get",
+      "description": "Gets the freeze status of the community features for a group. Required: groupId. Returns array of RobloxGroupsApiCommunityFeatureFreezeStatus.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/community-feature-freezes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "Group id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_configuration_get",
+      "description": "Gets group configuration information. Required: groupId. Returns the RobloxGroupsApiGroupConfigurationDetailsResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/configuration",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_description_update",
+      "description": "Updates the groups description. Required: groupId. Optional: description. Returns the updated RobloxGroupsApiGroupDescriptionResponse.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/description",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group the user is in.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The group description being set."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_emotes_get",
+      "description": "Gets a groups emote sets. Required: groupId. Returns array of RobloxGroupsClientEmoteSetModel.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/emotes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "Group id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_features_get",
+      "description": "Gets the freeze status of all features and the lock status for a group. Required: groupId. Returns array of RobloxGroupsApiGroupFeatureResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/features",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "Group id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_features_get-groups",
+      "description": "Checks whether a group has ANY feature disabled (includes feature freezes and group lock). Used to display a banner on Creator Hub/Studio to inform group members that some features may not be available. Required: groupId. Returns the RobloxGroupsApiHasGroupFeaturesBlockedResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/features/status",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "Group id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_features_update",
+      "description": "Sets the desired status of group features. Currently only removes active freezes for features set to Roblox.Groups.Api.FeatureStatus.On. Required: groupId, Features. Returns the updated RobloxGroupsApiSetFeaturesResponseModel.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/features",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "Group id",
+          "required": true
+        },
+        {
+          "name": "features-content-upload",
+          "wire_name": "Features.ContentUpload",
+          "type": "string",
+          "location": "body",
+          "description": "The desired status of a group feature. ['On' = 0, 'Blocked' = 1]"
+        },
+        {
+          "name": "features-forum-read",
+          "wire_name": "Features.ForumRead",
+          "type": "string",
+          "location": "body",
+          "description": "The desired status of a group feature. ['On' = 0, 'Blocked' = 1]"
+        },
+        {
+          "name": "features-forum-write",
+          "wire_name": "Features.ForumWrite",
+          "type": "string",
+          "location": "body",
+          "description": "The desired status of a group feature. ['On' = 0, 'Blocked' = 1]"
+        },
+        {
+          "name": "features-game-ownership-transfer",
+          "wire_name": "Features.GameOwnershipTransfer",
+          "type": "string",
+          "location": "body",
+          "description": "The desired status of a group feature. ['On' = 0, 'Blocked' = 1]"
+        },
+        {
+          "name": "features-group-ownership-transfer",
+          "wire_name": "Features.GroupOwnershipTransfer",
+          "type": "string",
+          "location": "body",
+          "description": "The desired status of a group feature. ['On' = 0, 'Blocked' = 1]"
+        },
+        {
+          "name": "features-payouts",
+          "wire_name": "Features.Payouts",
+          "type": "string",
+          "location": "body",
+          "description": "The desired status of a group feature. ['On' = 0, 'Blocked' = 1]"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_join-requests_create",
+      "description": "Batch accepts group join requests. Required: groupId. Optional: UserIds. Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/join-requests",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "UserIds",
+          "type": "array",
+          "location": "body",
+          "description": "The user ids being either accepted or declined"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_join-requests_create-groups",
+      "description": "Accepts a group join request. Required: groupId, userId. Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/join-requests/users/{userId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_join-requests_delete",
+      "description": "Batch declines group join requests. Required: groupId. Optional: UserIds. Returns the RobloxWebWebApiApiEmptyResponseModel. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/groups/{groupId}/join-requests",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "UserIds",
+          "type": "array",
+          "location": "body",
+          "description": "The user ids being either accepted or declined"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_join-requests_delete-groups",
+      "description": "Declines/cancels a group join request. Required: groupId, userId. Returns the RobloxWebWebApiApiEmptyResponseModel. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/groups/{groupId}/join-requests/users/{userId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_join-requests_get",
+      "description": "Gets a page of Group Join Requests for a group. Required: groupId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxGroupsApiGroupJoinRequestResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/join-requests",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_join-requests_get-groups",
+      "description": "Gets a group join request by userId. Required: groupId, userId. Returns the RobloxGroupsApiGroupJoinRequestResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/join-requests/users/{userId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_membership_get",
+      "description": "Gets group membership information in the context of the authenticated user. Required: groupId, includeNotificationPreferences. Returns the RobloxGroupsApiGroupMembershipMetadataResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/membership",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "includeNotificationPreferences",
+          "type": "bool",
+          "location": "query",
+          "description": "Include notification preferences",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_name_update",
+      "description": "This endpoint will charge Robux for the group rename. Required: groupId. Optional: name. Returns the updated RobloxGroupsApiUpdateGroupNameResponse.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/name",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group the user is in.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The group name being set."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_name-history_get",
+      "description": "Gets the Group's name change history. Required: groupId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxGroupsApiModelsResponseGroupNameHistoryResponseItem.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/name-history",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_notification-preference_update",
+      "description": "Updates the group's settings. Required: groupId. Optional: notificationsEnabled, type. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/notification-preference",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group the user is in.",
+          "required": true
+        },
+        {
+          "name": "notificationsEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the user wants to receive notifications from the group."
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "location": "body",
+          "description": "['AnnouncementCreatedNotification' = 0, 'ForumPostCreatedNotification' = 1, 'ForumCommentCreatedNotification' = 2, 'ForumCommentReplyCreatedNotification' = 3, 'ForumSubscriberNotification' = 4]"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_payout-restriction_get",
+      "description": "Gets a value indicating whether the group can use payout feature. Required: groupId. Returns the RobloxGroupsApiGroupPayoutRestrictionResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/payout-restriction",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_payouts_create",
+      "description": "Pays out a user in Robux. Required: groupId. Optional: IdempotencyKey, PayoutType, Recipients (plus 1 more). Returns the new RobloxGroupsApiOneTimePayoutResponse.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/payouts",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "IdempotencyKey",
+          "type": "string",
+          "location": "body",
+          "description": "The idempotency key of the payout request."
+        },
+        {
+          "name": "PayoutType",
+          "type": "int",
+          "location": "body",
+          "description": "The Roblox.Groups.Api.PayoutType. ['FixedAmount' = 1, 'Percentage' = 2]"
+        },
+        {
+          "name": "Recipients",
+          "type": "array",
+          "location": "body",
+          "description": "The recipients of the payouts."
+        },
+        {
+          "name": "WatermarkContributions",
+          "type": "array",
+          "location": "body",
+          "description": "Optional watermark contributions for DevEx attribution tracking."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_payouts_create-groups",
+      "description": "This endpoint will remove any recipients not sent in the request. If a recipient in the request is not a valid member in the group they will not be added to the recurring payouts. Required: groupId. Optional: IdempotencyKey, PayoutType, Recipients (plus 1 more). Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/payouts/recurring",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "IdempotencyKey",
+          "type": "string",
+          "location": "body",
+          "description": "The idempotency key of the payout request."
+        },
+        {
+          "name": "PayoutType",
+          "type": "int",
+          "location": "body",
+          "description": "The Roblox.Groups.Api.PayoutType. ['FixedAmount' = 1, 'Percentage' = 2]"
+        },
+        {
+          "name": "Recipients",
+          "type": "array",
+          "location": "body",
+          "description": "The recipients of the payouts."
+        },
+        {
+          "name": "WatermarkContributions",
+          "type": "array",
+          "location": "body",
+          "description": "Optional watermark contributions for DevEx attribution tracking."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_payouts_get",
+      "description": "Gets a list of the group payout percentages. Required: groupId. Returns array of RobloxGroupsApiGroupPayoutResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/payouts",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_relationships_create",
+      "description": "Batch accepts group affiliate requests. Required: groupId, groupRelationshipType. Optional: GroupIds. Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/relationships/{groupRelationshipType}/requests",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "groupRelationshipType",
+          "type": "string",
+          "location": "path",
+          "description": "The type of group relationship being made",
+          "required": true
+        },
+        {
+          "name": "GroupIds",
+          "type": "array",
+          "location": "body",
+          "description": "The group ids being either accepted or declined"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_relationships_create-groups",
+      "description": "Create a group relationship. Required: groupId, groupRelationshipType, relatedGroupId. Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/relationships/{groupRelationshipType}/{relatedGroupId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "groupRelationshipType",
+          "type": "string",
+          "location": "path",
+          "description": "The group relationship type, enemies or allies.",
+          "required": true
+        },
+        {
+          "name": "relatedGroupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group you want to create a relationship with.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_relationships_create-groups-2",
+      "description": "Accepts a group relationship request. Required: groupId, groupRelationshipType, relatedGroupId. Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/relationships/{groupRelationshipType}/requests/{relatedGroupId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "groupRelationshipType",
+          "type": "string",
+          "location": "path",
+          "description": "The group relationship type, enemies or allies, only allies are supported.",
+          "required": true
+        },
+        {
+          "name": "relatedGroupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group you want to accept the relationship request with.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_relationships_delete",
+      "description": "Batch declines group affiliate requests. Required: groupId, groupRelationshipType. Optional: GroupIds. Returns the RobloxWebWebApiApiEmptyResponseModel. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/groups/{groupId}/relationships/{groupRelationshipType}/requests",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "groupRelationshipType",
+          "type": "string",
+          "location": "path",
+          "description": "The type of group relationship being made",
+          "required": true
+        },
+        {
+          "name": "GroupIds",
+          "type": "array",
+          "location": "body",
+          "description": "The group ids being either accepted or declined"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_relationships_delete-groups",
+      "description": "Deletes a group relationship. Required: groupId, groupRelationshipType, relatedGroupId. Returns the RobloxWebWebApiApiEmptyResponseModel. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/groups/{groupId}/relationships/{groupRelationshipType}/{relatedGroupId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "groupRelationshipType",
+          "type": "string",
+          "location": "path",
+          "description": "The group relationship type, enemies or allies.",
+          "required": true
+        },
+        {
+          "name": "relatedGroupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group you want to delete the relationship with.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_relationships_delete-groups-2",
+      "description": "Declines a group relationship request. Required: groupId, groupRelationshipType, relatedGroupId. Returns the RobloxWebWebApiApiEmptyResponseModel. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/groups/{groupId}/relationships/{groupRelationshipType}/requests/{relatedGroupId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "groupRelationshipType",
+          "type": "string",
+          "location": "path",
+          "description": "The group relationship type, enemies or allies.",
+          "required": true
+        },
+        {
+          "name": "relatedGroupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group you want to accept the relationship request with.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_relationships_get",
+      "description": "Gets a group's relationships. Required: groupId, groupRelationshipType, StartRowIndex, MaxRows. Returns array of RobloxGroupsApiGroupDetailResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/relationships/{groupRelationshipType}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "groupRelationshipType",
+          "type": "string",
+          "location": "path",
+          "description": "The group relationship type, enemies or allies.",
+          "required": true
+        },
+        {
+          "name": "StartRowIndex",
+          "type": "int",
+          "location": "query",
+          "description": "The start index of the page request",
+          "required": true
+        },
+        {
+          "name": "MaxRows",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of rows for the page request, should be at least 1.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_relationships_get-groups",
+      "description": "Gets a group's relationship requests. Required: groupId, groupRelationshipType, StartRowIndex, MaxRows. Returns array of RobloxGroupsApiGroupDetailResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/relationships/{groupRelationshipType}/requests",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "groupRelationshipType",
+          "type": "string",
+          "location": "path",
+          "description": "The group relationship type of the request, only allies are supported.",
+          "required": true
+        },
+        {
+          "name": "StartRowIndex",
+          "type": "int",
+          "location": "query",
+          "description": "The start index of the page request",
+          "required": true
+        },
+        {
+          "name": "MaxRows",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of rows for the page request, should be at least 1.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_roles_get",
+      "description": "Gets a list of the rolesets in a group. Required: groupId. Returns array of RobloxGroupsApiGroupRoleResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/roles",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_roles_get-groups",
+      "description": "Gets all permissions for each role. Required: groupId. Returns array of RobloxGroupsApiGroupPermissionsResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/roles/permissions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_roles_get-groups-2",
+      "description": "Gets the permissions for a group's guest roleset. These can be viewed by all (members and guests) users. Required: groupId. Returns the RobloxGroupsApiGroupPermissionsResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/roles/guest/permissions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_roles_get-groups-3",
+      "description": "Gets the permissions for a group's roleset. The authorized user must either be the group owner or the roleset being requested, except for guest roles, which can be viewed by all (members and guests). Required: groupId, roleSetId. Returns the RobloxGroupsApiGroupPermissionsResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/roles/{roleSetId}/permissions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "roleSetId",
+          "type": "int",
+          "location": "path",
+          "description": "The group's role set id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_roles_get-groups-4",
+      "description": "Gets a list of users in a group for a specific roleset. Required: groupId, roleSetId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxGroupsApiModelsResponseUserModel.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/roles/{roleSetId}/users",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "roleSetId",
+          "type": "int",
+          "location": "path",
+          "description": "The group's role set id.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_roles_update",
+      "description": "Updates the permissions for a group's roleset. The authorized user must be the group owner. Required: groupId, roleSetId. Optional: permissions. Returns the updated RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/roles/{roleSetId}/permissions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group's id.",
+          "required": true
+        },
+        {
+          "name": "roleSetId",
+          "type": "int",
+          "location": "path",
+          "description": "The roleset's id.",
+          "required": true
+        },
+        {
+          "name": "permissions-add-group-places",
+          "wire_name": "permissions.AddGroupPlaces",
+          "type": "bool",
+          "location": "body",
+          "description": "Add group places"
+        },
+        {
+          "name": "permissions-administer-cloud-authentication",
+          "wire_name": "permissions.AdministerCloudAuthentication",
+          "type": "bool",
+          "location": "body",
+          "description": "Administer cloud authentication"
+        },
+        {
+          "name": "permissions-advertise-group",
+          "wire_name": "permissions.AdvertiseGroup",
+          "type": "bool",
+          "location": "body",
+          "description": "Advertise group"
+        },
+        {
+          "name": "permissions-ban-members",
+          "wire_name": "permissions.BanMembers",
+          "type": "bool",
+          "location": "body",
+          "description": "Ban members"
+        },
+        {
+          "name": "permissions-bypass-slowmode",
+          "wire_name": "permissions.BypassSlowmode",
+          "type": "bool",
+          "location": "body",
+          "description": "Bypass slowmode"
+        },
+        {
+          "name": "permissions-change-rank",
+          "wire_name": "permissions.ChangeRank",
+          "type": "bool",
+          "location": "body",
+          "description": "Change rank"
+        },
+        {
+          "name": "permissions-create-comments",
+          "wire_name": "permissions.CreateComments",
+          "type": "bool",
+          "location": "body",
+          "description": "Create comments"
+        },
+        {
+          "name": "permissions-create-items",
+          "wire_name": "permissions.CreateItems",
+          "type": "bool",
+          "location": "body",
+          "description": "Create items"
+        },
+        {
+          "name": "permissions-create-posts",
+          "wire_name": "permissions.CreatePosts",
+          "type": "bool",
+          "location": "body",
+          "description": "Create posts"
+        },
+        {
+          "name": "permissions-invite-members",
+          "wire_name": "permissions.InviteMembers",
+          "type": "bool",
+          "location": "body",
+          "description": "Invite members"
+        },
+        {
+          "name": "permissions-lock-posts",
+          "wire_name": "permissions.LockPosts",
+          "type": "bool",
+          "location": "body",
+          "description": "Lock posts"
+        },
+        {
+          "name": "permissions-manage-categories",
+          "wire_name": "permissions.ManageCategories",
+          "type": "bool",
+          "location": "body",
+          "description": "Manage categories"
+        },
+        {
+          "name": "permissions-manage-clan",
+          "wire_name": "permissions.ManageClan",
+          "type": "bool",
+          "location": "body",
+          "description": "Manage clan"
+        },
+        {
+          "name": "permissions-manage-group-games",
+          "wire_name": "permissions.ManageGroupGames",
+          "type": "bool",
+          "location": "body",
+          "description": "Manage group games"
+        },
+        {
+          "name": "permissions-manage-items",
+          "wire_name": "permissions.ManageItems",
+          "type": "bool",
+          "location": "body",
+          "description": "Manage items"
+        },
+        {
+          "name": "permissions-manage-keyword-block-list",
+          "wire_name": "permissions.ManageKeywordBlockList",
+          "type": "bool",
+          "location": "body",
+          "description": "Manage keyword block list"
+        },
+        {
+          "name": "permissions-manage-relationships",
+          "wire_name": "permissions.ManageRelationships",
+          "type": "bool",
+          "location": "body",
+          "description": "Manage relationships"
+        },
+        {
+          "name": "permissions-pin-posts",
+          "wire_name": "permissions.PinPosts",
+          "type": "bool",
+          "location": "body",
+          "description": "Pin posts"
+        },
+        {
+          "name": "permissions-post-to-status",
+          "wire_name": "permissions.PostToStatus",
+          "type": "bool",
+          "location": "body",
+          "description": "Post to status"
+        },
+        {
+          "name": "permissions-remove-comments",
+          "wire_name": "permissions.RemoveComments",
+          "type": "bool",
+          "location": "body",
+          "description": "Remove comments"
+        },
+        {
+          "name": "permissions-remove-members",
+          "wire_name": "permissions.RemoveMembers",
+          "type": "bool",
+          "location": "body",
+          "description": "Remove members"
+        },
+        {
+          "name": "permissions-remove-posts",
+          "wire_name": "permissions.RemovePosts",
+          "type": "bool",
+          "location": "body",
+          "description": "Remove posts"
+        },
+        {
+          "name": "permissions-spend-group-funds",
+          "wire_name": "permissions.SpendGroupFunds",
+          "type": "bool",
+          "location": "body",
+          "description": "Spend group funds"
+        },
+        {
+          "name": "permissions-use-cloud-authentication",
+          "wire_name": "permissions.UseCloudAuthentication",
+          "type": "bool",
+          "location": "body",
+          "description": "Use cloud authentication"
+        },
+        {
+          "name": "permissions-view-analytics",
+          "wire_name": "permissions.ViewAnalytics",
+          "type": "bool",
+          "location": "body",
+          "description": "View analytics"
+        },
+        {
+          "name": "permissions-view-audit-logs",
+          "wire_name": "permissions.ViewAuditLogs",
+          "type": "bool",
+          "location": "body",
+          "description": "View audit logs"
+        },
+        {
+          "name": "permissions-view-community-analytics",
+          "wire_name": "permissions.ViewCommunityAnalytics",
+          "type": "bool",
+          "location": "body",
+          "description": "View community analytics"
+        },
+        {
+          "name": "permissions-view-forums",
+          "wire_name": "permissions.ViewForums",
+          "type": "bool",
+          "location": "body",
+          "description": "View forums"
+        },
+        {
+          "name": "permissions-view-keyword-block-list",
+          "wire_name": "permissions.ViewKeywordBlockList",
+          "type": "bool",
+          "location": "body",
+          "description": "View keyword block list"
+        },
+        {
+          "name": "permissions-view-status",
+          "wire_name": "permissions.ViewStatus",
+          "type": "bool",
+          "location": "body",
+          "description": "View status"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_rolesets_create",
+      "description": "Creates new group roleset. Required: groupId. Optional: description, name, rank (plus 1 more). Returns the new RobloxGroupsApiGroupRoleResponse.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/rolesets/create",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The description of the roleset."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the roleset."
+        },
+        {
+          "name": "rank",
+          "type": "int",
+          "location": "body",
+          "description": "The rank/positioning of the roleset."
+        },
+        {
+          "name": "usingGroupFunds",
+          "type": "bool",
+          "location": "body",
+          "description": "Setting to use group funds or not."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_rolesets_delete",
+      "description": "Deletes existing group roleset. Required: groupId, rolesetId. Returns the RobloxWebWebApiApiEmptyResponseModel. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/groups/{groupId}/rolesets/{rolesetId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "rolesetId",
+          "type": "int",
+          "location": "path",
+          "description": "The roleset Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_rolesets_update",
+      "description": "Updates existing group roleset. Required: groupId, rolesetId. Optional: color, description, name (plus 1 more). Returns the updated RobloxGroupsApiGroupRoleResponse.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/rolesets/{rolesetId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "rolesetId",
+          "type": "int",
+          "location": "path",
+          "description": "The roleset Id.",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "int",
+          "location": "body",
+          "description": "Optional. The color of the roleset (GroupRoleSetColorType value, e.g. 0 = Invalid, 1 = Blue). When omitted, only name and description are updated and the existing color is left unchanged. When set, name, description, and color are updated via UpdateGroupRoleSetProperties."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The description of the roleset."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the roleset."
+        },
+        {
+          "name": "rank",
+          "type": "int",
+          "location": "body",
+          "description": "The rank/positioning of the roleset."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_settings_get",
+      "description": "Gets the Group's settings. Required: groupId. Returns the RobloxGroupsApiGroupSettingsResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/settings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group the user is in.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_settings_update",
+      "description": "Updates the group's settings. Required: groupId. Optional: accountTenureRequirement, areEnemiesAllowed, areGroupFundsVisible (plus 5 more). Returns the updated RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/settings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group the user is in.",
+          "required": true
+        },
+        {
+          "name": "accountTenureRequirement",
+          "type": "int",
+          "location": "body",
+          "description": "The account tenure requirement for the group."
+        },
+        {
+          "name": "areEnemiesAllowed",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether enemy club declarations are allowed."
+        },
+        {
+          "name": "areGroupFundsVisible",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether funds are publicly visible."
+        },
+        {
+          "name": "areGroupGamesVisible",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether games are publicly visible."
+        },
+        {
+          "name": "isApprovalRequired",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether public entry is allowed."
+        },
+        {
+          "name": "isMemberListVisibleToPublic",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the group member list is visible to public."
+        },
+        {
+          "name": "slowmode",
+          "type": "int",
+          "location": "body",
+          "description": "The slowmode level for the group (0-4). 0 = No slowmode, 1-4 = Slowmode levels with increasing restrictions. Null = No change to current slowmode setting."
+        },
+        {
+          "name": "verificationLevel",
+          "type": "int",
+          "location": "body",
+          "description": "The verification level for the group."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_social-links_create",
+      "description": "Posts a social links. Required: groupId. Optional: title, type, url. Returns the new RobloxGroupsApiSocialLinkResponse.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/social-links",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the link"
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "location": "body",
+          "description": "What type of social media this points to"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The url of the link"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_social-links_delete",
+      "description": "Deletes a social link. Required: groupId, socialLinkId. Returns the RobloxWebWebApiApiEmptyResponseModel. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/groups/{groupId}/social-links/{socialLinkId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the game you are editing, required for permissions checking",
+          "required": true
+        },
+        {
+          "name": "socialLinkId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the social link",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_social-links_get",
+      "description": "Get social link data associated with a group. Required: groupId. Returns array of RobloxGroupsApiSocialLinkResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/social-links",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The Id of the game",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_social-links_update",
+      "description": "Updates a social link. Required: groupId, socialLinkId. Optional: title, type, url. Returns the updated RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/social-links/{socialLinkId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the universe",
+          "required": true
+        },
+        {
+          "name": "socialLinkId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the social link being updated",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the link"
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "location": "body",
+          "description": "What type of social media this points to"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The url of the link"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_status_update",
+      "description": "Sets group status. Required: groupId. Optional: message. Returns the updated RobloxGroupsApiShoutResponse.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/status",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "The message to set the group status to."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_users_create",
+      "description": "Joins a group. Required: groupId. Optional: captchaId, captchaProvider, captchaToken (plus 3 more). Returns the new RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "POST",
+      "path": "/v1/groups/{groupId}/users",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "captchaId",
+          "type": "string",
+          "location": "body",
+          "description": "Captcha id"
+        },
+        {
+          "name": "captchaProvider",
+          "type": "string",
+          "location": "body",
+          "description": "Captcha provider"
+        },
+        {
+          "name": "captchaToken",
+          "type": "string",
+          "location": "body",
+          "description": "Captcha token"
+        },
+        {
+          "name": "challengeId",
+          "type": "string",
+          "location": "body",
+          "description": "Challenge id"
+        },
+        {
+          "name": "redemptionToken",
+          "type": "string",
+          "location": "body",
+          "description": "Redemption token"
+        },
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "body",
+          "description": "Session id"
+        }
+      ]
+    },
+    {
+      "name": "groups-2_users_delete",
+      "description": "Removes a user from a group. Required: groupId, userId. Returns the RobloxWebWebApiApiEmptyResponseModel. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/groups/{groupId}/users/{userId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group Id.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The Id of the user being removed.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_users_get",
+      "description": "Gets a list of users in a group. Required: groupId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxGroupsApiUserGroupRoleResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/users",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "groups-2_users_get-groups",
+      "description": "Gets the permissions a user has in a group. Only available to group owner and RCC. Required: groupId, userId. Returns the RobloxGroupsApiGroupPermissionsResponse.",
+      "method": "GET",
+      "path": "/v1/groups/{groupId}/users/{userId}/permissions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The group id.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-2_users_update",
+      "description": "Updates a users role in a group. Required: groupId, userId. Optional: roleId. Returns the updated RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "PATCH",
+      "path": "/v1/groups/{groupId}/users/{userId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "groupId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the group the user is in.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the user being updated.",
+          "required": true
+        },
+        {
+          "name": "roleId",
+          "type": "int",
+          "location": "body",
+          "description": "The role in the group the user should be put into."
+        }
+      ]
+    },
+    {
+      "name": "groups-users_friends_get",
+      "description": "Gets a list of all groups the specified users' friends are in. Required: userId. Returns array of RobloxGroupsApiUserGroupMembershipResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/friends/groups/roles",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups-users_groups_get",
+      "description": "Gets a list of all group roles for groups the specified user is in. Required: userId. Optional: includeLocked, includeNotificationPreferences, discoveryType. Returns array of RobloxGroupsApiGroupMembershipDetailResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/groups/roles",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user id.",
+          "required": true
+        },
+        {
+          "name": "includeLocked",
+          "type": "bool",
+          "location": "query",
+          "description": "Include locked"
+        },
+        {
+          "name": "includeNotificationPreferences",
+          "type": "bool",
+          "location": "query",
+          "description": "Include notification preferences"
+        },
+        {
+          "name": "discoveryType",
+          "type": "int",
+          "location": "query",
+          "description": "Discovery type"
+        }
+      ]
+    },
+    {
+      "name": "groups-users_groups_get-users",
+      "description": "Gets a user's primary group. Required: userId. Returns array of RobloxGroupsApiGroupNotificationPreferenceData.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/groups/primary/role",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory-assets_owners_get",
+      "description": "Gets a list of owners of an asset. Required: assetId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxInventoryApiV2AssetOwnerResponse.",
+      "method": "GET",
+      "path": "/v2/assets/{assetId}/owners",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "assetId",
+          "type": "int",
+          "location": "path",
+          "description": "The asset id.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sorted by userAssetId"
+        }
+      ]
+    },
+    {
+      "name": "inventory-users_assets_get",
+      "description": "Gets all collectible assets owned by the specified user. Required: userId. Optional: assetType, limit (default: 10), cursor (plus 1 more). Returns array of RobloxInventoryApiModelsCollectibleUserAssetModel.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/assets/collectibles",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The userid of the owner of the collectibles.",
+          "required": true
+        },
+        {
+          "name": "assetType",
+          "type": "int",
+          "location": "query",
+          "description": "The asset type for the collectibles you're trying to get."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sorted by userAssetId"
+        }
+      ]
+    },
+    {
+      "name": "inventory-users_can-view-inventory_get",
+      "description": "Gets whether the specified user's inventory can be viewed. Required: userId. Returns the RobloxInventoryApiModelsCanViewInventoryResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/can-view-inventory",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory-users_categories_get",
+      "description": "Return inventory categories for a user. Required: userId. Returns array of RobloxInventoryApiModelsAssetsExplorerCategoryModel.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/categories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory-users_categories_get-users",
+      "description": "Return favorites categories for a user. Required: userId. Returns array of RobloxInventoryApiModelsAssetsExplorerCategoryModel.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/categories/favorites",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory-users_items_get",
+      "description": "Gets owned items of the specified item type. Game Servers can make requests for any user, but can only make requests for game passes that belong to the place sending the request. Place creators can make requests as if they were the Game Server. Required: userId, itemType (default: 0), itemTargetId. Returns array of RobloxInventoryApiModelsIitemModel.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/items/{itemType}/{itemTargetId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the user in question",
+          "required": true
+        },
+        {
+          "name": "itemType",
+          "type": "int",
+          "location": "path",
+          "description": "Type of the item in question (i.e. Asset, GamePass, Badge, Bundle)",
+          "required": true
+        },
+        {
+          "name": "itemTargetId",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the item in question",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory-users_items_get-users",
+      "description": "Gets whether a user owns an item of type itemType with id itemTargetId. Required: userId, itemType (default: 0), itemTargetId.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/items/{itemType}/{itemTargetId}/is-owned",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the user in question",
+          "required": true
+        },
+        {
+          "name": "itemType",
+          "type": "int",
+          "location": "path",
+          "description": "Type of the item in question (i.e. Asset, GamePass, Badge, Bundle)",
+          "required": true
+        },
+        {
+          "name": "itemTargetId",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the item in question",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory-users_places_get",
+      "description": "Gets Created, MyGames, or OtherGames places inventory for a user. Required: userId, placesTab, itemsPerPage, cursor. Returns array of RobloxInventoryApiModelsPlaceModel.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/places/inventory",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "placesTab",
+          "type": "int",
+          "location": "query",
+          "description": "Places tab",
+          "required": true
+        },
+        {
+          "name": "itemsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "int",
+          "location": "query",
+          "description": "Cursor",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory-users-2_inventory_get",
+      "description": "Get user's inventory by multiple Roblox.Platform.Assets.AssetType. Required: userId, assetTypes. Optional: filterDisapprovedAssets (default: false), showApprovedOnly (default: false), limit (default: 10) (plus 2 more). Returns array of RobloxInventoryApiV2UserAssetItemModelV2.",
+      "method": "GET",
+      "path": "/v2/users/{userId}/inventory",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The inventory owner's userId.",
+          "required": true
+        },
+        {
+          "name": "assetTypes",
+          "type": "array",
+          "location": "query",
+          "description": "The asset types to query.",
+          "required": true
+        },
+        {
+          "name": "filterDisapprovedAssets",
+          "type": "bool",
+          "location": "query",
+          "description": "Filters moderated assets when enabled."
+        },
+        {
+          "name": "showApprovedOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Filters moderated assets and assets pending review when enabled."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "inventory-users-2_inventory_get-users",
+      "description": "Gets user's inventory based on specific asset type. Required: userId, assetTypeId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxInventoryApiModelsInventoryItemModel.",
+      "method": "GET",
+      "path": "/v2/users/{userId}/inventory/{assetTypeId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user Id of the inventory owner",
+          "required": true
+        },
+        {
+          "name": "assetTypeId",
+          "type": "int",
+          "location": "path",
+          "description": "The asset type Id of the items to get",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "metadata_list",
+      "description": "List. Optional: targetUserId (default: 0). Returns the RobloxFriendsApiModelsResponseFriendsPageMetadataResponse.",
+      "method": "GET",
+      "path": "/v1/metadata",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "targetUserId",
+          "type": "int",
+          "location": "query",
+          "description": "Target user id"
+        }
+      ]
+    },
+    {
+      "name": "outfits_delete_create",
+      "description": "You are only allowed to delete outfits you created. Required: userOutfitId. Returns the new RobloxApiAvatarModelsAvatarApiSuccessResponse.",
+      "method": "POST",
+      "path": "/v1/outfits/{userOutfitId}/delete",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userOutfitId",
+          "type": "int",
+          "location": "path",
+          "description": "The user outfit id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "outfits_details_get",
+      "description": "Gets details about the contents of an outfit. Required: userOutfitId. Returns array of RobloxApiAvatarModelsAssetModelV2.",
+      "method": "GET",
+      "path": "/v1/outfits/{userOutfitId}/details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userOutfitId",
+          "type": "int",
+          "location": "path",
+          "description": "The user outfit id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "packages_assets_get",
+      "description": "Given a package ID, returns the list of asset IDs for that package. Required: packageID, packageId.",
+      "method": "GET",
+      "path": "/v1/packages/{packageId}/assets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "packageID",
+          "type": "int",
+          "location": "path",
+          "description": "The asset ID of the package",
+          "required": true
+        },
+        {
+          "name": "packageId",
+          "type": "string",
+          "location": "path",
+          "description": "packageId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "places_list",
+      "description": "Fetches game icon URLs for a list of places. Ids that do not correspond to a valid place will be filtered out. Required: placeIds. Optional: returnPolicy (default: PlaceHolder), size (default: 50x50), format (default: Png) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/places/gameicons",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "placeIds",
+          "type": "array",
+          "location": "query",
+          "description": "The place ids.",
+          "required": true
+        },
+        {
+          "name": "returnPolicy",
+          "type": "string",
+          "location": "query",
+          "description": "Optional policy to use in selecting game icon to return (default = PlaceHolder)."
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "roles_list",
+      "description": "Gets the Roles by their ids. Required: ids. Returns array of RobloxGroupsApiGroupRoleDetailResponse.",
+      "method": "GET",
+      "path": "/v1/roles",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "A list of role ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subcategories_list",
+      "description": "Lists Subcategory Names and their Ids. Returns the SubcategoriesListResponse.",
+      "method": "GET",
+      "path": "/v1/subcategories",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "thumbnails-games_list",
+      "description": "Fetches game icon URLs for a list of universes' root places. Ids that do not correspond to a valid universe will be filtered out. The ordering of the results is not guaranteed to be the same as the inputs. In order to correlated inputs with outputs please use the 'targetId' of the objects in the result array. Required: universeIds. Optional: returnPolicy (default: PlaceHolder), size (default: 50x50), format (default: Png) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/games/icons",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeIds",
+          "type": "array",
+          "location": "query",
+          "description": "The universe ids.",
+          "required": true
+        },
+        {
+          "name": "returnPolicy",
+          "type": "string",
+          "location": "query",
+          "description": "Optional policy to use in selecting game icon to return (default = PlaceHolder)."
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "thumbnails-games_list-multiget",
+      "description": "Fetch game thumbnail URLs for a list of universe IDs. Required: universeIds. Optional: countPerUniverse (default: 1), defaults (default: true), size (default: 768x432) (plus 2 more).",
+      "method": "GET",
+      "path": "/v1/games/multiget/thumbnails",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeIds",
+          "type": "array",
+          "location": "query",
+          "description": "comma-delimited list of universe IDs",
+          "required": true
+        },
+        {
+          "name": "countPerUniverse",
+          "type": "int",
+          "location": "query",
+          "description": "max number of thumbnails to return per universe"
+        },
+        {
+          "name": "defaults",
+          "type": "bool",
+          "location": "query",
+          "description": "true if defaults (if any) should be returned if no media exists"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "thumbnails-games_thumbnails_get",
+      "description": "Fetches game thumbnail URLs for a list of universes' thumbnail ids. Ids that do not correspond to a valid thumbnail will be filtered out. Required: universeId, thumbnailIds. Optional: size (default: 768x432), format (default: Png), isCircular (default: false).",
+      "method": "GET",
+      "path": "/v1/games/{universeId}/thumbnails",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "path",
+          "description": "Universe id",
+          "required": true
+        },
+        {
+          "name": "thumbnailIds",
+          "type": "array",
+          "location": "query",
+          "description": "Thumbnail ids",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "thumbnails-users_list-avatar3d",
+      "description": "Get Avatar 3d object for a user. Required: userId.",
+      "method": "GET",
+      "path": "/v1/users/avatar-3d",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "query",
+          "description": "user Id for avatar",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "thumbnails-users_list-avatarbust",
+      "description": "Get Avatar Busts for the given CSV of userIds. Required: userIds. Optional: includeBackground (default: false), size (default: 48x48), format (default: Png) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/users/avatar-bust",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userIds",
+          "type": "array",
+          "location": "query",
+          "description": "CSV for the userIds to get avatar headshots",
+          "required": true
+        },
+        {
+          "name": "includeBackground",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include a background in the thumbnail (defaults to false)"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "thumbnails-users_list-avatarheadshot",
+      "description": "Get Avatar Headshots for the given CSV of userIds. Required: userIds. Optional: includeBackground (default: false), size (default: 48x48), format (default: Png) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/users/avatar-headshot",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userIds",
+          "type": "array",
+          "location": "query",
+          "description": "CSV for the userIds to get avatar headshots",
+          "required": true
+        },
+        {
+          "name": "includeBackground",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include a background in the thumbnail (defaults to false)"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "thumbnails-users_list-outfit3d",
+      "description": "Get 3d object for an outfit. Required: outfitId.",
+      "method": "GET",
+      "path": "/v1/users/outfit-3d",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "outfitId",
+          "type": "int",
+          "location": "query",
+          "description": "CSV for the userIds to get user outfits",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "thumbnails-users_list-outfits",
+      "description": "Get outfits for the given CSV of userOutfitIds. Required: userOutfitIds. Optional: includeBackground (default: false), size (default: 150x150), format (default: Png) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/users/outfits",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userOutfitIds",
+          "type": "array",
+          "location": "query",
+          "description": "CSV for the userOutfitIds to get user outfits",
+          "required": true
+        },
+        {
+          "name": "includeBackground",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include a background in the thumbnail (defaults to false)"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail size, formatted widthxheight"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The thumbnail format"
+        },
+        {
+          "name": "isCircular",
+          "type": "bool",
+          "location": "query",
+          "description": "The circle thumbnail output parameter, true or false"
+        }
+      ]
+    },
+    {
+      "name": "universes_badges_create",
+      "description": "Creates a new badge. Required: universeId. Optional: description, expectedCost, files (plus 3 more). Returns the new RobloxWebResponsesBadgesBadgeResponseV2.",
+      "method": "POST",
+      "path": "/v1/universes/{universeId}/badges",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the universe to create the badge for.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The badge description."
+        },
+        {
+          "name": "expectedCost",
+          "type": "int",
+          "location": "body",
+          "description": "User expected cost of a badge."
+        },
+        {
+          "name": "files",
+          "type": "string",
+          "location": "body",
+          "description": "The badge icon."
+        },
+        {
+          "name": "isActive",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the badge should be created in the active state."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The badge name."
+        },
+        {
+          "name": "paymentSourceType",
+          "type": "int",
+          "location": "body",
+          "description": "Whether or not to pay for the badge with user funds, or group funds. ['User' = 1, 'Group' = 2]"
+        }
+      ]
+    },
+    {
+      "name": "universes_badges_get",
+      "description": "Gets badges by their awarding game. Required: universeId. Optional: sortBy, limit (default: 10), cursor (plus 1 more). Returns array of RobloxBadgesApiBadgeResponse.",
+      "method": "GET",
+      "path": "/v1/universes/{universeId}/badges",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "path",
+          "description": "The universe Id.",
+          "required": true
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "The key to sort badges by."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "universes_free-badges-quota_get",
+      "description": "Gets the number of free badges left for the current UTC day by their awarding game. Required: universeId.",
+      "method": "GET",
+      "path": "/v1/universes/{universeId}/free-badges-quota",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "universeId",
+          "type": "int",
+          "location": "path",
+          "description": "The universe Id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_multiget-are-friends_create",
+      "description": "Check if the requesting user is friends with the specified users. Required: userId. Optional: targetUserIds. Returns array of int.",
+      "method": "POST",
+      "path": "/v1/user/{userId}/multiget-are-friends",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The requesting userId.",
+          "required": true
+        },
+        {
+          "name": "targetUserIds",
+          "type": "array",
+          "location": "body",
+          "description": "The target userIds to check against with the requesting user regarding friendship."
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Gets detailed user information by id. Required: userId. Returns the RobloxUsersApiGetUserResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_list-search",
+      "description": "Searches for users by keyword. Required: keyword. Optional: sessionId, limit (default: 10), cursor. Returns array of RobloxUsersApiSearchGetUserResponse.",
+      "method": "GET",
+      "path": "/v1/users/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "The search keyword.",
+          "required": true
+        },
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "query",
+          "description": "Session id"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        }
+      ]
+    },
+    {
+      "name": "users_display-names_get",
+      "description": "Validate a display name for an existing user. Required: userId, displayName. Returns the RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/display-names/validate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "The user id.",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "query",
+          "description": "The display name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_display-names_update",
+      "description": "Set the display name for the authorized user. Required: userId. Optional: newDisplayName. Returns the updated RobloxWebWebApiApiEmptyResponseModel.",
+      "method": "PATCH",
+      "path": "/v1/users/{userId}/display-names",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "the user id",
+          "required": true
+        },
+        {
+          "name": "newDisplayName",
+          "type": "string",
+          "location": "body",
+          "description": "The users new display name."
+        }
+      ]
+    },
+    {
+      "name": "users_username-history_get",
+      "description": "Retrieves the username history for a particular user. Required: userId. Optional: limit (default: 10), cursor, sortOrder (default: Asc). Returns array of RobloxUsersApiUsernameHistoryResponse.",
+      "method": "GET",
+      "path": "/v1/users/{userId}/username-history",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results per request."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor for the previous or next page."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "The order the results are sorted in."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+# Fordított bináris / compiled binary — sose commitold
+grants.exe
+grants
+*.exe
+
+# Go build/test kimenet
+/build/
+*.out
+*.test
+
+# OS/editor zaj
+.DS_Store
+Thumbs.db

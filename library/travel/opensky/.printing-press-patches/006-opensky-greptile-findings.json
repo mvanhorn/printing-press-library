@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "opensky-greptile-findings",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-162902",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Three Greptile review findings resolved: (1) SKILL.md recall/teach recipes now pass the question as a single-quoted opaque argument with an explicit never-embed note (was double-quoted, allowing shell command substitution); (2) promoted_states.go bbox flags use cmd.Flags().Changed instead of != 0.0 so an explicit 0.0 boundary (equator/prime meridian) is preserved; (3) flights --begin help text corrected to now-1h to match the implemented default (was now-2h).",
+  "reason": "Greptile confidence score was 2/5 (threshold 4/5); the policy gate blocks merge until these land. All three are valid: the recipe interpolation is a command-injection vector for agents following the skill, the zero-value guards silently drop legitimate boundaries, and the stale help text misleads about the query window.",
+  "files": [
+    "SKILL.md",
+    "internal/cli/promoted_states.go",
+    "internal/cli/flights_get-departures.go",
+    "internal/cli/flights_get-aircraft-trajectory.go"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., and go test ./... pass (12 packages); dry-run with --lamax 0 shows lamax=0 present in the request query string.",
+  "upstream_issue": "SKILL.md recipe interpolation is a template defect (all prints carry it); candidate for a cli-printing-press template fix."
+}

@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "finra-pp-cli"
+display_name = "FINRA"
+description = "Every FINRA Query API dataset, plus local trend detection and batch registration checks no other FINRA tool offers."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/finra-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+FINRA_CLIENT_ID = true
+FINRA_CLIENT_SECRET = true

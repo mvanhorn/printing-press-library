@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "catalog-go-1265-vuln-floor",
+  "applied_at": "2026-07-08",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Raise the published CLI Go toolchain floor to 1.26.5 so the GO-2026-5856 crypto/tls fix is enforced by go install.",
+  "reason": "Go 1.26.5 carries the standard-library fix for GO-2026-5856; the catalog-wide docs floor must match each module go directive so users do not build published CLIs with a vulnerable Go toolchain.",
+  "files": [
+    "go.mod",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Bulk verification confirmed all direct published CLI go.mod files declare go 1.26.5 or newer after the sweep."
+}

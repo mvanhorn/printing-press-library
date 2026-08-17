@@ -22,41 +22,55 @@ func newAirportsNearbyGetAirportsNearAirportCmd(flags *rootFlags) *cobra.Command
 		Use:         "get-airports-near-airport <id>",
 		Aliases:     []string{"get"},
 		Short:       "Returns a list of airports located within a given distance from the specified airport.",
-		Example:     "  flight-goat-pp-cli airports nearby get-airports-near-airport 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "nearby.get-airports-near-airport", "mcp:read-only": "true"},
+		Example:     "  flight-goat-pp-cli airports nearby get-airports-near-airport IAH --radius 42",
+		Annotations: map[string]string{"pp:endpoint": "nearby.get-airports-near-airport", "pp:method": "GET", "pp:path": "/airports/{id}/nearby", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if !cmd.Flags().Changed("radius") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "radius")
 			}
+			path := "/airports/{id}/nearby"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/airports/{id}/nearby"
-			path = replacePathParam(path, "id", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "nearby", path, map[string]string{
-				"radius":    fmt.Sprintf("%v", flagRadius),
-				"only_iap":  fmt.Sprintf("%v", flagOnlyIap),
-				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor":    fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "nearby", path, map[string]string{
+				"radius":    formatCLIParamValue(flagRadius),
+				"only_iap":  formatCLIParamValue(flagOnlyIap),
+				"max_pages": formatCLIParamValue(flagMaxPages),
+				"cursor":    formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -82,7 +96,7 @@ func newAirportsNearbyGetAirportsNearAirportCmd(flags *rootFlags) *cobra.Command
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().IntVar(&flagRadius, "radius", 0, "The search radius to use for finding nearby airports (statue miles)")

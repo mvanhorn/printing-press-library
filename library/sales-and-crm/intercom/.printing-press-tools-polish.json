@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-07-22T22:30:57.682529Z",
+  "cli_dir": "\u003ccli-dir\u003e/intercom-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learn-loop file (teach.go); 'learnings list' Short is accurate but terse — needs a generator-template fix, not a hand-edit that regen would wipe"
+    }
+  ]
+}

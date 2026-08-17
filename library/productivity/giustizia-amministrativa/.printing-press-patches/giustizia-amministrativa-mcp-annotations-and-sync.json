@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-mcp-annotations-and-sync",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Due correzioni trovate confrontando la superficie MCP con le best practice 2026 (annotazioni complete, nessun dead-end): (1) rimosso mcp:hidden da sync, che ora e' un tool MCP come gli altri; (2) aggiunto idempotentHint mancante su tutti i tool read-only (i quattro handcoded in tools.go e, via classify.go's mcp:read-only, tutto il mirror cobratree), piu' openWorldHint esplicito (false) su sql e context, che lavorano solo sui dati locali.",
+  "reason": "sql (query SQL sullo store locale, gia' esposto via MCP) e' inutile finche' lo store e' vuoto, e sync e' l'unico comando che lo popola -- ma sync aveva mcp:hidden:true. Un utente nuovo via Claude Desktop non tocca mai un terminale: per lui sql era morto alla nascita, esattamente il 'broken contract' che il commento in classify.go avverte di evitare (era gia' scritto li', ma sync.go lo violava comunque). Le annotazioni mancanti (idempotentHint, openWorldHint) non causano un malfunzionamento ma sono uno scostamento diretto dalla checklist 2026 di design MCP: gli host trattano un'annotazione assente come 'pessimista di default', quindi un tool di sola lettura senza idempotentHint puo' chiedere conferma ad ogni chiamata quando non servirebbe.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/cobratree/walker.go"
+  ],
+  "validated_outcome": "tools/list passa da 13 a 14 (sync compare, ro=false idem=false ow=true, coerente perche' scrive nello store locale). sync --limit 5 via MCP: {\"seeded\":5,...}. Tutti i tool read-only (provvedimenti_cerca/get, sql, context, get, grep, massime, appeal_chain, stats, workflow_status) hanno ora ro=true idem=true; sql/context hanno anche ow=false. go build/vet/test verdi."
+}

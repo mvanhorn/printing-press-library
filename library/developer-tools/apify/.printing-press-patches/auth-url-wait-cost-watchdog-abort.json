@@ -1,0 +1,30 @@
+{
+    "schema_version": 2,
+    "id": "auth-url-wait-cost-watchdog-abort",
+    "applied_at": "2026-06-30",
+    "base_run_id": "20260518-132617",
+    "base_printing_press_version": "4.8.0",
+    "summary": "fix(apify): correct the API-token URL (Apify console, not an MDN page); make `run --wait` poll instead of holding a 60s server block past the client timeout; add a live --max-cost watchdog that aborts a running Actor once reported cost exceeds the cap; make `actor-runs abort <runId>` work directly.",
+    "rationale": "Dogfooding the CLI against apify/facebook-marketplace-scraper surfaced four issues: (1) `auth setup`/`doctor` pointed users to https://developer.mozilla.org/.../Authorization instead of the Apify console token page; (2) `run --wait` sent waitForFinish=60 on the start POST, exceeding the 30s HTTP client read timeout and failing with 'context deadline exceeded while reading body' while the run kept executing and billing; (3) --max-cost could not protect the first run of an Actor (no cached history to project from) and nothing capped a live --wait run, so a run reached $2.63 before manual abort; (4) `actor-runs abort <runId>` only printed parent help, forcing users to discover the actor-run-post leaf to stop a billing run.",
+    "files": [
+        "internal/cli/auth.go",
+        "internal/cli/doctor.go",
+        "internal/cli/helpers.go",
+        "internal/cli/run.go",
+        "internal/cli/ab.go",
+        "internal/cli/workflow_run.go",
+        "internal/cli/actor-runs_abort.go",
+        "internal/mcp/tools.go",
+        "manifest.json",
+        "tools-manifest.json"
+    ],
+    "validated_outcome": "go build, go vet, govulncheck, manifest, phase5 pass; auth setup now prints the Apify console URL; actor-runs abort accepts a runId directly; run --wait polls under a bounded server block. Pre-existing verify-skill canonical-sections drift in SKILL.md (untouched by this patch) remains and needs a regen, separate from these fixes.",
+    "findings_addressed": ["F1", "F2", "F3", "F4"],
+    "deferred_to_upstream": [
+        {
+            "feature": "Auth key-URL extraction in the generator picked an MDN '[More info]' link from the spec's auth prose instead of the vendor console URL (which is present in the same description). The generator heuristic should prefer the vendor console/integrations link over generic reference links.",
+            "reason": "This is a machine-level heuristic bug; the printed-CLI patch fixes this one CLI, but the generator should learn to prefer the canonical credential URL so future prints are correct."
+        }
+    ],
+    "upstream_issue": ""
+}

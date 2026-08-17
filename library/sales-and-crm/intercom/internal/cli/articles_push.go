@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newArticlesPushCmd(flags *rootFlags) *cobra.Command {
+func newNovelArticlesPushCmd(flags *rootFlags) *cobra.Command {
 	var from string
 	var localesCSV string
 	var dryRunOnly bool
@@ -45,6 +45,9 @@ func newArticlesPushCmd(flags *rootFlags) *cobra.Command {
 			localeFilter := parseLocaleFilter(localesCSV)
 
 			manifestPath := filepath.Join(from, "manifest.json")
+			// #nosec G304 -- manifestPath is filepath.Join(user-supplied --from
+			// dir, constant "manifest.json"); reading back the tree this user
+			// pulled is the command's intended contract.
 			mfData, err := os.ReadFile(manifestPath)
 			if err != nil {
 				return notFoundErr(fmt.Errorf("reading manifest: %w", err))
@@ -72,6 +75,9 @@ func newArticlesPushCmd(flags *rootFlags) *cobra.Command {
 						continue
 					}
 					fpath := filepath.Join(from, file)
+					// #nosec G304 -- fpath is filepath.Join(user-supplied --from
+					// dir, a filename listed in that dir's own manifest.json);
+					// both the dir and manifest are user-owned by design.
 					raw, err := os.ReadFile(fpath)
 					if err != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "warning: read %s: %v\n", file, err)

@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.5"
+var version = "2026.8.1"
 
 type rootFlags struct {
 	asJSON        bool
@@ -277,7 +277,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
-	rootCmd.AddCommand(newDiscoverPromotedCmd(flags))
+	discoverCmd := newDiscoverPromotedCmd(flags)
+	discoverCmd.AddCommand(newDiscoverPatternsCmd(flags))
+	rootCmd.AddCommand(discoverCmd)
 	rootCmd.AddCommand(newFeedPromotedCmd(flags))
 	rootCmd.AddCommand(newImagesPromotedCmd(flags))
 	rootCmd.AddCommand(newRecommendationsPromotedCmd(flags))
@@ -292,14 +294,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newPortfolioCmd(flags))
 	rootCmd.AddCommand(newGrepCmd(flags))
 	rootCmd.AddCommand(newScheduleCmd(flags))
-	// Attach `discover patterns` to the existing `discover` leaf command.
-	for _, c := range rootCmd.Commands() {
-		if c.Name() == "discover" {
-			c.AddCommand(newDiscoverPatternsCmd(flags))
-			break
-		}
-	}
-
 	return rootCmd
 }
 

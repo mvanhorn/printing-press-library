@@ -1,0 +1,32 @@
+// Copyright 2026 Todd Dailey and contributors. Licensed under Apache-2.0. See LICENSE.
+// cli-printing-press: novel-scaffold-test
+// Bambu job timeline command wiring tests.
+
+package cli
+
+import (
+	"bytes"
+	"strings"
+	"testing"
+)
+
+// TestNovelJobTimelineHelpWires smoke-tests that the job timeline command
+// resolves at runtime and renders useful --help output. Catches wiring
+// regressions (missing AddCommand, panicking RunE on --help, etc.) before
+// review. Keep this smoke test when adding behavior-specific cases.
+func TestNovelJobTimelineHelpWires(t *testing.T) {
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"job", "timeline", "--help"})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("job timeline --help error = %v (novel command not wired correctly?)", err)
+	}
+	help := out.String()
+	for _, want := range []string{"Usage:", "timeline"} {
+		if !strings.Contains(help, want) {
+			t.Fatalf("job timeline --help missing %q in output:\n%s", want, help)
+		}
+	}
+}

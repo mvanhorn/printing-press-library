@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "lightroom-classic-pp-mcp",
+  "display_name": "Lightroom Classic",
+  "version": "0.1.0",
+  "description": "Your Lightroom Classic catalog, queryable from the terminal — streaks, daily picks, and shot lists with zero exports and zero writes.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/lightroom-classic-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/lightroom-classic-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

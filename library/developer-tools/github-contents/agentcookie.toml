@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "github-contents-pp-cli"
+display_name = "GitHub Contents"
+description = "Download any GitHub folder without cloning — plan it first, verify it after, re-sync only what changed."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/github-contents-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+GH_TOKEN = true
+GITHUB_TOKEN = true

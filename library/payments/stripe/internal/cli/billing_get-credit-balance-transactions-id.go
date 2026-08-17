@@ -29,10 +29,12 @@ func newBillingGetCreditBalanceTransactionsIdCmd(flags *rootFlags) *cobra.Comman
 			}
 
 			path := "/v1/billing/credit_balance_transactions/{id}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
 			}
-			path = replacePathParam(path, "id", args[1])
+			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

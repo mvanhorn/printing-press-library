@@ -1,0 +1,91 @@
+# learn no-entities escape: search targets free-text upstream catalogs across 3 sites with no stable finite entity vocabulary to alias (unlike a fixed product/ticker list)
+name: printgoat
+kind: synthetic
+category: devices
+description: Search, compare, and download 3D-printable design files across Printables, Thingiverse, and Cults3D
+cli_description: Search and download 3D-print files across Printables, Thingiverse, and Cults3D
+version: "0.1.0"
+base_url: https://api.printables.com
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/printgoat-pp-cli/config.toml"
+# NOTE: tier_routing is intentionally NOT declared here. cli-printing-press's
+# multi-spec merge (mergeSpecsWithOptions in internal/cli/root.go) drops the
+# primary spec's tier_routing block entirely when merging >1 --spec files, so
+# it would have zero effect. Per-source auth (Thingiverse Bearer token via
+# THINGIVERSE_TOKEN; Cults3D HTTP Basic via CULTS3D_USERNAME + CULTS3D_API_KEY)
+# is instead dispatched by target host in the hand-written
+# internal/client/host_auth.go, added after generation.
+resources:
+  models:
+    description: Printables 3D models (prints)
+    endpoints:
+      get:
+        method: POST
+        path: /graphql/
+        description: Get a Printables model's detail and file listing
+        no_auth: true
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Printables model ID
+        body:
+          - name: query
+            body_name: query
+            type: string
+            required: true
+            dispatch_param: true
+            default: |
+              query ModelDetail($id: ID!) {
+                model: print(id: $id) {
+                  id
+                  name
+                  slug
+                  filesType
+                  ratingAvg
+                  likesCount
+                  downloadCount
+                  datePublished
+                  user { id handle publicUsername }
+                  stls { id name fileSize }
+                  gcodes { id name fileSize }
+                  slas { id name fileSize }
+                  otherFiles { id name fileSize }
+                }
+              }
+          - name: variables
+            body_name: variables
+            type: object
+            fields:
+              - name: id
+                type: string
+                required: true
+                description: Printables model ID
+        response:
+          type: object
+          item: PrintablesModelDetail
+        response_path: data.model
+types:
+  PrintablesModelDetail:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: filesType
+        type: string
+      - name: ratingAvg
+        type: number
+      - name: likesCount
+        type: integer
+      - name: downloadCount
+        type: integer
+      - name: datePublished
+        type: string
+        format: date-time

@@ -26,16 +26,19 @@ such as assignee, project, priority, or labels. Useful for triaging unowned work
 
   # Output as JSON
   espn-pp-cli orphans --json`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
 				dbPath = defaultDBPath("espn-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'espn-pp-cli sync' first.", err)
 			}
 			defer db.Close()
+
+			maybeEmitSyncHints(cmd, db, "", flags.maxAge)
 
 			// Fields that indicate an item is properly assigned/categorized
 			checkFields := []struct {
@@ -116,15 +119,16 @@ such as assignee, project, priority, or labels. Useful for triaging unowned work
 				items = items[:limit]
 			}
 
-			if flags.asJSON {
+			if wantsMachineOutput(flags) {
+				if flags.csv || flags.plain || flags.quiet {
+					return printJSONFiltered(cmd.OutOrStdout(), items, flags)
+				}
 				result := map[string]any{
 					"total_count": totalCount,
 					"showing":     len(items),
 					"items":       items,
 				}
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(result)
+				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 			}
 
 			if len(items) == 0 {
@@ -151,7 +155,7 @@ such as assignee, project, priority, or labels. Useful for triaging unowned work
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/espn-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum items to show")
 
 	return cmd

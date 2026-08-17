@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "binary-response-envelope-decode",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-071511",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Decode Printing Press `_pp_binary` response envelopes before writing raw command output so exported archives are usable bytes.",
+  "reason": "Amplitude event exports return binary archive data. The shared client preserves binary bodies as base64 JSON envelopes; raw-output commands must decode that envelope before writing stdout or `--deliver file:<path>` captures JSON instead of the archive.",
+  "files": [
+    "internal/cli/binary_response.go",
+    "internal/cli/binary_response_test.go",
+    "internal/cli/promoted_event-exports.go",
+    "internal/cli/promoted_annotations.go",
+    "internal/cli/promoted_events.go",
+    "internal/cli/promoted_funnels.go",
+    "internal/cli/promoted_retention.go",
+    "internal/cli/promoted_revenue.go",
+    "internal/cli/promoted_segmentation.go",
+    "internal/cli/promoted_users.go",
+    "internal/cli/promoted_usersearch.go",
+    "internal/cli/cohorts_get.go",
+    "internal/cli/cohorts_list.go"
+  ],
+  "validated_outcome": "`go test ./...`, `cli-printing-press publish validate`, `verify-skill`, and `verify-publish-package` pass with unit coverage for binary-envelope decode and pass-through JSON behavior."
+}

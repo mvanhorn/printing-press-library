@@ -24,6 +24,9 @@ func newAudioFeaturesGetCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			if !validSpotifyID(bareID(args[0])) {
+				return usageErr(fmt.Errorf("%q is not a Spotify track ID or URI (expected 22 base62 chars)", args[0]))
+			}
 			if !legacyApp {
 				return printJSONFiltered(cmd.OutOrStdout(),
 					deprecatedStubPayload("GET /audio-features/{id}",
@@ -38,7 +41,7 @@ func newAudioFeaturesGetCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			path := "/audio-features/" + args[0]
-			data, err := c.Get(path, nil)
+			data, err := c.Get(cmd.Context(), path, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

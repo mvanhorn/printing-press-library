@@ -1,0 +1,162 @@
+{
+  "api_name": "crates-io",
+  "base_url": "https://crates.io",
+  "description": "Read-only endpoints for crates.io ecosystem intelligence.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "crates_get",
+      "description": "Get crate metadata. Required: crate_name. Returns the CrateResponse.",
+      "method": "GET",
+      "path": "/api/v1/crates/{crate_name}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "crate_name",
+          "type": "string",
+          "location": "path",
+          "description": "Crate name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crates_search",
+      "description": "Search crates. Required: q. Optional: page (default: 1), per_page (default: 10), sort. Returns array of CrateSummary.",
+      "method": "GET",
+      "path": "/api/v1/crates",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort"
+        }
+      ]
+    },
+    {
+      "name": "crates_dependencies_list-version",
+      "description": "List dependencies for a crate version. Required: crate_name, version. Returns array of Dependency.",
+      "method": "GET",
+      "path": "/api/v1/crates/{crate_name}/{version}/dependencies",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "crate_name",
+          "type": "string",
+          "location": "path",
+          "description": "Crate name",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "path",
+          "description": "Version",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crates_downloads_get-crate",
+      "description": "Get recent crate download counts. Required: crate_name. Returns array of DownloadsGetCrateItem.",
+      "method": "GET",
+      "path": "/api/v1/crates/{crate_name}/downloads",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "crate_name",
+          "type": "string",
+          "location": "path",
+          "description": "Crate name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crates_owners_list-crate",
+      "description": "List crate owners. Required: crate_name. Returns array of Owner.",
+      "method": "GET",
+      "path": "/api/v1/crates/{crate_name}/owners",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "crate_name",
+          "type": "string",
+          "location": "path",
+          "description": "Crate name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crates_reverse-dependencies_list",
+      "description": "List crates depending on this crate. Required: crate_name. Optional: page (default: 1), per_page (default: 10). Returns array of ReverseDependency.",
+      "method": "GET",
+      "path": "/api/v1/crates/{crate_name}/reverse_dependencies",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "crate_name",
+          "type": "string",
+          "location": "path",
+          "description": "Crate name",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "crates_versions_list-crate",
+      "description": "List crate versions. Required: crate_name. Returns array of Version.",
+      "method": "GET",
+      "path": "/api/v1/crates/{crate_name}/versions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "crate_name",
+          "type": "string",
+          "location": "path",
+          "description": "Crate name",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

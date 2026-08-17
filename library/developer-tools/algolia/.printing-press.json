@@ -1,0 +1,65 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-13T18:38:19.252455Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "algolia",
+  "cli_name": "algolia-pp-cli",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "algolia-search-openapi.yml",
+  "run_id": "20260813-224253-d4da62ef",
+  "category": "developer-tools",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-index search",
+      "command": "find",
+      "description": "Search across every synced index in one shot, with each hit labeled by its source index."
+    },
+    {
+      "name": "Settings diff",
+      "command": "settings diff",
+      "description": "Field-level comparison of settings between two indices (or a settings file vs an index)."
+    },
+    {
+      "name": "Stale rules report",
+      "command": "rules stale",
+      "description": "Find rules that reference attributes missing from the index's searchable attributes or that can never match."
+    },
+    {
+      "name": "API key ACL report",
+      "command": "apikeys report",
+      "description": "Audit all API keys: write-capable, unrestricted, and expired keys grouped by ACL, with last-use from synced logs."
+    },
+    {
+      "name": "Search regression check",
+      "command": "search check",
+      "description": "Assert that a query returns expected objectIDs, with a typed exit code for CI pipelines."
+    },
+    {
+      "name": "Unsearchable-records report",
+      "command": "objects gaps",
+      "description": "List records missing attributes required by the index's searchable settings — records search can never return."
+    },
+    {
+      "name": "Records diff between indices",
+      "command": "objects diff",
+      "description": "Compare records of two indices (added/removed/changed by objectID) to verify prod/staging parity."
+    },
+    {
+      "name": "Logs error digest",
+      "command": "logs errors",
+      "description": "Aggregate synced log entries by error code and link failed tasks for a digest of what went wrong."
+    }
+  ]
+}

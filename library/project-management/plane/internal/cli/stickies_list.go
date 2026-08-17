@@ -20,17 +20,16 @@ func newStickiesListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  plane-pp-cli stickies list",
 		Annotations: map[string]string{"pp:endpoint": "stickies.list", "pp:method": "GET", "pp:path": "/stickies/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/stickies/"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/stickies/"
 			params := map[string]string{}
 			if flagUpdatedAtGt != "" {
-				params["updated_at__gt"] = fmt.Sprintf("%v", flagUpdatedAtGt)
+				params["updated_at__gt"] = formatCLIParamValue(flagUpdatedAtGt)
 			}
-			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "stickies", true, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "stickies", true, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -75,7 +74,7 @@ func newStickiesListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagUpdatedAtGt, "updated-at-gt", "", "Incremental filter — return items updated after this RFC3339 timestamp.")

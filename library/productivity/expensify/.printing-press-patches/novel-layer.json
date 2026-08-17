@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "novel-layer",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-180206",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Hand-authored local-SQLite novel layer: sync, expense search/rollup/dupes/missing-receipts/quick/from-line/bulk, report draft, damage, plus honest stubs (watch/undo/close/admin policy-diff).",
+  "reason": "These transcendence features have no spec representation; they depend on the local store rebuilt in internal/store/store.go.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/sync.go",
+    "internal/cli/expense_search.go",
+    "internal/cli/expense_rollup.go",
+    "internal/cli/expense_dupes.go",
+    "internal/cli/expense_missing_receipts.go",
+    "internal/cli/expense_quick.go",
+    "internal/cli/expense_from_line.go",
+    "internal/cli/expense_bulk.go",
+    "internal/cli/report_draft.go",
+    "internal/cli/damage.go",
+    "internal/cli/stubs.go"
+  ]
+}

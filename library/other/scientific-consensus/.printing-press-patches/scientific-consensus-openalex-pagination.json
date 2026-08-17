@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "scientific-consensus-openalex-pagination",
+  "applied_at": "2026-06-21",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Sync pagination default changed from 'limit' to 'per-page'.",
+  "reason": "OpenAlex rejects the generic 'limit' query param at the API edge (HTTP 400); it uses 'per-page' (max 200). The profiler emitted the generic default.",
+  "files": ["internal/cli/sync.go"],
+  "validated_outcome": "sync now succeeds across all six OpenAlex entities (600 records, 0 errors)."
+}

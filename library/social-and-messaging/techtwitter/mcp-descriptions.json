@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "command_stats": "Report corpus index health for the Tech Twitter dataset. Returns counts of tweets indexed, profiles tracked, and topics covered, plus a monitor24h block (tweets fetched, passed, and the pass rate over the last 24 hours). Read-only; use it to confirm the dataset is populated and fresh before running search or evidence commands."
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "1688-pp-mcp",
+  "display_name": "1688",
+  "version": "0.0.0",
+  "description": "The free, offline, agent-native 1688 wholesale sourcing CLI — keyword search with the signals the web UI buries (回头率 reorder rate, factory-verified status, supplier trade scores, price drift), persisted to a local store no scraper tracks over time.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/1688-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/1688-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

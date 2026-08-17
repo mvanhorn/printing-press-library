@@ -1,0 +1,928 @@
+name: discogs
+display_name: Discogs
+cli_description: "Every Discogs feature — database, collection, wantlist, marketplace — plus a local price-history mirror no other Discogs tool has."
+category: media-and-entertainment
+base_url: https://api.discogs.com
+
+required_headers:
+  - name: User-Agent
+    value: "discogs-pp-cli/1.0 +https://github.com/mvanhorn/printing-press-library"
+
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "Discogs token={token}"
+  in: header
+  env_vars:
+    - DISCOGS_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/discogs-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+learn:
+  synonyms:
+    "want list": "wantlist"
+    "wants": "wantlist"
+    "for sale": "listings"
+  entity_lookup_seeds:
+    condition:
+      - canonical: "Mint (M)"
+        aliases: [mint, m]
+      - canonical: "Near Mint (NM or M-)"
+        aliases: [near mint, nm, "m-"]
+      - canonical: "Very Good Plus (VG+)"
+        aliases: ["vg+", "very good plus", vgplus]
+      - canonical: "Very Good (VG)"
+        aliases: [vg, "very good"]
+      - canonical: "Good Plus (G+)"
+        aliases: ["g+", "good plus"]
+      - canonical: "Good (G)"
+        aliases: [g, good]
+      - canonical: "Fair (F)"
+        aliases: [f, fair]
+      - canonical: "Poor (P)"
+        aliases: [p, poor]
+    format:
+      - canonical: Vinyl
+        aliases: [vinyl, record, lp, "12 inch", "12\"", "7 inch", "7\"", "45"]
+      - canonical: CD
+        aliases: [cd, "compact disc"]
+      - canonical: Cassette
+        aliases: [cassette, tape]
+      - canonical: Box Set
+        aliases: ["box set", boxset]
+
+resources:
+  database:
+    description: "Search Discogs and look up releases, masters, artists, and labels (public; a token raises the rate limit)."
+    endpoints:
+      search:
+        method: GET
+        path: "/database/search"
+        description: "Search the Discogs database. Public data; a token raises the rate limit from 25 to 60/min."
+        example: "  discogs-pp-cli database search \"nevermind\" --artist Nirvana --format Vinyl --type release"
+        happy_args: "q=nevermind;--type=release"
+        params:
+          - name: q
+            type: string
+            positional: true
+            required: false
+            description: "Free-text query (title, artist, catalog no, barcode)."
+          - name: type
+            type: string
+            enum: [release, master, artist, label]
+            description: "Restrict to one entity type."
+          - name: title
+            type: string
+            description: "Search a combined \"Artist - Title\" field."
+          - name: artist
+            type: string
+            description: "Artist name."
+          - name: label
+            type: string
+            description: "Label name."
+          - name: genre
+            type: string
+            description: "Genre (e.g. Rock, Electronic, Jazz)."
+          - name: style
+            type: string
+            description: "Style (e.g. House, Grunge, Hard Bop)."
+          - name: country
+            type: string
+            description: "Country of release."
+          - name: year
+            type: string
+            description: "Year of release."
+          - name: format
+            type: string
+            description: "Format (Vinyl, CD, Cassette, Box Set)."
+          - name: catno
+            type: string
+            description: "Catalog number."
+          - name: barcode
+            type: string
+            description: "Barcode."
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 50
+            description: "Results per page (max 100)."
+          - name: page
+            type: int
+            default: 1
+            description: "Page number."
+      release:
+        method: GET
+        path: "/releases/{release_id}"
+        description: "Get a specific release by ID."
+        example: "  discogs-pp-cli database release 249504"
+        happy_args: "release_id=249504"
+        params:
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs release ID."
+          - name: curr_abbr
+            flag_name: currency
+            type: string
+            enum: [USD, GBP, EUR, CAD, AUD, JPY, CHF, MXN, BRL, NZD, SEK, ZAR]
+            description: "Currency for the lowest-price field."
+      master:
+        method: GET
+        path: "/masters/{master_id}"
+        description: "Get a master release (the canonical version group)."
+        happy_args: "master_id=96559"
+        params:
+          - name: master_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs master release ID."
+      master_versions:
+        method: GET
+        path: "/masters/{master_id}/versions"
+        description: "List all versions (pressings) of a master release."
+        params:
+          - name: master_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs master release ID."
+          - name: country
+            type: string
+            description: "Filter by country."
+          - name: format
+            type: string
+            description: "Filter by format."
+          - name: label
+            type: string
+            description: "Filter by label."
+          - name: released
+            type: string
+            description: "Filter by release year."
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 50
+          - name: page
+            type: int
+            default: 1
+      artist:
+        method: GET
+        path: "/artists/{artist_id}"
+        description: "Get an artist by ID."
+        happy_args: "artist_id=72872"
+        params:
+          - name: artist_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs artist ID."
+      artist_releases:
+        method: GET
+        path: "/artists/{artist_id}/releases"
+        description: "List an artist's releases."
+        params:
+          - name: artist_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs artist ID."
+          - name: sort
+            type: string
+            enum: [year, title, format]
+            description: "Sort field."
+          - name: sort_order
+            flag_name: sort-order
+            type: string
+            enum: [asc, desc]
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 50
+          - name: page
+            type: int
+            default: 1
+      label:
+        method: GET
+        path: "/labels/{label_id}"
+        description: "Get a label by ID."
+        happy_args: "label_id=1"
+        params:
+          - name: label_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs label ID."
+      label_releases:
+        method: GET
+        path: "/labels/{label_id}/releases"
+        description: "List releases on a label."
+        params:
+          - name: label_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs label ID."
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 50
+          - name: page
+            type: int
+            default: 1
+      community_rating:
+        method: GET
+        path: "/releases/{release_id}/rating"
+        description: "Get the community rating for a release."
+        params:
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs release ID."
+      user_rating:
+        method: GET
+        path: "/releases/{release_id}/rating/{username}"
+        description: "Get a specific user's rating for a release."
+        params:
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+          - name: username
+            type: string
+            positional: true
+            required: true
+      rate:
+        method: PUT
+        path: "/releases/{release_id}/rating/{username}"
+        description: "Set your rating (1-5) for a release."
+        params:
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+          - name: username
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: rating
+            type: int
+            required: true
+            description: "Rating 1-5."
+      unrate:
+        method: DELETE
+        path: "/releases/{release_id}/rating/{username}"
+        description: "Delete your rating for a release."
+        params:
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+          - name: username
+            type: string
+            positional: true
+            required: true
+
+  collection:
+    description: "Browse and manage your Discogs collection (requires a token)."
+    endpoints:
+      folders:
+        method: GET
+        path: "/users/{username}/collection/folders"
+        description: "List your collection folders."
+        happy_args: "username=example"
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Discogs username (yours)."
+      folder:
+        method: GET
+        path: "/users/{username}/collection/folders/{folder_id}"
+        description: "Get one collection folder (0 = All)."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Discogs username."
+          - name: folder_id
+            type: int
+            positional: true
+            required: true
+            description: "Folder ID (0 = All)."
+      items:
+        method: GET
+        path: "/users/{username}/collection/folders/{folder_id}/releases"
+        description: "List releases in a collection folder (0 = All)."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Discogs username."
+          - name: folder_id
+            type: int
+            positional: true
+            required: true
+            description: "Folder ID (0 = All)."
+          - name: sort
+            type: string
+            enum: [label, artist, title, catno, format, rating, added, year]
+          - name: sort_order
+            flag_name: sort-order
+            type: string
+            enum: [asc, desc]
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 50
+          - name: page
+            type: int
+            default: 1
+      value:
+        method: GET
+        path: "/users/{username}/collection/value"
+        description: "Get the min/median/max market value of your collection."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Discogs username."
+      fields:
+        method: GET
+        path: "/users/{username}/collection/fields"
+        description: "List the custom fields defined on your collection."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Discogs username."
+      find:
+        method: GET
+        path: "/users/{username}/collection/releases/{release_id}"
+        description: "Find a release's instances in your collection."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Discogs username."
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs release ID."
+      add:
+        method: POST
+        path: "/users/{username}/collection/folders/{folder_id}/releases/{release_id}"
+        description: "Add a release to a collection folder."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Discogs username."
+          - name: folder_id
+            type: int
+            positional: true
+            required: true
+            description: "Folder ID to add into."
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs release ID to add."
+      remove:
+        method: DELETE
+        path: "/users/{username}/collection/folders/{folder_id}/releases/{release_id}/instances/{instance_id}"
+        description: "Remove a release instance from a folder."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+          - name: folder_id
+            type: int
+            positional: true
+            required: true
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+          - name: instance_id
+            type: int
+            positional: true
+            required: true
+      create_folder:
+        method: POST
+        path: "/users/{username}/collection/folders"
+        description: "Create a new collection folder."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "New folder name."
+      rename_folder:
+        method: POST
+        path: "/users/{username}/collection/folders/{folder_id}"
+        description: "Rename a collection folder."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+          - name: folder_id
+            type: int
+            positional: true
+            required: true
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "New folder name."
+      delete_folder:
+        method: DELETE
+        path: "/users/{username}/collection/folders/{folder_id}"
+        description: "Delete a collection folder (must be empty)."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+          - name: folder_id
+            type: int
+            positional: true
+            required: true
+      rate_instance:
+        method: POST
+        path: "/users/{username}/collection/folders/{folder_id}/releases/{release_id}/instances/{instance_id}"
+        description: "Set the rating on a collection instance."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+          - name: folder_id
+            type: int
+            positional: true
+            required: true
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+          - name: instance_id
+            type: int
+            positional: true
+            required: true
+        body:
+          - name: rating
+            type: int
+            description: "Rating 0-5."
+
+  wantlist:
+    description: "Browse and manage your Discogs wantlist (requires a token)."
+    endpoints:
+      list:
+        method: GET
+        path: "/users/{username}/wants"
+        description: "List your wantlist."
+        happy_args: "username=example"
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Discogs username."
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 50
+          - name: page
+            type: int
+            default: 1
+      add:
+        method: PUT
+        path: "/users/{username}/wants/{release_id}"
+        description: "Add a release to your wantlist."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs release ID to want."
+        body:
+          - name: notes
+            type: string
+            description: "Private notes."
+          - name: rating
+            type: int
+            description: "Your rating 0-5."
+      remove:
+        method: DELETE
+        path: "/users/{username}/wants/{release_id}"
+        description: "Remove a release from your wantlist."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+      edit:
+        method: POST
+        path: "/users/{username}/wants/{release_id}"
+        description: "Edit the notes/rating on a wantlist item."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+        body:
+          - name: notes
+            type: string
+            description: "Private notes."
+          - name: rating
+            type: int
+            description: "Your rating 0-5."
+
+  marketplace:
+    description: "Marketplace listings, orders, fees, price suggestions, and per-release stats (requires a token)."
+    endpoints:
+      inventory:
+        method: GET
+        path: "/users/{username}/inventory"
+        description: "List a seller's marketplace inventory."
+        happy_args: "username=example"
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Seller username."
+          - name: status
+            type: string
+            enum: [For Sale, Draft, Expired, Sold, Deleted]
+          - name: sort
+            type: string
+            enum: [listed, price, item, artist, label, catno, audio, status, location]
+          - name: sort_order
+            flag_name: sort-order
+            type: string
+            enum: [asc, desc]
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 50
+          - name: page
+            type: int
+            default: 1
+      listing:
+        method: GET
+        path: "/marketplace/listings/{listing_id}"
+        description: "Get one marketplace listing."
+        happy_args: "listing_id=172723812"
+        params:
+          - name: listing_id
+            type: int
+            positional: true
+            required: true
+            description: "Marketplace listing ID."
+          - name: curr_abbr
+            flag_name: currency
+            type: string
+            description: "Currency for the price."
+      price_suggestions:
+        method: GET
+        path: "/marketplace/price_suggestions/{release_id}"
+        description: "Get suggested marketplace prices per media condition for a release (seller token)."
+        happy_args: "release_id=249504"
+        params:
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs release ID."
+      stats:
+        method: GET
+        path: "/marketplace/stats/{release_id}"
+        description: "Get marketplace stats for a release (lowest price, number for sale)."
+        happy_args: "release_id=249504"
+        params:
+          - name: release_id
+            type: int
+            positional: true
+            required: true
+            description: "Discogs release ID."
+          - name: curr_abbr
+            flag_name: currency
+            type: string
+            description: "Currency for the lowest-price field."
+      fee:
+        method: GET
+        path: "/marketplace/fee/{price}"
+        description: "Calculate the Discogs marketplace fee for a sale price (USD)."
+        happy_args: "price=10.00"
+        params:
+          - name: price
+            type: string
+            positional: true
+            required: true
+            description: "Sale price, e.g. 10.00."
+      fee_currency:
+        method: GET
+        path: "/marketplace/fee/{price}/{currency}"
+        description: "Calculate the marketplace fee for a price in a specific currency."
+        params:
+          - name: price
+            type: string
+            positional: true
+            required: true
+          - name: currency
+            type: string
+            positional: true
+            required: true
+            description: "Currency code (USD, EUR, GBP, ...)."
+      orders:
+        method: GET
+        path: "/marketplace/orders"
+        description: "List your marketplace orders (as seller)."
+        params:
+          - name: status
+            type: string
+            description: "Filter by order status."
+          - name: sort
+            type: string
+            enum: [id, buyer, created, status, last_activity]
+          - name: sort_order
+            flag_name: sort-order
+            type: string
+            enum: [asc, desc]
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 50
+          - name: page
+            type: int
+            default: 1
+      order:
+        method: GET
+        path: "/marketplace/orders/{order_id}"
+        description: "Get one marketplace order."
+        params:
+          - name: order_id
+            type: string
+            positional: true
+            required: true
+            description: "Order ID."
+      order_messages:
+        method: GET
+        path: "/marketplace/orders/{order_id}/messages"
+        description: "List messages on an order."
+        params:
+          - name: order_id
+            type: string
+            positional: true
+            required: true
+      create_listing:
+        method: POST
+        path: "/marketplace/listings"
+        description: "Create a new marketplace listing."
+        body:
+          - name: release_id
+            type: int
+            required: true
+            description: "Release ID to list."
+          - name: condition
+            type: string
+            required: true
+            description: "Media condition (e.g. \"Very Good Plus (VG+)\")."
+          - name: sleeve_condition
+            type: string
+            description: "Sleeve condition."
+          - name: price
+            type: float
+            required: true
+            description: "Asking price."
+          - name: status
+            type: string
+            default: "For Sale"
+          - name: comments
+            type: string
+      delete_listing:
+        method: DELETE
+        path: "/marketplace/listings/{listing_id}"
+        description: "Delete a marketplace listing."
+        params:
+          - name: listing_id
+            type: int
+            positional: true
+            required: true
+      update_listing:
+        method: POST
+        path: "/marketplace/listings/{listing_id}"
+        description: "Edit an existing marketplace listing."
+        params:
+          - name: listing_id
+            type: int
+            positional: true
+            required: true
+        body:
+          - name: release_id
+            type: int
+            required: true
+          - name: condition
+            type: string
+            required: true
+            description: "Media condition (e.g. \"Very Good Plus (VG+)\")."
+          - name: sleeve_condition
+            type: string
+          - name: price
+            type: float
+            required: true
+          - name: status
+            type: string
+            default: "For Sale"
+          - name: comments
+            type: string
+      update_order:
+        method: POST
+        path: "/marketplace/orders/{order_id}"
+        description: "Update an order's status or shipping."
+        params:
+          - name: order_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: status
+            type: string
+            description: "New order status."
+          - name: shipping
+            type: float
+            description: "Shipping cost."
+      add_order_message:
+        method: POST
+        path: "/marketplace/orders/{order_id}/messages"
+        description: "Post a message to an order."
+        params:
+          - name: order_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: message
+            type: string
+            required: true
+          - name: status
+            type: string
+
+  identity:
+    description: "Your Discogs identity, profile, and contributions (requires a token)."
+    endpoints:
+      whoami:
+        method: GET
+        path: "/oauth/identity"
+        description: "Show the authenticated user's identity (username, id)."
+      profile:
+        method: GET
+        path: "/users/{username}"
+        description: "Get a user's public profile."
+        happy_args: "username=example"
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Discogs username."
+      submissions:
+        method: GET
+        path: "/users/{username}/submissions"
+        description: "List a user's database submissions."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 50
+          - name: page
+            type: int
+            default: 1
+      contributions:
+        method: GET
+        path: "/users/{username}/contributions"
+        description: "List a user's database contributions."
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+          - name: per_page
+            flag_name: per-page
+            type: int
+            default: 50
+          - name: page
+            type: int
+            default: 1
+
+  lists:
+    description: "User lists (curated collections of database items)."
+    endpoints:
+      user:
+        method: GET
+        path: "/users/{username}/lists"
+        description: "List a user's public lists."
+        happy_args: "username=example"
+        params:
+          - name: username
+            type: string
+            positional: true
+            required: true
+            description: "Discogs username."
+      get:
+        method: GET
+        path: "/lists/{list_id}"
+        description: "Get one list and its items."
+        params:
+          - name: list_id
+            type: int
+            positional: true
+            required: true
+            description: "List ID."
+
+  inventory:
+    description: "Request and download CSV exports of your marketplace inventory (requires a token)."
+    endpoints:
+      export:
+        method: POST
+        path: "/inventory/export"
+        description: "Request a new CSV export of your inventory."
+      exports:
+        method: GET
+        path: "/inventory/export"
+        description: "List your recent inventory exports."
+      export_get:
+        method: GET
+        path: "/inventory/export/{id}"
+        description: "Get the status of an inventory export."
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: "Export job ID."
+      export_download:
+        method: GET
+        path: "/inventory/export/{id}/download"
+        description: "Download a finished inventory export CSV."
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: "Export job ID."
+      uploads:
+        method: GET
+        path: "/inventory/upload"
+        description: "List recent inventory CSV uploads."
+      upload_get:
+        method: GET
+        path: "/inventory/upload/{id}"
+        description: "Get the status of an inventory CSV upload."
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: "Upload job ID."

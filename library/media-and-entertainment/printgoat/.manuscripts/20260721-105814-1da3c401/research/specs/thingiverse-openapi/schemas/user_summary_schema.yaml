@@ -1,0 +1,69 @@
+type: object
+nullable: true
+properties:
+  id:
+    type: integer
+    format: int
+    example: 1336
+  name:
+    type: string
+    example: CreativeTools
+  first_name:
+    type: string
+    example: Creative
+  last_name:
+    type: string
+    example: Tools
+  url:
+    type: string
+    example: https://api.thingiverse.com/users/CreativeTools
+  public_url:
+    type: string
+    example: https://www.thingiverse.com/CreativeTools
+  thumbnail:
+    type: string
+    example: https://cdn.thingiverse.com/renders/b3/a5/0c/45/3f/CT_thumb_medium.jpg
+  count_of_followers:
+    type: integer
+    format: int
+    example: 9828
+  count_of_following:
+    type: integer
+    format: int
+    example: 975
+  count_of_downloads:
+    type: integer
+    format: int
+    example: 254170
+  count_of_designs:
+    type: integer
+    format: int
+    example: 147
+  make_count:
+    type: integer
+    format: int
+    exampele: 240
+  accepts_tips:
+    type: boolean
+    example: false
+  is_following:
+    type: boolean
+    example: true
+  location:
+    type: string
+    example: Halmstad, Sweden
+  cover:
+    type: string
+    example: https://cdn.thingiverse.com/renders/6d/54/65/5c/9b/Thingiverse_background_3_preview_large.jpg
+  is_admin: 
+    type: boolean
+    example: false
+  is_moderator:
+    type: boolean
+    example: false
+  is_featured:
+    type: boolean
+    example: false
+  is_verified:
+    type: boolean
+    example: false

@@ -1,0 +1,1530 @@
+{
+  "dir": "/home/vikas/printing-press/.runstate/projects-c66af44e/runs/20260719-022158-deedd460/working/shodhganga-pp-cli",
+  "binary": "/home/vikas/printing-press/.runstate/projects-c66af44e/runs/20260719-022158-deedd460/working/shodhganga-pp-cli/shodhganga-pp-cli",
+  "level": "full",
+  "verdict": "FAIL",
+  "matrix_size": 95,
+  "passed": 89,
+  "failed": 6,
+  "skipped": 58,
+  "commands": [
+    "api",
+    "browse",
+    "doctor",
+    "export",
+    "feedback list",
+    "guide",
+    "harvest",
+    "learnings candidates",
+    "learnings confirm",
+    "learnings forget",
+    "learnings list",
+    "learnings purge",
+    "learnings reject",
+    "learnings stats",
+    "playbook amend",
+    "playbook list",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "recall",
+    "search",
+    "similar",
+    "sync",
+    "teach",
+    "teach-lookup",
+    "teach-pattern",
+    "teach-playbook",
+    "thesis get",
+    "thesis search",
+    "trends",
+    "university get",
+    "university list",
+    "university stats",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  shodhganga-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  shodhganga-pp-cli api\n\n  # Show methods for a specific interface\n  shodhganga-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'shodhganga-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "browse",
+      "kind": "help",
+      "args": [
+        "browse",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse theses by title, author, subject, keyword, or date\n\nUsage:\n  shodhganga-pp-cli browse [flags]\n\nExamples:\n  shodhganga-pp-cli browse list --type author --limit 20\n\nFlags:\n  -h, --help                 help for browse\n      --limit int            Results per page (default 20)\n      --starts-with string   Jump to entries starting with this string\n      --type string          Browse facet (one of: title, author, subject, keyword, dateissued, dateaccessioned) (default \"title\")\n      --value string         Facet value to browse into (e.g. an author or subject)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "browse",
+      "kind": "happy_path",
+      "args": [
+        "browse",
+        "list",
+        "--type",
+        "title",
+        "--limit",
+        "10"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"556999\",\"text\":\"0 Information seeking behaviour of b ed colleges in Haryana state a study\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/556999\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"499225\",\"text\":\"0-1 Varsh Ke Bachchon Ka Stanapan Vimochan Evam Poorak Aahar Darabhanga Sadar Prakhand Ke Sandarbh Mein Ek Adhyayan\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/499225\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"365907\",\"text\":\"0-Distributive almost lattices\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/365907\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"365908\",\"text\":\"0-Distributive almost semilattices\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/365908\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"406967\",\"text\":\"01 se 05 varsh tak ke ati pichade avam samanya baccho ke poshak aahar se sambandhit aadate avam unki samasyaye\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/406967\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"513309\",\"text\":\"0𝜈𝛽𝛽 Decay in 76Ge Isotope within PHFB Approach\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/513309\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"716912\",\"text\":\"1 5 Benzothiazepines Synthesis And Bioactivity Investigations\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/716912\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"490164\",\"text\":\"1 4 disubstituted 1 2 3 triazoles synthesis and biological evaluation\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/490164\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"457321\",\"text\":\"1 5 Benzothiazepines syntheses of bicyclicand polycyclic fused ring systems\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/457321\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"351580\",\"text\":\"1 5 halo migratory aptitudes in 1 3 pentadiene derivatives confermational surface of hexachlorophene derivatives and reactivity of cation bound capillin analogues computational study\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/351580\"}]}"
+    },
+    {
+      "command": "browse",
+      "kind": "json_fidelity",
+      "args": [
+        "browse",
+        "list",
+        "--type",
+        "title",
+        "--limit",
+        "10",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"556999\",\"text\":\"0 Information seeking behaviour of b ed colleges in Haryana state a study\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/556999\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"499225\",\"text\":\"0-1 Varsh Ke Bachchon Ka Stanapan Vimochan Evam Poorak Aahar Darabhanga Sadar Prakhand Ke Sandarbh Mein Ek Adhyayan\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/499225\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"365907\",\"text\":\"0-Distributive almost lattices\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/365907\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"365908\",\"text\":\"0-Distributive almost semilattices\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/365908\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"406967\",\"text\":\"01 se 05 varsh tak ke ati pichade avam samanya baccho ke poshak aahar se sambandhit aadate avam unki samasyaye\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/406967\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"513309\",\"text\":\"0𝜈𝛽𝛽 Decay in 76Ge Isotope within PHFB Approach\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/513309\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"716912\",\"text\":\"1 5 Benzothiazepines Synthesis And Bioactivity Investigations\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/716912\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"490164\",\"text\":\"1 4 disubstituted 1 2 3 triazoles synthesis and biological evaluation\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/490164\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"457321\",\"text\":\"1 5 Benzothiazepines syntheses of bicyclicand polycyclic fused ring systems\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/457321\"},{\"image\":\"https://shodhganga.inflibnet.ac.in/browse?rpp=10\u0026type=title\",\"name\":\"\u003credacted\u003e\",\"slug\":\"351580\",\"text\":\"1 5 halo migratory aptitudes in 1 3 pentadiene derivatives confermational surface of hexachlorophene derivatives and reactivity of cation bound capillin analogues computational study\",\"url\":\"https://shodhganga.inflibnet.ac.in/handle/10603/351580\"}]}"
+    },
+    {
+      "command": "browse",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  shodhganga-pp-cli doctor [flags]\n\nExamples:\n  shodhganga-pp-cli doctor\n  shodhganga-pp-cli doctor --json\n  shodhganga-pp-cli doctor --fail-on warn\n  shodhganga-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /tmp/printing-press-subprocess-3261532802/.config/shodhganga-pp-cli/config.toml\n  base_url: https://shodhganga.inflibnet.ac.in\n  version: 0.0.0-dev\n  INFO Cache: empty\n    db_path: /tmp/printing-press-subprocess-3261532802/.local/share/shodhganga-pp-cli/data.db\n    schema_version: 9\n    db_bytes: 143360\n    stale_after: 6h0m0s\n    hint: Cache is empty; run 'shodhganga-pp-cli sync' to hydrate.\n  Paths:\n    config: /tmp/printing-press-subprocess-3261532802/.config/shodhganga-pp-cli (XDG_CONFIG_HOME)\n    data: /tmp/printing-press-subprocess-3261532802/.local/share/shodhganga-pp-cli (XDG_DATA_HOME)\n    state: /tmp/printing-press-subprocess-3261532802/.local/state/shodhganga-pp-cli (XDG_STATE_HOME)\n    cache: /tmp/printing-press-subprocess-3261532802/.cache/shodhganga-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://shodhganga.inflibnet.ac.in\",\n  \"cache\": {\n    \"db_bytes\": 143360,\n    \"db_path\": \"/tmp/printing-press-subprocess-3261532802/.local/share/shodhganga-pp-cli/data.db\",\n    \"hint\": \"Cache is empty; run 'shodhganga-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 9,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"empty\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/tmp/printing-press-subprocess-3261532802/.config/shodhganga-pp-cli/config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/tmp/printing-press-subprocess-3261532802/.cache/shodhganga-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/tmp/printing-press-subprocess-3261532802/.config/shodhganga-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/tmp/printing-press-subprocess-3261532802/.local/share/shodhganga-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/tmp/printing-press-subprocess-3261532802/.local/state/shodhganga-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  shodhganga-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  shodhganga-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  shodhganga-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  shodhganga-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\"; valid: browse, university\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  shodhganga-pp-cli feedback list [flags]\n\nExamples:\n  shodhganga-pp-cli feedback list\n  shodhganga-pp-cli feedback list --limit 5\n  shodhganga-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "guide",
+      "kind": "help",
+      "args": [
+        "guide",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search the local store for theses whose guide (DC.contributor) matches \u003cname\u003e.\nPopulate the store first with: shodhganga-pp-cli harvest \u003cquery\u003e.\n\nUsage:\n  shodhganga-pp-cli guide \u003cname\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli guide \"Ghosh, Sushant G\" --json\n\nFlags:\n      --db string   database path (default: standard cache location)\n  -h, --help        help for guide\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "guide",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [guide] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "guide",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [guide] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "guide",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "harvest",
+      "kind": "help",
+      "args": [
+        "harvest",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search Shodhganga for \u003cquery\u003e, fetch the full Dublin Core metadata for each\nmatching thesis, and store the records locally. This populates the corpus that\nguide, similar, trends, university stats, and offline search all read from.\n\nUsage:\n  shodhganga-pp-cli harvest \u003cquery\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli harvest \"machine learning\" --limit 100\n\nFlags:\n      --db string   database path (default: standard cache location)\n  -h, --help        help for harvest\n      --limit int   maximum theses to harvest (default 50)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "harvest",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [harvest] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "harvest",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [harvest] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "harvest",
+      "kind": "error_path",
+      "args": [
+        "harvest",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"query\": \"__printing_press_invalid__\",\n  \"total_available\": 95405,\n  \"scanned_hits\": 3,\n  \"stored\": 3,\n  \"updated\": 0,\n  \"fetch_failures\": [],\n  \"db\": \"/tmp/printing-press-subprocess-3261532802/.local/share/shodhganga-pp-cli/data.db\"\n}\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "candidates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists rows from the learn_candidates table: corrections and playbook\nshapes the CLI derived from observed usage. Candidates are quarantined\nuntil an explicit 'learnings confirm \u003cid\u003e' materializes them; they never\nalter command behavior or recall's verified results on their own.\n\nUsage:\n  shodhganga-pp-cli learnings candidates [flags]\n\nExamples:\n  shodhganga-pp-cli learnings candidates\n  shodhganga-pp-cli learnings candidates --class flag_alias\n  shodhganga-pp-cli learnings candidates --status rejected\n\nFlags:\n      --class string    Filter by class (flag_alias | playbook_candidate)\n      --db string       SQLite database file path (default: resolved data directory data.db)\n  -h, --help            help for candidates\n      --limit int       Maximum rows to return (default: capped)\n      --status string   Filter by status (open | confirmed | rejected | expired; empty for all) (default \"open\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "candidates"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "candidates",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "confirm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Promotes one open candidate into the verified knowledge tables.\n\nThe full candidate payload is printed before anything is written, so\nthe caller always sees exactly what is being blessed. Materialization\nis per class:\n\n  playbook_candidate  upserts a playbook row for the candidate's query\n                      family (confidence 2, the same floor as a teach)\n  flag_alias          appends a timestamped [amend ...] correction note\n                      to the query family's playbook notes\n\nUsage errors (unknown id, non-open status) exit 2.\n\nUsage:\n  shodhganga-pp-cli learnings confirm \u003cid\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli learnings confirm 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for confirm\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "confirm",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings confirm: invalid candidate id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "forget",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Removes rows from the search_learnings table so a bad teach can be\nundone without dropping the whole DB.\n\nRequires at least one of --resource, --action, or --all.\n\nUsage:\n  shodhganga-pp-cli learnings forget \u003cquery\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli learnings forget \"\u003cquestion\u003e\" --resource \u003cid\u003e\n  shodhganga-pp-cli learnings forget \"\u003cquestion\u003e\" --all\n\nFlags:\n      --action string     Delete only rules with this action (boost | hide | alias_of)\n      --all               Delete every rule for the supplied query\n      --db string         SQLite database file path (default: resolved data directory data.db)\n  -h, --help              help for forget\n      --resource string   Delete only the rule for this resource_id\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "forget",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings forget: forget learnings: pass --resource, --action, or --all\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recorded learnings\n\nUsage:\n  shodhganga-pp-cli learnings list [flags]\n\nExamples:\n  shodhganga-pp-cli learnings list --agent\n  shodhganga-pp-cli learnings list --query \"\u003csubstring\u003e\"\n  shodhganga-pp-cli learnings list --warnings --agent\n\nFlags:\n      --action string        Filter by action (boost | hide | alias_of)\n      --db string            SQLite database file path (default: resolved data directory data.db)\n  -h, --help                 help for list\n      --limit int            Maximum rows to return (default 200)\n      --min-confidence int   Filter by minimum confidence\n      --query string         Filter by normalized query substring\n      --resource string      Filter by resource_id\n      --source string        Filter by source (taught | manual-forget)\n      --warnings             Return teach-time warnings from teach.log instead of stored learning rows\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "purge",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Deletes expired and confirmed candidate rows. Materialized artifacts\n(playbook rows, correction notes) are untouched. Rejected rows are kept\nby default because they tombstone their derivation signatures; pass\n--tombstones to remove them too, which re-allows derivation of those\nsignatures. Open rows are never purged.\n\nOpen rows past the unseen TTL are swept to expired first, so a single\npurge also clears stale candidates nobody judged.\n\nUsage:\n  shodhganga-pp-cli learnings purge [flags]\n\nExamples:\n  shodhganga-pp-cli learnings purge\n  shodhganga-pp-cli learnings purge --tombstones\n\nFlags:\n      --db string    SQLite database file path (default: resolved data directory data.db)\n  -h, --help         help for purge\n      --tombstones   Also delete rejected rows (re-allows derivation of their signatures)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "purge"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expired\": 0,\n  \"purged\": 0,\n  \"tombstones\": false\n}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "purge",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expired\": 0,\n  \"purged\": 0,\n  \"tombstones\": false\n}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "reject",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Marks a candidate rejected. The rejected row stays as a tombstone on\nits derivation signature: the identical observation never re-derives a\ncandidate, and recall never resurfaces it.\n\nRejecting a CONFIRMED playbook_candidate tombstones the candidate but\nleaves the playbook row in place; repair the guidance with\n'playbook amend' if needed. A confirmed flag_alias cannot be rejected:\nits correction note already lives in the family playbook, so repair the\nguidance with 'playbook amend' instead.\n\nUsage errors (unknown id, no-reject-path candidates) exit 2.\n\nUsage:\n  shodhganga-pp-cli learnings reject \u003cid\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli learnings reject 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for reject\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "reject",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings reject: invalid candidate id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Aggregates the local learn_events table into the loop's headline\nmetrics:\n\n  recall_hit_rate           recall hits / (hits + misses)\n  teach_to_reuse            fraction of taught learnings later seen in a\n                            recall hit (joined by learning row id, with a\n                            query-family fallback for older rows)\n  playbook_resolution_rate  playbook hits not followed by an amend on the\n                            same query family\n  candidates_confirmed/rejected  judgment counts on auto-captured candidates\n\nRates are null until their denominator is non-zero. Everything is\nlocal-only: events never leave this machine.\n\nUsage:\n  shodhganga-pp-cli learnings stats [flags]\n\nExamples:\n  shodhganga-pp-cli learnings stats\n  shodhganga-pp-cli learnings stats --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for stats\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "stats"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "amend",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Appends a timestamped note to the matching family's playbook notes_text.\nIf no playbook exists for the family yet, creates a notes-only one.\n\nDesigned for agents to fire when their debug-protocol response\nidentifies a concrete correction worth persisting (a workaround, an\nundocumented endpoint shape, a stale field name, observed schema\ndrift). Same fire-and-forget posture as teach: silent on success,\nerrors to teach.log, safe to background with \u0026.\n\nDisabling: pass --no-learn or set SHODHGANGA_NO_LEARN=true.\n\nUsage:\n  shodhganga-pp-cli playbook amend [flags]\n\nExamples:\n  shodhganga-pp-cli playbook amend \\\n    --query \"\u003cexact recall query\u003e\" \\\n    --add-note \"summary endpoint envelope: data lives at .results.header, not .header\"\n\nFlags:\n      --add-note string   The note text to append to the family's playbook (required)\n      --db string         Database path (default: standard cache location)\n  -h, --help              help for amend\n      --query string      The exact recall query whose family should be amended (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "amend",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "playbook amend",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "amend",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook list",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List stored playbooks (query_family, content presence, last observed)\n\nUsage:\n  shodhganga-pp-cli playbook list [flags]\n\nExamples:\n  shodhganga-pp-cli playbook list --agent\n\nFlags:\n      --db string   Database path (default: standard cache location)\n  -h, --help        help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  shodhganga-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli profile delete my-defaults --yes\n  shodhganga-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  shodhganga-pp-cli profile list [flags]\n\nExamples:\n  shodhganga-pp-cli profile list\n  shodhganga-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  shodhganga-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  shodhganga-pp-cli profile save my-defaults --json --compact\n  shodhganga-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  shodhganga-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli profile show my-defaults\n  shodhganga-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  shodhganga-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli profile use my-defaults\n  shodhganga-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "recall",
+      "kind": "help",
+      "args": [
+        "recall",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns prior learnings matching the supplied query by token-set\noverlap (Jaccard \u003e= 0.6) plus entity-aware validation. The LLM should\ncall this FIRST when starting work on a new user question; if\nfound=true AND results[0].entity_match == \"exact\" AND confidence \u003e= 2,\nthe LLM can skip discovery and go straight to live fetch for the\nreturned resource IDs.\n\nEmpty match returns {\"found\": false, \"results\": []} with exit 0 — this\nis an information query, not a not-found error.\n\nDisabling: SHODHGANGA_NO_LEARN=true returns the empty shape even\nwhen learnings exist.\n\nUsage:\n  shodhganga-pp-cli recall \u003cquery\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli recall \"\u003cquestion\u003e\" --agent\n  shodhganga-pp-cli recall \"\u003cquestion\u003e\" --agent --min-confidence 2\n\nFlags:\n      --db string            SQLite database file path (default: resolved data directory data.db)\n      --debug-mismatches     Include cross-entity mismatches in the envelope under mismatches[]\n  -h, --help                 help for recall\n      --limit int            Maximum number of learnings to return (default 10)\n      --min-confidence int   Minimum confidence to include in results (default 1)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "recall",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [recall] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "recall",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [recall] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "recall",
+      "kind": "error_path",
+      "args": [
+        "recall",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"found\": false,\n  \"query\": \"__printing_press_invalid__\",\n  \"normalized\": \"__printing_press_invalid__\",\n  \"query_entities\": [],\n  \"results\": [],\n  \"warnings\": [\n    \"no_learnings_for_query_family\"\n  ]\n}\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  shodhganga-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  shodhganga-pp-cli search \"error timeout\"\n\n  # Force local search only\n  shodhganga-pp-cli search \"status\" --data-source local\n  # Search a specific resource type locally\n  shodhganga-pp-cli search \"status\" --type browse --data-source local\n  # JSON output for piping\n  shodhganga-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "similar",
+      "kind": "help",
+      "args": [
+        "similar",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rank harvested theses by how many subject keywords they share with \u003chandle\u003e.\nThe target thesis is read from the store, or fetched live if not yet harvested.\nPopulate the store first with: shodhganga-pp-cli harvest \u003cquery\u003e.\n\nUsage:\n  shodhganga-pp-cli similar \u003chandle\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli similar 10603/305247 --json\n\nFlags:\n      --db string   database path (default: standard cache location)\n  -h, --help        help for similar\n      --limit int   maximum similar theses to return (default 10)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "similar",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [similar] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "similar",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [similar] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "similar",
+      "kind": "error_path",
+      "args": [
+        "similar",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: could not parse a thesis handle from \"__printing_press_invalid__\" (expected 305247 or 10603/305247)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. This API does\nnot declare temporal sync filters, so sync performs full pagination unless an\nexplicit resource declares its own incremental filter.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  shodhganga-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  shodhganga-pp-cli sync\n\n  # Sync specific resources only\n  shodhganga-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  shodhganga-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  shodhganga-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  shodhganga-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  shodhganga-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --no-prune                     Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlo…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "fail",
+      "exit_code": -1,
+      "reason": "exit -1",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"browse\"}\n{\"event\":\"sync_start\",\"resource\":\"university\"}\n{\"event\":\"sync_progress\",\"resource\":\"browse\",\"fetched\":20,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"browse\",\"total\":20,\"duration_ms\":3979}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": -1,
+      "reason": "exit -1",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"browse\"}\n{\"event\":\"sync_start\",\"resource\":\"university\"}\n{\"event\":\"sync_warning\",\"resource\":\"browse\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"browse\",\"fetched\":20,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"browse\",\"total\":20,\"duration_ms\":5986}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach",
+      "kind": "help",
+      "args": [
+        "teach",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Record one or more \"this query -\u003e this resource\" mappings so the next\nquery that matches surfaces the right resources without re-running discovery.\n\nThis command is designed to be backgrounded by an LLM right before it\nemits the user-facing response: silent on success, errors only to\nthe CLI state directory's teach.log, safe to fire-and-forget.\n\nDisabling: pass --no-learn or set SHODHGANGA_NO_LEARN=true.\n\nUsage:\n  shodhganga-pp-cli teach [flags]\n\nExamples:\n  shodhganga-pp-cli teach --query \"\u003cquestion\u003e\" --resource-type \u003ctype\u003e \\\n    --resource \u003cid\u003e --resource \u003cid\u003e \u0026\n\nFlags:\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n  -h, --help                         help for teach\n      --no-validate                  Suppress teach-time resource-shape validation (warnings to teach.log)\n      --notes string                 Optional free-form note recorded in the audit log\n      --playbook-file string         Optional path to a JSON playbook recording the CLI choreography for this query family\n      --playbook-json string         Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)\n      --playbook-notes string        Optional inline gotchas/workarounds for this query family (stored alongside the playbook)\n      --playbook-notes-file string   Optional path to a markdown file with playbook notes\n      --query string                 User's original natural-language question (required)\n      --quiet                        Silent on success (default true — designed for background invocation) (default true)\n      --resource strings             Resource ID — repeat for multiple (required)\n      --resource-type string         Resource type (required; e.g. matches a row in the local resources table)\n      --venue string                 Optional venue scope tag stored with the learning\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach",
+      "kind": "happy_path",
+      "args": [
+        "teach",
+        "--query",
+        "\u003cquestion\u003e",
+        "--resource-type",
+        "\u003ctype\u003e",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach",
+      "kind": "json_fidelity",
+      "args": [
+        "teach",
+        "--query",
+        "\u003cquestion\u003e",
+        "--resource-type",
+        "\u003ctype\u003e",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "help",
+      "args": [
+        "teach-lookup",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to entity_lookups. Used by the recall path's pattern\nengine to substitute values for canonical names at substitution time.\nComputed kinds (lowercase, uppercase, kebab-case, capitalize-first, slug)\ncannot be taught — they are derived from the canonical input.\n\nUsage:\n  shodhganga-pp-cli teach-lookup [flags]\n\nExamples:\n  shodhganga-pp-cli teach-lookup --kind country --canonical \"United States\" --value USA\n\nFlags:\n      --canonical string   Canonical entity name (required)\n      --db string          SQLite database file path (default: resolved data directory data.db)\n  -h, --help               help for teach-lookup\n      --kind string        Entity kind, e.g. country, team (required, must not be a computed kind)\n      --value string       Value/alias that should resolve to the canonical (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "happy_path",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"canonical\": \"United States\",\n  \"kind\": \"country\",\n  \"recorded\": true,\n  \"value\": \"USA\"\n}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"canonical\": \"United States\",\n  \"kind\": \"country\",\n  \"recorded\": true,\n  \"value\": \"USA\"\n}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "help",
+      "args": [
+        "teach-pattern",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to search_patterns. The recall path uses patterns to\nsubstitute live query entities into a resource template, so a pattern\nwith query_template=\"items in {entity}\" and\nresource_template=\"GROUP-{entity:category}\" generalizes one teach into\na whole family.\n\nUsage:\n  shodhganga-pp-cli teach-pattern [flags]\n\nExamples:\n  shodhganga-pp-cli teach-pattern \\\n    --query-template \"items in {entity}\" \\\n    --resource-template \"GROUP-{entity:category}\" \\\n    --resource-type \"items\" \\\n    --entity-kind \"category\" \\\n    --strategy substitute\n\nFlags:\n      --db string                  SQLite database file path (default: resolved data directory data.db)\n      --entity-kind string         Entity kind name registered in entity_lookups (required)\n  -h, --help                       help for teach-pattern\n      --query-template string      Query template with {entity} placeholder (required)\n      --resource-template string   Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)\n      --resource-type string       Resource type for substituted IDs (required)\n      --strategy string            Substitution strategy: substitute | substitute-then-search-prefix (default substitute)\n      --venue string               Optional venue scope tag\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "happy_path",
+      "args": [
+        "teach-pattern",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --query-template is required\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-pattern",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --query-template is required\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "help",
+      "args": [
+        "teach-playbook",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Stores a structured CLI command sequence (with entity slots) and/or\nfree-form gotchas/workarounds, keyed on the structural query family.\nThe recall path surfaces this whenever a future query of the same\nfamily fires, so the agent can replay the choreography and read the\nnotes verbatim.\n\nAt least one of --playbook-json/--playbook-file and --notes/--notes-file\nmust be set. --playbook-json takes the playbook body inline so MCP-only\nagents can record playbooks without a file on disk.\n\nUsage:\n  shodhganga-pp-cli teach-playbook [flags]\n\nExamples:\n  shodhganga-pp-cli teach-playbook \\\n    --query \"\u003cquestion that anchors the family\u003e\" \\\n    --playbook-file ~/playbooks/recipe.json \\\n    --notes-file ~/playbooks/recipe-notes.md\n\nFlags:\n      --db string              Database path (default: standard cache location)\n  -h, --help                   help for teach-playbook\n      --notes string           Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file\n      --notes-file string      Path to a markdown file with the notes\n      --playbook-file string   Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)\n      --playbook-json string   Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file\n      --query string           Example query that anchors the family (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "happy_path",
+      "args": [
+        "teach-playbook",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-playbook",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "thesis get",
+      "kind": "help",
+      "args": [
+        "thesis",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a thesis's full Dublin Core metadata by handle (305247 or 10603/305247)\n\nUsage:\n  shodhganga-pp-cli thesis get \u003cid\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli thesis get 305247\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "thesis get",
+      "kind": "happy_path",
+      "args": [
+        "thesis",
+        "get",
+        "226893"
+      ],
+      "status": "pass",
+      "fixture_source": "store",
+      "output_sample": "{\n  \"handle\": \"10603/226893\",\n  \"id\": \"226893\",\n  \"title\": \"Ecocritical Study of Kalidasa s Lyrics and Selected Poems of William Wordsworth\",\n  \"researcher\": \"Yeshpal\",\n  \"guides\": [\n    \"Kaur, Zameerpal\"\n  ],\n  \"university\": \"Central University of Punjab\",\n  \"department\": \"Department of Languages and Comparative Literature\",\n  \"place\": \"Bathinda\",\n  \"keywords\": [\n    \"Arts and Humanities,Literature,Poetry\",\n    \"Ecocriticism, Literature and Environment, Kalidasa, William Wordsworth\"\n  ],\n  \"completed_date\": \"10/05/2012\",\n  \"abstract\": \"The present thesis is based on an Ecocritical analysis of the selected poems of\\nnewlineKalidasa and Wordsworth from a comparative perspective. The main focus of the\\nnewlinethesis is to explore the ecological consciousness and aesthetics as manifested in\\nnewlinethe selected texts; further, the thesis endeavors to construct the organic\\nnewlinerelationship depicted between the natural world and human culture in both the\\nnewlinepoets. The thesis traces the evolution of Ecocriticism over the time; different\\nnewlineissues of ecocriticism such as ecology, deep ecology, social ecology, romantic\\nnewlineecology, wilderness, and environmental aesthetics, are likewise investigated in\\nnewlinethe selected texts. The thesis through the study of the selected works of both the\\nnewlinewriters tries to show how both the writers envision an idealistic view of life which\\nnewlinewould empower humans to achieve maximum synchronization and\\nnewlineinterdependence with their natural or physical environment. Kalidasa represented\\nnewlinethe Hindu way of life in ancient India; his works mirror the socio-cultural milieu of\\nnewlinethe ancient India, and a system of shared moral and ethical values towards\\nnewlineNature can be gleaned from his works. In the poetry of Kalidasa, Nature is\\nnewlinecherished with a profound spiritual passion; for him, Nature speaks to divine\\nnewlinebalance, divine music, and heavenly harmony. Kalidasa doesn t merely use\\nnewlinenature as an idealised setting for his works but endows it with living attributes and\\nnewlinev\\nnewlinea personality of its own. While Wordsworth may represent a cloud, Kalidasa sees\\nnewlinethe cloud in Meghaduta as having a fully developed consciousness; both the\\nnewlinepoets invalidate the idea of customary anthropocentrism and support ecocentrism.\\nnewlineWordsworth believes that man is a part of nature and nature is a holistic living\\nnewlineorganism; he believes in the equality of the natural and the human world, the\\nnewlineformer is not subservient to the latter. Wordsworth considers it indispensable to\\nnewlinehave an ethical attitude of humility and the reverence to reestablish the severed\\nnewlineconnections between humans and the natural habitat. Thus, both Kalidasa a\",\n  \"language\": \"English\",\n  \"type\": \"Ph.D.\",\n  \"uri\": \"http://hdl.handle.net/10603/226893\"\n}\n"
+    },
+    {
+      "command": "thesis get",
+      "kind": "json_fidelity",
+      "args": [
+        "thesis",
+        "get",
+        "226893",
+        "--json"
+      ],
+      "status": "pass",
+      "fixture_source": "store",
+      "output_sample": "{\n  \"handle\": \"10603/226893\",\n  \"id\": \"226893\",\n  \"title\": \"Ecocritical Study of Kalidasa s Lyrics and Selected Poems of William Wordsworth\",\n  \"researcher\": \"Yeshpal\",\n  \"guides\": [\n    \"Kaur, Zameerpal\"\n  ],\n  \"university\": \"Central University of Punjab\",\n  \"department\": \"Department of Languages and Comparative Literature\",\n  \"place\": \"Bathinda\",\n  \"keywords\": [\n    \"Arts and Humanities,Literature,Poetry\",\n    \"Ecocriticism, Literature and Environment, Kalidasa, William Wordsworth\"\n  ],\n  \"completed_date\": \"10/05/2012\",\n  \"abstract\": \"The present thesis is based on an Ecocritical analysis of the selected poems of\\nnewlineKalidasa and Wordsworth from a comparative perspective. The main focus of the\\nnewlinethesis is to explore the ecological consciousness and aesthetics as manifested in\\nnewlinethe selected texts; further, the thesis endeavors to construct the organic\\nnewlinerelationship depicted between the natural world and human culture in both the\\nnewlinepoets. The thesis traces the evolution of Ecocriticism over the time; different\\nnewlineissues of ecocriticism such as ecology, deep ecology, social ecology, romantic\\nnewlineecology, wilderness, and environmental aesthetics, are likewise investigated in\\nnewlinethe selected texts. The thesis through the study of the selected works of both the\\nnewlinewriters tries to show how both the writers envision an idealistic view of life which\\nnewlinewould empower humans to achieve maximum synchronization and\\nnewlineinterdependence with their natural or physical environment. Kalidasa represented\\nnewlinethe Hindu way of life in ancient India; his works mirror the socio-cultural milieu of\\nnewlinethe ancient India, and a system of shared moral and ethical values towards\\nnewlineNature can be gleaned from his works. In the poetry of Kalidasa, Nature is\\nnewlinecherished with a profound spiritual passion; for him, Nature speaks to divine\\nnewlinebalance, divine music, and heavenly harmony. Kalidasa doesn t merely use\\nnewlinenature as an idealised setting for his works but endows it with living attributes and\\nnewlinev\\nnewlinea personality of its own. While Wordsworth may represent a cloud, Kalidasa sees\\nnewlinethe cloud in Meghaduta as having a fully developed consciousness; both the\\nnewlinepoets invalidate the idea of customary anthropocentrism and support ecocentrism.\\nnewlineWordsworth believes that man is a part of nature and nature is a holistic living\\nnewlineorganism; he believes in the equality of the natural and the human world, the\\nnewlineformer is not subservient to the latter. Wordsworth considers it indispensable to\\nnewlinehave an ethical attitude of humility and the reverence to reestablish the severed\\nnewlineconnections between humans and the natural habitat. Thus, both Kalidasa a\",\n  \"language\": \"English\",\n  \"type\": \"Ph.D.\",\n  \"uri\": \"http://hdl.handle.net/10603/226893\"\n}\n"
+    },
+    {
+      "command": "thesis get",
+      "kind": "error_path",
+      "args": [
+        "thesis",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: could not parse a thesis handle from \"__printing_press_invalid__\" (expected 305247 or 10603/305247)\n"
+    },
+    {
+      "command": "thesis search",
+      "kind": "help",
+      "args": [
+        "thesis",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search theses by keyword across all of Shodhganga\n\nUsage:\n  shodhganga-pp-cli thesis search [flags]\n\nExamples:\n  shodhganga-pp-cli thesis search --query \"black hole physics\" --limit 10\n\nFlags:\n  -h, --help           help for search\n      --limit int      Results per page (default 10)\n      --query string   Search keywords\n      --start int      Result offset for paging\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "thesis search",
+      "kind": "happy_path",
+      "args": [
+        "thesis",
+        "search",
+        "--query",
+        "physics",
+        "--limit",
+        "5"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hits\": [\n    {\n      \"handle\": \"10603/305247\",\n      \"id\": \"305247\",\n      \"title\": \"Analytical description of black holes shadow\",\n      \"url\": \"https://shodhganga.inflibnet.ac.in/handle/10603/305247\"\n    },\n    {\n      \"handle\": \"10603/312900\",\n      \"id\": \"312900\",\n      \"title\": \"Some astro particle physics aspects of early universe\",\n      \"url\": \"https://shodhganga.inflibnet.ac.in/handle/10603/312900\"\n    },\n    {\n      \"handle\": \"10603/638225\",\n      \"id\": \"638225\",\n      \"title\": \"Study of Novae\",\n      \"url\": \"https://shodhganga.inflibnet.ac.in/handle/10603/638225\"\n    },\n    {\n      \"handle\": \"10603/626166\",\n      \"id\": \"626166\",\n      \"title\": \"Information Games and Graphs\",\n      \"url\": \"https://shodhganga.inflibnet.ac.in/handle/10603/626166\"\n    },\n    {\n      \"handle\": \"10603/642214\",\n      \"id\": \"642214\",\n      \"title\": \"Physics of solar stills\",\n      \"url\": \"https://shodhganga.inflibnet.ac.in/handle/10603/642214\"\n    }\n  ],\n  \"total\": 137604\n}\n"
+    },
+    {
+      "command": "thesis search",
+      "kind": "json_fidelity",
+      "args": [
+        "thesis",
+        "search",
+        "--query",
+        "physics",
+        "--limit",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hits\": [\n    {\n      \"handle\": \"10603/305247\",\n      \"id\": \"305247\",\n      \"title\": \"Analytical description of black holes shadow\",\n      \"url\": \"https://shodhganga.inflibnet.ac.in/handle/10603/305247\"\n    },\n    {\n      \"handle\": \"10603/312900\",\n      \"id\": \"312900\",\n      \"title\": \"Some astro particle physics aspects of early universe\",\n      \"url\": \"https://shodhganga.inflibnet.ac.in/handle/10603/312900\"\n    },\n    {\n      \"handle\": \"10603/638225\",\n      \"id\": \"638225\",\n      \"title\": \"Study of Novae\",\n      \"url\": \"https://shodhganga.inflibnet.ac.in/handle/10603/638225\"\n    },\n    {\n      \"handle\": \"10603/626166\",\n      \"id\": \"626166\",\n      \"title\": \"Information Games and Graphs\",\n      \"url\": \"https://shodhganga.inflibnet.ac.in/handle/10603/626166\"\n    },\n    {\n      \"handle\": \"10603/642214\",\n      \"id\": \"642214\",\n      \"title\": \"Physics of solar stills\",\n      \"url\": \"https://shodhganga.inflibnet.ac.in/handle/10603/642214\"\n    }\n  ],\n  \"total\": 137604\n}\n"
+    },
+    {
+      "command": "thesis search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends",
+      "kind": "help",
+      "args": [
+        "trends",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Group harvested theses by completion year. With --subject, only theses whose\nkeywords match the subject are counted. Populate the store first with:\nshodhganga-pp-cli harvest \u003cquery\u003e.\n\nUsage:\n  shodhganga-pp-cli trends [flags]\n\nExamples:\n  shodhganga-pp-cli trends --subject Physics --json\n\nFlags:\n      --db string        database path (default: standard cache location)\n  -h, --help             help for trends\n      --subject string   restrict to theses whose keywords match this subject\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends",
+      "kind": "happy_path",
+      "args": [
+        "trends",
+        "--subject",
+        "Physics",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"subject\": \"Physics\",\n  \"total\": 0,\n  \"by_year\": []\n}\n"
+    },
+    {
+      "command": "trends",
+      "kind": "json_fidelity",
+      "args": [
+        "trends",
+        "--subject",
+        "Physics",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"subject\": \"Physics\",\n  \"total\": 0,\n  \"by_year\": []\n}\n"
+    },
+    {
+      "command": "trends",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "university get",
+      "kind": "help",
+      "args": [
+        "university",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a university/community page by handle number\n\nUsage:\n  shodhganga-pp-cli university get \u003cid\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli university get 1\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "university get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "university get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "university get",
+      "kind": "error_path",
+      "args": [
+        "university",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /handle/10603/__printing_press_invalid__ returned HTTP 404: \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\u003c!DOCTYPE html\u003e\n\u003chtml\u003e\n    \u003chead\u003e\n        \u003ctitle\u003eShodhganga@INFLIBNET: Invalid Identifier\u003c/title\u003e\n        \u003cmeta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" /\u003e\n        \u003cmeta name=\"Generator\" content=\"DSpace 5.3\" /\u003e\n        \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n        \u003clink rel=\"shortcut icon\" href=\"/favicon.ico\" type=\"image/x-icon\"/\u003e\n\t    \u003clink rel=\"stylesheet\" href=\"/static/css/jquery-ui-1.10.3.custom/redmond/jquery-ui-1.10.3.custom.css\" type=\"text/css\" /\u003e\n\t    \u003clink rel=\"stylesheet\" href=\"/static/css/bootstrap/bootstrap.min.css\" type=\"text/css\" /\u003e\n\t    \u003clink rel=\"stylesheet\" href=\"/static/css/bootstrap/bootstrap-theme.min.css\" type=\"text/css\" /\u003e\n\t    \u003clink rel=\"stylesheet\" href=\"/static/css/bootstrap/dspace-theme.css\" type=\"text/css\" /\u003e\n\u003c!--\n\u003cscript type=\"text/javascript\" src=\"https://platform-api.sharethis.com/js/sharethis.js#property=646c64af40353a0019caeec0\u0026product=sticky-share-buttons\u0026source=platform\" async=\"async\"\u003e\u003c/script\u003e\n--\u003e\n\n\n        \u003clink rel=\"search\" type=\"application/opensearchdescription+xml\" href=\"/open-search/description.xml\" title=\"DSpace\"/\u003e\n\n        \n\t\u003cscript type='text/javascript' src=\"/static/js/jquery/jquery-1.10.2.min.js\"\u003e\u003c/script\u003e\n\t\u003cscript type='text/javascript' src='/static/js/jquery/jquery-ui-1.10.3.custom.min.js'\u003e\u003c/script\u003e\n\t\u003cscript type='text/javascript' src='/static/js/bootstrap/bootstrap.min.js'\u003e\u003c/script\u003e\n\t\u003cscript type='text/javascript' src='/static/js/holder.js'\u003e\u003c/script\u003e\n\t\u003cscript type=\"text/javascript\" src=\"/utils.js\"\u003e\u003c/script\u003e\n    \u003cscript type=\"text/javascript\" src=\"/static/js/choice-support.js\"\u003e \u003c/script\u003e\n\n    \n    \n    \n\n\u003c!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries --\u003e\n\u003c!--[if lt IE 9]\u003e\n  \u003cscript src=\"/static/js/html5shiv.js\"\u003e\u003c/script\u003e\n  \u003cscript src=\"/static/js/respond.min.js\"\u003e\u003c/script\u003e\n\u003c![endif]--\u003e\n    \u003c/head\u003e\n\n    \n    \n    \u003cbody class=\"undernavigation\"\u003e\n\u003ca class=\"sr-only\" href=\"#content\"\u003eSkip navigation\u003c/a\u003e\n\u003cheader class=\"navbar navbar-inverse navbar-fixed-top\"\u003e    \n    \n\u003c!-- Global site tag (gtag.js) - Google Analytics header --\u003e\n\t\u003c!--script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-155197711-1\"\u003e\u003c/script\u003e\n\t\u003cscript\u003e\n\t window.dataLayer = window.dataLayer || [];\n\t function gtag(){dataLayer.push(arguments);}\n\t gtag('js', new Date());\n\n\t gtag('config', 'UA-155197711-1');\n\t\u003c/script--\u003e\n\n\n            \u003cdiv class=\"container\"\u003e\n                \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n       \u003cdiv class=\"navbar-header\"\u003e\n\t\u003c!-- Global site tag (gtag.js) - Google Analytics navbar --\u003e\n\t\u003c!--script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-155197711-1\"\u003e\u003c/script\u003e\n\t\u003cscript\u003e\n\t window.dataLayer = window.dataLayer || [];\n\t function gtag(){dataLayer.push(arguments);}\n\t gtag('js', new Date());\n\n\t gtag('config', 'UA-155197711-1');\n\t\u003c/script--\u003e\n\n\n         \u003cbutton type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\"\u003e\n           \u003cspan class=\"icon-bar\"\u003e\u003c/span\u003e\n           \u003cspan class=\"icon-bar\"\u003e\u003c/span\u003e\n           \u003cspan class=\"icon-bar\"\u003e\u003c/span\u003e\n         \u003c/button\u003e\n         \u003ca class=\"navbar-brand\" href=\"/\"\u003e\u003cimg height=\"25\" src=\"/image/dspace-logo-only.png\" alt=\"DSpace logo\" /\u003e\u003c/a\u003e\n       \u003c/div\u003e\n       \u003cnav class=\"collapse navbar-collapse bs-navbar-collapse\" role=\"navigation\"\u003e\n         \u003cul class=\"nav navbar-nav\"\u003e\n           \u003cli class=\"\"\u003e\u003ca href=\"/\"\u003e\u003cspan class=\"glyphicon glyphicon-home\"\u003e\u003c/span\u003e Home\u003c/a\u003e\u003c/li\u003e\n                \n           \u003cli class=\"dropdown\"\u003e\n             \u003ca href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\"\u003eBrowse \u003cb class=\"caret\"\u003e\u003c/b\u003e\u003c/a\u003e\n             \u003cul class=\"dropdown-menu\"\u003e\n               \u003cli\u003e\u003ca href=\"/university-list.html\"\u003eUniversities\u003cbr/\u003e\u0026amp;\u0026nbsp;Departments\u003c/a\u003e\u003c/li\u003e\n\t\t\t\t\u003cli class=\"divider\"\u003e\u003c/li\u003e\n        \u003cli class=\"dropdown-header\"\u003eBrowse by :\u003c/li\u003e\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t      \t\t\t\u003cli\u003e\u003ca href=\"/browse?type=dateaccessioned\"\u003eUpload Date\u003c/a\u003e\u003c/li\u003e\n\t\t\t\t\t\n\t\t\t\t      \t\t\t\u003cli\u003e\u003ca href=\"/browse?type=author\"\u003eResearcher/Guide\u003c/a\u003e\u003c/li\u003e\n\t\t\t\t\t\n\t\t\t\t      \t\t\t\u003cli\u003e\u003ca href=\"/browse?type=title\"…[truncated]"
+    },
+    {
+      "command": "university list",
+      "kind": "help",
+      "args": [
+        "university",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List universities/communities in Shodhganga\n\nUsage:\n  shodhganga-pp-cli university list [flags]\n\nExamples:\n  shodhganga-pp-cli university list\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "university list",
+      "kind": "happy_path",
+      "args": [
+        "university",
+        "list"
+      ],
+      "status": "fail",
+      "exit_code": -1,
+      "reason": "exit -1"
+    },
+    {
+      "command": "university list",
+      "kind": "json_fidelity",
+      "args": [
+        "university",
+        "list",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": -1,
+      "reason": "exit -1"
+    },
+    {
+      "command": "university list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "university stats",
+      "kind": "help",
+      "args": [
+        "university",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Profile a university's doctoral output from the harvested corpus: thesis count,\ncompletion-year range, departments, and top subjects. Populate the store first\nwith: shodhganga-pp-cli harvest \u003cquery\u003e.\n\nUsage:\n  shodhganga-pp-cli university stats \u003cname\u003e [flags]\n\nExamples:\n  shodhganga-pp-cli university stats \"Jamia Millia Islamia\" --json\n\nFlags:\n      --db string   database path (default: standard cache location)\n  -h, --help        help for stats\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "university stats",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "university stats",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "university stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  shodhganga-pp-cli which [query] [flags]\n\nExamples:\n  shodhganga-pp-cli which \"stale tickets\"\n  shodhganga-pp-cli which \"bottleneck\"\n  shodhganga-pp-cli which --limit 1 \"send message\"\n  shodhganga-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  shodhganga-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  shodhganga-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  shodhganga-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "fail",
+      "exit_code": -1,
+      "reason": "exit -1",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"browse\"}\n{\"event\":\"sync_warning\",\"resource\":\"browse\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"browse\",\"fetched\":20,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"browse\",\"total\":20,\"duration_ms\":4524}\n{\"event\":\"sync_start\",\"resource\":\"university\"}\n  browse: 20 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": -1,
+      "reason": "exit -1",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"browse\"}\n{\"event\":\"sync_warning\",\"resource\":\"browse\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"browse\",\"fetched\":20,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"browse\",\"total\":20,\"duration_ms\":5535}\n  browse: 20 synced\n{\"event\":\"sync_start\",\"resource\":\"university\"}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  shodhganga-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  shodhganga-pp-cli workflow status\n\n  # Show status as JSON\n  shodhganga-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'shodhganga-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  browse                         20 items\n  thesis                         3 items\n\n  Total: 23 items\n  Store: /tmp/printing-press-subprocess-3261532802/.local/share/shodhganga-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"browse\": 20,\n  \"thesis\": 3\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-19T02:31:57.898402017Z"
+}

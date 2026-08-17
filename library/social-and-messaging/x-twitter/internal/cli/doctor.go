@@ -100,13 +100,69 @@ func probeAuthLane(ctx context.Context, c *client.Client, header, source, path, 
 		body := apiErr.Body
 		switch {
 		case apiErr.StatusCode == 401:
+			var refreshErr error
+			if path == "/2/users/me" {
+				var refreshed bool
+				refreshed, refreshErr = c.RefreshOAuth2UserContext(ctx, true)
+				if refreshErr == nil && refreshed {
+					refreshedHeader := c.Config.UserContextAuthHeader()
+					if refreshedHeader != "" && refreshedHeader != header {
+						refreshedHeaders := map[string]string{
+							"Authorization": refreshedHeader,
+							"User-Agent":    "x-twitter-pp-cli",
+						}
+						if refreshedBody, retryErr := c.GetWithHeaders(ctx, path, nil, refreshedHeaders); retryErr == nil {
+							lane := authLane("ok", source, "")
+							lane["refreshed"] = true
+							if user := userSummaryFromMeProbe(refreshedBody); len(user) > 0 {
+								lane["probe"] = "/2/users/me ok"
+								lane["user"] = user
+							}
+							return lane
+						}
+					}
+				}
+			}
 			lane := authLane("invalid", source, "token was rejected; refresh or replace this credential")
 			lane["http_status"] = apiErr.StatusCode
+			if refreshErr != nil {
+				lane["refresh_attempted"] = true
+				lane["refresh_error"] = cliutil.SanitizeErrorBody(refreshErr.Error())
+				lane["hint"] = "refresh token was rejected or could not be used; rerun `x-twitter-pp-cli auth oauth2-login --client-id <client-id>` to mint a new OAuth2 user-context token"
+			}
 			return lane
 		case apiErr.StatusCode == 403 && xAppOnlyUnsupportedAuth(body):
+			var refreshErr error
+			if path == "/2/users/me" && strings.TrimSpace(c.Config.RefreshToken) != "" && strings.TrimSpace(c.Config.ClientID) != "" {
+				var refreshed bool
+				refreshed, refreshErr = c.RefreshOAuth2UserContext(ctx, true)
+				if refreshErr == nil && refreshed {
+					refreshedHeader := c.Config.UserContextAuthHeader()
+					if refreshedHeader != "" && refreshedHeader != header {
+						refreshedHeaders := map[string]string{
+							"Authorization": refreshedHeader,
+							"User-Agent":    "x-twitter-pp-cli",
+						}
+						if refreshedBody, retryErr := c.GetWithHeaders(ctx, path, nil, refreshedHeaders); retryErr == nil {
+							lane := authLane("ok", source, "")
+							lane["refreshed"] = true
+							if user := userSummaryFromMeProbe(refreshedBody); len(user) > 0 {
+								lane["probe"] = "/2/users/me ok"
+								lane["user"] = user
+							}
+							return lane
+						}
+					}
+				}
+			}
 			lane := authLane("invalid", source, "this credential appears to be app-only; set/import a real OAuth2 user-context token in X_OAUTH2_USER_TOKEN")
 			lane["http_status"] = apiErr.StatusCode
 			lane["classification"] = "app_only_token_used_for_user_context"
+			if refreshErr != nil {
+				lane["refresh_attempted"] = true
+				lane["refresh_error"] = cliutil.SanitizeErrorBody(refreshErr.Error())
+				lane["hint"] = "stored user-context token is not usable and refresh failed; rerun `x-twitter-pp-cli auth oauth2-login --client-id <client-id>` to mint a new OAuth2 user-context token"
+			}
 			return lane
 		case apiErr.StatusCode == 403:
 			lane := authLane("invalid", source, "credential reached X but lacks permission for this probe")

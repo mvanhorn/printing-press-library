@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "forgejo-pp-mcp",
+  "display_name": "Forgejo",
+  "version": "4.14.0",
+  "description": "The `gh` for Forgejo — works with any instance, stores your data locally, and speaks Forgejo natively.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/forgejo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/forgejo-pp-mcp",
+      "args": [],
+      "env": {
+        "FORGEJO_TOKEN": "${user_config.forgejo_token}"
+      }
+    }
+  },
+  "user_config": {
+    "forgejo_token": {
+      "type": "string",
+      "title": "FORGEJO_TOKEN",
+      "description": "Sets FORGEJO_TOKEN for the Forgejo MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

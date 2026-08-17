@@ -1,0 +1,57 @@
+{
+  "descriptions": {
+    "user_get": "Fetch the authenticated athlete's profile from the Wahoo Cloud API. No parameters. Returns the User record: id, email, first/last name, birth date, gender, and height/weight (both as metric strings — meters and kilograms). Use this to resolve the current user's id, or to read the weight needed for watts/kg analysis before calling the local ftp-history command.",
+
+    "workouts_get": "Fetch one workout by id from the Wahoo Cloud API. Required: id (int64, the workout id). Returns the Workout: starts (start time), minutes (duration), name, workout_type_id, plan_id, workout_token, and an embedded workout_summary with distance/ascent/power/heart-rate accumulators. Use workouts_list to discover ids; use this when you already have an id and need the full record including its summary.",
+
+    "workouts_delete": "Permanently delete one workout by id via the Wahoo Cloud API. Required: id (int64). Returns no content (204) on success. Destructive and irreversible — the workout and its summary are removed from the athlete's account. Requires the workouts_write scope. There is no undo; confirm the id with workouts_get first.",
+
+    "plans_get": "Fetch one workout plan by id from the Wahoo Cloud API. Required: id (int64, the plan id). Returns the Plan: name, description, external_id, workout_type_family_id, the downloadable plan file url, and provider_updated_at. Use plans_list to discover ids; use this when you have an id and need the plan's details or file url.",
+
+    "plans_delete": "Permanently delete one workout plan by id via the Wahoo Cloud API. Required: id (int64). Returns no content (204) on success. Destructive and irreversible — the plan is removed from the athlete's account. Requires the plans_write scope. Deleting a plan does not delete workouts that referenced it.",
+
+    "routes_get": "Fetch one saved GPS route by id from the Wahoo Cloud API. Required: id (int64, the route id). Returns the Route: name, description, distance and ascent/descent (meters), starting/ending lat-lng, workout_type_family_id, and the downloadable route file url. Use routes_list to discover ids, or the local 'routes find' command to filter routes by distance, climbing, and proximity; use this when you have a specific id.",
+
+    "routes_delete": "Permanently delete one saved GPS route by id via the Wahoo Cloud API. Required: id (int64). Returns no content (204) on success. Destructive and irreversible — the route is removed from the athlete's account and will no longer sync to paired devices. Requires the routes_write scope.",
+
+    "power-zones_get": "Fetch one power-zone configuration by id from the Wahoo Cloud API. Required: id (int64, the power-zone record id). Returns the PowerZone: ftp (Functional Threshold Power, watts), critical_power, the seven zone boundaries (zone_1 through zone_7, watts), and workout_type_family_id (an athlete can have separate zones per sport). Use power-zones_list to discover ids.",
+
+    "power-zones_list": "List the authenticated athlete's power-zone configurations from the Wahoo Cloud API. No parameters. Returns an array of PowerZone records — one per workout_type_family_id (sport) — each with ftp (watts), critical_power, and zone_1 through zone_7 boundaries. Use this to find the athlete's current FTP, or the id to pass to power-zones_get/update/delete.",
+
+    "power-zones_delete": "Permanently delete one power-zone configuration by id via the Wahoo Cloud API. Required: id (int64). Returns no content (204) on success. Destructive and irreversible — removes that sport's zone definitions from the athlete's account. Requires the power_zones_write scope.",
+
+    "workouts_workout-summary_get": "Fetch the computed summary for one workout from the Wahoo Cloud API. Required: id (int64, the workout id — not a separate summary id). Returns the WorkoutSummary: accumulated distance, ascent, calories, active/paused/total duration, and average cadence, heart rate, bike power, and speed (all as strings), plus a file.url for the raw FIT download. Use this for per-ride metrics without pulling the whole workout via workouts_get.",
+
+    "workouts_plans_list-for-workout": "List the workout plans associated with a single workout via the Wahoo Cloud API. Required: workout_id (int64). Returns an array of Plan records linked to that workout (usually zero or one). Use this to find which structured plan a completed workout was executed against; use plans_list for the athlete's whole plan library.",
+
+    "workout-file-uploads_get": "Check the processing status of a FIT-file upload via the Wahoo Cloud API. Required: token (string, returned by workout-file-uploads_create). Returns the WorkoutFileUpload: state (queued, processing, completed, or failed), the resulting workout_id once completed, and an error message if it failed. Poll this after an upload until state is completed or failed.",
+
+    "workout-file-uploads_create": "Upload a raw FIT file to ingest as a workout via the Wahoo Cloud API. Required: file (a FIT-format binary file). Returns a WorkoutFileUpload with a token; ingestion is asynchronous, so poll workout-file-uploads_get with that token until state is completed (which yields the new workout_id) or failed. Requires the workouts_write scope.",
+
+    "workouts_list": "List the authenticated athlete's workouts from the Wahoo Cloud API, newest first. Optional: page (default 1) and per_page (default 30, max 100) for pagination. Returns a WorkoutList with the workouts array plus total, page, and per_page. Prefer the local 'sync' + 'search'/'analytics' commands for large histories or offline analysis; use this for a quick live page of recent rides.",
+
+    "routes_list": "List the authenticated athlete's saved GPS routes from the Wahoo Cloud API. Optional: page (default 1) and per_page (default 30, max 100). Returns an array of Route records with distance, ascent/descent, and start/end coordinates. To filter routes by distance band, climbing, or proximity to a point, prefer the local 'routes find' command after a sync.",
+
+    "plans_list": "List the authenticated athlete's structured workout plans from the Wahoo Cloud API. Optional: page (default 1) and per_page (default 30, max 100). Returns an array of Plan records with name, description, workout_type_family_id, and file url. Use plans_get for one plan's full detail, or workouts_plans_list-for-workout to find the plan behind a specific workout.",
+
+    "workouts_create": "Create a workout record on the athlete's Wahoo account via the Cloud API. Required: starts (ISO-8601 start time), minutes (duration), name, and workout_type_id. Optional: plan_id (link to a structured plan) and workout_token. Returns the new Workout with its assigned id. This registers workout metadata only; to ingest ride data from a device file, use workout-file-uploads_create instead. Requires the workouts_write scope.",
+
+    "workouts_update": "Update an existing workout on the athlete's Wahoo account via the Cloud API. Required: id (int64) plus the full record — starts, minutes, name, workout_type_id (PUT replaces, so resend unchanged fields). Optional: plan_id, workout_token. Returns the updated Workout. Requires the workouts_write scope.",
+
+    "routes_create": "Create a saved GPS route on the athlete's Wahoo account via the Cloud API. Required: name and file (a FIT-format route file). Optional: description, external_id, distance, ascent, descent, starting/ending lat-lng, and workout_type_family_id. Returns the new Route with its id. The route then syncs to the athlete's paired Wahoo devices. Requires the routes_write scope.",
+
+    "routes_update": "Update an existing saved route on the athlete's Wahoo account via the Cloud API. Required: id (int64), name, and file (PUT replaces the record). Optional: description, external_id, distance, ascent, descent, start/end coordinates, and workout_type_family_id. Returns the updated Route. Requires the routes_write scope.",
+
+    "plans_create": "Create a structured workout plan on the athlete's Wahoo account via the Cloud API. Required: name and file (a JSON plan file). Optional: description, external_id, provider_updated_at, and workout_type_family_id. Returns the new Plan with its id. Requires the plans_write scope.",
+
+    "plans_update": "Update an existing workout plan on the athlete's Wahoo account via the Cloud API. Required: id (int64), name, and file (PUT replaces the record). Optional: description, external_id, provider_updated_at, and workout_type_family_id. Returns the updated Plan. Requires the plans_write scope.",
+
+    "power-zones_create": "Create a power-zone configuration for one sport on the athlete's Wahoo account via the Cloud API. Required: ftp (Functional Threshold Power in watts) and workout_type_family_id (which sport these zones apply to). Optional: critical_power and the seven zone boundaries zone_1 through zone_7 (watts). Returns the new PowerZone with its id. Requires the power_zones_write scope.",
+
+    "power-zones_update": "Update a power-zone configuration on the athlete's Wahoo account via the Cloud API. Required: id (int64), ftp (watts), and workout_type_family_id (PUT replaces the record). Optional: critical_power and zone_1 through zone_7. Returns the updated PowerZone. Use this to record a new FTP after a test. Requires the power_zones_write scope.",
+
+    "user_update": "Update the authenticated athlete's profile via the Wahoo Cloud API. No required fields; send any of first, last, birth (date), gender (0=male, 1=female, 2=other), height (meters as a string), or weight (kilograms as a string). Returns the updated User. Updating weight here keeps watts/kg analysis accurate. Requires the user_write scope.",
+
+    "permissions_revoke-app-access": "Revoke this application's OAuth access for the authenticated athlete via the Wahoo Cloud API. No parameters. Returns no content (204) on success. Destructive — it invalidates the current access and refresh tokens, so every subsequent call fails with 401 until the athlete re-authorizes via 'auth login'. Use this to disconnect the integration, not for routine logout."
+  }
+}

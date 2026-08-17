@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "zameen-pp-mcp",
+  "display_name": "Zameen",
+  "version": "0.1.0",
+  "description": "Every Zameen property search in your terminal — with an offline store, saved-search monitoring, and price-drop alerts no scraper offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zameen-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zameen-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

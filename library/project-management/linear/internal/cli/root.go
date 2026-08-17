@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.2"
+var version = "2026.8.4"
 
 type rootFlags struct {
 	asJSON        bool
@@ -82,13 +82,9 @@ func Execute() error {
 		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
 			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
 			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				// Cobra already printed `Error: unknown flag: --foob` before
-				// returning; the wrap below attaches the hint to err.Error()
-				// for downstream consumers and exit-code classification, but
-				// would never reach stderr now that main.go no longer prints
-				// err. Emit the hint explicitly so the suggestion still
-				// shows up under Cobra's error line.
-				fmt.Fprintf(os.Stderr, "hint: did you mean --%s?\n", suggestion)
+				// SilenceErrors is set, so finalizeError below is the single
+				// printer; wrapping puts the hint on both the human stderr
+				// line and the JSON envelope's "error" field.
 				err = fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
 			}
 		}
@@ -108,13 +104,7 @@ func Execute() error {
 		// usage errors that the helpers.go contract already promises.
 		err = usageErr(err)
 	}
-	if err != nil {
-		if flags.asJSON && !flags.errorWritten {
-			writeCLIErrorEnvelope(&flags, err, ExitCode(err))
-		} else if !flags.asJSON {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		}
-	}
+	finalizeError(&flags, os.Args[1:], os.Stdout, os.Stderr, err)
 	return err
 }
 
@@ -173,13 +163,15 @@ Highlights (not in the official API docs):
   • stale   Find issues that haven't been touched in N days, grouped by team and project.
   • slipped   Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.
   • blocking   Show issues you are blocking — sorted by downstream impact (downstream count × downstream priority).
-  • issues search   Search synced Linear issues by text before creating a new ticket; team-scoped alias for similar duplicate checks.
   • similar   Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.
   • velocity   Track sprint completion rates over the last N cycles to spot productivity trends.
   • initiatives health   Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.
   • milestones at-risk   List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude.
   • pp-test list   List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.
   • issues create --trust-mode strict   Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface.
+  • projects list   List Linear projects live, optionally scoped by team, before attaching or auditing portfolio work.
+  • projects search   Search Linear projects live by name with an optional team filter.
+  …and 10 more — see README.md for the full list
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'linear-pp-cli doctor' to verify auth and connectivity.
@@ -316,7 +308,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 
 	// v3-ported top-level commands
 	rootCmd.AddCommand(newIssuesCmd(flags))
+	rootCmd.AddCommand(newWorkflowStatesCmd(flags))
+	rootCmd.AddCommand(newGroupsCmd(flags))
 	rootCmd.AddCommand(newCommentsCmd(flags))
+	rootCmd.AddCommand(newProjectUpdatesCmd(flags))
 	rootCmd.AddCommand(newDocumentsCmd(flags))
 	rootCmd.AddCommand(newLabelsCmd(flags))
 	rootCmd.AddCommand(newMeCmd(flags))
@@ -332,7 +327,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newExportCmd(flags))
 
 	// v3-ported persistent flags
-	rootCmd.PersistentFlags().StringVar(&flags.trustMode, "trust-mode", "", "Mutation guard: 'strict' refuses to mutate Linear issues not in the local pp_created table.")
+	rootCmd.PersistentFlags().StringVar(&flags.trustMode, "trust-mode", "", "Mutation guard: 'strict' refuses to mutate Linear issues absent from the local pp_created ledger. Enforced on 'issues create' (requires a session tag) and on 'issues edit' (refuses with exit 2 when the target was not created by this CLI). 'pp-cleanup' is exempt because it only touches ledger rows.")
 	rootCmd.PersistentFlags().StringVar(&flags.ppSession, "pp-session", "", "Session tag for issues this CLI creates (defaults to PP_SESSION env or run timestamp)")
 
 	return rootCmd

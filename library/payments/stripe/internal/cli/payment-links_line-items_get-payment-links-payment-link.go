@@ -34,10 +34,12 @@ func newPaymentLinksLineItemsGetPaymentLinksPaymentLinkCmd(flags *rootFlags) *co
 			}
 
 			path := "/v1/payment_links/{payment_link}/line_items"
-			if len(args) < 4 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("payment_link is required\nUsage: %s <%s>", cmd.CommandPath(), "payment_link"))
 			}
-			path = replacePathParam(path, "payment_link", args[3])
+			path = replacePathParam(path, "payment_link", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "line-items", path, map[string]string{
 				"ending_before":  fmt.Sprintf("%v", flagEndingBefore),
 				"expand":         fmt.Sprintf("%v", flagExpand),

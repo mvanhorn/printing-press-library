@@ -9,9 +9,10 @@ import (
 
 func newContactsUnarchiveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "unarchive",
-		Short: "Run unarchive operations for contacts",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "unarchive",
+		Short:       "Run unarchive operations for contacts",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newContactsUnarchiveContactCmd(flags))

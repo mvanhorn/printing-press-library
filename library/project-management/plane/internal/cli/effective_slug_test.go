@@ -39,7 +39,8 @@ func TestEffectiveSlugPrecedence(t *testing.T) {
 			} else {
 				t.Setenv("PLANE_SLUG", tt.planeSlug)
 			}
-			f := &rootFlags{workspace: tt.workspace, configPath: missingCfg}
+			setNovelWorkspace(t, tt.workspace)
+			f := &rootFlags{configPath: missingCfg}
 			if got := effectiveSlug(f, tt.localSlug); got != tt.want {
 				t.Fatalf("effectiveSlug(workspace=%q, local=%q, PLANE_SLUG=%q) = %q, want %q",
 					tt.workspace, tt.localSlug, tt.planeSlug, got, tt.want)
@@ -57,7 +58,8 @@ func TestEffectiveSlugDoesNotClobberWorkspaceFlag(t *testing.T) {
 	t.Setenv("PLANE_SLUG", "doctor-school")
 	t.Setenv("PLANE_BASE_URL", "https://example.test/api/v1/workspaces/{slug}")
 
-	f := &rootFlags{workspace: "bbm", dryRun: true}
+	setNovelWorkspace(t, "bbm")
+	f := &rootFlags{dryRun: true}
 	c, err := f.newClient()
 	if err != nil {
 		t.Fatal(err)

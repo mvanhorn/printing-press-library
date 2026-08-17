@@ -1,0 +1,231 @@
+{
+  "api_name": "screener",
+  "base_url": "https://www.screener.in",
+  "description": "Every Screener.in feature, plus offline search, screen intersections, and a local fundamentals mirror no other tool has.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "in": "cookie",
+    "env_vars": [
+      "SCREENER_SESSION_COOKIE"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SCREENER_SESSION_COOKIE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": ".screener.in",
+    "cookies": [
+      "sessionid",
+      "csrftoken"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "company_by_id",
+      "description": "Fetch a company page by numeric ID (redirects to symbol page). Required: company_id. Returns the CompanyPage.",
+      "method": "GET",
+      "path": "/company/id/{company_id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "company_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric company ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "company_chart",
+      "description": "Fetch price/technical chart data for a company. Required: company_id. Optional: q (default: Price-DMA50-DMA200-Volume), days (default: 365), consolidated (default: true). Returns array of ChartDataset.",
+      "method": "GET",
+      "path": "/api/company/{company_id}/chart/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "company_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric company ID (from search)",
+          "required": true
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Comma/plus-separated metrics: Price, DMA50, DMA200, Volume, PE Ratio"
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Number of days of history"
+        },
+        {
+          "name": "consolidated",
+          "type": "bool",
+          "location": "query",
+          "description": "Use consolidated figures"
+        }
+      ]
+    },
+    {
+      "name": "company_peers",
+      "description": "Fetch peer comparison table for a company. Required: company_id. Returns the PeerTable.",
+      "method": "GET",
+      "path": "/api/company/{company_id}/peers/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "company_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric company ID (from search)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "company_profile",
+      "description": "Fetch the full company profile page (key metrics, analysis, quarterly results, P\u0026L, balance sheet, cash flow, ratios, shareholding, documents). Required: symbol. Returns the CompanyPage.",
+      "method": "GET",
+      "path": "/company/{symbol}/consolidated/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Company ticker symbol (e.g. INFY, TCS, RELIANCE)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "company_profile_standalone",
+      "description": "Fetch standalone (parent-only) company profile page. Required: symbol. Returns the CompanyPage.",
+      "method": "GET",
+      "path": "/company/{symbol}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Company ticker symbol",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "company_search",
+      "description": "Search for companies by name or ticker (live autocomplete API). Required: q. Optional: v (default: 5), fts (default: 1). Returns array of SearchResult.",
+      "method": "GET",
+      "path": "/api/company/search/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query (company name or ticker)",
+          "required": true
+        },
+        {
+          "name": "v",
+          "type": "int",
+          "location": "query",
+          "description": "API version"
+        },
+        {
+          "name": "fts",
+          "type": "int",
+          "location": "query",
+          "description": "Full-text search flag"
+        }
+      ]
+    },
+    {
+      "name": "explore_list",
+      "description": "Browse popular themes, formulas, and sector categories. Returns the HtmlPage.",
+      "method": "GET",
+      "path": "/explore/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "ipo_list",
+      "description": "List upcoming IPOs with subscription status. Returns the HtmlPage.",
+      "method": "GET",
+      "path": "/ipo/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "market_sector",
+      "description": "List companies in a market sector (e.g. IN08/IN0801/IN080101 = IT - Software). Required: sector_path. Returns the HtmlPage.",
+      "method": "GET",
+      "path": "/market/{sector_path}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "sector_path",
+          "type": "string",
+          "location": "path",
+          "description": "Sector path code (e.g. IN08/IN0801/IN080101)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "screens_list",
+      "description": "List all stock screening screens. Returns the HtmlPage.",
+      "method": "GET",
+      "path": "/screens/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "screens_run",
+      "description": "Run a stock screen and get ranked results (CMP, P/E, Mar Cap, Div Yld, NP Qtr, Qtr Profit Var, Sales Qtr, Qtr Sales Var, ROCE). Required: screen_id, slug. Optional: page (default: 1). Returns the HtmlPage.",
+      "method": "GET",
+      "path": "/screens/{screen_id}/{slug}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "screen_id",
+          "type": "string",
+          "location": "path",
+          "description": "Screen numeric ID (e.g. 1 = The Bull Cartel)",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Screen URL slug (e.g. the-bull-cartel)",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (25 rows per page)"
+        }
+      ]
+    }
+  ]
+}

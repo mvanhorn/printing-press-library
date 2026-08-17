@@ -5,41 +5,185 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/store"
 )
 
-// RegisterTools registers all MCP tools.
-//
-// Originally this function registered 12 typed-endpoint tools generated from
-// the internal API spec (availability_check, availability_multi_day,
-// experiences_get, experiences_list, me_get, reservations_book,
-// reservations_cancel, reservations_get, reservations_list, restaurants_get,
-// restaurants_list, wishlist_list). Each was wired to makeAPIHandler →
-// client.Get against a hardcoded BaseURL of https://www.opentable.com — but
-// the spec described a fictional REST shape, not the actual data path. The
-// real implementation routes through internal/source/{opentable,tock}/ via
-// Surf with Chrome TLS fingerprint, GraphQL persisted-queries, SSR scraping,
-// kooky-imported cookies, and Akamai cooldown awareness. The typed-tool
-// surface bypassed all of that and was uniformly broken (RST_STREAM from
-// Akamai's WAF).
-//
-// Resolution: typed-tool registrations removed. The runtime cobratree walker
-// below now exposes the working novel cobra commands directly. Tool names
-// shift from underscore_endpoints to the cobra command names (`goat`,
-// `restaurants_list`, `availability_multi_day`, `book`, `cancel`, `earliest`,
-// etc.); param shapes match the actual command flags. Framework tools
-// (search, sql, context) are unchanged.
+const (
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
+)
+
+// RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
+	s.AddTool(
+		mcplib.NewTool("availability_check",
+			mcplib.WithDescription("Check open slots for a restaurant on a specific date and party size. Required: restaurant. Optional: date, time, party (plus 3 more). Returns array of Slot."),
+			mcplib.WithString("restaurant", mcplib.Required(), mcplib.Description("Restaurant slug (network-prefixed if ambiguous)")),
+			mcplib.WithString("date", mcplib.Description("Date in YYYY-MM-DD; defaults to today")),
+			mcplib.WithString("time", mcplib.Description("Time in HH:MM (24h); defaults to 19:00")),
+			mcplib.WithNumber("party", mcplib.Description("Party size (default 2)")),
+			mcplib.WithNumber("forward_minutes", mcplib.Description("Search +/- N minutes around requested time (default 150)")),
+			mcplib.WithNumber("forward_days", mcplib.Description("Also search forward N days (default 0; same-day only)")),
+			mcplib.WithString("attribute", mcplib.Description("Filter by slot attribute (patio, bar, highTop, standard, experience)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/availability", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "restaurant", WireName: "restaurant", Location: "query"}, {PublicName: "date", WireName: "date", Location: "query"}, {PublicName: "time", WireName: "time", Location: "query"}, {PublicName: "party", WireName: "party_size", Location: "query"}, {PublicName: "forward_minutes", WireName: "forward_minutes", Location: "query"}, {PublicName: "forward_days", WireName: "forward_days", Location: "query"}, {PublicName: "attribute", WireName: "attribute", Location: "query"}}, []string{"restaurant"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("availability_multi_day",
+			mcplib.WithDescription("Multi-day availability for a single restaurant — Mon-Sun matrix. Required: restaurant, start_date. Optional: days, party. Returns array of SlotDay."),
+			mcplib.WithString("restaurant", mcplib.Required(), mcplib.Description("Restaurant slug")),
+			mcplib.WithString("start_date", mcplib.Required(), mcplib.Description("Start of date range (YYYY-MM-DD)")),
+			mcplib.WithNumber("days", mcplib.Description("Number of days to scan (default 7, max 14)")),
+			mcplib.WithNumber("party", mcplib.Description("Party size (default 2)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/availability/multi-day", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "restaurant", WireName: "restaurant", Location: "query"}, {PublicName: "start_date", WireName: "start_date", Location: "query"}, {PublicName: "days", WireName: "days", Location: "query"}, {PublicName: "party", WireName: "party_size", Location: "query"}}, []string{"restaurant"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("experiences_get",
+			mcplib.WithDescription("Get a single experience's detail. Required: id. Returns the Experience."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Experience ID (network-prefixed)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/experiences/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("experiences_list",
+			mcplib.WithDescription("List experiences (PRIX_FIXE, EXPERIENCE, PACKAGE) across OpenTable + Tock. Optional: restaurant, type, cuisine (plus 1 more). Returns array of Experience."),
+			mcplib.WithString("restaurant", mcplib.Description("Filter to a single restaurant slug")),
+			mcplib.WithString("type", mcplib.Description("Experience type (prix_fixe, experience, package)")),
+			mcplib.WithString("cuisine", mcplib.Description("Cuisine filter")),
+			mcplib.WithNumber("max_price_cents", mcplib.Description("Maximum price per person (in cents)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/experiences", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "restaurant", WireName: "restaurant", Location: "query"}, {PublicName: "type", WireName: "type", Location: "query"}, {PublicName: "cuisine", WireName: "cuisine", Location: "query"}, {PublicName: "max_price_cents", WireName: "max_price_cents", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("me_get",
+			mcplib.WithDescription("Show your OpenTable and Tock profile (email, phone, points balance) — requires auth login. Returns the Profile."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/me", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("reservations_book",
+			mcplib.WithDescription("Make a reservation. Print-by-default; requires --launch to actually fire the booking POST. Required: restaurant, slot_token, party_size. Optional: first_name, last_name, phone (plus 2 more). Returns the new Reservation."),
+			mcplib.WithString("restaurant", mcplib.Required(), mcplib.Description("Restaurant slug")),
+			mcplib.WithString("slot_token", mcplib.Required(), mcplib.Description("Slot token from a recent availability call")),
+			mcplib.WithNumber("party_size", mcplib.Required(), mcplib.Description("")),
+			mcplib.WithString("first_name", mcplib.Description("")),
+			mcplib.WithString("last_name", mcplib.Description("")),
+			mcplib.WithString("phone", mcplib.Description("")),
+			mcplib.WithString("email", mcplib.Description("")),
+			mcplib.WithString("special_requests", mcplib.Description("")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/reservations", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "restaurant", WireName: "restaurant", Location: "body"}, {PublicName: "slot_token", WireName: "slot_token", Location: "body"}, {PublicName: "party_size", WireName: "party_size", Location: "body"}, {PublicName: "first_name", WireName: "first_name", Location: "body"}, {PublicName: "last_name", WireName: "last_name", Location: "body"}, {PublicName: "phone", WireName: "phone", Location: "body"}, {PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "special_requests", WireName: "special_requests", Location: "body"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("reservations_cancel",
+			mcplib.WithDescription("Cancel a reservation. Requires --confirm. Required: id. Returns the Reservation. Destructive."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Reservation ID")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("DELETE", "/reservations/{id}", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("reservations_get",
+			mcplib.WithDescription("Get a reservation's full detail. Required: id. Returns the Reservation."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Reservation ID (network-prefixed)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/reservations/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("reservations_list",
+			mcplib.WithDescription("List your upcoming and past reservations across OpenTable + Tock + Resy. Optional: state, network, limit. Returns array of Reservation."),
+			mcplib.WithString("state", mcplib.Description("Filter: upcoming, past, all (default upcoming)")),
+			mcplib.WithString("network", mcplib.Description("Restrict to one network")),
+			mcplib.WithNumber("limit", mcplib.Description("Max reservations to return")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/reservations", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "state", WireName: "state", Location: "query"}, {PublicName: "network", WireName: "network", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("restaurants_get",
+			mcplib.WithDescription("Get a restaurant's full detail — hours, address, cuisine, price band, photos, accolades. Required: slug. Returns the Restaurant."),
+			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Restaurant slug or 'opentable:<slug>' / 'tock:<slug>' for cross-network disambiguation")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/restaurants/{slug}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "slug", WireName: "slug", Location: "path"}}, []string{"slug"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("restaurants_list",
+			mcplib.WithDescription("List restaurants across OpenTable, Tock, and Resy; filter by location, cuisine, price band, accolades, and party size. Optional: query, latitude, longitude (plus 8 more). Returns array of Restaurant."),
+			mcplib.WithString("query", mcplib.Description("Free-text query (matches name, cuisine, neighborhood)")),
+			mcplib.WithNumber("latitude", mcplib.Description("Latitude for geo search")),
+			mcplib.WithNumber("longitude", mcplib.Description("Longitude for geo search")),
+			mcplib.WithString("metro", mcplib.Description("Metro slug (e.g., chicago, seattle, new-york)")),
+			mcplib.WithString("neighborhood", mcplib.Description("Neighborhood slug for geo-narrowed search")),
+			mcplib.WithString("cuisine", mcplib.Description("Cuisine filter (e.g., italian, japanese, tasting-menu)")),
+			mcplib.WithNumber("max-price", mcplib.Description("Maximum price band 1-4")),
+			mcplib.WithString("accolade", mcplib.Description("Filter by accolade (e.g., michelin, worlds50best)")),
+			mcplib.WithNumber("party", mcplib.Description("Party size for availability filter")),
+			mcplib.WithString("network", mcplib.Description("Restrict to a network (opentable, tock); default queries both")),
+			mcplib.WithNumber("limit", mcplib.Description("Max restaurants to return")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/restaurants", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "latitude", WireName: "latitude", Location: "query"}, {PublicName: "longitude", WireName: "longitude", Location: "query"}, {PublicName: "metro", WireName: "metro", Location: "query"}, {PublicName: "neighborhood", WireName: "neighborhood", Location: "query"}, {PublicName: "cuisine", WireName: "cuisine", Location: "query"}, {PublicName: "max-price", WireName: "price_band", Location: "query"}, {PublicName: "accolade", WireName: "accolade", Location: "query"}, {PublicName: "party", WireName: "party_size", Location: "query"}, {PublicName: "network", WireName: "network", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("wishlist_list",
+			mcplib.WithDescription("List restaurants in your saved/wishlist (requires auth login). Optional: network. Returns array of Restaurant."),
+			mcplib.WithString("network", mcplib.Description("Restrict to one network")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/wishlist", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "network", WireName: "network", Location: "query"}}, []string{}),
+	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
@@ -55,7 +199,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='availability'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -78,13 +222,322 @@ func RegisterTools(s *server.MCPServer) {
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "table-reservation-goat-pp-cli", "data.db")
+type mcpParamBinding struct {
+	PublicName string
+	WireName   string
+	Location   string
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+// makeAPIHandler creates a generic MCP tool handler for an API endpoint.
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		c, err := newMCPClient()
+		if err != nil {
+			return mcplib.NewToolResultError(err.Error()), nil
+		}
+
+		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
+		// non-map payloads; GetArguments() returns the map[string]any shape
+		// we rely on here (or an empty map when the payload is something else).
+		args := req.GetArguments()
+
+		// positionalParams mixes real URL path params with CLI positional
+		// args that map to query params (e.g. `search <query>` -> ?query=);
+		// the placeholder check below disambiguates them at runtime.
+		path := pathTemplate
+		knownArgs := make(map[string]bool, len(bindings))
+		pathParams := make(map[string]bool, len(positionalParams))
+		params := make(map[string]string)
+		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcplib.NewToolResultError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcplib.NewToolResultError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
+				}
+			}
+		}
+		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
+		if binaryResponse {
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
+		}
+		for _, binding := range bindings {
+			knownArgs[binding.PublicName] = true
+			v, ok := args[binding.PublicName]
+			if !ok {
+				continue
+			}
+			switch binding.Location {
+			case "path":
+				placeholder := "{" + binding.WireName + "}"
+				pathParams[binding.PublicName] = true
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
+			case "body":
+				bodyArgs[binding.WireName] = v
+			default:
+				params[binding.WireName] = formatMCPParamValue(v)
+			}
+		}
+		for _, p := range positionalParams {
+			placeholder := "{" + p + "}"
+			if !strings.Contains(pathTemplate, placeholder) {
+				continue
+			}
+			pathParams[p] = true
+			if v, ok := args[p]; ok {
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
+			}
+		}
+
+		for k, v := range args {
+			if pathParams[k] || knownArgs[k] {
+				continue
+			}
+			switch method {
+			case "POST", "PUT", "PATCH":
+				bodyArgs[k] = v
+			default:
+				params[k] = formatMCPParamValue(v)
+			}
+		}
+
+		var data json.RawMessage
+		switch method {
+		case "GET":
+			if len(headers) > 0 {
+				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				break
+			}
+			data, err = c.Get(ctx, path, params)
+		case "POST":
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
+		case "PUT":
+			if len(headers) > 0 {
+				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+		case "PATCH":
+			if len(headers) > 0 {
+				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+		case "DELETE":
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(ctx, path, params)
+		default:
+			return mcplib.NewToolResultError("unsupported method: " + method), nil
+		}
+
+		if err != nil {
+			msg := err.Error()
+			switch {
+			case strings.Contains(msg, "HTTP 409"):
+				return mcplib.NewToolResultText("already exists (no-op)"), nil
+			case strings.Contains(msg, "HTTP 401"):
+				return mcplib.NewToolResultError("authentication failed: " + msg +
+					"\nhint: check your API credentials." +
+					"\n      Run 'table-reservation-goat-pp-cli doctor' to check auth status."), nil
+			case strings.Contains(msg, "HTTP 403"):
+				return mcplib.NewToolResultError("permission denied: " + msg +
+					"\nhint: this API is configured without credentials; the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy." +
+					"\n      Run 'table-reservation-goat-pp-cli doctor' to check auth status."), nil
+			case strings.Contains(msg, "HTTP 404"):
+				if method == "DELETE" {
+					return mcplib.NewToolResultText("already deleted (no-op)"), nil
+				}
+				return mcplib.NewToolResultError("not found: " + msg), nil
+			case strings.Contains(msg, "HTTP 429"):
+				return mcplib.NewToolResultError("rate limited: " + msg), nil
+			default:
+				return mcplib.NewToolResultError(msg), nil
+			}
+		}
+
+		if binaryResponse {
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      encoded,
+				"byte_count":       len(data),
+			})
+			if err != nil {
+				return mcplib.NewToolResultError(fmt.Sprintf("encoding binary result: %v", err)), nil
+			}
+			if len(out) > bound.MaxBytes {
+				return mcplib.NewToolResultError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
+			return mcplib.NewToolResultText(string(out)), nil
+		}
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultText(method, data, pageConfig, mcpCursor), nil
+		}
+		return mcpToolResultText(method, data), nil
+	}
+}
+
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointResponse(method, data))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	}))
+}
+
+func newMCPClient() (*client.Client, error) {
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, err
+	}
+	return newMCPClientFromConfig(cfg), nil
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
+	if err != nil {
+		return nil, fmt.Errorf("loading config: %w", err)
+	}
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
+	// Agents calling through MCP need fresh data every call. The on-disk
+	// response cache survives across MCP server invocations, so a
+	// DELETE/PATCH followed by a GET would otherwise return the
+	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
+	// constructs its own client and is unaffected.
+	c.NoCache = true
+	return c
+}
+
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "data.db"), nil
+}
+
+type mcpStoreStatusKind string
+
+const (
+	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
+	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run table-reservation-goat-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run table-reservation-goat-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	if len(status) == 0 {
+		return mcpStoreStatusEmpty, nil
+	}
+	return mcpStoreStatusReady, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run table-reservation-goat-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+}
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -98,9 +551,13 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
@@ -108,9 +565,32 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+}
+
+func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {
+	if results == nil {
+		results = []json.RawMessage{}
+	}
+	out := map[string]any{
+		"count":        len(results),
+		"results":      results,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(results) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "No local search matches. Try a broader query, a lower-specificity FTS expression, or sync again if data may be stale."
+		}
+	}
+	return out
 }
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
@@ -118,22 +598,27 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 // mutating tool lets MCP hosts auto-approve writes and is treated as a real
 // bug per the project's agent-native security model.
 //
-// The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
-// leading whitespace, line comments, block comments, and semicolons that
-// SQLite itself ignores before parsing. A naive HasPrefix check on a
-// keyword blocklist is bypassable by prefixing the dangerous statement with
-// "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
-// understand SQL comment syntax. Combined with the empirical fact that
-// modernc.org/sqlite's mode=ro does NOT block VACUUM INTO (writes a snapshot
-// to a new file) or ATTACH DATABASE (opens a separate writable handle),
-// such a bypass produces silent exfiltration to an attacker-chosen path.
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
 //
 // SELECT and WITH are the only allowed leading keywords. WITH supports
 // SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
 // caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
 // and every other DDL/DML keyword fail at this gate before reaching SQLite.
 func validateReadOnlyQuery(query string) error {
-	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
 		return fmt.Errorf("only SELECT queries are allowed")
 	}
@@ -167,6 +652,97 @@ func stripLeadingSQLNoise(query string) string {
 	}
 }
 
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -178,19 +754,26 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	rows, err := db.DB().QueryContext(ctx, query)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -198,30 +781,98 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus))
+}
+
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(rows) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(err error) string {
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='availability', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
 	ctx := map[string]any{
 		"api":         "table-reservation-goat",
-		"description": "One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and...",
+		"description": "One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations",
 		"archetype":   "generic",
 		"tool_count":  12,
+		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion table-reservation-goat-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"resources": []map[string]any{
 			{
 				"name":        "availability",
-				"description": "Check open reservation slots across OpenTable and Tock",
+				"description": "Check open reservation slots across OpenTable, Tock, and Resy",
 				"endpoints":   []string{"check", "multi_day"},
 				"syncable":    true,
 				"searchable":  true,
@@ -244,10 +895,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"endpoints":   []string{"book", "cancel", "get", "list"},
 				"syncable":    true,
 				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "restaurants",
-				"description": "Search and inspect restaurants across OpenTable and Tock",
+				"description": "Search and inspect restaurants across OpenTable, Tock, and Resy",
 				"endpoints":   []string{"get", "list"},
 				"syncable":    true,
 				"searchable":  true,
@@ -263,27 +915,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"query_tips": []string{
 			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
 			"Control page size with the limit parameter (default 100).",
+			"Use start_date for incremental fetches (filter by modification time).",
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
-		// Command-mirror capabilities are exposed through MCP by shelling out
-		// to the companion CLI binary.
-		"command_mirror_capabilities": []map[string]string{
-			{"name": "Cross-network unified search", "command": "goat", "description": "One query across OpenTable and Tock simultaneously, ranked by relevance, earliest availability, and price band.", "rationale": "Requires concurrent calls to both networks and a local join across `restaurants` + `availability_slots` to merge and...", "via": "mcp-command-mirror"},
-			{"name": "Cross-network cancellation watcher", "command": "watch", "description": "Persistent local watcher that polls both networks for openings on your target venues and party size, with...", "rationale": "Requires a local SQLite `watches` table, adaptive polling per source, and a local notifier. The API endpoints are...", "via": "mcp-command-mirror"},
-			{"name": "Multi-venue earliest available", "command": "earliest", "description": "Across a list of restaurants from either network, return the earliest open slot per venue within a time horizon.", "rationale": "Composes N parallel availability calls across both networks and ranks by minimum slot timestamp. No single endpoint...", "via": "mcp-command-mirror"},
-			{"name": "Per-restaurant change feed", "command": "drift", "description": "Show what changed at a specific venue since the last sync — new experiences, slot price moves, hours changes.", "rationale": "Snapshot diff across a single venue's `availability_slots`, `experiences`, and restaurant fields between prior and...", "via": "mcp-command-mirror"},
-		},
-		"playbook": []map[string]string{
-			{"topic": "Cross-network unified search", "insight": "Requires concurrent calls to both networks and a local join across `restaurants` + `availability_slots` to merge and rank. No single API does this."},
-			{"topic": "Cross-network cancellation watcher", "insight": "Requires a local SQLite `watches` table, adaptive polling per source, and a local notifier. The API endpoints are commodity availability calls; the watch itself does not exist on either network."},
-			{"topic": "Multi-venue earliest available", "insight": "Composes N parallel availability calls across both networks and ranks by minimum slot timestamp. No single endpoint answers 'soonest among these N venues across two networks'."},
-			{"topic": "Per-restaurant change feed", "insight": "Snapshot diff across a single venue's `availability_slots`, `experiences`, and restaurant fields between prior and current sync. Pure local-store comparison."},
-		},
 	}
-	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP

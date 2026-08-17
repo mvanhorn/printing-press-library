@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "opensky-which-index-flagless",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-162902",
+  "base_printing_press_version": "4.28.0",
+  "summary": "whichIndex entries (internal/cli/which.go) and the matching novel_features commands in .printing-press.json and research.json rewritten to flagless command strings.",
+  "reason": "dogfood re-renders which.go from novel_features; command strings that carry example flags (e.g. 'states --lamin 40.5 ...') fail TestWhichIndex_ExistsAndIsWellFormed because cobra's root.Find does not parse flags, leaving them in 'remaining'. Established prints (greenhouse, lever) use flagless novel-feature commands; this print's novel features violated that pattern.",
+  "files": [
+    "internal/cli/which.go",
+    ".printing-press.json",
+    ".manuscripts/20260807-162902/research/research.json"
+  ],
+  "validated_outcome": "go test ./... passes (12 packages); which resolves all three hero commands.",
+  "upstream_issue": null
+}

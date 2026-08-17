@@ -13,32 +13,46 @@ import (
 )
 
 func newInternalArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
-	var bodyAuthorId int
+	var bodyAuthorId string
 	var bodyBody string
-	var bodyOwnerId int
+	var bodyOwnerId string
 	var bodyTitle string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "update <id>",
 		Short:       "You can update the details of a single internal article by making a PUT request to `https://api.intercom.",
-		Example:     "  intercom-pp-cli internal-articles update 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli internal-articles update 123",
 		Annotations: map[string]string{"pp:endpoint": "internal-articles.update", "pp:method": "PUT", "pp:path": "/internal_articles/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
 			if !stdinBody {
 			}
+			path := "/internal_articles/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/internal_articles/{id}"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -50,18 +64,19 @@ func newInternalArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyAuthorId != 0 {
-					body["author_id"] = bodyAuthorId
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if bodyAuthorId != "" {
+					bodyMap["author_id"] = bodyAuthorId
 				}
 				if bodyBody != "" {
-					body["body"] = bodyBody
+					bodyMap["body"] = bodyBody
 				}
-				if bodyOwnerId != 0 {
-					body["owner_id"] = bodyOwnerId
+				if bodyOwnerId != "" {
+					bodyMap["owner_id"] = bodyOwnerId
 				}
 				if bodyTitle != "" {
-					body["title"] = bodyTitle
+					bodyMap["title"] = bodyTitle
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)
@@ -131,6 +146,9 @@ func newInternalArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -169,7 +187,11 @@ func newInternalArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
@@ -200,9 +222,9 @@ func newInternalArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().IntVar(&bodyAuthorId, "author-id", 0, "The id of the author of the article.")
+	cmd.Flags().StringVar(&bodyAuthorId, "author-id", "", "The id of the author of the article.")
 	cmd.Flags().StringVar(&bodyBody, "body", "", "The content of the article.")
-	cmd.Flags().IntVar(&bodyOwnerId, "owner-id", 0, "The id of the author of the article.")
+	cmd.Flags().StringVar(&bodyOwnerId, "owner-id", "", "The id of the author of the article.")
 	cmd.Flags().StringVar(&bodyTitle, "title", "", "The title of the article.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

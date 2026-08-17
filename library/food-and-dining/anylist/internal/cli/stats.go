@@ -73,6 +73,12 @@ Requires sync — run 'anylist-pp-cli sync' first.`,
 			_ = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM recipes`).Scan(&recipeCount)
 
 			if len(listStats) == 0 {
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"lists":        []any{},
+						"recipe_count": recipeCount,
+					}, flags)
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "No data — run 'anylist-pp-cli sync' first")
 				return nil
 			}

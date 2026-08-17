@@ -1,0 +1,166 @@
+openapi: 3.0.3
+info:
+  title: OpenSky Network API
+  version: "1.0.0"
+  description: |
+    Public OpenSky Network API (https://opensky-network.org/api). Live aircraft
+    state vectors and historical flight data collected from a worldwide network
+    of ADS-B receivers. No authentication required for the v1 endpoints; the
+    service applies per-IP rate limits (anonymous access is throttled, roughly
+    a handful of requests per minute on the time-window endpoints).
+
+    Generic CLI: query-based, no account. `opensky states live` shows aircraft
+    over a bounding box right now; `opensky flights arrivals --airport KJFK`
+    lists flights arriving at JFK in the default recent window (begin/end
+    default to now-2h..now via a local patch); `opensky flights aircraft
+    --icao24 <hex>` replays one aircraft's trajectory.
+
+    Coordinates are WGS84 decimal degrees; airports are ICAO codes (KJFK, EGLL,
+    EDDF); timestamps are UNIX epoch seconds; icao24 is the 6-hex-digit
+    transponder address.
+
+servers:
+  - url: https://opensky-network.org/api
+    description: OpenSky Network public API
+
+paths:
+  /states/all:
+    get:
+      operationId: listStates
+      summary: Live aircraft states over a bounding box or for one transponder
+      parameters:
+        - name: lamin
+          in: query
+          required: false
+          schema: { type: number }
+          description: Minimum latitude of the bounding box (degrees)
+        - name: lomin
+          in: query
+          required: false
+          schema: { type: number }
+          description: Minimum longitude of the bounding box (degrees)
+        - name: lamax
+          in: query
+          required: false
+          schema: { type: number }
+          description: Maximum latitude of the bounding box (degrees)
+        - name: lomax
+          in: query
+          required: false
+          schema: { type: number }
+          description: Maximum longitude of the bounding box (degrees)
+        - name: icao24
+          in: query
+          required: false
+          schema: { type: string }
+          description: 6-hex-digit transponder address to filter to a single aircraft
+      responses:
+        "200":
+          description: Live state vectors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  time:
+                    type: integer
+                    description: Unix timestamp of the state snapshot (seconds)
+                  states:
+                    type: array
+                    description: State rows (positional arrays per OpenSky column order)
+                    items:
+                      type: array
+
+
+  /flights/departure:
+    get:
+      operationId: getDepartures
+      summary: Flights departing an airport within a time window
+      parameters:
+        - name: airport
+          in: query
+          required: true
+          schema: { type: string }
+          description: ICAO airport code (e.g. KJFK, EGLL)
+        - name: begin
+          in: query
+          required: false
+          schema: { type: integer }
+          description: Window start, Unix seconds (defaults to now-2h)
+        - name: end
+          in: query
+          required: false
+          schema: { type: integer }
+          description: Window end, Unix seconds (defaults to now)
+      responses:
+        "200":
+          description: Departure flights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    icao24: { type: string }
+                    firstSeen: { type: integer }
+                    estDepartureAirport: { type: string }
+                    lastSeen: { type: integer }
+                    estArrivalAirport: { type: string }
+                    callsign: { type: string }
+                    estDepartureAirportHorizDistance: { type: integer }
+                    estDepartureAirportVertDistance: { type: integer }
+                    estArrivalAirportHorizDistance: { type: integer }
+                    estArrivalAirportVertDistance: { type: integer }
+                    departureAirportCandidatesCount: { type: integer }
+                    arrivalAirportCandidatesCount: { type: integer }
+
+  /flights/aircraft:
+    get:
+      operationId: getAircraftTrajectory
+      summary: Full trajectory for one aircraft within a time window
+      parameters:
+        - name: icao24
+          in: query
+          required: true
+          schema: { type: string }
+          description: 6-hex-digit transponder address
+        - name: begin
+          in: query
+          required: false
+          schema: { type: integer }
+          description: Window start, Unix seconds (defaults to now-2h)
+        - name: end
+          in: query
+          required: false
+          schema: { type: integer }
+          description: Window end, Unix seconds (defaults to now)
+      responses:
+        "200":
+          description: Trajectory waypoints
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    time: { type: integer }
+                    icao24: { type: string }
+                    lat: { type: number }
+                    lon: { type: number }
+                    velocity: { type: number }
+                    heading: { type: number }
+                    vertrate: { type: number }
+                    callsign: { type: string }
+                    onground: { type: boolean }
+                    alert: { type: boolean }
+                    spi: { type: boolean }
+                    squawk: { type: integer }
+                    baroaltitude: { type: number }
+                    geoaltitude: { type: number }
+                    lastposupdate: { type: integer }
+                    lastcontact: { type: integer }
+
+components:
+  schemas: {}

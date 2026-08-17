@@ -1,0 +1,89 @@
+{
+  "api_name": "suppco",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-19T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Provenance-bearing regimen snapshot",
+      "command": "regimen snapshot",
+      "description": "Combines the current stack and one dated provider schedule into deterministic JSON while preserving nutrient relationships and separate observation times.",
+      "rationale": "A raw endpoint mirror cannot safely discard unrelated profile fields, validate overlapping component graphs, and record a two-read provenance boundary for a later canonical importer.",
+      "example": "suppco-pp-cli regimen snapshot 2026-01-15",
+      "why_it_matters": "Use this when an agent needs a bounded import candidate rather than raw SuppCo account payloads.",
+      "group": "Private provider normalization"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Provenance-bearing regimen snapshot",
+      "command": "regimen snapshot",
+      "description": "Combines the current stack and one dated provider schedule into deterministic JSON while preserving nutrient relationships and separate observation times.",
+      "rationale": "A raw endpoint mirror cannot safely discard unrelated profile fields, validate overlapping component graphs, and record a two-read provenance boundary for a later canonical importer.",
+      "example": "suppco-pp-cli regimen snapshot 2026-01-15",
+      "why_it_matters": "Use this when an agent needs a bounded import candidate rather than raw SuppCo account payloads.",
+      "group": "Private provider normalization"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SUPPCO_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "SuppCo",
+    "headline": "Read-only SuppCo stack facts with a deterministic, provenance-bearing regimen snapshot export.",
+    "value_prop": "Read minimum SuppCo stack and schedule facts, preserve overlapping nutrient relationships, and emit a deterministic snapshot for a later importer. Periodic bearer-token replacement is the intentionally simple authentication model.",
+    "auth_narrative": "Provide a current bearer token through SUPPCO_ACCESS_TOKEN or pipe it to auth set-token. If it expires, replace it; automatic refresh and browser automation are not part of this package.",
+    "quickstart": [
+      {
+        "command": "suppco-pp-cli stack products",
+        "comment": "Project the minimum current product identity fields."
+      },
+      {
+        "command": "suppco-pp-cli stack nutrients",
+        "comment": "Inspect parent and component relationships without summing overlap."
+      },
+      {
+        "command": "suppco-pp-cli regimen snapshot 2026-01-15",
+        "comment": "Build a dated normalized import candidate with provenance."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "SuppCo rejects the request as unauthenticated",
+        "fix": "Replace the periodic bearer token through SUPPCO_ACCESS_TOKEN or pipe a new value to suppco-pp-cli auth set-token."
+      }
+    ],
+    "when_to_use": "Use this CLI for read-only extraction of a SuppCo stack, nutrient relationships, or provider schedule. Use the regimen snapshot when a later importer needs deterministic JSON with explicit provenance.",
+    "anti_triggers": [
+      "Do not use this CLI to edit SuppCo, log intake, calculate nutrient exposure, or make health recommendations.",
+      "Do not use this CLI to capture cookies, browser sessions, or raw account payloads."
+    ],
+    "recipes": [
+      {
+        "title": "List products",
+        "command": "suppco-pp-cli stack products",
+        "explanation": "Returns the minimum product projection and observation provenance."
+      },
+      {
+        "title": "Inspect nutrient hierarchy",
+        "command": "suppco-pp-cli stack nutrients",
+        "explanation": "Preserves parent and child rows so downstream code can avoid naive totals."
+      },
+      {
+        "title": "Build a snapshot",
+        "command": "suppco-pp-cli regimen snapshot 2026-01-15",
+        "explanation": "Combines two bounded reads without introducing manual regimen truth."
+      }
+    ],
+    "trigger_phrases": [
+      "read my SuppCo stack",
+      "show my supplement schedule",
+      "build a supplement snapshot",
+      "use SuppCo",
+      "run SuppCo"
+    ]
+  }
+}

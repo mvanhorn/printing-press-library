@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "ikon-pp-mcp",
+  "display_name": "Ikon Pass",
+  "version": "0.0.0",
+  "description": "Ikon Pass MCP server for reservation availability, pass and voucher lookup, multi-season usage history, and offline change tracking.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ikon-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ikon-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

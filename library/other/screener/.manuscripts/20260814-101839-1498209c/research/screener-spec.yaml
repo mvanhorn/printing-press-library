@@ -1,0 +1,511 @@
+name: screener
+description: "Screener.in CLI — Indian stock market fundamental analysis, screening, and market pulse"
+category: other
+version: "0.1.0"
+base_url: "https://www.screener.in"
+http_transport: standard
+health_check_path: "/company/INFY/consolidated/"
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+
+auth:
+  type: cookie
+  in: cookie
+  header: ""
+  format: ""
+  env_vars:
+    - SCREENER_SESSION_COOKIE
+  cookie_domain: .screener.in
+  cookies:
+    - sessionid
+    - csrftoken
+
+config:
+  format: toml
+  path: "~/.config/screener-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 30s
+
+mcp:
+  intents:
+    - name: research_company
+      description: "Research a company by ticker: fetch its consolidated profile page with key metrics, analysis, and financials."
+      params:
+        - name: symbol
+          type: string
+          required: true
+          description: Company ticker symbol (e.g. INFY, TCS, RELIANCE)
+      steps:
+        - endpoint: company.profile
+          bind:
+            symbol: ${input.symbol}
+          capture: profile
+      returns: profile
+    - name: screen_overlap
+      description: Find companies appearing in two stock screens by intersecting their result tables.
+      params:
+        - name: screen_a_id
+          type: string
+          required: true
+          description: First screen numeric id (e.g. 1)
+        - name: screen_a_slug
+          type: string
+          required: true
+          description: First screen slug (e.g. the-bull-cartel)
+        - name: screen_b_id
+          type: string
+          required: true
+          description: Second screen numeric id (e.g. 59)
+        - name: screen_b_slug
+          type: string
+          required: true
+          description: Second screen slug (e.g. magic-formula)
+      steps:
+        - endpoint: screens.run
+          bind:
+            screen_id: ${input.screen_a_id}
+            slug: ${input.screen_a_slug}
+          capture: screen_a
+        - endpoint: screens.run
+          bind:
+            screen_id: ${input.screen_b_id}
+            slug: ${input.screen_b_slug}
+          capture: screen_b
+      returns: screen_b
+
+learn:
+  entity_lookup_seeds:
+    company:
+      - canonical: Infosys Ltd
+        aliases: [infy, infosys, INFY]
+      - canonical: Tata Steel Ltd
+        aliases: [tata steel, TATASTEEL, tata]
+      - canonical: Reliance Industries Ltd
+        aliases: [reliance, reliance industries, RELIANCE]
+      - canonical: Tata Motors Ltd
+        aliases: [tata motors, TATAMOTORS]
+      - canonical: HDFC Bank Ltd
+        aliases: [hdfc bank, HDFCBANK]
+  ticker_patterns:
+    - "^[A-Z0-9]{3,8}$"
+  synonyms:
+    "pe": "price to earnings"
+    "roce": "return on capital employed"
+    "roe": "return on equity"
+    "market cap": "market capitalization"
+    "div yield": "dividend yield"
+  stopwords:
+    - ltd
+    - limited
+    - company
+
+resources:
+  company:
+    description: "Search companies and fetch fundamental profiles"
+    endpoints:
+      search:
+        method: GET
+        path: "/api/company/search/"
+        description: "Search for companies by name or ticker (live autocomplete API)"
+        example: "  screener-pp-cli company search Tata --json"
+        happy_args: "--q=Tata"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Search query (company name or ticker)"
+          - name: v
+            type: int
+            default: 5
+            description: "API version"
+          - name: fts
+            type: int
+            default: 1
+            description: "Full-text search flag"
+        response:
+          type: array
+          item: SearchResult
+        no_auth: true
+      chart:
+        method: GET
+        path: "/api/company/{company_id}/chart/"
+        description: "Fetch price/technical chart data for a company"
+        example: "  screener-pp-cli company chart 1489 --q Price-DMA50-DMA200-Volume --days 365 --consolidated --json"
+        happy_args: "company_id=1489"
+        params:
+          - name: company_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric company ID (from search)"
+          - name: q
+            type: string
+            default: "Price-DMA50-DMA200-Volume"
+            description: "Comma/plus-separated metrics: Price, DMA50, DMA200, Volume, PE Ratio"
+          - name: days
+            type: int
+            default: 365
+            description: "Number of days of history"
+          - name: consolidated
+            type: bool
+            default: true
+            description: "Use consolidated figures"
+        response:
+          type: array
+          item: ChartDataset
+        response_path: datasets
+        no_auth: true
+      peers:
+        method: GET
+        path: "/api/company/{company_id}/peers/"
+        description: "Fetch peer comparison table for a company"
+        example: "  screener-pp-cli company peers 1489 --json"
+        happy_args: "company_id=1489"
+        params:
+          - name: company_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric company ID (from search)"
+        response:
+          type: object
+          item: PeerTable
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/company/"]
+        no_auth: true
+      profile:
+        method: GET
+        path: "/company/{symbol}/consolidated/"
+        description: "Fetch the full company profile page (key metrics, analysis, quarterly results, P&L, balance sheet, cash flow, ratios, shareholding, documents)"
+        example: "  screener-pp-cli company profile INFY --json"
+        happy_args: "symbol=INFY"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Company ticker symbol (e.g. INFY, TCS, RELIANCE)"
+        response:
+          type: object
+          item: CompanyPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/company/"]
+        no_auth: true
+      profile_standalone:
+        method: GET
+        path: "/company/{symbol}/"
+        description: "Fetch standalone (parent-only) company profile page"
+        example: "  screener-pp-cli company profile-standalone INFY --json"
+        happy_args: "symbol=INFY"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Company ticker symbol"
+        response:
+          type: object
+          item: CompanyPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/company/"]
+        no_auth: true
+      by_id:
+        method: GET
+        path: "/company/id/{company_id}/"
+        description: "Fetch a company page by numeric ID (redirects to symbol page)"
+        example: "  screener-pp-cli company by-id 1489 --json"
+        happy_args: "company_id=1489"
+        params:
+          - name: company_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric company ID"
+        response:
+          type: object
+          item: CompanyPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/company/"]
+        no_auth: true
+
+  screens:
+    description: "Browse and run stock screening screens"
+    endpoints:
+      list:
+        method: GET
+        path: "/screens/"
+        description: "List all stock screening screens"
+        example: "  screener-pp-cli screens list --json"
+        syncable: true
+        response:
+          type: object
+          item: HtmlPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/screens/"]
+        no_auth: true
+      run:
+        method: GET
+        path: "/screens/{screen_id}/{slug}/"
+        description: "Run a stock screen and get ranked results (CMP, P/E, Mar Cap, Div Yld, NP Qtr, Qtr Profit Var, Sales Qtr, Qtr Sales Var, ROCE)"
+        example: "  screener-pp-cli screens run 1 the-bull-cartel --page 1 --json"
+        happy_args: "screen_id=1;slug=the-bull-cartel"
+        meta:
+          mcp:read-only: "true"
+        params:
+          - name: screen_id
+            type: string
+            required: true
+            positional: true
+            description: "Screen numeric ID (e.g. 1 = The Bull Cartel)"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Screen URL slug (e.g. the-bull-cartel)"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (25 rows per page)"
+        response:
+          type: object
+          item: HtmlPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/company/"]
+        no_auth: true
+
+  explore:
+    description: "Browse popular screens and sector categories"
+    endpoints:
+      list:
+        method: GET
+        path: "/explore/"
+        description: "Browse popular themes, formulas, and sector categories"
+        example: "  screener-pp-cli explore list --json"
+        response:
+          type: object
+          item: HtmlPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/screens/", "/market/"]
+        no_auth: true
+
+  market:
+    description: "Browse market sectors and industry groups"
+    endpoints:
+      sector:
+        method: GET
+        path: "/market/{sector_path}/"
+        description: "List companies in a market sector (e.g. IN08/IN0801/IN080101 = IT - Software)"
+        example: "  screener-pp-cli market IN08/IN0801/IN080101 --json"
+        happy_args: "sector_path=IN08/IN0801/IN080101"
+        params:
+          - name: sector_path
+            type: string
+            required: true
+            positional: true
+            description: "Sector path code (e.g. IN08/IN0801/IN080101)"
+        response:
+          type: object
+          item: HtmlPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/company/"]
+        no_auth: true
+
+  ipo:
+    description: "Upcoming and recent IPO listings"
+    endpoints:
+      list:
+        method: GET
+        path: "/ipo/"
+        description: "List upcoming IPOs with subscription status"
+        example: "  screener-pp-cli ipo list --json"
+        response:
+          type: object
+          item: HtmlPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/ipo/"]
+        no_auth: true
+
+  results:
+    description: "Latest quarterly results (Market Pulse, requires login)"
+    endpoints:
+      latest:
+        method: GET
+        path: "/results/latest/"
+        description: "Latest quarterly results with YOY growth (Sales, EBIDT, Net profit, EPS) and filters"
+        example: "  screener-pp-cli results latest --sort growth --json"
+        happy_args: ""
+        params:
+          - name: p
+            type: int
+            default: 1
+            description: "Page number"
+          - name: sectors
+            type: string
+            description: "Sector code filter (e.g. IN080101)"
+          - name: mcap
+            type: string
+            description: "Market cap bucket: 0_to_50, 50_to_500, 500_to_5000, above_5000"
+          - name: sort
+            type: string
+            description: "Sort: growth, turnaround, pe, qtr-pe"
+          - name: sme
+            type: string
+            description: "Exchange: bse, nse, sme, main-board"
+          - name: watchlist
+            type: string
+            description: "Watchlist ID to filter"
+        response:
+          type: object
+          item: HtmlPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/company/"]
+
+  trades:
+    description: "Market pulse trade activity (requires login)"
+    endpoints:
+      insiders:
+        method: GET
+        path: "/trades/insiders/"
+        description: "Insider trades (bought/sold/pledge/ESOP) with filters"
+        example: "  screener-pp-cli trades insiders --transaction bought --json"
+        happy_args: ""
+        params:
+          - name: p
+            type: int
+            default: 1
+            description: "Page number"
+          - name: reporting_date__year
+            type: int
+            description: "Filter by reporting year (e.g. 2026)"
+          - name: o
+            type: int
+            description: "Sort order column index"
+          - name: trade_type
+            type: string
+            description: "market, pledge, esop, others"
+          - name: transaction
+            type: string
+            description: "bought, sold"
+          - name: person_type
+            type: string
+            description: "promoters, relatives, employees"
+          - name: watchlist
+            type: string
+            description: "Watchlist ID to filter"
+        response:
+          type: object
+          item: HtmlPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/company/"]
+
+  filings:
+    description: "Market pulse filings hub (requires login)"
+    endpoints:
+      list:
+        method: GET
+        path: "/filings/"
+        description: "Market Pulse hub: bulk deals, block deals, SAST trades, insider trades"
+        example: "  screener-pp-cli filings list --json"
+        response:
+          type: object
+          item: HtmlPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/trades/"]
+
+  full_text_search:
+    description: "Full-text search across companies and filings (requires login)"
+    endpoints:
+      search:
+        method: GET
+        path: "/full-text-search/"
+        description: "Full-text search for companies"
+        example: "  screener-pp-cli full-text-search search 'Tata Motors' --json"
+        happy_args: "--q=Tata Motors"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Search query"
+        response:
+          type: object
+          item: HtmlPage
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/company/"]
+
+types:
+  SearchResult:
+    fields:
+      - name: id
+        type: integer
+        description: "Numeric company ID"
+      - name: name
+        type: string
+        description: "Company display name"
+      - name: url
+        type: string
+        description: "Relative URL to company page"
+  ChartDataset:
+    fields:
+      - name: metric
+        type: string
+        description: "Metric key (Price, DMA50, DMA200, Volume)"
+      - name: label
+        type: string
+        description: "Human label (e.g. Price on NSE)"
+      - name: values
+        type: array
+        description: "Array of [date, value] pairs"
+  PeerTable:
+    fields:
+      - name: columns
+        type: array
+        description: "Column names"
+      - name: rows
+        type: array
+        description: "Peer comparison rows"
+  CompanyPage:
+    fields:
+      - name: title
+        type: string
+        description: "Page title"
+      - name: links
+        type: array
+        description: "Extracted links"
+  HtmlPage:
+    fields:
+      - name: title
+        type: string
+        description: "Page title"
+      - name: links
+        type: array
+        description: "Extracted links"

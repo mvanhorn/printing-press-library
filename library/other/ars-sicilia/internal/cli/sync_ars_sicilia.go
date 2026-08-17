@@ -19,7 +19,9 @@ import (
 )
 
 // runSyncAll sincronizza gli archivi selezionati nel DB SQLite locale.
-func runSyncAll(cmd *cobra.Command, flags *rootFlags, dbPath string, maxPages int, resourcesFilter []string, legisl string) error {
+// Con deep=true, per l'archivio ddl scarica anche la scheda di dettaglio di ogni
+// record per estrarre firmatari e stato dell'iter (campi assenti nella short-list).
+func runSyncAll(cmd *cobra.Command, flags *rootFlags, dbPath string, maxPages int, resourcesFilter []string, legisl string, deep bool) error {
 	if dbPath == "" {
 		dbPath = defaultDBPath("ars-sicilia-pp-cli")
 	}
@@ -86,10 +88,29 @@ func runSyncAll(cmd *cobra.Command, flags *rootFlags, dbPath string, maxPages in
 		}
 
 		count := 0
-		for _, r := range recs {
+		for i, r := range recs {
 			id, flat := flattenRecord(arc, r)
 			if id == "" || id == "-" {
 				continue
+			}
+			// Deep enrichment (ddl only): the short-list carries neither firmatari
+			// nor iter state, so fetch each record's detail page and lift them out.
+			// This is what makes `analytics --group-by cofirmatari` and `ddl drift`
+			// work; without it those fields are never populated. docFirmatari reads
+			// the page's labeled block (clean names); currentIterState reads the
+			// "Attuale…Storico" status. One extra request per ddl, rate-limited.
+			if deep && arc.Slug == "ddl" && r.DocID > 0 {
+				if doc, derr := c.GetDoc(ctx, arc, r.DocID); derr == nil {
+					if names := firmatariNames(docFirmatari(doc)); names != "" {
+						flat["firmatari"] = names
+					}
+					if iter := currentIterState(doc); iter != "" {
+						flat["iter"] = iter
+					}
+				}
+				if !flags.asJSON && (i+1)%25 == 0 {
+					fmt.Fprintf(os.Stderr, "    deep %s: %d/%d schede\n", arc.Slug, i+1, len(recs))
+				}
 			}
 			data, merr := json.Marshal(flat)
 			if merr != nil {
@@ -126,9 +147,7 @@ func runSyncAll(cmd *cobra.Command, flags *rootFlags, dbPath string, maxPages in
 	}
 
 	if flags.asJSON {
-		enc := json.NewEncoder(out)
-		enc.SetIndent("", "  ")
-		return enc.Encode(results)
+		return printJSONFiltered(out, results, flags)
 	}
 	return nil
 }
@@ -136,10 +155,16 @@ func runSyncAll(cmd *cobra.Command, flags *rootFlags, dbPath string, maxPages in
 // flattenRecord produce la mappa flat (stessa forma di emitRecords) e l'ID stabile.
 func flattenRecord(arc icaro.Archive, r icaro.Record) (id string, flat map[string]any) {
 	flat = map[string]any{
-		"doc_id":  r.DocID,
 		"title":   r.Title,
 		"excerpt": r.Excerpt,
 		"url":     r.URL,
+	}
+	// Gli archivi migrati al backend /bd/ non hanno un DocID Icaro: memorizzare
+	// lo zero lo farebbe riemergere in `search` e nelle query SQL sullo store
+	// come se fosse un identificativo vero (vedi emitRecords). deriveSyncID non
+	// usa doc_id per nessun archivio, quindi la chiave del record non cambia.
+	if r.DocID > 0 {
+		flat["doc_id"] = r.DocID
 	}
 	for k, v := range r.Fields {
 		flat[strings.ToLower(strings.TrimSuffix(k, "."))] = v
@@ -164,11 +189,13 @@ func deriveSyncID(slug string, flat map[string]any) string {
 		// Columns: Legisl., Atto, Docum., Data, Titolo
 		return fmt.Sprintf("%s-%s", get("legisl"), get("atto"))
 	case "convocazioni":
-		// Columns: Legisl., Commissione, Data, ODG — nessun numero univoco
-		return fmt.Sprintf("%s-%s-%s", get("legisl"), get("commissione"), get("data"))
+		// Columns: Legisl., Data, Numero (N.Foglio), <blank>, ODG e Commissione.
+		// N.Foglio isn't confirmed globally unique across commissions, so
+		// pair it with data for a stable key.
+		return fmt.Sprintf("%s-%s-%s", get("legisl"), get("numero"), get("data"))
 	case "sommari":
-		// Columns: Legisl., Commissione, Data, Numero, Argomenti
-		return fmt.Sprintf("%s-%s-%s", get("legisl"), get("commissione"), get("numero"))
+		// Columns: Legisl., Numero (N.Seduta), Data, <blank>, ODG e Commissione.
+		return fmt.Sprintf("%s-%s-%s", get("legisl"), get("numero"), get("data"))
 	case "biblioteca":
 		// Columns: Autore, Titolo, Anno
 		return fmt.Sprintf("%s-%s", get("autore"), get("titolo"))

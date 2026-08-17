@@ -1,0 +1,1539 @@
+openapi: 3.0.3
+info:
+  title: Sarvam AI API
+  version: "1.0.0"
+  x-display-name: Sarvam AI
+  x-cli-description: Every Sarvam AI model on your terminal — translate, speak, transcribe, chat, and extract documents in 22 Indian languages, with a local history that compounds
+  description: >
+    Sarvam AI provides models and APIs for chat completion, speech-to-text,
+    text-to-speech, translation, transliteration, language identification,
+    and document intelligence across 22+ Indian languages and English.
+    All endpoints require the `api-subscription-key` header (or
+    `Authorization: Bearer <key>` as an alternative).
+  x-pp-safe-probe:
+    - method: GET
+      path: /v2/models
+category: ai
+servers:
+  - url: https://api.sarvam.ai
+security:
+  - apiSubscriptionKey: []
+x-learn:
+  entity_lookup_seeds:
+    language_code:
+      - canonical: hi-IN
+        aliases: [hindi, हिन्दी, हिंदी]
+      - canonical: bn-IN
+        aliases: [bengali, বাংলা]
+      - canonical: ta-IN
+        aliases: [tamil, தமிழ்]
+      - canonical: te-IN
+        aliases: [telugu, తెలుగు]
+      - canonical: mr-IN
+        aliases: [marathi, मराठी]
+      - canonical: gu-IN
+        aliases: [gujarati, ગુજરાતી]
+      - canonical: kn-IN
+        aliases: [kannada, ಕನ್ನಡ]
+      - canonical: ml-IN
+        aliases: [malayalam, മലയാളം]
+      - canonical: pa-IN
+        aliases: [punjabi, ਪੰਜਾਬੀ]
+      - canonical: od-IN
+        aliases: [odia, ଓଡ଼ିଆ]
+      - canonical: en-IN
+        aliases: [english]
+      - canonical: as-IN
+        aliases: [assamese]
+      - canonical: ur-IN
+        aliases: [urdu]
+      - canonical: ne-IN
+        aliases: [nepali]
+      - canonical: sa-IN
+        aliases: [sanskrit]
+    speaker:
+      - canonical: shubh
+        aliases: [shubh, default male]
+      - canonical: anushka
+        aliases: [anushka, default female]
+      - canonical: ritu
+        aliases: [ritu]
+      - canonical: priya
+        aliases: [priya]
+      - canonical: neha
+        aliases: [neha]
+    model:
+      - canonical: sarvam-105b
+        aliases: [sarvam 105b, 105b, flagship]
+      - canonical: bulbul:v3
+        aliases: [bulbul v3, bulbul3]
+      - canonical: saaras:v3
+        aliases: [saaras v3, saaras3]
+      - canonical: mayura:v1
+        aliases: [mayura v1, mayura]
+  synonyms:
+    "translate": "translation"
+    "transcribe": "transcription"
+    "speak": "tts"
+    "language detection": "identify language"
+  stopwords:
+    - please
+    - kindly
+cache:
+  enabled: true
+  stale_after: 720h
+paths:
+  /translate:
+    post:
+      operationId: translate
+      summary: Translate text between Indian languages and English
+      description: >
+        Converts text from one language to another while preserving meaning.
+        Supports 22 Indic languages plus English.
+      tags: [text]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranslateRequest"
+      responses:
+        "200":
+          description: Successful translation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranslateResponse"
+  /transliterate:
+    post:
+      operationId: transliterate
+      summary: Convert text between scripts while preserving pronunciation
+      description: >
+        Transliterates text from one script to another (e.g. Devanagari to
+        Latin) while keeping the same language and pronunciation.
+      tags: [text]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransliterateRequest"
+      responses:
+        "200":
+          description: Successful transliteration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransliterateResponse"
+  /text-lid:
+    post:
+      operationId: identifyLanguage
+      summary: Identify the language and script of input text
+      description: >
+        Identifies the language (e.g. hi-IN) and script (e.g. Devanagari) of
+        the input text, supporting 10+ Indian languages and English.
+      tags: [text]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdentifyLanguageRequest"
+      responses:
+        "200":
+          description: Successful language identification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentifyLanguageResponse"
+  /text-to-speech:
+    post:
+      operationId: textToSpeech
+      summary: Convert text to speech audio
+      description: >
+        Converts text into spoken audio. The output is a base64-encoded audio
+        string (WAV by default) that must be decoded before use. Supports
+        bulbul:v2 and bulbul:v3 models with 30+ voices.
+      tags: [text-to-speech]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TextToSpeechRequest"
+      responses:
+        "200":
+          description: Successful TTS conversion
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TextToSpeechResponse"
+  /text-to-speech/stream:
+    post:
+      operationId: textToSpeechStream
+      summary: Stream text-to-speech audio
+      description: >
+        Converts the input text into a streamed spoken audio response using
+        the specified output codec (e.g. MP3). Returns binary audio.
+      tags: [text-to-speech]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TextToSpeechStreamRequest"
+      responses:
+        "200":
+          description: Streamed audio response
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /speech-to-text:
+    post:
+      operationId: speechToText
+      summary: Transcribe speech to text
+      description: >
+        Transcribes speech to text in multiple Indian languages and English.
+        Accepts an audio file via multipart form-data. Supports transcribe,
+        translate, verbatim, translit, and codemix modes.
+      tags: [speech-to-text]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/SpeechToTextRequest"
+      responses:
+        "200":
+          description: Successful transcription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeechToTextResponse"
+  /v1/chat/completions:
+    post:
+      operationId: chatCompletions
+      summary: Generate a chat completion
+      description: >
+        Creates a model response for the given chat conversation. Serves
+        sarvam-105b and sarvam-105b-conversations models. Supports streaming
+        via server-sent events, tool calling, and structured outputs.
+      tags: [chat]
+      security:
+        - apiSubscriptionKey: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatCompletionRequest"
+      responses:
+        "200":
+          description: Successful chat completion
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatCompletionResponse"
+  /v2/models:
+    get:
+      operationId: listModels
+      summary: List available model IDs
+      description: >
+        Lists the model IDs this deployment currently serves. A model is only
+        served where its backend is configured, so the list is
+        environment-specific — fetch it rather than hardcoding IDs.
+      tags: [open-source]
+      security: []
+      responses:
+        "200":
+          description: List of models
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelListResponse"
+  /speech-to-text/job/v1:
+    post:
+      operationId: sttJobInitiate
+      summary: Create a batch speech-to-text job
+      description: >
+        Creates a new speech-to-text bulk job and returns a job UUID and
+        storage details for processing multiple audio files.
+      tags: [speech-to-text]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpeechToTextJobParameters"
+      responses:
+        "202":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkJobInitResponse"
+  /speech-to-text/job/v1/upload-files:
+    post:
+      operationId: sttJobUpload
+      summary: Get presigned upload URLs for a batch job
+      description: >
+        Generates presigned upload URLs for audio files that will be
+        processed in a speech-to-text bulk job.
+      tags: [speech-to-text]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileUploadRequest"
+      responses:
+        "200":
+          description: Upload URLs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FilesUploadResponse"
+  /speech-to-text/job/v1/{job_id}/start:
+    post:
+      operationId: sttJobStart
+      summary: Start processing a batch speech-to-text job
+      description: >
+        Starts processing a speech-to-text bulk job after all audio files
+        have been uploaded.
+      tags: [speech-to-text]
+      security:
+        - apiSubscriptionKey: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobStatusResponse"
+  /speech-to-text/job/v1/{job_id}/status:
+    get:
+      operationId: sttJobStatus
+      summary: Get batch speech-to-text job status
+      description: >
+        Returns the status of a batch speech-to-text job including per-file
+        details and download information.
+      tags: [speech-to-text]
+      security:
+        - apiSubscriptionKey: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobStatusResponse"
+  /speech-to-text/job/v1/download-files:
+    post:
+      operationId: sttJobDownload
+      summary: Get presigned download URLs for a batch job
+      description: >
+        Returns presigned download URLs for the output files of a completed
+        batch speech-to-text job.
+      tags: [speech-to-text]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileDownloadRequest"
+      responses:
+        "200":
+          description: Download URLs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FilesDownloadResponse"
+  /text-to-speech/pronunciation-dictionary:
+    get:
+      operationId: listPronunciationDictionaries
+      summary: List pronunciation dictionaries
+      description: >
+        Lists all pronunciation dictionaries for the user. Dictionaries
+        define custom word pronunciations used by bulbul:v3 TTS.
+      tags: [pronunciation-dictionary]
+      security:
+        - apiSubscriptionKey: []
+      responses:
+        "200":
+          description: List of dictionaries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PronunciationDictionaryResponse"
+    post:
+      operationId: createPronunciationDictionary
+      summary: Create a pronunciation dictionary
+      description: >
+        Uploads a .json file to create a new pronunciation dictionary. Only
+        supported by bulbul:v3. The returned dictionary_id can be passed as
+        dict_id in text-to-speech requests.
+      tags: [pronunciation-dictionary]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: JSON file with a pronunciations key
+      responses:
+        "200":
+          description: Dictionary created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PronunciationDictionaryCreateResponse"
+    put:
+      operationId: updatePronunciationDictionary
+      summary: Update a pronunciation dictionary
+      description: >
+        Updates an existing pronunciation dictionary with a new JSON file.
+      tags: [pronunciation-dictionary]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [dict_id, file]
+              properties:
+                dict_id:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Dictionary updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PronunciationDictionaryUpdateResponse"
+    delete:
+      operationId: deletePronunciationDictionary
+      summary: Delete a pronunciation dictionary
+      description: Deletes a pronunciation dictionary by ID.
+      tags: [pronunciation-dictionary]
+      security:
+        - apiSubscriptionKey: []
+      parameters:
+        - name: dict_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Dictionary deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PronunciationDictionaryDeleteResponse"
+  /text-to-speech/pronunciation-dictionary/{dict_id}:
+    get:
+      operationId: getPronunciationDictionary
+      summary: Get a pronunciation dictionary
+      description: Fetches a single pronunciation dictionary by ID.
+      tags: [pronunciation-dictionary]
+      security:
+        - apiSubscriptionKey: []
+      parameters:
+        - name: dict_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Dictionary details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PronunciationDictionaryGetResponse"
+  /doc-ai/v1/job/upload:
+    post:
+      operationId: docAiUpload
+      summary: Get a presigned upload URL for document intelligence
+      description: >
+        Creates a presigned URL to upload a document for doc-ai processing.
+      tags: [doc-ai]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_type, file_name]
+              properties:
+                content_type:
+                  type: string
+                  description: MIME type of the file
+                file_name:
+                  type: string
+                  description: Name of the file to upload
+      responses:
+        "200":
+          description: Presigned upload URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocAiPresignUploadResponse"
+  /doc-ai/v1/job/digitise:
+    post:
+      operationId: docAiDigitise
+      summary: Digitise a document
+      description: >
+        Creates and starts a digitisation job from files or pre-uploaded
+        handles. Converts documents to machine-readable text with layout
+        awareness. Runs asynchronously; poll status until terminal.
+      tags: [doc-ai]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Document file(s) to digitise
+                upload_ids:
+                  type: string
+                  description: Comma-separated upload IDs
+                language:
+                  type: string
+                  description: Language code of the document (BCP-47)
+                output_format:
+                  type: string
+                  enum: [json, md, html, text]
+                model:
+                  type: string
+      responses:
+        "201":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocAiStartJobResponse"
+  /doc-ai/v1/job/extract:
+    post:
+      operationId: docAiExtract
+      summary: Extract structured fields from a document
+      description: >
+        Creates and starts an extract job from files or pre-uploaded handles.
+        Extract pulls structured fields out of documents according to a
+        schema. Exactly one of file and upload_ids must be provided; exactly
+        one of schema and config_id is required. Runs asynchronously.
+      tags: [doc-ai]
+      security:
+        - apiSubscriptionKey: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Document file(s) to extract from
+                upload_ids:
+                  type: string
+                  description: Comma-separated upload IDs
+                schema:
+                  type: string
+                  description: Inline extraction schema as a JSON string
+                config_id:
+                  type: string
+                  description: Saved extraction configuration ID
+                language:
+                  type: string
+                  description: Language code of the document (BCP-47)
+                output_format:
+                  type: string
+                  enum: [json]
+                classification:
+                  type: string
+                  description: Enable document classification (true/false)
+                model:
+                  type: string
+      responses:
+        "201":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocAiStartJobResponse"
+  /doc-ai/v1/job/{job_id}/status:
+    get:
+      operationId: docAiStatus
+      summary: Get document intelligence job status
+      description: >
+        Polls the status of a doc-ai job until a terminal status (completed,
+        partially_completed, failed, rejected).
+      tags: [doc-ai]
+      security:
+        - apiSubscriptionKey: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocAiJobStatusResponse"
+  /doc-ai/v1/job/{job_id}/results:
+    get:
+      operationId: docAiResults
+      summary: Get document intelligence job results
+      description: >
+        Fetches the results of a completed doc-ai job, including extracted
+        fields and annotations with confidence scores.
+      tags: [doc-ai]
+      security:
+        - apiSubscriptionKey: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocAiGetResultsResponse"
+  /doc-ai/v1/job/{job_id}/download-url:
+    get:
+      operationId: docAiDownloadUrl
+      summary: Get document intelligence output download URL
+      description: >
+        Returns a presigned URL to download the output of a completed doc-ai
+        job.
+      tags: [doc-ai]
+      security:
+        - apiSubscriptionKey: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Download URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocAiDownloadUrlResponse"
+components:
+  securitySchemes:
+    apiSubscriptionKey:
+      type: apiKey
+      in: header
+      name: api-subscription-key
+      description: Sarvam AI API subscription key (sk_ format)
+      x-auth-env-vars:
+        - SARVAM_API_KEY
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Alternative bearer token auth using the same API key
+      x-auth-env-vars:
+        - SARVAM_API_KEY
+  schemas:
+    TranslateRequest:
+      type: object
+      required: [input, source_language_code, target_language_code]
+      properties:
+        input:
+          type: string
+          description: Text to translate. Max 1000 chars for mayura:v1, 2000 for sarvam-translate:v1
+        source_language_code:
+          type: string
+          enum: [auto, bn-IN, en-IN, gu-IN, hi-IN, kn-IN, ml-IN, mr-IN, od-IN, pa-IN, ta-IN, te-IN, as-IN, brx-IN, doi-IN, kok-IN, ks-IN, mai-IN, mni-IN, ne-IN, sa-IN, sat-IN, sd-IN, ur-IN]
+          description: Source language. auto enables detection (mayura:v1 only)
+        target_language_code:
+          type: string
+          enum: [bn-IN, en-IN, gu-IN, hi-IN, kn-IN, ml-IN, mr-IN, od-IN, pa-IN, ta-IN, te-IN, as-IN, brx-IN, doi-IN, kok-IN, ks-IN, mai-IN, mni-IN, ne-IN, sa-IN, sat-IN, sd-IN, ur-IN]
+          description: Target language for the translation
+        speaker_gender:
+          type: string
+          enum: [Male, Female]
+          description: Gender of the speaker for better translations
+        mode:
+          type: string
+          enum: [formal, modern-colloquial, classic-colloquial, code-mixed]
+          default: formal
+          description: Tone or style of the translation. sarvam-translate:v1 only supports formal
+        model:
+          type: string
+          enum: [mayura:v1, sarvam-translate:v1]
+          description: Translation model. mayura:v1 supports 12 languages with all modes; sarvam-translate:v1 supports 22 languages, formal only
+        output_script:
+          type: string
+          enum: [roman, fully-native, spoken-form-in-native]
+          nullable: true
+          description: Transliteration style applied to output. mayura:v1 only
+        numerals_format:
+          type: string
+          enum: [international, native]
+          default: international
+          description: Numerals style (international 0-9 or native script numerals)
+    TranslateResponse:
+      type: object
+      required: [translated_text, source_language_code]
+      properties:
+        request_id:
+          type: string
+          nullable: true
+        translated_text:
+          type: string
+          description: Translated text in the target language
+        source_language_code:
+          type: string
+          description: Detected or provided source language
+    TransliterateRequest:
+      type: object
+      required: [input, source_language_code, target_language_code]
+      properties:
+        input:
+          type: string
+          description: Text to transliterate
+        source_language_code:
+          type: string
+          enum: [auto, bn-IN, en-IN, gu-IN, hi-IN, kn-IN, ml-IN, mr-IN, od-IN, pa-IN, ta-IN, te-IN]
+          description: Source language (Indic or English)
+        target_language_code:
+          type: string
+          enum: [bn-IN, en-IN, gu-IN, hi-IN, kn-IN, ml-IN, mr-IN, od-IN, pa-IN, ta-IN, te-IN]
+          description: Target language (Indic or English)
+        numerals_format:
+          type: string
+          enum: [international, native]
+          default: international
+        spoken_form:
+          type: boolean
+          default: false
+          description: Converts text into a natural spoken form
+        spoken_form_numerals_language:
+          type: string
+          enum: [english, native]
+          default: native
+          description: Language for numerals in spoken form
+    TransliterateResponse:
+      type: object
+      required: [transliterated_text, source_language_code]
+      properties:
+        request_id:
+          type: string
+          nullable: true
+        transliterated_text:
+          type: string
+          description: Transliterated text in the target language
+        source_language_code:
+          type: string
+          description: Detected or provided source language
+    IdentifyLanguageRequest:
+      type: object
+      required: [input]
+      properties:
+        input:
+          type: string
+          description: Text input for language and script identification. Max 1000 chars
+    IdentifyLanguageResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+          nullable: true
+        language_code:
+          type: string
+          nullable: true
+          description: Detected language code (en-IN, hi-IN, bn-IN, etc.)
+        script_code:
+          type: string
+          nullable: true
+          description: Detected script code (Latn, Deva, Beng, etc.)
+    TextToSpeechRequest:
+      type: object
+      required: [text, language_code]
+      properties:
+        text:
+          type: string
+          description: Text to convert to speech. Max 2500 chars for bulbul:v3, 1500 for bulbul:v2. Use commas for numbers larger than 4 digits
+        language_code:
+          type: string
+          enum: [bn-IN, en-IN, gu-IN, hi-IN, kn-IN, ml-IN, mr-IN, od-IN, pa-IN, ta-IN, te-IN]
+          description: Language code in BCP-47 format
+        speaker:
+          type: string
+          enum: [anushka, abhilash, manisha, vidya, arya, karun, hitesh, aditya, ritu, priya, neha, rahul, pooja, rohan, simran, kavya, amit, dev, ishita, shreya, ratan, varun, manan, sumit, roopa, kabir, aayan, shubh, ashutosh, advait, anand, tanya, tarun, sunny, mani, gokul, vijay, shruti, suhani, mohit, kavitha, rehan, soham, rupali]
+          description: Speaker voice (lowercase). Default shubh for bulbul:v3, anushka for bulbul:v2
+        pitch:
+          type: number
+          nullable: true
+          description: Pitch control (-0.75 to 0.75). bulbul:v2 only
+        pace:
+          type: number
+          default: 1.0
+          description: "Speed of audio. bulbul:v3: 0.5-2.0, bulbul:v2: 0.3-3.0"
+        loudness:
+          type: number
+          nullable: true
+          description: Loudness control (0.3 to 3.0). bulbul:v2 only
+        speech_sample_rate:
+          type: integer
+          enum: [8000, 16000, 22050, 24000, 32000, 44100, 48000]
+          default: 24000
+          description: Sample rate of the output audio
+        enable_preprocessing:
+          type: boolean
+          default: false
+          description: Normalize English words and numeric entities. bulbul:v2 only
+        model:
+          type: string
+          enum: [bulbul:v2, bulbul:v3]
+          description: TTS model. bulbul:v3 is the latest with 30+ voices
+        output_audio_codec:
+          type: string
+          enum: [mp3, linear16, mulaw, alaw, opus, flac, aac, wav]
+          default: wav
+          description: Output audio codec
+        temperature:
+          type: number
+          default: 0.6
+          description: Randomness/expressiveness (0.01 to 2.0). bulbul:v3 only
+        dict_id:
+          type: string
+          nullable: true
+          description: Pronunciation dictionary ID to apply. bulbul:v3 only
+        enable_cached_responses:
+          type: boolean
+          default: false
+          description: Enable response caching (beta, bulbul:v1/v2 only)
+    TextToSpeechResponse:
+      type: object
+      required: [audios]
+      properties:
+        request_id:
+          type: string
+          nullable: true
+        audios:
+          type: array
+          items:
+            type: string
+          description: Base64-encoded audio files, one per input text
+    TextToSpeechStreamRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          description: Text to convert to speech. Max 3500 chars
+        language_code:
+          type: string
+          enum: [bn-IN, en-IN, gu-IN, hi-IN, kn-IN, ml-IN, mr-IN, od-IN, pa-IN, ta-IN, te-IN]
+          description: Language code in BCP-47 format
+        speaker:
+          type: string
+          enum: [anushka, abhilash, manisha, vidya, arya, karun, hitesh, aditya, ritu, priya, neha, rahul, pooja, rohan, simran, kavya, amit, dev, ishita, shreya, ratan, varun, manan, sumit, roopa, kabir, aayan, shubh, ashutosh, advait, anand, tanya, tarun, sunny, mani, gokul, vijay, shruti, suhani, mohit, kavitha, rehan, soham, rupali]
+          description: Speaker voice (lowercase)
+        pitch:
+          type: number
+          nullable: true
+          description: Pitch control (-0.75 to 0.75). bulbul:v2 only
+        pace:
+          type: number
+          default: 1.0
+          description: Speed of audio
+        loudness:
+          type: number
+          nullable: true
+          description: Loudness control (0.3 to 3.0). bulbul:v2 only
+        speech_sample_rate:
+          type: integer
+          enum: [8000, 16000, 22050, 24000, 32000, 44100, 48000]
+          default: 22050
+        enable_preprocessing:
+          type: boolean
+          default: false
+        model:
+          type: string
+          enum: [bulbul:v2, bulbul:v3]
+          default: bulbul:v2
+        temperature:
+          type: number
+          default: 0.6
+          description: Randomness (0.01 to 1.0). bulbul:v3 only
+        dict_id:
+          type: string
+          nullable: true
+          description: Pronunciation dictionary ID. bulbul:v3 only
+        output_audio_codec:
+          type: string
+          enum: [mp3, linear16, mulaw, alaw, opus, flac, aac, wav]
+          description: Codec for the streamed audio
+        output_audio_bitrate:
+          type: string
+          enum: [32k, 64k, 96k, 128k, 192k]
+          default: 128k
+        enable_cached_responses:
+          type: boolean
+          default: false
+    SpeechToTextRequest:
+      type: object
+      required: [file]
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Audio file to transcribe (WAV, MP3, AAC, OGG, FLAC, etc.)
+        model:
+          type: string
+          enum: [saaras:v3, saaras:v4]
+          default: saaras:v3
+          description: STT model
+        mode:
+          type: string
+          enum: [transcribe, translate, verbatim, translit, codemix]
+          default: transcribe
+          description: Mode of operation
+        language_code:
+          type: string
+          enum: [unknown, hi-IN, bn-IN, kn-IN, ml-IN, mr-IN, od-IN, pa-IN, ta-IN, te-IN, en-IN, gu-IN, as-IN, ur-IN, ne-IN, kok-IN, ks-IN, sd-IN, sa-IN, sat-IN, mni-IN, brx-IN, mai-IN, doi-IN]
+          description: Language of the input audio. unknown enables auto-detect
+        with_timestamps:
+          type: boolean
+          default: false
+          description: Include chunk-level timestamps in the response
+        input_audio_codec:
+          type: string
+          description: Audio codec of the input file (required for PCM)
+    SpeechToTextResponse:
+      type: object
+      required: [transcript]
+      properties:
+        request_id:
+          type: string
+          nullable: true
+        transcript:
+          type: string
+          description: Transcribed text from the audio file
+        language_code:
+          type: string
+          nullable: true
+          description: BCP-47 code of the predominant language
+        language_probability:
+          type: number
+          nullable: true
+          description: Confidence in detected language (0.0-1.0)
+        timestamps:
+          type: object
+          nullable: true
+          properties:
+            words:
+              type: array
+              items:
+                type: string
+            start_time_seconds:
+              type: array
+              items:
+                type: number
+            end_time_seconds:
+              type: array
+              items:
+                type: number
+    SpeechToTextJobParameters:
+      type: object
+      properties:
+        job_parameters:
+          type: object
+          properties:
+            language_code:
+              type: string
+              enum: [unknown, hi-IN, bn-IN, kn-IN, ml-IN, mr-IN, od-IN, pa-IN, ta-IN, te-IN, en-IN, gu-IN, as-IN, ur-IN, ne-IN, kok-IN, ks-IN, sd-IN, sa-IN, sat-IN, mni-IN, brx-IN, mai-IN, doi-IN]
+              default: unknown
+              description: Language of the input audio
+            model:
+              type: string
+              enum: [saaras:v3, saaras:v4]
+              default: saaras:v3
+            mode:
+              type: string
+              enum: [transcribe, translate, verbatim, translit, codemix]
+              default: transcribe
+            with_timestamps:
+              type: boolean
+              default: false
+            with_diarization:
+              type: boolean
+              default: false
+              description: Enables speaker diarization (beta)
+            num_speakers:
+              type: integer
+              nullable: true
+              description: Number of speakers to detect (when diarization enabled)
+            input_audio_codec:
+              type: string
+              enum: [wav, x-wav, wave, mp3, mpeg, mpeg3, x-mp3, x-mpeg-3, aac, x-aac, aiff, x-aiff, ogg, opus, flac, x-flac, mp4, x-m4a, amr, x-ms-wma, webm, pcm_s16le, pcm_l16, pcm_raw]
+        callback:
+          type: object
+          nullable: true
+          properties:
+            url:
+              type: string
+              description: Webhook URL to call on job completion
+            auth_token:
+              type: string
+              description: Authorization token for the callback URL
+    BulkJobInitResponse:
+      type: object
+      required: [job_id, storage_container_type, job_parameters, job_state]
+      properties:
+        job_id:
+          type: string
+          description: Job UUID
+        storage_container_type:
+          type: string
+          enum: [Azure, Local, Google, Azure_V1]
+        job_parameters:
+          type: object
+        job_state:
+          type: string
+          enum: [Accepted, Pending, Running, Completed, Failed]
+    FileUploadRequest:
+      type: object
+      required: [job_id, files]
+      properties:
+        job_id:
+          type: string
+          description: UUID of the bulk job
+        files:
+          type: array
+          items:
+            type: string
+          description: Output filenames to upload (e.g. "0.json")
+    FilesUploadResponse:
+      type: object
+      required: [job_id, job_state, upload_urls, storage_container_type]
+      properties:
+        job_id:
+          type: string
+        job_state:
+          type: string
+          enum: [Accepted, Pending, Running, Completed, Failed]
+        upload_urls:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              file_url:
+                type: string
+              file_metadata:
+                type: object
+        storage_container_type:
+          type: string
+          enum: [Azure, Local, Google, Azure_V1]
+    FileDownloadRequest:
+      type: object
+      required: [job_id, files]
+      properties:
+        job_id:
+          type: string
+          description: UUID of the bulk job
+        files:
+          type: array
+          items:
+            type: string
+          description: Output filenames to download (e.g. "0.json")
+    FilesDownloadResponse:
+      type: object
+      required: [job_id, job_state, download_urls, storage_container_type]
+      properties:
+        job_id:
+          type: string
+        job_state:
+          type: string
+          enum: [Accepted, Pending, Running, Completed, Failed]
+        download_urls:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              file_url:
+                type: string
+              file_metadata:
+                type: object
+        storage_container_type:
+          type: string
+          enum: [Azure, Local, Google, Azure_V1]
+    JobStatusResponse:
+      type: object
+      required: [job_state, created_at, updated_at, job_id, storage_container_type]
+      properties:
+        job_state:
+          type: string
+          enum: [Accepted, Pending, Running, Completed, Failed]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        job_id:
+          type: string
+        storage_container_type:
+          type: string
+          enum: [Azure, Local, Google, Azure_V1]
+        total_files:
+          type: integer
+          default: 0
+        successful_files_count:
+          type: integer
+          default: 0
+        failed_files_count:
+          type: integer
+          default: 0
+        error_message:
+          type: string
+        job_details:
+          type: array
+          items:
+            type: object
+            properties:
+              inputs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    file_name:
+                      type: string
+                    file_id:
+                      type: string
+              outputs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    file_name:
+                      type: string
+                    file_id:
+                      type: string
+              state:
+                type: string
+                enum: [Success, "API Error", "Internal Server Error"]
+              error_message:
+                type: string
+                nullable: true
+              exception_name:
+                type: string
+                nullable: true
+    ChatCompletionRequest:
+      type: object
+      required: [messages, model]
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+          description: Conversation history
+        model:
+          type: string
+          enum: [sarvam-105b, sarvam-105b-conversations]
+          description: Chat model ID. sarvam-105b for complex reasoning, sarvam-105b-conversations for real-time voice workloads
+        temperature:
+          type: number
+          default: 0.2
+          description: Sampling temperature (0-2)
+        top_p:
+          type: number
+          default: 1.0
+          description: Nucleus sampling probability mass
+        reasoning_effort:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+          nullable: true
+          description: Reasoning effort. Set to null to disable
+        max_tokens:
+          type: integer
+          default: 2048
+          description: Maximum tokens to generate
+        stream:
+          type: boolean
+          default: false
+          description: Stream the response via server-sent events
+        stop:
+          type: array
+          items:
+            type: string
+          description: Up to 4 stop sequences
+        n:
+          type: integer
+          default: 1
+          description: Number of chat completion choices
+        seed:
+          type: integer
+          nullable: true
+          description: Beta — best-effort deterministic sampling
+        frequency_penalty:
+          type: number
+          default: 0
+          description: Penalize repeated tokens (-2.0 to 2.0)
+        presence_penalty:
+          type: number
+          default: 0
+          description: Penalize new topics (-2.0 to 2.0)
+        wiki_grounding:
+          type: boolean
+          default: false
+        tools:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatTool"
+          description: Functions the model may call
+        tool_choice:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [function]
+            function:
+              type: object
+              properties:
+                name:
+                  type: string
+        response_format:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [text, json_object, json_schema]
+            json_schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                schema:
+                  type: object
+                strict:
+                  type: boolean
+                  default: false
+    ChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [system, user, assistant, tool]
+          description: Author of the message
+        content:
+          type: string
+          description: Message content
+        name:
+          type: string
+          nullable: true
+          description: Optional participant name
+        tool_call_id:
+          type: string
+          description: Tool call this message responds to (for tool role)
+        tool_calls:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              type:
+                type: string
+                enum: [function]
+              function:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  arguments:
+                    type: string
+                    description: JSON string of arguments
+    ChatTool:
+      type: object
+      required: [type, function]
+      properties:
+        type:
+          type: string
+          enum: [function]
+        function:
+          type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            parameters:
+              type: object
+              description: JSON Schema object describing the function parameters
+    ChatCompletionResponse:
+      type: object
+      required: [id, choices, created, model, object]
+      properties:
+        id:
+          type: string
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              finish_reason:
+                type: string
+                enum: [stop, length, tool_calls, content_filter, function_call]
+              index:
+                type: integer
+              message:
+                type: object
+                properties:
+                  content:
+                    type: string
+                    nullable: true
+                  role:
+                    type: string
+                    enum: [assistant]
+                  refusal:
+                    type: string
+                    nullable: true
+                  reasoning_content:
+                    type: string
+                    nullable: true
+                    description: Chain-of-thought reasoning text
+                  tool_calls:
+                    type: array
+                    items:
+                      type: object
+              logprobs:
+                type: object
+        created:
+          type: integer
+          description: Unix timestamp (seconds)
+        model:
+          type: string
+        object:
+          type: string
+          enum: [chat.completion]
+        service_tier:
+          type: string
+          nullable: true
+        system_fingerprint:
+          type: string
+          nullable: true
+        usage:
+          type: object
+          properties:
+            completion_tokens:
+              type: integer
+            prompt_tokens:
+              type: integer
+            total_tokens:
+              type: integer
+            completion_tokens_details:
+              type: object
+            prompt_tokens_details:
+              type: object
+    ModelListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              created:
+                type: integer
+              owned_by:
+                type: string
+              object:
+                type: string
+                default: model
+        object:
+          type: string
+          default: list
+    PronunciationDictionaryResponse:
+      type: object
+      properties:
+        dictionaries:
+          type: array
+          items:
+            type: object
+            properties:
+              dictionary_id:
+                type: string
+              name:
+                type: string
+              created_at:
+                type: string
+              updated_at:
+                type: string
+    PronunciationDictionaryCreateResponse:
+      type: object
+      required: [dictionary_id]
+      properties:
+        dictionary_id:
+          type: string
+          description: Unique identifier for the created dictionary (e.g. p_5cb7faa6)
+    PronunciationDictionaryGetResponse:
+      type: object
+      properties:
+        dictionary_id:
+          type: string
+        name:
+          type: string
+        pronunciations:
+          type: object
+    PronunciationDictionaryUpdateResponse:
+      type: object
+      properties:
+        dictionary_id:
+          type: string
+        message:
+          type: string
+    PronunciationDictionaryDeleteResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        dictionary_id:
+          type: string
+    DocAiPresignUploadResponse:
+      type: object
+      properties:
+        upload_id:
+          type: string
+        upload_url:
+          type: string
+        file_name:
+          type: string
+    DocAiStartJobResponse:
+      type: object
+      required: [job_id, status, run_id]
+      properties:
+        job_id:
+          type: string
+          description: Unique identifier of the job
+        status:
+          type: string
+          description: Current status of the job
+        run_id:
+          type: string
+          description: Unique identifier of the job run
+    DocAiJobStatusResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, partially_completed, failed, rejected]
+        run_id:
+          type: string
+          nullable: true
+        error:
+          type: object
+          nullable: true
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+    DocAiGetResultsResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+        result:
+          type: object
+          description: Extracted fields per the requested schema
+        annotations:
+          type: object
+          description: Confidence and sources for each extracted field
+        error:
+          type: object
+          nullable: true
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+    DocAiDownloadUrlResponse:
+      type: object
+      properties:
+        download_url:
+          type: string
+        file_name:
+          type: string

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "booking-flow-calendar-and-openings-date",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260707-170547",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Jane booking is a reserve->confirm transaction, availability keys on 'date' not 'start_date', and appointment fields are nested; a regen must preserve these live-verified contracts, not the naive single-POST guesses.",
+  "reason": "Reverse-engineered from Jane's booking SPA and verified with a real booking: POST /api/v2/reservations {reservation:{...,browser_session_id}} then POST /api/v2/appointments/{id}/book (patient auto-associates when logged in, CSRF from page meta). /api/v2/openings ignores start_date and requires 'date'. appointments payload nests staff_member.professional_name and has no status field (derive from cancelled_at). Native ICS feed is /ical/<token> from the account page.",
+  "files": [
+    "internal/cli/jane_booking.go",
+    "internal/cli/jane_calendar.go",
+    "internal/cli/jane_openings.go",
+    "internal/cli/promoted_openings.go",
+    "internal/cli/book.go",
+    "internal/cli/appointments_view.go"
+  ],
+  "validated_outcome": "Booked a real appointment end-to-end via reserve->confirm and confirmed it appears in appointments upcoming. Availability with date= returns correct future openings matching the web. calendar --out generates valid ICS incl. the new booking; calendar --url returns the /ical/<token> subscribe URL."
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/expensify-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260622-180206",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,218 @@
+
+=== verify ===
+warning: resource "analytics" from path "/v1/analytics/libraries/{file_key}/component/actions" would shadow framework cobra command "analytics"; renamed to "figma-analytics"
+Runtime Verification: /Users/vincenzoscagliarini/printing-press/.runstate/vincenzoscagliarini-89891e2f/runs/20260619-123141-3dcd8ab9/working/figma-pp-cli/figma-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+activity-logs                  read         PASS   PASS     PASS     3/3
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+comments-audit                 read         PASS   PASS     FAIL     2/3
+component-sets                 read         PASS   PASS     PASS     3/3
+components                     read         PASS   PASS     PASS     3/3
+dev-mode                       read         PASS   PASS     PASS     3/3
+developer-logs                 read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+files                          read         PASS   PASS     PASS     3/3
+fingerprint                    read         PASS   PASS     FAIL     2/3
+frame                          read         PASS   PASS     PASS     3/3
+images                         read         PASS   PASS     FAIL     2/3
+import                         data-layer   PASS   PASS     PASS     3/3
+load                           read         PASS   PASS     PASS     3/3
+me                             read         PASS   PASS     PASS     3/3
+oembed                         read         PASS   PASS     FAIL     2/3
+orphans                        read         PASS   PASS     PASS     3/3
+payments                       read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     FAIL     2/3
+search                         data-layer   PASS   PASS     PASS     3/3
+stale                          data-layer   PASS   PASS     PASS     3/3
+styles                         read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+tokens                         read         PASS   PASS     PASS     3/3
+variables                      read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS dev-mode dump
+  PASS files comments delete
+  PASS files comments delete-reaction
+  PASS files comments get
+  PASS files comments get-reactions
+  PASS files comments post
+  PASS files comments post-reaction
+  PASS files component-sets get-file
+  PASS files components get-file
+  PASS files dev-resources delete
+  PASS files dev-resources get
+  PASS files images get-fills
+  PASS files meta get-file
+  PASS files nodes get-file
+  PASS files styles get-file
+  PASS files variables get-local
+  PASS files variables get-published
+  PASS files variables post
+  PASS files versions get-file
+  PASS frame extract
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS tokens diff
+  PASS variables explain
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (59/59 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 10 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec /Users/vincenzoscagliarini/printing-press/.runstate/vincenzoscagliarini-89891e2f/runs/20260619-123141-3dcd8ab9/research/figma-spec.yaml (--spec)
+warning: resource "analytics" from path "/v1/analytics/libraries/{file_key}/component/actions" would shadow framework cobra command "analytics"; renamed to "figma-analytics"
+dogfood: synced README.md (Quick Start) from research.json narrative
+Dogfood Report: figma-pp-cli
+================================
+
+Path Validity:     2/2 valid (PASS)
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/46 endpoints covered (FAIL)
+  Detail: generated auth.go declares no OAuth scopes
+  - GET /v1/activity_logs (op-id getActivityLogs) requires org:activity_log_read, none in auth.go
+  - GET /v1/analytics/libraries/{file_key}/component/actions (op-id getLibraryAnalyticsComponentActions) requires library_analytics:read, none in auth.go
+  - GET /v1/analytics/libraries/{file_key}/component/usages (op-id getLibraryAnalyticsComponentUsages) requires library_analytics:read, none in auth.go
+  - GET /v1/analytics/libraries/{file_key}/style/actions (op-id getLibraryAnalyticsStyleActions) requires library_analytics:read, none in auth.go
+  - GET /v1/analytics/libraries/{file_key}/style/usages (op-id getLibraryAnalyticsStyleUsages) requires library_analytics:read, none in auth.go
+  - GET /v1/analytics/libraries/{file_key}/variable/actions (op-id getLibraryAnalyticsVariableActions) requires library_analytics:read, none in auth.go
+  - GET /v1/analytics/libraries/{file_key}/variable/usages (op-id getLibraryAnalyticsVariableUsages) requires library_analytics:read, none in auth.go
+  - GET /v1/component_sets/{key} (op-id getComponentSet) requires all of files:read, library_assets:read, none in auth.go
+  - GET /v1/components/{key} (op-id getComponent) requires all of files:read, library_assets:read, none in auth.go
+  - POST /v1/dev_resources (op-id postDevResources) requires file_dev_resources:write, none in auth.go
+  - PUT /v1/dev_resources (op-id putDevResources) requires file_dev_resources:write, none in auth.go
+  - GET /v1/files/{file_key} (op-id getFile) requires all of file_content:read, files:read, none in auth.go
+  - GET /v1/files/{file_key}/comments (op-id getComments) requires all of file_comments:read, files:read, none in auth.go
+  - POST /v1/files/{file_key}/comments (op-id postComment) requires file_comments:write, none in auth.go
+  - DELETE /v1/files/{file_key}/comments/{comment_id} (op-id deleteComment) requires file_comments:write, none in auth.go
+  - DELETE /v1/files/{file_key}/comments/{comment_id}/reactions (op-id deleteCommentReaction) requires file_comments:write, none in auth.go
+  - GET /v1/files/{file_key}/comments/{comment_id}/reactions (op-id getCommentReactions) requires all of file_comments:read, files:read, none in auth.go
+  - POST /v1/files/{file_key}/comments/{comment_id}/reactions (op-id postCommentReaction) requires file_comments:write, none in auth.go
+  - GET /v1/files/{file_key}/component_sets (op-id getFileComponentSets) requires all of files:read, library_content:read, none in auth.go
+  - GET /v1/files/{file_key}/components (op-id getFileComponents) requires all of files:read, library_content:read, none in auth.go
+  - GET /v1/files/{file_key}/dev_resources (op-id getDevResources) requires file_dev_resources:read, none in auth.go
+  - DELETE /v1/files/{file_key}/dev_resources/{dev_resource_id} (op-id deleteDevResource) requires file_dev_resources:write, none in auth.go
+  - GET /v1/files/{file_key}/images (op-id getImageFills) requires all of file_content:read, files:read, none in auth.go
+  - GET /v1/files/{file_key}/meta (op-id getFileMeta) requires all of file_metadata:read, files:read, none in auth.go
+  - GET /v1/files/{file_key}/nodes (op-id getFileNodes) requires all of file_content:read, files:read, none in auth.go
+  - GET /v1/files/{file_key}/styles (op-id getFileStyles) requires all of files:read, library_content:read, none in auth.go
+  - POST /v1/files/{file_key}/variables (op-id postVariables) requires file_variables:write, none in auth.go
+  - GET /v1/files/{file_key}/variables/local (op-id getLocalVariables) requires file_variables:read, none in auth.go
+  - GET /v1/files/{file_key}/variables/published (op-id getPublishedVariables) requires file_variables:read, none in auth.go
+  - GET /v1/files/{file_key}/versions (op-id getFileVersions) requires all of file_versions:read, files:read, none in auth.go
+  - GET /v1/images/{file_key} (op-id getImages) requires all of file_content:read, files:read, none in auth.go
+  - GET /v1/me (op-id getMe) requires all of current_user:read, files:read, none in auth.go
+  - GET /v1/oembed (op-id getOEmbed) requires file_metadata:read, none in auth.go
+  - GET /v1/projects/{project_id}/files (op-id getProjectFiles) requires all of files:read, projects:read, none in auth.go
+  - GET /v1/styles/{key} (op-id getStyle) requires all of files:read, library_assets:read, none in auth.go
+  - GET /v1/teams/{team_id}/component_sets (op-id getTeamComponentSets) requires all of files:read, team_library_content:read, none in auth.go
+  - GET /v1/teams/{team_id}/components (op-id getTeamComponents) requires all of files:read, team_library_content:read, none in auth.go
+  - GET /v1/teams/{team_id}/projects (op-id getTeamProjects) requires all of files:read, projects:read, none in auth.go
+  - GET /v1/teams/{team_id}/styles (op-id getTeamStyles) requires all of files:read, team_library_content:read, none in auth.go
+  - GET /v2/teams/{team_id}/webhooks (op-id getTeamWebhooks) requires all of files:read, webhooks:read, none in auth.go
+  - GET /v2/webhooks (op-id getWebhooks) requires webhooks:read, none in auth.go
+  - POST /v2/webhooks (op-id postWebhook) requires webhooks:write, none in auth.go
+  - DELETE /v2/webhooks/{webhook_id} (op-id deleteWebhook) requires webhooks:write, none in auth.go
+  - GET /v2/webhooks/{webhook_id} (op-id getWebhook) requires all of files:read, webhooks:read, none in auth.go
+  - PUT /v2/webhooks/{webhook_id} (op-id putWebhook) requires webhooks:write, none in auth.go
+  - GET /v2/webhooks/{webhook_id}/requests (op-id getWebhookRequests) requires all of files:read, webhooks:read, none in auth.go
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    8/8 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - OAuth scope coverage missing for 46 endpoint(s)
+  - 8/8 novel features missing data-source strategy: frame extract (frame.go) — missing // pp:data-source <auto|local|live> annotation; dev-mode dump (dev_mode.go) — missing // pp:data-source <auto|local|live> annotation; comments-audit (comments_audit.go) — missing // pp:data-source <auto|local|live> annotation; orphans (orphans.go) — missing // pp:data-source <auto|local|live> annotation; tokens diff (tokens.go) — missing // pp:data-source <auto|local|live> annotation; fingerprint (fingerprint.go) — missing // pp:data-source <auto|local|live> annotation; webhooks test (webhooks_test_cmd.go) — missing // pp:data-source <auto|local|live> annotation; variables explain (variables.go) — missing // pp:data-source <auto|local|live> annotation
+
+=== workflow-verify ===
+Workflow Verification: figma-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== figma-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+
+=== scorecard ===
+Quality Scorecard: figma
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency 0/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           9/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 93/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, live_api_verification
+
+Gaps:
+  - mcp_token_efficiency scored 0/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         7.293s
+  validate-narrative  PASS    0         323ms
+  dogfood           PASS    0         2.43s
+  workflow-verify   PASS    0         21ms
+  verify-skill      PASS    0         96ms
+  scorecard         PASS    0         376ms
+
+Verdict: PASS (6/6 legs passed)

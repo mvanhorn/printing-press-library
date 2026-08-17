@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "greptile-review-hardening",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260624-023238",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Preserve hardened Mixlayer review behavior for confidence-gated escalation, local PII detection, risk-prioritized overlap handling, shielded question redaction, shield ingest output, UTF-8-safe tranche splitting, receipt wording, generated ledger IDs, atomic vault token assignment, strict chat parsing, council prompt framing, ladder-family persistence and metadata, and SELECT-only SQL guarding.",
+  "reason": "Greptile review found that verbose answers could short-circuit escalation, broad two-capitalized-word detection over-masked common place and product names, overlapping detectors needed to keep higher-risk entities such as EMAIL over PERSON, shield ask needed to redact both the data corpus and question before sending, shield ingest needed to return the masked corpus when no output file is requested and avoid truncated or invalid UTF-8 tranches, the guard flag wording could imply an active guard-model call, timestamp-only IDs could collide in tight loops, vault token creation needed one atomic read-then-insert boundary, invalid chat JSON needed to surface as an error, council inputs needed structural delimiters, escalate and council needed local ledger persistence, escalation parent rows needed to record only tried rungs and the last tried model, and CTE-wrapped DML needed a clearer SELECT-only rejection before SQLite's read-only driver boundary.",
+  "files": [
+    "README.md",
+    "internal/cli/ladder_cmds.go",
+    "internal/cli/shield.go",
+    "internal/cli/sql.go",
+    "internal/mixapi/chat.go",
+    "internal/shield/detectors.go",
+    "internal/shield/tranche.go",
+    "internal/shield/tokenizer.go",
+    "internal/store/mixlayer.go"
+  ],
+  "validated_outcome": "Focused tests cover confidence parsing, non-person phrase filtering, risk-prioritized overlap handling for email/name spans, question PII redaction in shield ask payloads, shield ingest stdout and JSON corpus output, long non-CSV input preservation, UTF-8-valid oversized tranche splitting, NewID collision resistance, concurrent vault token creation through separate store handles, invalid chat JSON errors, JSON-framed council member prompts, persisted escalate/council ledger runs, escalation tried-rung metadata, and CTE-wrapped DML rejection."
+}

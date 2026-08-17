@@ -1,0 +1,1332 @@
+{
+  "api_name": "discogs",
+  "base_url": "https://api.discogs.com",
+  "description": "Every Discogs feature — plus a local price-history mirror the API doesn't keep, so you can watch your wantlist like a limit-order book, spot underpriced records, and track your collection's value over time.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Discogs token={DISCOGS_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "DISCOGS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "DISCOGS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "discogs-pp-cli/1.0 +https://github.com/mvanhorn/discogs-pp-cli"
+    }
+  ],
+  "tools": [
+    {
+      "name": "collection_add",
+      "description": "Add a release to a collection folder. Required: username, folder_id, release_id.",
+      "method": "POST",
+      "path": "/users/{username}/collection/folders/{folder_id}/releases/{release_id}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username.",
+          "required": true
+        },
+        {
+          "name": "folder_id",
+          "type": "int",
+          "location": "path",
+          "description": "Folder ID to add into.",
+          "required": true
+        },
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release ID to add.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_create_folder",
+      "description": "Create a new collection folder. Required: username, name.",
+      "method": "POST",
+      "path": "/users/{username}/collection/folders",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New folder name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_delete_folder",
+      "description": "Delete a collection folder (must be empty). Required: username, folder_id. Destructive.",
+      "method": "DELETE",
+      "path": "/users/{username}/collection/folders/{folder_id}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "folder_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_fields",
+      "description": "List the custom fields defined on your collection. Required: username.",
+      "method": "GET",
+      "path": "/users/{username}/collection/fields",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_find",
+      "description": "Find a release's instances in your collection. Required: username, release_id.",
+      "method": "GET",
+      "path": "/users/{username}/collection/releases/{release_id}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username.",
+          "required": true
+        },
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_folder",
+      "description": "Get one collection folder (0 = All). Required: username, folder_id.",
+      "method": "GET",
+      "path": "/users/{username}/collection/folders/{folder_id}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username.",
+          "required": true
+        },
+        {
+          "name": "folder_id",
+          "type": "int",
+          "location": "path",
+          "description": "Folder ID (0 = All).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_folders",
+      "description": "List your collection folders. Required: username.",
+      "method": "GET",
+      "path": "/users/{username}/collection/folders",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username (yours).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_items",
+      "description": "List releases in a collection folder (0 = All). Required: username, folder_id. Optional: sort, sort-order, per-page (default: 50) (plus 1 more).",
+      "method": "GET",
+      "path": "/users/{username}/collection/folders/{folder_id}/releases",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username.",
+          "required": true
+        },
+        {
+          "name": "folder_id",
+          "type": "int",
+          "location": "path",
+          "description": "Folder ID (0 = All).",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "sort-order",
+          "wire_name": "sort_order",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "collection_rate_instance",
+      "description": "Set the rating on a collection instance. Required: username, folder_id, release_id, instance_id. Optional: rating.",
+      "method": "POST",
+      "path": "/users/{username}/collection/folders/{folder_id}/releases/{release_id}/instances/{instance_id}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "folder_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "instance_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "rating",
+          "type": "int",
+          "location": "body",
+          "description": "Rating 0-5."
+        }
+      ]
+    },
+    {
+      "name": "collection_remove",
+      "description": "Remove a release instance from a folder. Required: username, folder_id, release_id, instance_id. Destructive.",
+      "method": "DELETE",
+      "path": "/users/{username}/collection/folders/{folder_id}/releases/{release_id}/instances/{instance_id}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "folder_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "instance_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_rename_folder",
+      "description": "Rename a collection folder. Required: username, folder_id, name.",
+      "method": "POST",
+      "path": "/users/{username}/collection/folders/{folder_id}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "folder_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New folder name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_value",
+      "description": "Get the min/median/max market value of your collection. Required: username.",
+      "method": "GET",
+      "path": "/users/{username}/collection/value",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "database_artist",
+      "description": "Get an artist by ID. Required: artist_id.",
+      "method": "GET",
+      "path": "/artists/{artist_id}",
+      "params": [
+        {
+          "name": "artist_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs artist ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "database_artist_releases",
+      "description": "List an artist's releases. Required: artist_id. Optional: sort, sort-order, per-page (default: 50) (plus 1 more).",
+      "method": "GET",
+      "path": "/artists/{artist_id}/releases",
+      "params": [
+        {
+          "name": "artist_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs artist ID.",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "sort-order",
+          "wire_name": "sort_order",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "database_community_rating",
+      "description": "Get the community rating for a release. Required: release_id.",
+      "method": "GET",
+      "path": "/releases/{release_id}/rating",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "database_label",
+      "description": "Get a label by ID. Required: label_id.",
+      "method": "GET",
+      "path": "/labels/{label_id}",
+      "params": [
+        {
+          "name": "label_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs label ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "database_label_releases",
+      "description": "List releases on a label. Required: label_id. Optional: per-page (default: 50), page (default: 1).",
+      "method": "GET",
+      "path": "/labels/{label_id}/releases",
+      "params": [
+        {
+          "name": "label_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs label ID.",
+          "required": true
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "database_master",
+      "description": "Get a master release (the canonical version group). Required: master_id.",
+      "method": "GET",
+      "path": "/masters/{master_id}",
+      "params": [
+        {
+          "name": "master_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs master release ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "database_master_versions",
+      "description": "List all versions (pressings) of a master release. Required: master_id. Optional: country, format, label (plus 3 more).",
+      "method": "GET",
+      "path": "/masters/{master_id}/versions",
+      "params": [
+        {
+          "name": "master_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs master release ID.",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by country."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by format."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by label."
+        },
+        {
+          "name": "released",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by release year."
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "database_rate",
+      "description": "Set your rating (1-5) for a release. Required: release_id, username, rating.",
+      "method": "PUT",
+      "path": "/releases/{release_id}/rating/{username}",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "rating",
+          "type": "int",
+          "location": "body",
+          "description": "Rating 1-5.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "database_release",
+      "description": "Get a specific release by ID. Required: release_id. Optional: currency.",
+      "method": "GET",
+      "path": "/releases/{release_id}",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release ID.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "wire_name": "curr_abbr",
+          "type": "string",
+          "location": "query",
+          "description": "Currency for the lowest-price field."
+        }
+      ]
+    },
+    {
+      "name": "database_search",
+      "description": "Search the Discogs database. Public data; a token raises the rate limit from 25 to 60/min. Required: q. Optional: type, title, artist (plus 10 more).",
+      "method": "GET",
+      "path": "/database/search",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "path",
+          "description": "Free-text query (title, artist, catalog no, barcode)."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to one entity type."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "description": "Search a combined 'Artist - Title' field."
+        },
+        {
+          "name": "artist",
+          "type": "string",
+          "location": "query",
+          "description": "Artist name."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "query",
+          "description": "Label name."
+        },
+        {
+          "name": "genre",
+          "type": "string",
+          "location": "query",
+          "description": "Genre (e.g. Rock, Electronic, Jazz)."
+        },
+        {
+          "name": "style",
+          "type": "string",
+          "location": "query",
+          "description": "Style (e.g. House, Grunge, Hard Bop)."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country of release."
+        },
+        {
+          "name": "year",
+          "type": "string",
+          "location": "query",
+          "description": "Year of release."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format (Vinyl, CD, Cassette, Box Set)."
+        },
+        {
+          "name": "catno",
+          "type": "string",
+          "location": "query",
+          "description": "Catalog number."
+        },
+        {
+          "name": "barcode",
+          "type": "string",
+          "location": "query",
+          "description": "Barcode."
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        }
+      ]
+    },
+    {
+      "name": "database_unrate",
+      "description": "Delete your rating for a release. Required: release_id, username. Destructive.",
+      "method": "DELETE",
+      "path": "/releases/{release_id}/rating/{username}",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "database_user_rating",
+      "description": "Get a specific user's rating for a release. Required: release_id, username.",
+      "method": "GET",
+      "path": "/releases/{release_id}/rating/{username}",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "identity_contributions",
+      "description": "List a user's database contributions. Required: username. Optional: per-page (default: 50), page (default: 1).",
+      "method": "GET",
+      "path": "/users/{username}/contributions",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "identity_profile",
+      "description": "Get a user's public profile. Required: username.",
+      "method": "GET",
+      "path": "/users/{username}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "identity_submissions",
+      "description": "List a user's database submissions. Required: username. Optional: per-page (default: 50), page (default: 1).",
+      "method": "GET",
+      "path": "/users/{username}/submissions",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "identity_whoami",
+      "description": "Show the authenticated user's identity (username, id).",
+      "method": "GET",
+      "path": "/oauth/identity",
+      "params": []
+    },
+    {
+      "name": "inventory_export",
+      "description": "Request a new CSV export of your inventory.",
+      "method": "POST",
+      "path": "/inventory/export",
+      "params": []
+    },
+    {
+      "name": "inventory_export_download",
+      "description": "Download a finished inventory export CSV. Required: id.",
+      "method": "GET",
+      "path": "/inventory/export/{id}/download",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Export job ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory_export_get",
+      "description": "Get the status of an inventory export. Required: id.",
+      "method": "GET",
+      "path": "/inventory/export/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Export job ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory_exports",
+      "description": "List your recent inventory exports.",
+      "method": "GET",
+      "path": "/inventory/export",
+      "params": []
+    },
+    {
+      "name": "inventory_upload_get",
+      "description": "Get the status of an inventory CSV upload. Required: id.",
+      "method": "GET",
+      "path": "/inventory/upload/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Upload job ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory_uploads",
+      "description": "List recent inventory CSV uploads.",
+      "method": "GET",
+      "path": "/inventory/upload",
+      "params": []
+    },
+    {
+      "name": "lists_get",
+      "description": "Get one list and its items. Required: list_id.",
+      "method": "GET",
+      "path": "/lists/{list_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "path",
+          "description": "List ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_user",
+      "description": "List a user's public lists. Required: username.",
+      "method": "GET",
+      "path": "/users/{username}/lists",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "marketplace_add_order_message",
+      "description": "Post a message to an order. Required: order_id, message. Optional: status.",
+      "method": "POST",
+      "path": "/marketplace/orders/{order_id}/messages",
+      "params": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "marketplace_create_listing",
+      "description": "Create a new marketplace listing. Required: release_id, condition, price. Optional: sleeve_condition, status (default: For Sale), comments.",
+      "method": "POST",
+      "path": "/marketplace/listings",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "body",
+          "description": "Release ID to list.",
+          "required": true
+        },
+        {
+          "name": "condition",
+          "type": "string",
+          "location": "body",
+          "description": "Media condition (e.g. 'Very Good Plus (VG+)').",
+          "required": true
+        },
+        {
+          "name": "sleeve_condition",
+          "type": "string",
+          "location": "body",
+          "description": "Sleeve condition."
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Asking price.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "comments",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "marketplace_delete_listing",
+      "description": "Delete a marketplace listing. Required: listing_id. Destructive.",
+      "method": "DELETE",
+      "path": "/marketplace/listings/{listing_id}",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "marketplace_fee",
+      "description": "Calculate the Discogs marketplace fee for a sale price (USD). Required: price.",
+      "method": "GET",
+      "path": "/marketplace/fee/{price}",
+      "params": [
+        {
+          "name": "price",
+          "type": "string",
+          "location": "path",
+          "description": "Sale price, e.g. 10.00.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "marketplace_fee_currency",
+      "description": "Calculate the marketplace fee for a price in a specific currency. Required: price, currency.",
+      "method": "GET",
+      "path": "/marketplace/fee/{price}/{currency}",
+      "params": [
+        {
+          "name": "price",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "path",
+          "description": "Currency code (USD, EUR, GBP, ...).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "marketplace_inventory",
+      "description": "List a seller's marketplace inventory. Required: username. Optional: status, sort, sort-order (plus 2 more).",
+      "method": "GET",
+      "path": "/users/{username}/inventory",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Seller username.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "sort-order",
+          "wire_name": "sort_order",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "marketplace_listing",
+      "description": "Get one marketplace listing. Required: listing_id. Optional: currency.",
+      "method": "GET",
+      "path": "/marketplace/listings/{listing_id}",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "description": "Marketplace listing ID.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "wire_name": "curr_abbr",
+          "type": "string",
+          "location": "query",
+          "description": "Currency for the price."
+        }
+      ]
+    },
+    {
+      "name": "marketplace_order",
+      "description": "Get one marketplace order. Required: order_id.",
+      "method": "GET",
+      "path": "/marketplace/orders/{order_id}",
+      "params": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Order ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "marketplace_order_messages",
+      "description": "List messages on an order. Required: order_id.",
+      "method": "GET",
+      "path": "/marketplace/orders/{order_id}/messages",
+      "params": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "marketplace_orders",
+      "description": "List your marketplace orders (as seller). Optional: status, sort, sort-order (plus 2 more).",
+      "method": "GET",
+      "path": "/marketplace/orders",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by order status."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "sort-order",
+          "wire_name": "sort_order",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "marketplace_price_suggestions",
+      "description": "Get suggested marketplace prices per media condition for a release (seller token). Required: release_id.",
+      "method": "GET",
+      "path": "/marketplace/price_suggestions/{release_id}",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "marketplace_stats",
+      "description": "Get marketplace stats for a release (lowest price, number for sale). Required: release_id. Optional: currency.",
+      "method": "GET",
+      "path": "/marketplace/stats/{release_id}",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release ID.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "wire_name": "curr_abbr",
+          "type": "string",
+          "location": "query",
+          "description": "Currency for the lowest-price field."
+        }
+      ]
+    },
+    {
+      "name": "marketplace_update_listing",
+      "description": "Edit an existing marketplace listing. Required: listing_id, release_id, condition, price. Optional: sleeve_condition, status (default: For Sale), comments.",
+      "method": "POST",
+      "path": "/marketplace/listings/{listing_id}",
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "condition",
+          "type": "string",
+          "location": "body",
+          "description": "Media condition (e.g. 'Very Good Plus (VG+)').",
+          "required": true
+        },
+        {
+          "name": "sleeve_condition",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "comments",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "marketplace_update_order",
+      "description": "Update an order's status or shipping. Required: order_id. Optional: status, shipping.",
+      "method": "POST",
+      "path": "/marketplace/orders/{order_id}",
+      "params": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "New order status."
+        },
+        {
+          "name": "shipping",
+          "type": "float",
+          "location": "body",
+          "description": "Shipping cost."
+        }
+      ]
+    },
+    {
+      "name": "wantlist_add",
+      "description": "Add a release to your wantlist. Required: username, release_id. Optional: notes, rating.",
+      "method": "PUT",
+      "path": "/users/{username}/wants/{release_id}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release ID to want.",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Private notes."
+        },
+        {
+          "name": "rating",
+          "type": "int",
+          "location": "body",
+          "description": "Your rating 0-5."
+        }
+      ]
+    },
+    {
+      "name": "wantlist_edit",
+      "description": "Edit the notes/rating on a wantlist item. Required: username, release_id. Optional: notes, rating.",
+      "method": "POST",
+      "path": "/users/{username}/wants/{release_id}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Private notes."
+        },
+        {
+          "name": "rating",
+          "type": "int",
+          "location": "body",
+          "description": "Your rating 0-5."
+        }
+      ]
+    },
+    {
+      "name": "wantlist_list",
+      "description": "List your wantlist. Required: username. Optional: per-page (default: 50), page (default: 1).",
+      "method": "GET",
+      "path": "/users/{username}/wants",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username.",
+          "required": true
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "wantlist_remove",
+      "description": "Remove a release from your wantlist. Required: username, release_id. Destructive.",
+      "method": "DELETE",
+      "path": "/users/{username}/wants/{release_id}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

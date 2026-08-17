@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "clickhouse-cloud-pp-cli"
+display_name = "Clickhouse Cloud"
+description = "Printing Press CLI for Clickhouse Cloud."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/clickhouse-cloud-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+CLICKHOUSE_CLOUD_PASSWORD = true
+CLICKHOUSE_CLOUD_USERNAME = false

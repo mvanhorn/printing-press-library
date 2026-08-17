@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-10T02:49:37.783002Z",
-  "printing_press_version": "4.2.0",
+  "generated_at": "2026-06-19T14:19:55.386166Z",
+  "printing_press_version": "4.24.0",
   "api_name": "figma",
   "display_name": "Figma",
   "cli_name": "figma-pp-cli",
@@ -12,18 +12,22 @@
   "owner": "giuliano-giacaglia",
   "printer": "giacaglia",
   "printer_name": "Giuliano Giacaglia",
+  "spec_path": "figma-spec.yaml",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:d5342e278a2d8e7c4a2128dd61fc24a6a0fc67def38c2509ef51e5016fd5b628",
-  "run_id": "20260509-190854",
+  "spec_checksum": "sha256:51a98d7f1931e076c0436249b3ae4bf2e46525a54bcf930241adfb879a002b16",
+  "run_id": "20260619-123141-3dcd8ab9",
+  "category": "productivity",
+  "description": "This is the OpenAPI specification for the [Figma REST API](https://developers.figma.com/docs/rest-api/).",
   "mcp_binary": "figma-pp-mcp",
   "mcp_tool_count": 48,
   "mcp_ready": "full",
   "api_version": "0.38.0",
-  "auth_type": "bearer_token",
+  "auth_type": "api_key",
   "auth_env_vars": [
-    "FIGMA_OAUTH2"
+    "FIGMA_ACCESS_TOKEN",
+    "FIGMA_API_TOKEN",
+    "FIGMA_API_KEY"
   ],
-  "auth_key_url": "https://developers.figma.com/docs/rest-api/",
   "novel_features": [
     {
       "name": "Compaction-aware frame extract for codegen prompts",
@@ -66,6 +70,10 @@
       "description": "Flat list of every node and component that references a given variable across a file."
     }
   ],
-  "category": "productivity",
-  "owner_name": "Giuliano Giacaglia"
+  "contributors": [
+    {
+      "handle": "VinScagliarini",
+      "name": "VinScagliarini"
+    }
+  ]
 }

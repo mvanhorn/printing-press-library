@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "slack-auth-set-token-registration",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Register the generated auth set-token subcommand on the auth parent, and print help instead of a cobra argument error when it is invoked bare.",
+  "reason": "newAuthSetTokenCmd is defined in internal/cli/auth.go but was never passed to cmd.AddCommand, so `auth set-token` did not exist at runtime. Two generated remediation hints point users straight at it: doctor's credentials_location_warning tells the operator to \"run auth set-token or auth logout to consolidate and remove legacy secrets\", and the client's placeholder-credential error suggests \"export SLACK_BOT_TOKEN=<your-token> or slack-pp-cli auth set-token <token>\". Both dead-ended in \"unknown command\", which is the worst possible moment for a dead end because the user is already mid-auth-failure. Dogfood flags the same defect from the other direction as `1 unregistered commands: set-token`. Args was additionally relaxed from ExactArgs(1) to MaximumNArgs(1) with a bare-invocation help fallback: the argument is a secret, so the common ordering mistake is to run the command first and paste the token second, and a usage error is a worse response to that than help text.",
+  "validated_outcome": "`slack-pp-cli auth --help` now lists set-token alongside logout/setup/status. Bare `auth set-token` prints help and exits 0 instead of erroring. Dogfood's unregistered-command finding clears and its verdict moves FAIL -> PASS. go build, go vet, gofmt and the full `go test ./...` suite (13 packages) stay clean. The MCP surface is unchanged: cobratree/classify.go lists \"auth\" in frameworkCommands, and walker.go skips commandFramework subtrees, so no new MCP tool is exposed and no token-writing tool becomes agent-callable.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "upstream": "The generator emitted newAuthSetTokenCmd and the doctor/client copy that references it, but not the AddCommand wiring, so the defect is template-level and will recur in every print whose auth template takes this branch. The auth template should register set-token in the same block as setup/status/logout. A cheap generic guard: dogfood already detects unregistered commands, so treating that finding as a hard build-time error for framework command groups would have caught this before shipcheck."
+}

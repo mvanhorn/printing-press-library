@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "dnsmadeeasy-find-graceful-404",
+  "applied_at": "2026-07-10",
+  "base_run_id": "20260709-145756-391a5493",
+  "base_printing_press_version": "4.27.1",
+  "summary": "domains find returns a graceful empty result (exit 0) on HTTP 404 instead of a hard error.",
+  "reason": "A name lookup for a domain not in the account legitimately misses; DNS Made Easy returns 404. Treating that as exit 0 empty lets scripts/agents distinguish 'no such domain' from a transport/auth error. Not expressible in the spec, so must survive regen.",
+  "files": ["internal/cli/domains_find.go"],
+  "validated_outcome": "Live dogfood happy_path + json_fidelity for 'domains find' pass; a real not-found prints a stderr hint and null on stdout with exit 0."
+}

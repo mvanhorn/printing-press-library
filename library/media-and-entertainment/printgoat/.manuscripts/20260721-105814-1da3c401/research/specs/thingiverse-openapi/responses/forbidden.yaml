@@ -1,0 +1,9 @@
+description: Attempting to fetch
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Forbidden

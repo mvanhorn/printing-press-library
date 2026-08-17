@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-08-14T05:32:15.681328Z",
+  "cli_dir": "\u003ccli-dir\u003e/ifood",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Generated framework client-profile command; its concise verb and object are unambiguous, and the source is DO-NOT-EDIT."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generated framework learning command; the concise description accurately identifies its read-only result, and the source is DO-NOT-EDIT."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-14T05:12:26.1694Z"
+  }
+}

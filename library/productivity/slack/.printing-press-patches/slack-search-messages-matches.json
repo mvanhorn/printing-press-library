@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "slack-search-messages-matches",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Populate the live search response path so search.messages hits are unwrapped from Slack's nested envelope.",
+  "reason": "The generator left searchResponsePaths empty, so extractSearchResults fell through every generic wrapper key (\"data\", \"results\", \"items\", \"records\", \"entries\") and returned the whole response as a single item. search.messages answers {\"ok\":true,\"messages\":{\"total\":N,\"matches\":[...],\"paging\":{...}}}, so a query with N hits yielded exactly one result — the envelope itself, rendered as a row with no text, ts or permalink — while the N real matches stayed buried inside it. Note this is a different symptom from the same defect on the pre-reprint tree, where the envelope was additionally discarded by isNilOrEmpty and the command printed \"No results\" and exited 0; the reprint's generic hasAnyNonEmptySearchValue recurse now keeps the envelope, so the failure presents as one garbage row rather than silence. Because that recurse also keeps a real match on its text/ts/permalink fields, naming the dotted path is the entire fix on this tree — the hand-rolled envelope struct and the isNilOrEmpty match-recognition that the pre-reprint patch needed are both unnecessary now.",
+  "validated_outcome": "Negative control run explicitly rather than assumed: on a realistic two-match envelope, extractSearchResults with the path returns 2 items, and without it returns 1 — which survives isNilOrEmpty and would have been rendered as a result. Four unit cases pass (unwraps matches, matches survive the nil-or-empty filter, the full live pipeline keeps them, an empty result set stays empty). responsePayloadAtPath resolves the dotted path, so no new traversal code was added. `go build`, `go vet`, `gofmt`, `go test ./...` clean.",
+  "files": [
+    "internal/cli/search.go",
+    "internal/cli/search_amend_test.go"
+  ],
+  "upstream": "The generator knows the endpoint has a search response schema — it emits the extractSearchResults call and the searchResponsePaths variable — but leaves the paths empty instead of deriving them from the spec's response shape. Deriving the array-valued path (here messages.matches) would fix this class for every API whose search results are nested rather than top-level, instead of leaving a variable that looks configured and is not."
+}

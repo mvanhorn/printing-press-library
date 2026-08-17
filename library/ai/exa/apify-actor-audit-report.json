@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/exa-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260809-202528-0d1b9f8c",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

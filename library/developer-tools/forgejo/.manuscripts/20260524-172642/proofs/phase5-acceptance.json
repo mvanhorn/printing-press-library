@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "api_name": "forgejo",
+  "run_id": "20260524-172642",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 4,
+  "tests_passed": 4,
+  "tests_skipped": 1,
+  "tests_failed": 0,
+  "skipped_reason": "activitypub admin endpoint unavailable in test environment — see phase5-skip.json",
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true
+  },
+  "verified_commands": [
+    "fj user get-current",
+    "fj forgejo-version",
+    "fj doctor",
+    "fj auth status"
+  ]
+}

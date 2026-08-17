@@ -150,13 +150,15 @@ func TestSentinelErrorsAreDistinct(t *testing.T) {
 		{"past-window", errors.Join(ErrPastCancellationWindow, errors.New("HTTP 410")), ErrPastCancellationWindow},
 		{"canary", errors.Join(ErrCanaryUnrecognizedBody, errors.New("decode fail")), ErrCanaryUnrecognizedBody},
 		{"upcoming-shape", errors.Join(ErrUpcomingShapeChanged, errors.New("missing")), ErrUpcomingShapeChanged},
+		{"slot-control", errors.Join(ErrSlotControlNotFound, errors.New("page-state")), ErrSlotControlNotFound},
+		{"cvc-required", errors.Join(ErrCVCRequired, errors.New("empty")), ErrCVCRequired},
 	}
 	for _, tc := range wrapped {
 		t.Run(tc.name, func(t *testing.T) {
 			if !errors.Is(tc.err, tc.base) {
 				t.Errorf("errors.Is(%q, %v) = false; sentinel must be retrievable", tc.err, tc.base)
 			}
-			others := []error{ErrBookingNotImplemented, ErrPaymentRequired, ErrPastCancellationWindow, ErrCanaryUnrecognizedBody, ErrUpcomingShapeChanged}
+			others := []error{ErrBookingNotImplemented, ErrPaymentRequired, ErrPastCancellationWindow, ErrCanaryUnrecognizedBody, ErrUpcomingShapeChanged, ErrSlotControlNotFound, ErrCVCRequired}
 			for _, o := range others {
 				if o == tc.base {
 					continue

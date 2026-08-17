@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -34,6 +35,21 @@ large datasets as it has no memory pressure.`,
   flight-goat-pp-cli export <resource> --format jsonl | jq '.id'`,
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			validResources := map[string]bool{
+				"airports":  true,
+				"alerts":    true,
+				"operators": true,
+			}
+			validResourceList := []string{
+				"airports",
+				"alerts",
+				"operators",
+			}
+			resource := args[0]
+			if !validResources[resource] {
+				return usageErr(fmt.Errorf("unknown resource %q; valid: %s", resource, strings.Join(validResourceList, ", ")))
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -42,7 +58,6 @@ large datasets as it has no memory pressure.`,
 				c.NoCache = true
 			}
 
-			resource := args[0]
 			path := "/" + resource
 			if len(args) > 1 {
 				path += "/" + args[1]
@@ -62,9 +77,9 @@ large datasets as it has no memory pressure.`,
 				defer writer.Flush()
 			}
 
-			data, err := c.Get(path, nil)
+			data, err := c.Get(cmd.Context(), path, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 
 			switch format {

@@ -1,0 +1,5084 @@
+{
+ "basePath": "/api",
+ "definitions": {
+  "blocks": {
+   "description": "This is a very loose definition, in the future, we'll populate this with deeper schema in this definition namespace.",
+   "items": {
+    "additionalProperties": true,
+    "properties": {
+     "type": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "type"
+    ],
+    "type": "object"
+   },
+   "title": "Block Kit blocks",
+   "type": "array"
+  },
+  "defs_app_id": {
+   "pattern": "^A[A-Z0-9]{1,}$",
+   "title": "App ID",
+   "type": "string"
+  },
+  "defs_bot_id": {
+   "pattern": "^B[A-Z0-9]{8,}$",
+   "title": "Bot User ID",
+   "type": "string"
+  },
+  "defs_channel": {
+   "pattern": "^[CGD][A-Z0-9]{8,}$",
+   "title": "Channel-like conversation ID",
+   "type": "string"
+  },
+  "defs_channel_id": {
+   "pattern": "^[C][A-Z0-9]{2,}$",
+   "title": "Channel ID",
+   "type": "string"
+  },
+  "defs_channel_name": {
+   "title": "Name of a channel",
+   "type": "string"
+  },
+  "defs_comment_id": {
+   "pattern": "^Fc[A-Z0-9]{8,}$",
+   "title": "File Comment ID",
+   "type": "string"
+  },
+  "defs_dm_id": {
+   "pattern": "^[D][A-Z0-9]{8,}$",
+   "title": "Direct Message Channel ID",
+   "type": "string"
+  },
+  "defs_enterprise_id": {
+   "pattern": "^[E][A-Z0-9]{8,}$",
+   "title": "Enterprise ID",
+   "type": "string"
+  },
+  "defs_enterprise_name": {
+   "title": "Name of the enterprise org",
+   "type": "string"
+  },
+  "defs_enterprise_user_id": {
+   "pattern": "^[WU][A-Z0-9]{8,}$",
+   "title": "Enterprise User ID",
+   "type": "string"
+  },
+  "defs_file_id": {
+   "pattern": "^[F][A-Z0-9]{8,}$",
+   "title": "File ID",
+   "type": "string"
+  },
+  "defs_group_id": {
+   "pattern": "^[G][A-Z0-9]{8,}$",
+   "title": "Private Channel ID",
+   "type": "string"
+  },
+  "defs_ok_false": {
+   "enum": [
+    false
+   ],
+   "title": "default failure response",
+   "type": "boolean"
+  },
+  "defs_ok_true": {
+   "enum": [
+    true
+   ],
+   "title": "default success response",
+   "type": "boolean"
+  },
+  "defs_optional_app_id": {
+   "pattern": "^(A[A-Z0-9]{1,})?$",
+   "title": "App ID or empty string",
+   "type": "string"
+  },
+  "defs_pinned_info": {
+   "additionalProperties": false,
+   "title": "Info for a pinned item",
+   "type": "object"
+  },
+  "defs_reminder_id": {
+   "pattern": "^Rm[A-Z0-9]{8,}$",
+   "title": "Reminder ID",
+   "type": "string"
+  },
+  "defs_subteam_id": {
+   "pattern": "^S[A-Z0-9]{2,}$",
+   "title": "Subteam ID",
+   "type": "string"
+  },
+  "defs_team": {
+   "pattern": "^[T][A-Z0-9]{2,}$",
+   "title": "Team ID",
+   "type": "string"
+  },
+  "defs_topic_purpose_creator": {
+   "pattern": "^[UW][A-Z0-9]{8,}$|^$",
+   "title": "User ID or empty string, used for topic and purpose creation",
+   "type": "string"
+  },
+  "defs_ts": {
+   "pattern": "^\\d{10}\\.\\d{6}$",
+   "title": "Timestamp in format 0123456789.012345",
+   "type": "string"
+  },
+  "defs_user_id": {
+   "pattern": "^[UW][A-Z0-9]{2,}$",
+   "title": "User ID",
+   "type": "string"
+  },
+  "defs_workspace_id": {
+   "pattern": "^[TE][A-Z0-9]{8,}$",
+   "title": "Team or Enterprise ID",
+   "type": "string"
+  },
+  "objs_bot_profile": {
+   "additionalProperties": false,
+   "properties": {
+    "app_id": {
+     "$ref": "#/definitions/defs_app_id"
+    },
+    "deleted": {
+     "type": "boolean"
+    },
+    "icons": {
+     "additionalProperties": false,
+     "properties": {
+      "image_36": {
+       "format": "uri",
+       "type": "string"
+      },
+      "image_48": {
+       "format": "uri",
+       "type": "string"
+      },
+      "image_72": {
+       "format": "uri",
+       "type": "string"
+      }
+     },
+     "required": [
+      "image_36",
+      "image_48",
+      "image_72"
+     ],
+     "type": "object"
+    },
+    "id": {
+     "$ref": "#/definitions/defs_bot_id"
+    },
+    "name": {
+     "type": "string"
+    },
+    "team_id": {
+     "$ref": "#/definitions/defs_team"
+    },
+    "updated": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "id",
+    "deleted",
+    "name",
+    "updated",
+    "app_id",
+    "icons",
+    "team_id"
+   ],
+   "title": "Bot Profile Object",
+   "type": "object"
+  },
+  "objs_channel": {
+   "additionalProperties": false,
+   "properties": {
+    "accepted_user": {
+     "$ref": "#/definitions/defs_user_id"
+    },
+    "created": {
+     "type": "integer"
+    },
+    "creator": {
+     "$ref": "#/definitions/defs_user_id"
+    },
+    "id": {
+     "$ref": "#/definitions/defs_channel_id"
+    },
+    "is_archived": {
+     "type": "boolean"
+    },
+    "is_channel": {
+     "type": "boolean"
+    },
+    "is_frozen": {
+     "type": "boolean"
+    },
+    "is_general": {
+     "type": "boolean"
+    },
+    "is_member": {
+     "type": "boolean"
+    },
+    "is_moved": {
+     "type": "integer"
+    },
+    "is_mpim": {
+     "type": "boolean"
+    },
+    "is_non_threadable": {
+     "type": "boolean"
+    },
+    "is_org_shared": {
+     "type": "boolean"
+    },
+    "is_pending_ext_shared": {
+     "type": "boolean"
+    },
+    "is_private": {
+     "type": "boolean"
+    },
+    "is_read_only": {
+     "type": "boolean"
+    },
+    "is_shared": {
+     "type": "boolean"
+    },
+    "is_thread_only": {
+     "type": "boolean"
+    },
+    "last_read": {
+     "$ref": "#/definitions/defs_ts"
+    },
+    "latest": {
+     "items": {
+      "type": "object"
+     }
+    },
+    "members": {
+     "items": {
+      "$ref": "#/definitions/defs_user_id"
+     },
+     "minItems": 0,
+     "type": "array",
+     "uniqueItems": true
+    },
+    "name": {
+     "type": "string"
+    },
+    "name_normalized": {
+     "type": "string"
+    },
+    "num_members": {
+     "type": "integer"
+    },
+    "pending_shared": {
+     "items": {
+      "$ref": "#/definitions/defs_team"
+     },
+     "minItems": 0,
+     "type": "array",
+     "uniqueItems": true
+    },
+    "previous_names": {
+     "items": {
+      "$ref": "#/definitions/defs_channel_name"
+     },
+     "minItems": 0,
+     "type": "array",
+     "uniqueItems": true
+    },
+    "priority": {
+     "type": "number"
+    },
+    "purpose": {
+     "additionalProperties": false,
+     "properties": {
+      "creator": {
+       "$ref": "#/definitions/defs_topic_purpose_creator"
+      },
+      "last_set": {
+       "type": "integer"
+      },
+      "value": {
+       "type": "string"
+      }
+     },
+     "required": [
+      "value",
+      "creator",
+      "last_set"
+     ],
+     "type": "object"
+    },
+    "topic": {
+     "additionalProperties": false,
+     "properties": {
+      "creator": {
+       "$ref": "#/definitions/defs_topic_purpose_creator"
+      },
+      "last_set": {
+       "type": "integer"
+      },
+      "value": {
+       "type": "string"
+      }
+     },
+     "required": [
+      "value",
+      "creator",
+      "last_set"
+     ],
+     "type": "object"
+    },
+    "unlinked": {
+     "title": "Field to determine whether a channel has ever been shared/disconnected in the past",
+     "type": "integer"
+    },
+    "unread_count": {
+     "type": "integer"
+    },
+    "unread_count_display": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "created",
+    "creator",
+    "is_channel",
+    "is_org_shared",
+    "is_private",
+    "is_mpim",
+    "is_shared",
+    "name_normalized",
+    "members",
+    "topic",
+    "purpose"
+   ],
+   "title": "Channel Object",
+   "type": "object"
+  },
+  "objs_comment": {
+   "additionalProperties": false,
+   "properties": {
+    "comment": {
+     "type": "string"
+    },
+    "created": {
+     "type": "integer"
+    },
+    "id": {
+     "$ref": "#/definitions/defs_comment_id"
+    },
+    "is_intro": {
+     "type": "boolean"
+    },
+    "is_starred": {
+     "type": "boolean"
+    },
+    "num_stars": {
+     "type": "integer"
+    },
+    "pinned_info": {
+     "$ref": "#/definitions/defs_pinned_info"
+    },
+    "pinned_to": {
+     "items": {
+      "$ref": "#/definitions/defs_channel"
+     },
+     "type": "array"
+    },
+    "reactions": {
+     "items": {
+      "$ref": "#/definitions/objs_reaction"
+     },
+     "type": "array"
+    },
+    "timestamp": {
+     "type": "integer"
+    },
+    "user": {
+     "$ref": "#/definitions/defs_user_id"
+    }
+   },
+   "required": [
+    "id",
+    "created",
+    "timestamp",
+    "user",
+    "is_intro",
+    "comment"
+   ],
+   "title": "File Comment Object",
+   "type": "object"
+  },
+  "objs_comments": {
+   "items": {},
+   "title": "file comments object",
+   "type": "array"
+  },
+  "objs_conversation": {
+   "items": {
+    "type": "object"
+   }
+  },
+  "objs_enterprise_user": {
+   "additionalProperties": false,
+   "properties": {
+    "enterprise_id": {
+     "$ref": "#/definitions/defs_enterprise_id"
+    },
+    "enterprise_name": {
+     "$ref": "#/definitions/defs_enterprise_name"
+    },
+    "id": {
+     "$ref": "#/definitions/defs_enterprise_user_id"
+    },
+    "is_admin": {
+     "type": "boolean"
+    },
+    "is_owner": {
+     "type": "boolean"
+    },
+    "teams": {
+     "items": {
+      "$ref": "#/definitions/defs_team"
+     },
+     "type": "array",
+     "uniqueItems": true
+    }
+   },
+   "required": [
+    "id",
+    "enterprise_id",
+    "enterprise_name",
+    "is_admin",
+    "is_owner",
+    "teams"
+   ],
+   "type": "object"
+  },
+  "objs_external_org_migrations": {
+   "properties": {
+    "current": {
+     "items": {
+      "properties": {
+       "date_started": {
+        "type": "integer"
+       },
+       "team_id": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "team_id",
+       "date_started"
+      ],
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "date_updated": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "date_updated",
+    "current"
+   ],
+   "title": "External Org Migrations",
+   "type": "object"
+  },
+  "objs_file": {
+   "additionalProperties": false,
+   "properties": {
+    "channels": {
+     "items": {
+      "$ref": "#/definitions/defs_channel_id"
+     },
+     "type": "array",
+     "uniqueItems": true
+    },
+    "comments_count": {
+     "type": "integer"
+    },
+    "created": {
+     "type": "integer"
+    },
+    "date_delete": {
+     "type": "integer"
+    },
+    "display_as_bot": {
+     "type": "boolean"
+    },
+    "editable": {
+     "type": "boolean"
+    },
+    "editor": {
+     "$ref": "#/definitions/defs_user_id"
+    },
+    "external_id": {
+     "type": "string"
+    },
+    "external_type": {
+     "type": "string"
+    },
+    "external_url": {
+     "format": "uri",
+     "type": "string"
+    },
+    "filetype": {
+     "type": "string"
+    },
+    "groups": {
+     "items": {
+      "$ref": "#/definitions/defs_group_id"
+     },
+     "type": "array",
+     "uniqueItems": true
+    },
+    "has_rich_preview": {
+     "type": "boolean"
+    },
+    "id": {
+     "$ref": "#/definitions/defs_file_id"
+    },
+    "image_exif_rotation": {
+     "type": "integer"
+    },
+    "ims": {
+     "items": {
+      "$ref": "#/definitions/defs_dm_id"
+     },
+     "type": "array",
+     "uniqueItems": true
+    },
+    "is_external": {
+     "type": "boolean"
+    },
+    "is_public": {
+     "type": "boolean"
+    },
+    "is_starred": {
+     "type": "boolean"
+    },
+    "is_tombstoned": {
+     "type": "boolean"
+    },
+    "last_editor": {
+     "$ref": "#/definitions/defs_user_id"
+    },
+    "mimetype": {
+     "type": "string"
+    },
+    "mode": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "non_owner_editable": {
+     "type": "boolean"
+    },
+    "num_stars": {
+     "type": "integer"
+    },
+    "original_h": {
+     "type": "integer"
+    },
+    "original_w": {
+     "type": "integer"
+    },
+    "permalink": {
+     "format": "uri",
+     "type": "string"
+    },
+    "permalink_public": {
+     "format": "uri",
+     "type": "string"
+    },
+    "pinned_info": {
+     "$ref": "#/definitions/defs_pinned_info"
+    },
+    "pinned_to": {
+     "items": {
+      "$ref": "#/definitions/defs_channel"
+     },
+     "type": "array"
+    },
+    "pretty_type": {
+     "type": "string"
+    },
+    "preview": {
+     "type": "string"
+    },
+    "public_url_shared": {
+     "type": "boolean"
+    },
+    "reactions": {
+     "items": {
+      "$ref": "#/definitions/objs_reaction"
+     },
+     "type": "array"
+    },
+    "shares": {
+     "additionalProperties": false,
+     "properties": {
+      "private": {
+       "additionalProperties": false
+      },
+      "public": {
+       "additionalProperties": false
+      }
+     },
+     "type": "object"
+    },
+    "size": {
+     "type": "integer"
+    },
+    "source_team": {
+     "$ref": "#/definitions/defs_team"
+    },
+    "state": {
+     "type": "string"
+    },
+    "thumb_1024": {
+     "format": "uri",
+     "type": "string"
+    },
+    "thumb_1024_h": {
+     "type": "integer"
+    },
+    "thumb_1024_w": {
+     "type": "integer"
+    },
+    "thumb_160": {
+     "format": "uri",
+     "type": "string"
+    },
+    "thumb_360": {
+     "format": "uri",
+     "type": "string"
+    },
+    "thumb_360_h": {
+     "type": "integer"
+    },
+    "thumb_360_w": {
+     "type": "integer"
+    },
+    "thumb_480": {
+     "format": "uri",
+     "type": "string"
+    },
+    "thumb_480_h": {
+     "type": "integer"
+    },
+    "thumb_480_w": {
+     "type": "integer"
+    },
+    "thumb_64": {
+     "format": "uri",
+     "type": "string"
+    },
+    "thumb_720": {
+     "format": "uri",
+     "type": "string"
+    },
+    "thumb_720_h": {
+     "type": "integer"
+    },
+    "thumb_720_w": {
+     "type": "integer"
+    },
+    "thumb_80": {
+     "format": "uri",
+     "type": "string"
+    },
+    "thumb_800": {
+     "format": "uri",
+     "type": "string"
+    },
+    "thumb_800_h": {
+     "type": "integer"
+    },
+    "thumb_800_w": {
+     "type": "integer"
+    },
+    "thumb_960": {
+     "format": "uri",
+     "type": "string"
+    },
+    "thumb_960_h": {
+     "type": "integer"
+    },
+    "thumb_960_w": {
+     "type": "integer"
+    },
+    "thumb_tiny": {
+     "type": "string"
+    },
+    "timestamp": {
+     "type": "integer"
+    },
+    "title": {
+     "type": "string"
+    },
+    "updated": {
+     "type": "integer"
+    },
+    "url_private": {
+     "format": "uri",
+     "type": "string"
+    },
+    "url_private_download": {
+     "format": "uri",
+     "type": "string"
+    },
+    "user": {
+     "type": "string"
+    },
+    "user_team": {
+     "$ref": "#/definitions/defs_team"
+    },
+    "username": {
+     "type": "string"
+    }
+   },
+   "title": "file object",
+   "type": "object"
+  },
+  "objs_icon": {
+   "properties": {
+    "image_102": {
+     "type": "string"
+    },
+    "image_132": {
+     "type": "string"
+    },
+    "image_230": {
+     "type": "string"
+    },
+    "image_34": {
+     "type": "string"
+    },
+    "image_44": {
+     "type": "string"
+    },
+    "image_68": {
+     "type": "string"
+    },
+    "image_88": {
+     "type": "string"
+    },
+    "image_default": {
+     "type": "boolean"
+    }
+   },
+   "type": "object"
+  },
+  "objs_message": {
+   "additionalProperties": false,
+   "properties": {
+    "attachments": {
+     "items": {
+      "additionalProperties": false,
+      "properties": {
+       "fallback": {
+        "type": "string"
+       },
+       "id": {
+        "type": "integer"
+       },
+       "image_bytes": {
+        "type": "integer"
+       },
+       "image_height": {
+        "type": "integer"
+       },
+       "image_url": {
+        "type": "string"
+       },
+       "image_width": {
+        "type": "integer"
+       }
+      },
+      "required": [
+       "id"
+      ],
+      "type": "object"
+     },
+     "minItems": 1,
+     "type": "array",
+     "uniqueItems": true
+    },
+    "blocks": {
+     "$ref": "#/definitions/blocks"
+    },
+    "bot_id": {
+     "items": {
+      "type": "object"
+     }
+    },
+    "bot_profile": {
+     "$ref": "#/definitions/objs_bot_profile"
+    },
+    "client_msg_id": {
+     "type": "string"
+    },
+    "comment": {
+     "$ref": "#/definitions/objs_comment"
+    },
+    "display_as_bot": {
+     "type": "boolean"
+    },
+    "file": {
+     "$ref": "#/definitions/objs_file"
+    },
+    "files": {
+     "items": {
+      "$ref": "#/definitions/objs_file"
+     },
+     "minItems": 1,
+     "type": "array",
+     "uniqueItems": true
+    },
+    "icons": {
+     "additionalProperties": false,
+     "properties": {
+      "emoji": {
+       "type": "string"
+      },
+      "image_64": {
+       "format": "uri",
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "inviter": {
+     "$ref": "#/definitions/defs_user_id"
+    },
+    "is_delayed_message": {
+     "type": "boolean"
+    },
+    "is_intro": {
+     "type": "boolean"
+    },
+    "is_starred": {
+     "type": "boolean"
+    },
+    "last_read": {
+     "$ref": "#/definitions/defs_ts"
+    },
+    "latest_reply": {
+     "$ref": "#/definitions/defs_ts"
+    },
+    "name": {
+     "type": "string"
+    },
+    "old_name": {
+     "type": "string"
+    },
+    "parent_user_id": {
+     "$ref": "#/definitions/defs_user_id"
+    },
+    "permalink": {
+     "format": "uri",
+     "type": "string"
+    },
+    "pinned_to": {
+     "items": {
+      "$ref": "#/definitions/defs_channel"
+     },
+     "type": "array"
+    },
+    "purpose": {
+     "type": "string"
+    },
+    "reactions": {
+     "items": {
+      "$ref": "#/definitions/objs_reaction"
+     },
+     "type": "array"
+    },
+    "reply_count": {
+     "type": "integer"
+    },
+    "reply_users": {
+     "items": {
+      "$ref": "#/definitions/defs_user_id"
+     },
+     "minItems": 1,
+     "type": "array",
+     "uniqueItems": true
+    },
+    "reply_users_count": {
+     "type": "integer"
+    },
+    "source_team": {
+     "$ref": "#/definitions/defs_workspace_id"
+    },
+    "subscribed": {
+     "type": "boolean"
+    },
+    "subtype": {
+     "type": "string"
+    },
+    "team": {
+     "$ref": "#/definitions/defs_workspace_id"
+    },
+    "text": {
+     "type": "string"
+    },
+    "thread_ts": {
+     "$ref": "#/definitions/defs_ts"
+    },
+    "topic": {
+     "type": "string"
+    },
+    "ts": {
+     "$ref": "#/definitions/defs_ts"
+    },
+    "type": {
+     "type": "string"
+    },
+    "unread_count": {
+     "type": "integer"
+    },
+    "upload": {
+     "type": "boolean"
+    },
+    "user": {
+     "$ref": "#/definitions/defs_user_id"
+    },
+    "user_profile": {
+     "$ref": "#/definitions/objs_user_profile_short"
+    },
+    "user_team": {
+     "$ref": "#/definitions/defs_workspace_id"
+    },
+    "username": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "text",
+    "type",
+    "ts"
+   ],
+   "title": "Message object",
+   "type": "object"
+  },
+  "objs_paging": {
+   "additionalProperties": false,
+   "properties": {
+    "count": {
+     "type": "integer"
+    },
+    "page": {
+     "type": "integer"
+    },
+    "pages": {
+     "type": "integer"
+    },
+    "per_page": {
+     "type": "integer"
+    },
+    "spill": {
+     "type": "integer"
+    },
+    "total": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "page",
+    "total"
+   ],
+   "title": "paging object",
+   "type": "object"
+  },
+  "objs_primary_owner": {
+   "properties": {
+    "email": {
+     "type": "string"
+    },
+    "id": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "email"
+   ],
+   "type": "object"
+  },
+  "objs_reaction": {
+   "additionalProperties": true,
+   "properties": {
+    "count": {
+     "type": "integer"
+    },
+    "name": {
+     "type": "string"
+    },
+    "users": {
+     "items": {
+      "$ref": "#/definitions/defs_user_id"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "name",
+    "users",
+    "count"
+   ],
+   "title": "Reaction object",
+   "type": "object"
+  },
+  "objs_reminder": {
+   "additionalProperties": false,
+   "properties": {
+    "complete_ts": {
+     "type": "integer"
+    },
+    "creator": {
+     "$ref": "#/definitions/defs_user_id"
+    },
+    "id": {
+     "$ref": "#/definitions/defs_reminder_id"
+    },
+    "recurring": {
+     "type": "boolean"
+    },
+    "text": {
+     "type": "string"
+    },
+    "time": {
+     "type": "integer"
+    },
+    "user": {
+     "$ref": "#/definitions/defs_user_id"
+    }
+   },
+   "required": [
+    "id",
+    "creator",
+    "user",
+    "text",
+    "recurring"
+   ],
+   "type": "object"
+  },
+  "objs_resources": {
+   "additionalProperties": false,
+   "properties": {
+    "excluded_ids": {
+     "items": {
+      "items": {
+       "type": "object"
+      }
+     },
+     "type": "array"
+    },
+    "ids": {
+     "items": {
+      "items": {
+       "type": "object"
+      }
+     },
+     "type": "array"
+    },
+    "wildcard": {
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "ids"
+   ],
+   "title": "resources in info from apps.permissions.info",
+   "type": "object"
+  },
+  "objs_response_metadata": {
+   "items": {
+    "type": "object"
+   }
+  },
+  "objs_scopes": {
+   "items": {
+    "title": "Named OAuth scopes",
+    "type": "string",
+    "x-examples": [
+     "chat:write",
+     "im:history",
+     "im:read"
+    ]
+   },
+   "type": "array"
+  },
+  "objs_subteam": {
+   "additionalProperties": false,
+   "properties": {
+    "auto_provision": {
+     "type": "boolean"
+    },
+    "auto_type": {
+     "items": {
+      "type": "object"
+     }
+    },
+    "channel_count": {
+     "type": "integer"
+    },
+    "created_by": {
+     "$ref": "#/definitions/defs_user_id"
+    },
+    "date_create": {
+     "type": "integer"
+    },
+    "date_delete": {
+     "type": "integer"
+    },
+    "date_update": {
+     "type": "integer"
+    },
+    "deleted_by": {
+     "items": {
+      "type": "object"
+     }
+    },
+    "description": {
+     "type": "string"
+    },
+    "enterprise_subteam_id": {
+     "type": "string"
+    },
+    "handle": {
+     "type": "string"
+    },
+    "id": {
+     "$ref": "#/definitions/defs_subteam_id"
+    },
+    "is_external": {
+     "type": "boolean"
+    },
+    "is_subteam": {
+     "type": "boolean"
+    },
+    "is_usergroup": {
+     "type": "boolean"
+    },
+    "name": {
+     "type": "string"
+    },
+    "prefs": {
+     "additionalProperties": false,
+     "properties": {
+      "channels": {
+       "items": {
+        "$ref": "#/definitions/defs_channel_id"
+       },
+       "type": "array"
+      },
+      "groups": {
+       "items": {
+        "$ref": "#/definitions/defs_group_id"
+       },
+       "type": "array"
+      }
+     },
+     "required": [
+      "channels",
+      "groups"
+     ],
+     "type": "object"
+    },
+    "team_id": {
+     "$ref": "#/definitions/defs_team"
+    },
+    "updated_by": {
+     "$ref": "#/definitions/defs_user_id"
+    },
+    "user_count": {
+     "type": "integer"
+    },
+    "users": {
+     "items": {
+      "$ref": "#/definitions/defs_user_id"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "id",
+    "team_id",
+    "is_usergroup",
+    "is_subteam",
+    "name",
+    "description",
+    "handle",
+    "is_external",
+    "date_create",
+    "date_update",
+    "date_delete",
+    "auto_type",
+    "auto_provision",
+    "enterprise_subteam_id",
+    "created_by",
+    "updated_by",
+    "deleted_by",
+    "prefs"
+   ],
+   "title": "Subteam/Usergroup Object",
+   "type": "object"
+  },
+  "objs_team": {
+   "additionalProperties": false,
+   "properties": {
+    "archived": {
+     "type": "boolean"
+    },
+    "avatar_base_url": {
+     "format": "uri",
+     "type": "string"
+    },
+    "created": {
+     "type": "integer"
+    },
+    "date_create": {
+     "type": "integer"
+    },
+    "deleted": {
+     "type": "boolean"
+    },
+    "description": {
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "discoverable": {
+     "items": {
+      "type": "object"
+     }
+    },
+    "domain": {
+     "type": "string"
+    },
+    "email_domain": {
+     "type": "string"
+    },
+    "enterprise_id": {
+     "$ref": "#/definitions/defs_enterprise_id"
+    },
+    "enterprise_name": {
+     "$ref": "#/definitions/defs_enterprise_name"
+    },
+    "external_org_migrations": {
+     "$ref": "#/definitions/objs_external_org_migrations"
+    },
+    "has_compliance_export": {
+     "type": "boolean"
+    },
+    "icon": {
+     "$ref": "#/definitions/objs_icon"
+    },
+    "id": {
+     "$ref": "#/definitions/defs_workspace_id"
+    },
+    "is_assigned": {
+     "type": "boolean"
+    },
+    "is_enterprise": {
+     "type": "integer"
+    },
+    "is_over_storage_limit": {
+     "type": "boolean"
+    },
+    "limit_ts": {
+     "type": "integer"
+    },
+    "locale": {
+     "type": "string"
+    },
+    "messages_count": {
+     "type": "integer"
+    },
+    "msg_edit_window_mins": {
+     "type": "integer"
+    },
+    "name": {
+     "type": "string"
+    },
+    "over_integrations_limit": {
+     "type": "boolean"
+    },
+    "over_storage_limit": {
+     "type": "boolean"
+    },
+    "pay_prod_cur": {
+     "type": "string"
+    },
+    "plan": {
+     "enum": [
+      "",
+      "std",
+      "plus",
+      "compliance",
+      "enterprise"
+     ],
+     "type": "string"
+    },
+    "primary_owner": {
+     "$ref": "#/definitions/objs_primary_owner"
+    },
+    "sso_provider": {
+     "properties": {
+      "label": {
+       "type": "string"
+      },
+      "name": {
+       "type": "string"
+      },
+      "type": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "domain",
+    "email_domain",
+    "icon"
+   ],
+   "title": "Team Object",
+   "type": "object"
+  },
+  "objs_team_profile_field": {
+   "additionalProperties": false,
+   "properties": {
+    "field_name": {
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "hint": {
+     "type": "string"
+    },
+    "id": {
+     "pattern": "^X[a-zA-Z0-9]{9,}$",
+     "type": "string"
+    },
+    "is_hidden": {
+     "type": "boolean"
+    },
+    "label": {
+     "type": "string"
+    },
+    "options": {
+     "items": {
+      "type": "object"
+     }
+    },
+    "ordering": {
+     "type": "number"
+    },
+    "possible_values": {
+     "items": {
+      "type": "string"
+     },
+     "type": [
+      "null",
+      "array"
+     ]
+    },
+    "type": {
+     "enum": [
+      "text",
+      "date",
+      "link",
+      "mailto",
+      "options_list",
+      "user"
+     ],
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "ordering",
+    "label",
+    "hint",
+    "type"
+   ],
+   "type": "object"
+  },
+  "objs_team_profile_field_option": {
+   "additionalProperties": false,
+   "properties": {
+    "is_custom": {
+     "type": [
+      "null",
+      "boolean"
+     ]
+    },
+    "is_multiple_entry": {
+     "type": [
+      "null",
+      "boolean"
+     ]
+    },
+    "is_protected": {
+     "type": [
+      "null",
+      "boolean"
+     ]
+    },
+    "is_scim": {
+     "type": [
+      "null",
+      "boolean"
+     ]
+    }
+   },
+   "type": "object"
+  },
+  "objs_user": {
+   "items": {
+    "type": "object"
+   }
+  },
+  "objs_user_profile": {
+   "additionalProperties": false,
+   "properties": {
+    "always_active": {
+     "type": "boolean"
+    },
+    "api_app_id": {
+     "$ref": "#/definitions/defs_optional_app_id"
+    },
+    "avatar_hash": {
+     "type": "string"
+    },
+    "bot_id": {
+     "$ref": "#/definitions/defs_bot_id"
+    },
+    "display_name": {
+     "type": "string"
+    },
+    "display_name_normalized": {
+     "type": "string"
+    },
+    "email": {
+     "format": "email",
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "fields": {
+     "items": {
+      "type": "object"
+     },
+     "type": [
+      "object",
+      "null",
+      "array"
+     ]
+    },
+    "first_name": {
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "guest_expiration_ts": {
+     "type": [
+      "null",
+      "integer"
+     ]
+    },
+    "guest_invited_by": {
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "image_1024": {
+     "format": "uri",
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "image_192": {
+     "format": "uri",
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "image_24": {
+     "format": "uri",
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "image_32": {
+     "format": "uri",
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "image_48": {
+     "format": "uri",
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "image_512": {
+     "format": "uri",
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "image_72": {
+     "format": "uri",
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "image_original": {
+     "format": "uri",
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "is_app_user": {
+     "type": "boolean"
+    },
+    "is_custom_image": {
+     "type": "boolean"
+    },
+    "is_restricted": {
+     "type": [
+      "null",
+      "boolean"
+     ]
+    },
+    "is_ultra_restricted": {
+     "type": [
+      "null",
+      "boolean"
+     ]
+    },
+    "last_avatar_image_hash": {
+     "type": "string"
+    },
+    "last_name": {
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "memberships_count": {
+     "type": "integer"
+    },
+    "name": {
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "phone": {
+     "type": "string"
+    },
+    "pronouns": {
+     "type": "string"
+    },
+    "real_name": {
+     "type": "string"
+    },
+    "real_name_normalized": {
+     "type": "string"
+    },
+    "skype": {
+     "type": "string"
+    },
+    "status_default_emoji": {
+     "type": "string"
+    },
+    "status_default_text": {
+     "type": "string"
+    },
+    "status_default_text_canonical": {
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "status_emoji": {
+     "type": "string"
+    },
+    "status_expiration": {
+     "type": "integer"
+    },
+    "status_text": {
+     "type": "string"
+    },
+    "status_text_canonical": {
+     "type": [
+      "null",
+      "string"
+     ]
+    },
+    "team": {
+     "$ref": "#/definitions/defs_workspace_id"
+    },
+    "title": {
+     "type": "string"
+    },
+    "updated": {
+     "type": "integer"
+    },
+    "user_id": {
+     "type": "string"
+    },
+    "username": {
+     "type": [
+      "null",
+      "string"
+     ]
+    }
+   },
+   "required": [
+    "real_name",
+    "display_name",
+    "avatar_hash",
+    "real_name_normalized",
+    "display_name_normalized",
+    "title",
+    "phone",
+    "skype",
+    "status_text",
+    "status_emoji",
+    "fields"
+   ],
+   "title": "User profile object",
+   "type": "object"
+  },
+  "objs_user_profile_short": {
+   "additionalProperties": false,
+   "properties": {
+    "avatar_hash": {
+     "type": "string"
+    },
+    "display_name": {
+     "type": "string"
+    },
+    "display_name_normalized": {
+     "type": "string"
+    },
+    "first_name": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "image_72": {
+     "format": "uri",
+     "type": "string"
+    },
+    "is_restricted": {
+     "type": "boolean"
+    },
+    "is_ultra_restricted": {
+     "type": "boolean"
+    },
+    "name": {
+     "type": "string"
+    },
+    "real_name": {
+     "type": "string"
+    },
+    "real_name_normalized": {
+     "type": "string"
+    },
+    "team": {
+     "$ref": "#/definitions/defs_workspace_id"
+    }
+   },
+   "required": [
+    "avatar_hash",
+    "image_72",
+    "first_name",
+    "real_name",
+    "display_name",
+    "team",
+    "name",
+    "is_restricted",
+    "is_ultra_restricted"
+   ],
+   "type": "object"
+  }
+ },
+ "externalDocs": {
+  "description": "Learn more about the Slack Web API",
+  "url": "https://api.slack.com/web"
+ },
+ "host": "slack.com",
+ "info": {
+  "contact": {
+   "name": "Slack developer relations",
+   "url": "https://api.slack.com/support"
+  },
+  "description": "One way to interact with the Slack platform is its HTTP RPC-based Web API, a collection of methods requiring OAuth 2.0-based user, bot, or workspace tokens blessed with related OAuth scopes.",
+  "title": "Slack Web API",
+  "version": "1.7.0"
+ },
+ "paths": {
+  "/api.test": {
+   "get": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Checks API calling code.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/api.test"
+    },
+    "operationId": "api_test",
+    "parameters": [
+     {
+      "description": "Error response to return",
+      "in": "query",
+      "name": "error",
+      "type": "string"
+     },
+     {
+      "description": "example property to return",
+      "in": "query",
+      "name": "foo",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Standard success response",
+      "schema": {
+       "additionalProperties": {
+        "type": "object"
+       },
+       "description": "Schema for successful response api.test method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "api.test success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Artificial error response",
+      "schema": {
+       "additionalProperties": {
+        "type": "object"
+       },
+       "description": "Schema for error response api.test method",
+       "properties": {
+        "error": {
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "api.test error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "api"
+    ]
+   }
+  },
+  "/chat.deleteScheduledMessage": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Deletes a pending scheduled message from the queue.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/chat.deleteScheduledMessage"
+    },
+    "operationId": "chat_deleteScheduledMessage",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `chat:write`",
+      "in": "header",
+      "name": "token",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Pass true to delete the message as the authed user with `chat:write:user` scope. [Bot users](/bot-users) in this context are considered authed users. If unused or false, the message will be deleted with `chat:write:bot` scope.",
+      "in": "formData",
+      "name": "as_user",
+      "type": "boolean"
+     },
+     {
+      "description": "The channel the scheduled_message is posting to",
+      "in": "formData",
+      "name": "channel",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "`scheduled_message_id` returned from call to chat.scheduleMessage",
+      "in": "formData",
+      "name": "scheduled_message_id",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from chat.deleteScheduledMessage method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "chat.deleteScheduledMessage schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response if no message is found",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from chat.deleteScheduledMessage method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "invalid_scheduled_message_id",
+          "channel_not_found",
+          "bad_token",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "ekm_access_denied",
+          "missing_scope",
+          "invalid_arguments",
+          "invalid_arg_name",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "chat.deleteScheduledMessage error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "chat"
+    ]
+   }
+  },
+  "/chat.meMessage": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Share a me message into a channel.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/chat.meMessage"
+    },
+    "operationId": "chat_meMessage",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `chat:write`",
+      "in": "header",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Channel to send message to. Can be a public channel, private group or IM channel. Can be an encoded ID, or a name.",
+      "in": "formData",
+      "name": "channel",
+      "type": "string"
+     },
+     {
+      "description": "Text of the message to send.",
+      "in": "formData",
+      "name": "text",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from chat.meMessage method",
+       "properties": {
+        "channel": {
+         "$ref": "#/definitions/defs_channel"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        },
+        "ts": {
+         "$ref": "#/definitions/defs_ts"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "chat.meMessage schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from chat.meMessage method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "channel_not_found",
+          "not_in_channel",
+          "is_archived",
+          "msg_too_long",
+          "no_text",
+          "rate_limited",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "chat.meMessage error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "chat"
+    ]
+   }
+  },
+  "/chat.postEphemeral": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Sends an ephemeral message to a user in a channel.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/chat.postEphemeral"
+    },
+    "operationId": "chat_postEphemeral",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `chat:write`",
+      "in": "header",
+      "name": "token",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Pass true to post the message as the authed user. Defaults to true if the chat:write:bot scope is not included. Otherwise, defaults to false.",
+      "in": "formData",
+      "name": "as_user",
+      "type": "boolean"
+     },
+     {
+      "description": "A JSON-based array of structured attachments, presented as a URL-encoded string.",
+      "in": "formData",
+      "name": "attachments",
+      "type": "string"
+     },
+     {
+      "description": "A JSON-based array of structured blocks, presented as a URL-encoded string.",
+      "in": "formData",
+      "name": "blocks",
+      "type": "string"
+     },
+     {
+      "description": "Channel, private group, or IM channel to send message to. Can be an encoded ID, or a name.",
+      "in": "formData",
+      "name": "channel",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Emoji to use as the icon for this message. Overrides `icon_url`. Must be used in conjunction with `as_user` set to `false`, otherwise ignored. See [authorship](#authorship) below.",
+      "in": "formData",
+      "name": "icon_emoji",
+      "type": "string"
+     },
+     {
+      "description": "URL to an image to use as the icon for this message. Must be used in conjunction with `as_user` set to false, otherwise ignored. See [authorship](#authorship) below.",
+      "in": "formData",
+      "name": "icon_url",
+      "type": "string"
+     },
+     {
+      "description": "Find and link channel names and usernames.",
+      "in": "formData",
+      "name": "link_names",
+      "type": "boolean"
+     },
+     {
+      "description": "Change how messages are treated. Defaults to `none`. See [below](#formatting).",
+      "in": "formData",
+      "name": "parse",
+      "type": "string"
+     },
+     {
+      "description": "How this field works and whether it is required depends on other fields you use in your API call. [See below](#text_usage) for more detail.",
+      "in": "formData",
+      "name": "text",
+      "type": "string"
+     },
+     {
+      "description": "Provide another message's `ts` value to post this message in a thread. Avoid using a reply's `ts` value; use its parent's value instead. Ephemeral messages in threads are only shown if there is already an active thread.",
+      "in": "formData",
+      "name": "thread_ts",
+      "type": "string"
+     },
+     {
+      "description": "`id` of the user who will receive the ephemeral message. The user should be in the channel specified by the `channel` argument.",
+      "in": "formData",
+      "name": "user",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Set your bot's user name. Must be used in conjunction with `as_user` set to false, otherwise ignored. See [authorship](#authorship) below.",
+      "in": "formData",
+      "name": "username",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from chat.postEphemeral method",
+       "properties": {
+        "message_ts": {
+         "$ref": "#/definitions/defs_ts"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok",
+        "message_ts"
+       ],
+       "title": "chat.postEphemeral success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from chat.postEphemeral method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "channel_not_found",
+          "is_archived",
+          "msg_too_long",
+          "no_text",
+          "restricted_action",
+          "too_many_attachments",
+          "user_not_in_channel",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "chat.postEphemeral error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "chat"
+    ]
+   }
+  },
+  "/chat.unfurl": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Provide custom unfurl behavior for user-posted URLs",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/chat.unfurl"
+    },
+    "operationId": "chat_unfurl",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `links:write`",
+      "in": "header",
+      "name": "token",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Channel ID of the message",
+      "in": "formData",
+      "name": "channel",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Timestamp of the message to add unfurl behavior to.",
+      "in": "formData",
+      "name": "ts",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "URL-encoded JSON map with keys set to URLs featured in the the message, pointing to their unfurl blocks or message attachments.",
+      "in": "formData",
+      "name": "unfurls",
+      "type": "string"
+     },
+     {
+      "description": "Provide a simply-formatted string to send as an ephemeral message to the user as invitation to authenticate further and enable full unfurling behavior",
+      "in": "formData",
+      "name": "user_auth_message",
+      "type": "string"
+     },
+     {
+      "description": "Set to `true` or `1` to indicate the user must install your Slack app to trigger unfurls for this domain",
+      "in": "formData",
+      "name": "user_auth_required",
+      "type": "boolean"
+     },
+     {
+      "description": "Send users to this custom URL where they will complete authentication in your app to fully trigger unfurling. Value should be properly URL-encoded.",
+      "in": "formData",
+      "name": "user_auth_url",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical, minimal success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from chat.unfurl method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "chat.unfurl success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from chat.unfurl method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "cannot_unfurl_url",
+          "cannot_find_service",
+          "missing_unfurls",
+          "cannot_prompt",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "user_is_bot",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "chat.unfurl error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "chat"
+    ]
+   }
+  },
+  "/conversations.close": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Closes a direct message or multi-person direct message.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/conversations.close"
+    },
+    "operationId": "conversations_close",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `conversations:write`",
+      "in": "header",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Conversation to close.",
+      "in": "formData",
+      "name": "channel",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response conversations.close method",
+       "properties": {
+        "already_closed": {
+         "type": "boolean"
+        },
+        "no_op": {
+         "type": "boolean"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "conversations.close success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from conversations.close method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "method_not_supported_for_channel_type",
+          "channel_not_found",
+          "user_does_not_own_channel",
+          "missing_scope",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required"
+         ],
+         "type": "string"
+        },
+        "needed": {
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        },
+        "provided": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "conversations.close error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "conversations"
+    ]
+   }
+  },
+  "/conversations.join": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Joins an existing conversation.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/conversations.join"
+    },
+    "operationId": "conversations_join",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `channels:write`",
+      "in": "header",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "ID of conversation to join",
+      "in": "formData",
+      "name": "channel",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from conversations.join method",
+       "properties": {
+        "channel": {
+         "$ref": "#/definitions/objs_conversation"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        },
+        "response_metadata": {
+         "properties": {
+          "warnings": {
+           "items": {
+            "type": "string"
+           },
+           "minItems": 1,
+           "type": "array",
+           "uniqueItems": true
+          }
+         },
+         "title": "Response metadata",
+         "type": "object"
+        },
+        "warning": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "ok",
+        "channel"
+       ],
+       "title": "conversations.join success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response if the conversation is archived and cannot be joined",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from conversations.join method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "method_not_supported_for_channel_type",
+          "missing_scope",
+          "channel_not_found",
+          "is_archived",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "user_is_bot",
+          "user_is_restricted",
+          "user_is_ultra_restricted",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "team_added_to_org",
+          "missing_charset",
+          "superfluous_charset"
+         ],
+         "type": "string"
+        },
+        "needed": {
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        },
+        "provided": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "conversations.join error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "conversations"
+    ]
+   }
+  },
+  "/conversations.kick": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Removes a user from a conversation.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/conversations.kick"
+    },
+    "operationId": "conversations_kick",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `conversations:write`",
+      "in": "header",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "ID of conversation to remove user from.",
+      "in": "formData",
+      "name": "channel",
+      "type": "string"
+     },
+     {
+      "description": "User ID to be removed.",
+      "in": "formData",
+      "name": "user",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response conversations.kick method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "conversations.kick success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response when you attempt to kick yourself from a channel",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response conversations.kick method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "method_not_supported_for_channel_type",
+          "missing_scope",
+          "channel_not_found",
+          "user_not_found",
+          "cant_kick_self",
+          "not_in_channel",
+          "cant_kick_from_general",
+          "restricted_action",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "user_is_bot",
+          "user_is_restricted",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required"
+         ],
+         "type": "string"
+        },
+        "needed": {
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        },
+        "provided": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "conversations.kick error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "conversations"
+    ]
+   }
+  },
+  "/conversations.leave": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Leaves a conversation.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/conversations.leave"
+    },
+    "operationId": "conversations_leave",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `conversations:write`",
+      "in": "header",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Conversation to leave",
+      "in": "formData",
+      "name": "channel",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from conversations.leave method",
+       "properties": {
+        "not_in_channel": {
+         "enum": [
+          true
+         ],
+         "type": "boolean"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "conversations.leave success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response when attempting to leave a workspace's \"general\" channel",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from conversations.leave method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "method_not_supported_for_channel_type",
+          "last_member",
+          "missing_scope",
+          "channel_not_found",
+          "is_archived",
+          "cant_leave_general",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "user_is_bot",
+          "user_is_restricted",
+          "user_is_ultra_restricted",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "team_added_to_org",
+          "missing_charset",
+          "superfluous_charset"
+         ],
+         "type": "string"
+        },
+        "needed": {
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        },
+        "provided": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "conversations.leave error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "conversations"
+    ]
+   }
+  },
+  "/conversations.open": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Opens or resumes a direct message or multi-person direct message.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/conversations.open"
+    },
+    "operationId": "conversations_open",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `conversations:write`",
+      "in": "header",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Resume a conversation by supplying an `im` or `mpim`'s ID. Or provide the `users` field instead.",
+      "in": "formData",
+      "name": "channel",
+      "type": "string"
+     },
+     {
+      "description": "Comma separated lists of users. If only one user is included, this creates a 1:1 DM.  The ordering of the users is preserved whenever a multi-person direct message is returned. Supply a `channel` when not supplying `users`.",
+      "in": "formData",
+      "name": "users",
+      "type": "string"
+     },
+     {
+      "description": "Boolean, indicates you want the full IM channel definition in the response.",
+      "in": "formData",
+      "name": "return_im",
+      "type": "boolean"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from conversations.open method when opening channels, ims, mpims",
+       "properties": {
+        "already_open": {
+         "type": "boolean"
+        },
+        "channel": {
+         "items": {
+          "type": "object"
+         }
+        },
+        "no_op": {
+         "type": "boolean"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok",
+        "channel"
+       ],
+       "title": "conversations.open success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from conversations.open method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "method_not_supported_for_channel_type",
+          "user_not_found",
+          "user_not_visible",
+          "user_disabled",
+          "users_list_not_supplied",
+          "not_enough_users",
+          "too_many_users",
+          "invalid_user_combination",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "channel_not_found"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "conversations.open error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "conversations"
+    ]
+   }
+  },
+  "/conversations.rename": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Renames a conversation.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/conversations.rename"
+    },
+    "operationId": "conversations_rename",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `conversations:write`",
+      "in": "header",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "ID of conversation to rename",
+      "in": "formData",
+      "name": "channel",
+      "type": "string"
+     },
+     {
+      "description": "New name for conversation.",
+      "in": "formData",
+      "name": "name",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from conversations.rename method",
+       "properties": {
+        "channel": {
+         "$ref": "#/definitions/objs_conversation"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok",
+        "channel"
+       ],
+       "title": "conversations.rename success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response when the calling user is not a member of the conversation",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from conversations.rename method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "user_is_restricted",
+          "method_not_supported_for_channel_type",
+          "missing_scope",
+          "channel_not_found",
+          "not_in_channel",
+          "not_authorized",
+          "invalid_name",
+          "name_taken",
+          "invalid_name_required",
+          "invalid_name_punctuation",
+          "invalid_name_maxlength",
+          "invalid_name_specials",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required"
+         ],
+         "type": "string"
+        },
+        "needed": {
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        },
+        "provided": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "conversations.rename error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "conversations"
+    ]
+   }
+  },
+  "/files.comments.delete": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Deletes an existing comment on a file.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/files.comments.delete"
+    },
+    "operationId": "files_comments_delete",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `files:write:user`",
+      "in": "header",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "File to delete a comment from.",
+      "in": "formData",
+      "name": "file",
+      "type": "string"
+     },
+     {
+      "description": "The comment to delete.",
+      "in": "formData",
+      "name": "id",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Standard success response is very simple",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response files.comments.delete method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "files.comments.delete schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Standard failure response when used with an invalid token",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response files.comments.delete method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "cant_delete",
+          "comment_not_found",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "no_permission",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "files.comments.delete error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "files.comments",
+     "files"
+    ]
+   }
+  },
+  "/files.remote.add": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Adds a file from a remote service",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/files.remote.add"
+    },
+    "operationId": "files_remote_add",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `remote_files:write`",
+      "in": "formData",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Creator defined GUID for the file.",
+      "in": "formData",
+      "name": "external_id",
+      "type": "string"
+     },
+     {
+      "description": "Title of the file being shared.",
+      "in": "formData",
+      "name": "title",
+      "type": "string"
+     },
+     {
+      "description": "type of file",
+      "in": "formData",
+      "name": "filetype",
+      "type": "string"
+     },
+     {
+      "description": "URL of the remote file.",
+      "in": "formData",
+      "name": "external_url",
+      "type": "string"
+     },
+     {
+      "description": "Preview of the document via `multipart/form-data`.",
+      "in": "formData",
+      "name": "preview_image",
+      "type": "string"
+     },
+     {
+      "description": "A text file (txt, pdf, doc, etc.) containing textual search terms that are used to improve discovery of the remote file.",
+      "in": "formData",
+      "name": "indexable_file_contents",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default success template",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _not OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default error template",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "files.remote",
+     "files"
+    ]
+   }
+  },
+  "/files.remote.info": {
+   "get": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Retrieve information about a remote file added to Slack",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/files.remote.info"
+    },
+    "operationId": "files_remote_info",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `remote_files:read`",
+      "in": "query",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Specify a file by providing its ID.",
+      "in": "query",
+      "name": "file",
+      "type": "string"
+     },
+     {
+      "description": "Creator defined GUID for the file.",
+      "in": "query",
+      "name": "external_id",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default success template",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _not OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default error template",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "files.remote",
+     "files"
+    ]
+   }
+  },
+  "/files.remote.list": {
+   "get": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Retrieve information about a remote file added to Slack",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/files.remote.list"
+    },
+    "operationId": "files_remote_list",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `remote_files:read`",
+      "in": "query",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Filter files appearing in a specific channel, indicated by its ID.",
+      "in": "query",
+      "name": "channel",
+      "type": "string"
+     },
+     {
+      "description": "Filter files created after this timestamp (inclusive).",
+      "in": "query",
+      "name": "ts_from",
+      "type": "number"
+     },
+     {
+      "description": "Filter files created before this timestamp (inclusive).",
+      "in": "query",
+      "name": "ts_to",
+      "type": "number"
+     },
+     {
+      "description": "The maximum number of items to return.",
+      "in": "query",
+      "name": "limit",
+      "type": "integer"
+     },
+     {
+      "description": "Paginate through collections of data by setting the `cursor` parameter to a `next_cursor` attribute returned by a previous request's `response_metadata`. Default value fetches the first \"page\" of the collection. See [pagination](/docs/pagination) for more detail.",
+      "in": "query",
+      "name": "cursor",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default success template",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _not OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default error template",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "files.remote",
+     "files"
+    ]
+   }
+  },
+  "/files.remote.remove": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Remove a remote file.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/files.remote.remove"
+    },
+    "operationId": "files_remote_remove",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `remote_files:write`",
+      "in": "formData",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Specify a file by providing its ID.",
+      "in": "formData",
+      "name": "file",
+      "type": "string"
+     },
+     {
+      "description": "Creator defined GUID for the file.",
+      "in": "formData",
+      "name": "external_id",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default success template",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _not OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default error template",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "files.remote",
+     "files"
+    ]
+   }
+  },
+  "/files.remote.share": {
+   "get": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Share a remote file into a channel.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/files.remote.share"
+    },
+    "operationId": "files_remote_share",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `remote_files:share`",
+      "in": "query",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Specify a file registered with Slack by providing its ID. Either this field or `external_id` or both are required.",
+      "in": "query",
+      "name": "file",
+      "type": "string"
+     },
+     {
+      "description": "The globally unique identifier (GUID) for the file, as set by the app registering the file with Slack.  Either this field or `file` or both are required.",
+      "in": "query",
+      "name": "external_id",
+      "type": "string"
+     },
+     {
+      "description": "Comma-separated list of channel IDs where the file will be shared.",
+      "in": "query",
+      "name": "channels",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default success template",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _not OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default error template",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "files.remote",
+     "files"
+    ]
+   }
+  },
+  "/files.remote.update": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Updates an existing remote file.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/files.remote.update"
+    },
+    "operationId": "files_remote_update",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `remote_files:write`",
+      "in": "formData",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Specify a file by providing its ID.",
+      "in": "formData",
+      "name": "file",
+      "type": "string"
+     },
+     {
+      "description": "Creator defined GUID for the file.",
+      "in": "formData",
+      "name": "external_id",
+      "type": "string"
+     },
+     {
+      "description": "Title of the file being shared.",
+      "in": "formData",
+      "name": "title",
+      "type": "string"
+     },
+     {
+      "description": "type of file",
+      "in": "formData",
+      "name": "filetype",
+      "type": "string"
+     },
+     {
+      "description": "URL of the remote file.",
+      "in": "formData",
+      "name": "external_url",
+      "type": "string"
+     },
+     {
+      "description": "Preview of the document via `multipart/form-data`.",
+      "in": "formData",
+      "name": "preview_image",
+      "type": "string"
+     },
+     {
+      "description": "File containing contents that can be used to improve searchability for the remote file.",
+      "in": "formData",
+      "name": "indexable_file_contents",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default success template",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": true,
+       "description": "This method either only returns a brief _not OK_ response or a verbose schema is not available for this method.",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "Default error template",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "files.remote",
+     "files"
+    ]
+   }
+  },
+  "/files.revokePublicURL": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Revokes public/external sharing access for a file",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/files.revokePublicURL"
+    },
+    "operationId": "files_revokePublicURL",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `files:write:user`",
+      "in": "header",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "File to revoke",
+      "in": "formData",
+      "name": "file",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from files.revokePublicURL method",
+       "properties": {
+        "file": {
+         "$ref": "#/definitions/objs_file"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok",
+        "file"
+       ],
+       "title": "files.revokePublicURL schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from files.revokePublicURL method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "file_not_found",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "user_is_bot",
+          "user_is_restricted",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "files.revokePublicURL error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "files"
+    ]
+   }
+  },
+  "/files.sharedPublicURL": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Enables a file for public/external sharing.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/files.sharedPublicURL"
+    },
+    "operationId": "files_sharedPublicURL",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `files:write:user`",
+      "in": "header",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "File to share",
+      "in": "formData",
+      "name": "file",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from files.sharedPublicURL method",
+       "properties": {
+        "file": {
+         "$ref": "#/definitions/objs_file"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok",
+        "file"
+       ],
+       "title": "files.sharedPublicURL schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from files.sharedPublicURL method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "file_not_found",
+          "not_allowed",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "user_is_bot",
+          "user_is_restricted",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "files.sharedPublicURL error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "files"
+    ]
+   }
+  },
+  "/team.integrationLogs": {
+   "get": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Gets the integration logs for the current team.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/team.integrationLogs"
+    },
+    "operationId": "team_integrationLogs",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `admin`",
+      "in": "query",
+      "name": "token",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Filter logs to this Slack app. Defaults to all logs.",
+      "in": "query",
+      "name": "app_id",
+      "type": "string"
+     },
+     {
+      "description": "Filter logs with this change type. Defaults to all logs.",
+      "in": "query",
+      "name": "change_type",
+      "type": "string"
+     },
+     {
+      "in": "query",
+      "name": "count",
+      "type": "string"
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "type": "string"
+     },
+     {
+      "description": "Filter logs to this service. Defaults to all logs.",
+      "in": "query",
+      "name": "service_id",
+      "type": "string"
+     },
+     {
+      "description": "Filter logs generated by this user\u2019s actions. Defaults to all logs.",
+      "in": "query",
+      "name": "user",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from team.integrationLogs method",
+       "properties": {
+        "logs": {
+         "items": {
+          "additionalProperties": false,
+          "properties": {
+           "admin_app_id": {
+            "$ref": "#/definitions/defs_app_id"
+           },
+           "app_id": {
+            "$ref": "#/definitions/defs_app_id"
+           },
+           "app_type": {
+            "type": "string"
+           },
+           "change_type": {
+            "type": "string"
+           },
+           "channel": {
+            "$ref": "#/definitions/defs_channel"
+           },
+           "date": {
+            "type": "string"
+           },
+           "scope": {
+            "type": "string"
+           },
+           "service_id": {
+            "type": "string"
+           },
+           "service_type": {
+            "type": "string"
+           },
+           "user_id": {
+            "$ref": "#/definitions/defs_user_id"
+           },
+           "user_name": {
+            "type": "string"
+           }
+          },
+          "required": [
+           "user_id",
+           "user_name",
+           "date",
+           "change_type",
+           "app_type",
+           "app_id",
+           "scope"
+          ],
+          "type": "object"
+         },
+         "minItems": 1,
+         "type": "array",
+         "uniqueItems": true
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        },
+        "paging": {
+         "$ref": "#/definitions/objs_paging"
+        }
+       },
+       "required": [
+        "ok",
+        "logs",
+        "paging"
+       ],
+       "title": "team.integrationLogs schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from team.integrationLogs method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "user_is_bot",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "team.integrationLogs error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "team"
+    ]
+   }
+  },
+  "/team.profile.get": {
+   "get": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Retrieve a team's profile.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/team.profile.get"
+    },
+    "operationId": "team_profile_get",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `users.profile:read`",
+      "in": "query",
+      "name": "token",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Filter by visibility.",
+      "in": "query",
+      "name": "visibility",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from team.profile.get method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        },
+        "profile": {
+         "additionalProperties": false,
+         "properties": {
+          "fields": {
+           "items": {
+            "$ref": "#/definitions/objs_team_profile_field"
+           },
+           "type": "array",
+           "uniqueItems": true
+          }
+         },
+         "required": [
+          "fields"
+         ],
+         "type": "object"
+        }
+       },
+       "required": [
+        "ok",
+        "profile"
+       ],
+       "title": "team.profile.get success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from team.profile.get method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "no_permission",
+          "user_is_bot",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_typ",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeou",
+          "upgrade_required"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "team.profile.get error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "team.profile",
+     "team"
+    ]
+   }
+  },
+  "/usergroups.disable": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Disable an existing User Group",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/usergroups.disable"
+    },
+    "operationId": "usergroups_disable",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `usergroups:write`",
+      "in": "header",
+      "name": "token",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Include the number of users in the User Group.",
+      "in": "formData",
+      "name": "include_count",
+      "type": "boolean"
+     },
+     {
+      "description": "The encoded ID of the User Group to disable.",
+      "in": "formData",
+      "name": "usergroup",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from usergroups.disable method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        },
+        "usergroup": {
+         "$ref": "#/definitions/objs_subteam"
+        }
+       },
+       "required": [
+        "ok",
+        "usergroup"
+       ],
+       "title": "usergroups.disable schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from usergroups.disable method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "permission_denied",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "user_is_bot",
+          "user_is_restricted",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "usergroups.disable error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "usergroups"
+    ]
+   }
+  },
+  "/usergroups.enable": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Enable a User Group",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/usergroups.enable"
+    },
+    "operationId": "usergroups_enable",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `usergroups:write`",
+      "in": "header",
+      "name": "token",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Include the number of users in the User Group.",
+      "in": "formData",
+      "name": "include_count",
+      "type": "boolean"
+     },
+     {
+      "description": "The encoded ID of the User Group to enable.",
+      "in": "formData",
+      "name": "usergroup",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from usergroups.enable method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        },
+        "usergroup": {
+         "$ref": "#/definitions/objs_subteam"
+        }
+       },
+       "required": [
+        "ok",
+        "usergroup"
+       ],
+       "title": "usergroups.enable schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from usergroups.enable method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "user_is_bot",
+          "user_is_restricted",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_require",
+          "fatal_error",
+          "missing_charset",
+          "superfluous_charset"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "usergroups.enable error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "usergroups"
+    ]
+   }
+  },
+  "/users.conversations": {
+   "get": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "List conversations the calling user may access.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/users.conversations"
+    },
+    "operationId": "users_conversations",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `conversations:read`",
+      "in": "query",
+      "name": "token",
+      "type": "string"
+     },
+     {
+      "description": "Browse conversations by a specific user ID's membership. Non-public channels are restricted to those where the calling user shares membership.",
+      "in": "query",
+      "name": "user",
+      "type": "string"
+     },
+     {
+      "description": "Mix and match channel types by providing a comma-separated list of any combination of `public_channel`, `private_channel`, `mpim`, `im`",
+      "in": "query",
+      "name": "types",
+      "type": "string"
+     },
+     {
+      "description": "Set to `true` to exclude archived channels from the list",
+      "in": "query",
+      "name": "exclude_archived",
+      "type": "boolean"
+     },
+     {
+      "description": "The maximum number of items to return. Fewer than the requested number of items may be returned, even if the end of the list hasn't been reached. Must be an integer no larger than 1000.",
+      "in": "query",
+      "name": "limit",
+      "type": "integer"
+     },
+     {
+      "description": "Paginate through collections of data by setting the `cursor` parameter to a `next_cursor` attribute returned by a previous request's `response_metadata`. Default value fetches the first \"page\" of the collection. See [pagination](/docs/pagination) for more detail.",
+      "in": "query",
+      "name": "cursor",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response with only public channels. Note how `num_members` and `is_member` are not returned like typical `conversations` objects.",
+      "schema": {
+       "additionalProperties": true,
+       "description": "Schema for successful response from users.conversations method. Returned conversation objects do not include `num_members` or `is_member`",
+       "properties": {
+        "channels": {
+         "items": {
+          "$ref": "#/definitions/objs_conversation"
+         },
+         "type": "array",
+         "uniqueItems": true
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        },
+        "response_metadata": {
+         "additionalProperties": false,
+         "properties": {
+          "next_cursor": {
+           "type": "string"
+          }
+         },
+         "required": [
+          "next_cursor"
+         ],
+         "type": "object"
+        }
+       },
+       "required": [
+        "ok",
+        "channels"
+       ],
+       "title": "users.conversations success schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from users.conversations method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "method_not_supported_for_channel_type",
+          "missing_scope",
+          "invalid_types",
+          "invalid_cursor",
+          "invalid_limit",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "users.conversations error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "users"
+    ]
+   }
+  },
+  "/users.deletePhoto": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Delete the user profile photo",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/users.deletePhoto"
+    },
+    "operationId": "users_deletePhoto",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `users.profile:write`",
+      "in": "formData",
+      "name": "token",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from users.deletePhoto method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "users.deletePhoto schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from users.deletePhoto method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "user_is_bot",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "users.deletePhoto error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "users"
+    ]
+   }
+  },
+  "/users.identity": {
+   "get": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Get a user's identity.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/users.identity"
+    },
+    "operationId": "users_identity",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `identity.basic`",
+      "in": "query",
+      "name": "token",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "You will receive at a minimum the following information:",
+      "schema": {
+       "description": "Schema for successful response from users.identity method",
+       "items": {
+        "type": "object"
+       },
+       "title": "users.identity schema"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from users.identity method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "user_is_bot",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "users.identity error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "users"
+    ]
+   }
+  },
+  "/users.setActive": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded",
+     "application/json"
+    ],
+    "description": "Marked a user as active. Deprecated and non-functional.",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/users.setActive"
+    },
+    "operationId": "users_setActive",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `users:write`",
+      "in": "header",
+      "name": "token",
+      "required": true,
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from users.setActive method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        }
+       },
+       "required": [
+        "ok"
+       ],
+       "title": "users.setActive schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from users.setActive method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "ekm_access_denied",
+          "missing_scope",
+          "invalid_arguments",
+          "invalid_arg_name",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "request_timeout",
+          "fatal_error",
+          "internal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "users.setActive error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "users"
+    ]
+   }
+  },
+  "/users.setPhoto": {
+   "post": {
+    "consumes": [
+     "application/x-www-form-urlencoded"
+    ],
+    "description": "Set the user profile photo",
+    "externalDocs": {
+     "description": "API method documentation",
+     "url": "https://api.slack.com/methods/users.setPhoto"
+    },
+    "operationId": "users_setPhoto",
+    "parameters": [
+     {
+      "description": "Authentication token. Requires scope: `users.profile:write`",
+      "in": "formData",
+      "name": "token",
+      "required": true,
+      "type": "string"
+     },
+     {
+      "description": "Width/height of crop box (always square)",
+      "in": "formData",
+      "name": "crop_w",
+      "type": "string"
+     },
+     {
+      "description": "X coordinate of top-left corner of crop box",
+      "in": "formData",
+      "name": "crop_x",
+      "type": "string"
+     },
+     {
+      "description": "Y coordinate of top-left corner of crop box",
+      "in": "formData",
+      "name": "crop_y",
+      "type": "string"
+     },
+     {
+      "description": "File contents via `multipart/form-data`.",
+      "in": "formData",
+      "name": "image",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "Typical success response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for successful response from users.setPhoto method",
+       "properties": {
+        "ok": {
+         "$ref": "#/definitions/defs_ok_true"
+        },
+        "profile": {
+         "additionalProperties": false,
+         "properties": {
+          "avatar_hash": {
+           "pattern": "^[0-9a-f]{12}$",
+           "type": "string"
+          },
+          "image_1024": {
+           "format": "uri",
+           "type": "string"
+          },
+          "image_192": {
+           "format": "uri",
+           "type": "string"
+          },
+          "image_24": {
+           "format": "uri",
+           "type": "string"
+          },
+          "image_32": {
+           "format": "uri",
+           "type": "string"
+          },
+          "image_48": {
+           "format": "uri",
+           "type": "string"
+          },
+          "image_512": {
+           "format": "uri",
+           "type": "string"
+          },
+          "image_72": {
+           "format": "uri",
+           "type": "string"
+          },
+          "image_original": {
+           "format": "uri",
+           "type": "string"
+          }
+         },
+         "required": [
+          "image_24",
+          "image_32",
+          "image_48",
+          "image_72",
+          "image_192",
+          "image_512",
+          "image_1024",
+          "image_original",
+          "avatar_hash"
+         ],
+         "type": "object"
+        }
+       },
+       "required": [
+        "ok",
+        "profile"
+       ],
+       "title": "users.setPhoto schema",
+       "type": "object"
+      }
+     },
+     "default": {
+      "description": "Typical error response",
+      "schema": {
+       "additionalProperties": false,
+       "description": "Schema for error response from users.setPhoto method",
+       "properties": {
+        "callstack": {
+         "description": "Note: PHP callstack is only visible in dev/qa",
+         "type": "string"
+        },
+        "debug_step": {
+         "description": "possibly DEV/QA only",
+         "type": "string"
+        },
+        "dims": {
+         "description": "possibly DEV/QA only",
+         "type": "string"
+        },
+        "error": {
+         "enum": [
+          "bad_image",
+          "too_large",
+          "too_many_frames",
+          "not_found",
+          "not_authed",
+          "invalid_auth",
+          "account_inactive",
+          "token_revoked",
+          "no_permission",
+          "org_login_required",
+          "user_is_bot",
+          "invalid_arg_name",
+          "invalid_array_arg",
+          "invalid_charset",
+          "invalid_form_data",
+          "invalid_post_type",
+          "missing_post_type",
+          "team_added_to_org",
+          "invalid_json",
+          "json_not_object",
+          "request_timeout",
+          "upgrade_required",
+          "fatal_error"
+         ],
+         "type": "string"
+        },
+        "ok": {
+         "$ref": "#/definitions/defs_ok_false"
+        },
+        "time_ident": {
+         "description": "possibly DEV/QA only",
+         "type": "integer"
+        }
+       },
+       "required": [
+        "ok",
+        "error"
+       ],
+       "title": "users.setPhoto error schema",
+       "type": "object"
+      }
+     }
+    },
+    "tags": [
+     "users"
+    ]
+   }
+  }
+ },
+ "schemes": [
+  "https"
+ ],
+ "swagger": "2.0",
+ "tags": []
+}

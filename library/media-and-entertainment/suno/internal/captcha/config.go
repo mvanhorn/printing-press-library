@@ -36,7 +36,6 @@ type Options struct {
 	Profile     string        // resolved profile name (e.g. "default", "work")
 	UserDataDir string        // dedicated profile dir; never the user's real Chrome
 	CDPPort     int           // this profile's CDP port
-	Seeded      bool          // whether the profile already has a persisted session
 	Interactive bool          // false under --no-input/--agent — suppress the visible fallback
 	Timeout     time.Duration // overall solve budget (0 => DefaultTimeout)
 }

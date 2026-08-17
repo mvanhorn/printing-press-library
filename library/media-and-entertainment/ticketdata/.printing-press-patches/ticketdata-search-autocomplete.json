@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ticketdata-search-autocomplete",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260706-072414",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Repointed performers/venues search from the non-existent /performers/search & /venues/search (?q= ignored, routed as slug) to the real /autocomplete/suggestions?q= endpoint, extracting data.performers / data.venues.",
+  "reason": "Discovery misread the /performers/search response shape (field types, not values); the API routes 'search' as a slug. The real multi-type search is /autocomplete/suggestions, found by browser-sniffing the site search box.",
+  "files": ["internal/cli/performers_search.go", "internal/cli/venues_search.go", "spec.yaml"],
+  "validated_outcome": "performers search 'ariana' -> [Ariana Grande, Mariana Mazza, ...]; venues search 'garden' -> [Madison Square Garden, TD Garden, ...]. Now real multi-result."
+}

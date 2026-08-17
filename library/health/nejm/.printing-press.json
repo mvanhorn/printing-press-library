@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-20T04:11:01.4130548Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "nejm",
+  "display_name": "New England Journal of Medicine",
+  "cli_name": "nejm-pp-cli",
+  "creator": {
+    "handle": "laci141",
+    "name": "laci141"
+  },
+  "owner": "laci141",
+  "printer": "laci141",
+  "printer_name": "laci141",
+  "spec_path": "nejm-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4e138ec91cad678f201d6a96ab4fd72d7291c6a2ae7c3fa1d39ecbffcbb9dedd",
+  "run_id": "20260620-035405-a2d4c231",
+  "category": "health",
+  "description": "Browse, search, and triage New England Journal of Medicine articles from the terminal, backed by a local corpus and a browser-compatible transport that clears Cloudflare.",
+  "mcp_binary": "nejm-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {"name": "Time-windowed new articles", "command": "since", "status": "shipped", "verified": true, "description": "List new NEJM articles published within a specified time window."},
+    {"name": "Current-issue reading digest", "command": "digest", "status": "shipped", "verified": true, "description": "Generate a reading digest of the current issue."},
+    {"name": "Personal reading list", "command": "reading-list", "status": "shipped", "verified": true, "description": "Manage a personal reading list of NEJM articles."},
+    {"name": "Specialty and type trends", "command": "trends", "status": "shipped", "verified": true, "description": "Show specialty and type trends across NEJM publications."},
+    {"name": "Open-access finder", "command": "open-access", "status": "shipped", "verified": true, "description": "Find open-access articles in NEJM."}
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-24T21:37:17.965191Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "stac",
+  "display_name": "STAC API",
+  "cli_name": "stac-pp-cli",
+  "creator": {
+    "name": "ghltshubh",
+    "handle": "ghltshubh"
+  },
+  "printer_name": "ghltshubh",
+  "spec_path": "stac-merged.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:8323d6a7595f30a2cbefc2e7bfba3810bec3daddc5ee04b9cc60a5b94cdb4293",
+  "run_id": "20260624-152026-b6ccb73c",
+  "catalog_entry": "stac",
+  "category": "maps",
+  "description": "The first Go single-binary STAC CLI: every search filter the Python tools have, plus an offline cache, scene ranking, coverage, and asset resolution no other STAC tool offers.",
+  "mcp_binary": "stac-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_public_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "v1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Least-cloudy scene",
+      "command": "scenes best",
+      "description": "Pick the single clearest scene over an area and date range."
+    },
+    {
+      "name": "Cloud-cover histogram",
+      "command": "clouds",
+      "description": "Show the cloud-cover distribution over an area and date range."
+    },
+    {
+      "name": "Coverage check",
+      "command": "coverage",
+      "description": "Answer whether data exists over an area and when, with a temporal summary."
+    },
+    {
+      "name": "Scene timeline",
+      "command": "timeline",
+      "description": "Build a per-date time series of scenes for change detection."
+    },
+    {
+      "name": "Temporal gaps",
+      "command": "gaps",
+      "description": "Find missing acquisition windows over an area versus expected revisit."
+    },
+    {
+      "name": "Watch new scenes",
+      "command": "watch",
+      "description": "Report scenes published over an area since the last check."
+    },
+    {
+      "name": "Asset URL resolution",
+      "command": "assets",
+      "description": "Resolve an item's band and asset download URLs, provider-aware."
+    },
+    {
+      "name": "Compare collections",
+      "command": "compare",
+      "description": "Compare two collections over the same area and date range."
+    },
+    {
+      "name": "xarray stack snippet",
+      "command": "stack-snippet",
+      "description": "Emit a ready-to-paste stackstac/odc-stac Python snippet for matched scenes."
+    }
+  ],
+  "printer": "ghltshubh"
+}

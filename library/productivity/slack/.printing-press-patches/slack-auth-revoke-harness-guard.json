@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "slack-auth-revoke-harness-guard",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Stop the generated auth.revoke command from destroying the operator's token when a verify/dogfood harness invokes it.",
+  "reason": "Slack serves auth.revoke over HTTP GET. The generator classifies command safety from the HTTP method, so it annotated this command mcp:read-only=true and dogfood's destructive-endpoint skip did not apply. The live dogfood matrix therefore executed `auth-api revoke` as an ordinary happy-path and json-fidelity test and revoked the live bot token mid-run; every subsequent API call returned account_inactive. Method-derived safety classification is unsound for any API that exposes destructive operations over GET, which Slack does.",
+  "validated_outcome": "Reproduced end to end: dogfood-live2.json records `auth-api revoke` happy_path and json_fidelity both as status=pass, and auth.test immediately afterwards returned {\"ok\":false,\"error\":\"account_inactive\"}. After the patch, `PRINTING_PRESS_DOGFOOD=1 slack-pp-cli auth-api revoke` and `PRINTING_PRESS_VERIFY=1 slack-pp-cli auth-api revoke` both print a would-revoke line and exit 0 without issuing the request, while normal invocation is unchanged. The annotation was also corrected from mcp:read-only to mcp:destructive so MCP hosts stop advertising it as a safe read.",
+  "files": [
+    "internal/cli/auth_api_revoke.go"
+  ],
+  "upstream": "Command safety classification should not be derived from HTTP method alone. Either honour an explicit per-endpoint `destructive: true` in the internal spec (currently accepted by the parser but silently ignored), or maintain a name-based denylist for known-destructive operations (auth.revoke, *.delete, *.remove) so a GET-exposed destructive endpoint is never annotated mcp:read-only or auto-invoked by dogfood."
+}

@@ -15,54 +15,61 @@ func newFilesListCmd(flags *rootFlags) *cobra.Command {
 	var flagChannel string
 	var flagUser string
 	var flagTypes string
-	var flagCount string
+	var flagCount int
 	var flagPage string
 
 	cmd := &cobra.Command{
-		Use:     "list",
-		Short:   "List files in the workspace",
-		Example: "  slack-pp-cli files list",
+		Use:         "list",
+		Short:       "List files in the workspace",
+		Example:     "  slack-pp-cli files list",
+		Annotations: map[string]string{"pp:endpoint": "files.list", "pp:method": "GET", "pp:path": "/files.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/files.list"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/files.list"
 			params := map[string]string{}
 			if flagChannel != "" {
-				params["channel"] = fmt.Sprintf("%v", flagChannel)
+				params["channel"] = formatCLIParamValue(flagChannel)
 			}
 			if flagUser != "" {
-				params["user"] = fmt.Sprintf("%v", flagUser)
+				params["user"] = formatCLIParamValue(flagUser)
 			}
 			if flagTypes != "" {
-				params["types"] = fmt.Sprintf("%v", flagTypes)
+				params["types"] = formatCLIParamValue(flagTypes)
 			}
-			if flagCount != "" {
-				params["count"] = fmt.Sprintf("%v", flagCount)
+			if flagCount != 0 {
+				params["count"] = formatCLIParamValue(flagCount)
 			}
 			if flagPage != "" {
-				params["page"] = fmt.Sprintf("%v", flagPage)
+				params["page"] = formatCLIParamValue(flagPage)
 			}
-			data, prov, err := resolveRead(c, flags, "files", false, path, params)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "files", true, path, params, nil, "files", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -83,13 +90,13 @@ func newFilesListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagChannel, "channel", "", "Filter by channel")
 	cmd.Flags().StringVar(&flagUser, "user", "", "Filter by user")
 	cmd.Flags().StringVar(&flagTypes, "types", "", "Filter by file type: all, spaces, snippets, images, etc.")
-	cmd.Flags().StringVar(&flagCount, "count", "", "Number of files per page")
+	cmd.Flags().IntVar(&flagCount, "count", 0, "Number of files per page")
 	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
 
 	return cmd

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-05T18:30:00Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "grants",
+  "category": "health",
+  "display_name": "Research Grants Finder",
+  "description": "Open US federal research funding from the terminal, keyless — Grants.gov open opportunities with deadline/agency/award/eligibility filters, plus awarded NIH RePORTER and NSF grants as funding benchmarks.",
+  "cli_name": "grants-pp-cli",
+  "creator": {
+    "handle": "laci141",
+    "name": "laci141"
+  },
+  "printer": "laci141",
+  "printer_name": "laci141",
+  "spec_format": "internal",
+  "spec_source": "docs/SPEC.md",
+  "run_id": "20260705-183000",
+  "auth_type": "none",
+  "auth_env_vars": [],
+  "novel_features": [
+    {
+      "name": "Award Cap Fallback",
+      "command": "search --min-award",
+      "description": "Filters by the best available award amount — awardCeiling with an estimatedFunding fallback — because Grants.gov frequently reports a zero ceiling on real opportunities. Output labels the fallback so users know the number is an estimate."
+    },
+    {
+      "name": "Eligibility Substring Filter",
+      "command": "search --eligibility",
+      "description": "Client-side applicant-type filter over per-opportunity fetchOpportunity details, e.g. limit results to universities or small businesses without reading each synopsis."
+    },
+    {
+      "name": "Cross-Source Doctor",
+      "command": "doctor",
+      "description": "One command live-checks all three keyless upstreams (Grants.gov Search2, NIH RePORTER, NSF Awards) before a research session, with per-source status."
+    },
+    {
+      "name": "Awarded-vs-Open Benchmarking",
+      "command": "nih / nsf",
+      "description": "Pairs open Grants.gov calls with historically awarded NIH RePORTER and NSF grants so applicants can benchmark typical award sizes for a topic before applying."
+    }
+  ]
+}

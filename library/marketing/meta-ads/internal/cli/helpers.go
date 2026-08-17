@@ -495,6 +495,7 @@ func paginatedGet(ctx context.Context, c interface {
 	// Fetch all pages
 	allItems := make([]json.RawMessage, 0)
 	page := 0
+	paginationSignalFound := nextCursorPath != "" || hasMoreField != ""
 	for {
 		page++
 		if humanFriendly {
@@ -520,15 +521,29 @@ func paginatedGet(ctx context.Context, c interface {
 					allItems = append(allItems, nested...)
 				}
 
+				activeCursorParam := cursorParam
+				activeNextCursorPath := nextCursorPath
+				// PATCH(meta-graph-cursor-pagination): Meta's endpoint metadata omits
+				// pagination even though every Graph list response uses this envelope.
+				// Auto-detect it so --all follows the documented Graph cursor instead
+				// of silently returning the first 25 records.
+				if activeNextCursorPath == "" {
+					if _, ok := rawAtPath(obj, "paging.cursors.after"); ok {
+						activeCursorParam = "after"
+						activeNextCursorPath = "paging.cursors.after"
+						paginationSignalFound = true
+					}
+				}
+
 				// Check for next cursor
-				if nextCursorPath != "" {
-					if tokenRaw, ok := rawAtPath(obj, nextCursorPath); ok {
+				if activeNextCursorPath != "" {
+					if tokenRaw, ok := rawAtPath(obj, activeNextCursorPath); ok {
 						if token := paginationCursorToken(tokenRaw); token != "" {
 							if page >= paginatedGetMaxPages {
 								emitPaginatedGetMaxPagesWarning()
 								break
 							}
-							clean[cursorParam] = token
+							clean[activeCursorParam] = token
 							continue
 						}
 					}
@@ -562,7 +577,7 @@ func paginatedGet(ctx context.Context, c interface {
 		break
 	}
 
-	if fetchAll && page == 1 && nextCursorPath == "" && hasMoreField == "" {
+	if fetchAll && page == 1 && !paginationSignalFound {
 		emitMissingPaginationSignalWarning()
 	}
 	if humanFriendly {

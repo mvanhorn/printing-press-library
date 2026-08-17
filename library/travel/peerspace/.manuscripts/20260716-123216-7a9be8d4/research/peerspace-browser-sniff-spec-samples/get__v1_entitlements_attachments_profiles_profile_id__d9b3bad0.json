@@ -1,0 +1,47 @@
+{
+  "endpoint": "GET /v1/entitlements/attachments/profiles/{profile_id}",
+  "method": "GET",
+  "raw_url": "https://www.peerspace.com/v1/entitlements/attachments/profiles/66915212d22cc89e3402c745?timestamp=1784197124942",
+  "status": 200,
+  "request_headers": {
+    ":authority": "www.peerspace.com",
+    ":method": "GET",
+    ":path": "/v1/entitlements/attachments/profiles/66915212d22cc89e3402c745?timestamp=1784197124942",
+    ":scheme": "https",
+    "accept": "application/json",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,ko;q=0.6,es;q=0.5",
+    "baggage": "REDACTED",
+    "cache-control": "no-cache, must-revalidate",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://www.peerspace.com/fr/s/?a=meetup&place_id=chijd7fibh9u5kcryjsmamoccwq&location=paris--france&bbox_of_interest=[48.9021476,2.2242171,48.8155622,2.4698511]",
+    "sec-ch-ua": "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Google Chrome\";v=\"150\"",
+    "sec-ch-ua-mobile": "?1",
+    "sec-ch-ua-platform": "\"Android\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "traceparent": "REDACTED",
+    "tracestate": "REDACTED",
+    "user-agent": "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36",
+    "x-datadog-origin": "rum",
+    "x-datadog-parent-id": "5746818979826913138",
+    "x-datadog-sampling-priority": "1",
+    "x-datadog-trace-id": "10141620317957030346"
+  },
+  "request_body": null,
+  "response_headers": {
+    "cf-cache-status": "DYNAMIC",
+    "cf-ray": "a1c043c2394099b5-CDG",
+    "content-length": "18",
+    "content-type": "application/json;charset=utf-8",
+    "date": "Thu, 16 Jul 2026 10:18:45 GMT",
+    "server": "cloudflare",
+    "via": "1.1 google"
+  },
+  "response_body": {
+    "attachments": []
+  },
+  "response_body_known": true
+}

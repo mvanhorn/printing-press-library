@@ -1,0 +1,8 @@
+{
+  "descriptions": {
+    "system_status": "Read the router's live operating state: CPU load, memory use, connected-client count, running services, and WAN/internet reachability. Read-only; no parameters. Returns a status object sampled at call time from the GL system.get_status RPC. Use this for a health snapshot of the live device; use system_get for static model/firmware identity instead.",
+    "wifi_status": "List the router's WiFi radios with their current state, channel, and band, read live from the GL wifi.get_status RPC. Read-only; no parameters. Returns one entry per radio (name, channel, state). Use this to see what bands are active and on which channels before changing region or joining a venue network.",
+    "vpn_list": "List the router's configured VPN client tunnels (WireGuard and OpenVPN) and their connection status, merged from the wg-client and ovpn-client config lists. Read-only; no parameters. Returns each tunnel's name, type, and up/down status. Use this to discover tunnel names before toggling one with vpn_toggle.",
+    "snapshots_list": "List the named config snapshots saved by 'snapshot save', read from the local SQLite store (no router contact). Read-only; no parameters. Returns each snapshot's name, creation time, captured model, firmware, and size. Use this to find a profile name before snapshot_apply or snapshot_diff."
+  }
+}

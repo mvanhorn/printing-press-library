@@ -29,10 +29,12 @@ func newTerminalGetLocationsLocationCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/terminal/locations/{location}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("location is required\nUsage: %s <%s>", cmd.CommandPath(), "location"))
 			}
-			path = replacePathParam(path, "location", args[1])
+			path = replacePathParam(path, "location", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-18T19:54:42.926559Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "vehicle-safety",
+  "display_name": "Vehicle Safety",
+  "cli_name": "vehicle-safety-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "avanderheyde",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:fb140b49ee675e9e90fdf0b75052b7a9a659188dd4a53951aa273931bbe0bbf9",
+  "run_id": "20260717-002908-0483fc8d",
+  "category": "other",
+  "description": "Build source-attributed vehicle safety dossiers, honest comparisons, and recall-change reports from NHTSA data.",
+  "mcp_binary": "vehicle-safety-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Safety dossier",
+      "command": "dossier",
+      "description": "See identity, recall and complaint summaries, and available crash ratings in one source-attributed report; add --include-records for complete source records."
+    },
+    {
+      "name": "Garage recall watch",
+      "command": "watch",
+      "description": "Report newly observed recall campaigns and remedy changes for saved vehicles."
+    },
+    {
+      "name": "Defect signal timeline",
+      "command": "signals",
+      "description": "Place complaint and recall events on one normalized timeline and identify the official flat-file sources required for investigations and communications."
+    },
+    {
+      "name": "Honest model comparison",
+      "command": "compare",
+      "description": "Compare two model years while keeping raw complaint counts and missing denominators explicit."
+    },
+    {
+      "name": "Recall coverage reconciliation",
+      "command": "recall-coverage",
+      "description": "Decode one VIN, list matching model-level campaigns, and keep VIN eligibility and repair status explicitly unverified with a link to NHTSA's official lookup."
+    },
+    {
+      "name": "Complaint-to-bulletin bridge",
+      "command": "bulletin-bridge",
+      "description": "Show structured complaint and manufacturer-communication co-occurrence candidates."
+    }
+  ]
+}

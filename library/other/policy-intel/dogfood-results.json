@@ -1,0 +1,44 @@
+{
+  "api_name": "policy-intel",
+  "cli_name": "policy-intel-pp-cli",
+  "run_id": "20260618-063000",
+  "status": "passed",
+  "commands": [
+    {
+      "command": "policy-intel-pp-cli federal-register search \"artificial intelligence\" --agent",
+      "status": "passed",
+      "mode": "live",
+      "source": "FederalRegister.gov"
+    },
+    {
+      "command": "policy-intel-pp-cli rules \"artificial intelligence\" --agent",
+      "status": "passed",
+      "mode": "live",
+      "source": "FederalRegister.gov"
+    },
+    {
+      "command": "policy-intel-pp-cli docket EPA-HQ-OPPT-2018-0462 --agent",
+      "status": "passed",
+      "mode": "live",
+      "source": "Regulations.gov DEMO_KEY"
+    },
+    {
+      "command": "policy-intel-pp-cli comments EPA-HQ-OPPT-2018-0462 --agent",
+      "status": "passed",
+      "mode": "live",
+      "source": "Regulations.gov DEMO_KEY"
+    },
+    {
+      "command": "policy-intel-pp-cli deadlines \"water\" --from 2026-06-18 --agent",
+      "status": "rate_limited",
+      "mode": "live_demo_key",
+      "source": "Regulations.gov DEMO_KEY"
+    }
+  ],
+  "notes": [
+    "Federal Register paths are keyless.",
+    "Regulations.gov paths use POLICY_INTEL_REGULATIONS_API_KEY when configured and DEMO_KEY otherwise.",
+    "Fresh DEMO_KEY validation reached Regulations.gov 429 on the deadlines query after docket/comment smoke calls; the CLI redacted api_key in the surfaced URL.",
+    "No write-side or comment-submission workflow is included."
+  ]
+}

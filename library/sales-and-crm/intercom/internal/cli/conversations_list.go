@@ -19,19 +19,18 @@ func newConversationsListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list",
 		Short:       "You can fetch a list of all conversations.",
-		Example:     "  intercom-pp-cli conversations list",
+		Example:     "  intercom-pp-cli conversations list --agent --select conversations.id,conversations.state,conversations.assignee.id,conversations.tags.id,conversations.title",
 		Annotations: map[string]string{"pp:endpoint": "conversations.list", "pp:method": "GET", "pp:path": "/conversations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/conversations"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/conversations"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "conversations", path, map[string]string{
-				"per_page":       fmt.Sprintf("%v", flagPerPage),
-				"starting_after": fmt.Sprintf("%v", flagStartingAfter),
-			}, nil, flagAll, "", "", "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "conversations", path, map[string]string{
+				"per_page":       formatCLIParamValue(flagPerPage),
+				"starting_after": formatCLIParamValue(flagStartingAfter),
+			}, nil, flagAll, "", "offset", "per_page", 20, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -76,7 +75,7 @@ func newConversationsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().IntVar(&flagPerPage, "per-page", 20, "How many results per page")

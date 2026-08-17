@@ -8,3 +8,22 @@ import "testing"
 func TestNovelAnalyticsCommandTODO(t *testing.T) {
 	t.Skip("TODO: implement table-driven tests for analytics")
 }
+
+func TestYearOf(t *testing.T) {
+	cases := []struct {
+		in   string
+		want string
+	}{
+		{"5.3.26", "2026"},      // ddl short form, single-digit day/month
+		{"22.02.2023", "2023"},  // leggi long form
+		{"16.06.26", "2026"},    // ddl DD.M.YY
+		{"17 giu 2026", "2026"}, // document-body month-name form
+		{"", ""},                // empty
+		{"not a date", ""},      // unparseable
+	}
+	for _, c := range cases {
+		if got := yearOf(c.in); got != c.want {
+			t.Errorf("yearOf(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}

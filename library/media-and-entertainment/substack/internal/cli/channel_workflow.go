@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
@@ -72,7 +72,12 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 
 			for _, resource := range resources {
-				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, nil, syncEventWriter)
+				extraParams, err := syncResourceExtraParams(cmd.Context(), c, flags, resource)
+				if err != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, err)
+					continue
+				}
+				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, nil, syncEventWriter, extraParams)
 				if res.Err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
 					continue

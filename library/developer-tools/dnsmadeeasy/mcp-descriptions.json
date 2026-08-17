@@ -1,0 +1,9 @@
+{
+  "descriptions": {
+    "acl_list": "List all zone-transfer ACLs on the account. Takes no parameters. Returns an array of TransferACL objects, each with a numeric id and name. Use this to discover ACL ids before calling acl_get or acl_delete.",
+    "acl_delete": "Delete a zone-transfer ACL by its numeric id (required, path parameter). Permanently removes the ACL and is not reversible — destructive. Call acl_list first to find the id.",
+    "folders_list": "List all security folders on the account. Takes no parameters. Returns an array of Folder objects, each with a numeric id, name, and defaultFolder flag. Use this to find folder ids before calling folders_get.",
+    "templates_list": "List all DNS record templates on the account. Takes no parameters. Returns an array of Template objects, each with a numeric id, name, and publicTemplate flag. Use this to discover template ids before calling templates_get, templates_update, or templates_delete.",
+    "templates_delete": "Delete a DNS record template by its numeric id (required, path parameter). Permanently removes the template and its records, and is not reversible — destructive. Call templates_list first to find the id."
+  }
+}

@@ -9,9 +9,11 @@ import (
 
 func newMeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "me",
-		Short:  "Manage me",
-		Hidden: true,
+		Use:         "me",
+		Short:       "Get, create, add, update, delete, and remove me",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMeAddToQueueCmd(flags))

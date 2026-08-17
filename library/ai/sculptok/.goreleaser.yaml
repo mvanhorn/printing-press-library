@@ -1,0 +1,51 @@
+version: 2
+project_name: sculptok-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: sculptok-pp-cli
+    main: ./cmd/sculptok-pp-cli
+    binary: sculptok-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/sculptok/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: sculptok-pp-mcp
+    main: ./cmd/sculptok-pp-mcp
+    binary: sculptok-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: sculptok-pp-cli
+    repository:
+      owner: vcolombo
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first CLI and MCP for SculptOK: turn a local image into a depth map, printable STL, or 3D model in one command"
+    install: |
+      bin.install "sculptok-pp-cli"
+      bin.install "sculptok-pp-mcp"

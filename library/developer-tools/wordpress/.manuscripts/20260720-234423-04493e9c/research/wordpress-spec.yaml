@@ -1,0 +1,5183 @@
+name: wordpress
+description: "WordPress REST API CLI — manage any WordPress site over HTTPS, no SSH required"
+version: 0.1.0
+category: developer-tools
+base_url: "https://wordpress.org/news/wp-json"
+health_check_path: "/wp/v2"
+auth:
+  type: api_key
+  header: Authorization
+  format: "Basic {username}:{password}"
+  in: header
+  env_vars: [WORDPRESS_USER, WORDPRESS_APP_PASSWORD]
+config:
+  format: toml
+  path: "~/.config/wordpress-pp-cli/config.toml"
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 30s
+learn:
+  entity_lookup_seeds:
+    post_status:
+      - canonical: publish
+        aliases: [published, live, public]
+      - canonical: draft
+        aliases: [drafts, unpublished, wip]
+      - canonical: future
+        aliases: [scheduled, queued]
+      - canonical: pending
+        aliases: [pending review, awaiting review, submitted]
+      - canonical: private
+        aliases: [hidden]
+      - canonical: trash
+        aliases: [trashed, deleted, bin]
+    post_type:
+      - canonical: post
+        aliases: [posts, article, articles, blog post]
+      - canonical: page
+        aliases: [pages, static page]
+      - canonical: attachment
+        aliases: [media, image, images, upload, uploads]
+      - canonical: wp_block
+        aliases: [reusable block, synced pattern, block]
+      - canonical: wp_template
+        aliases: [template, site template]
+      - canonical: wp_template_part
+        aliases: [template part, header template, footer template]
+      - canonical: nav_menu_item
+        aliases: [menu item, nav item]
+    context:
+      - canonical: view
+        aliases: [read, public view]
+      - canonical: edit
+        aliases: [editor, raw, with raw fields]
+      - canonical: embed
+        aliases: [minimal, summary]
+    comment_status:
+      - canonical: approved
+        aliases: [approve, live comments]
+      - canonical: hold
+        aliases: [pending, moderation, unapproved, awaiting moderation]
+      - canonical: spam
+        aliases: [junk]
+  ticker_patterns: ["^[0-9]+$"]
+  synonyms:
+    most recent: latest
+    newest: latest
+    writer: author
+    categories: category
+    tags: tag
+  stopwords: [wordpress, wp, site]
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+resources:
+  site-health:
+    description: WordPress Site Health checks
+    endpoints:
+      directory-sizes:
+        method: GET
+        path: "/wp-site-health/v1/directory-sizes"
+        response:
+          type: object
+      authorization-header:
+        method: GET
+        path: "/wp-site-health/v1/tests/authorization-header"
+        response:
+          type: object
+      background-updates:
+        method: GET
+        path: "/wp-site-health/v1/tests/background-updates"
+        response:
+          type: object
+      dotorg-communication:
+        method: GET
+        path: "/wp-site-health/v1/tests/dotorg-communication"
+        response:
+          type: object
+      https-status:
+        method: GET
+        path: "/wp-site-health/v1/tests/https-status"
+        response:
+          type: object
+      loopback-requests:
+        method: GET
+        path: "/wp-site-health/v1/tests/loopback-requests"
+        response:
+          type: object
+      page-cache:
+        method: GET
+        path: "/wp-site-health/v1/tests/page-cache"
+        response:
+          type: object
+  block-directory:
+    description: Search the block directory
+    endpoints:
+      search:
+        method: GET
+        path: "/wp/v2/block-directory/search"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: term
+            type: string
+            required: true
+            description: Limit result set to blocks matching the search term.
+        response:
+          type: array
+        no_auth: true
+  block-patterns:
+    description: Block pattern categories
+    endpoints:
+      categories:
+        method: GET
+        path: "/wp/v2/block-patterns/categories"
+        response:
+          type: array
+        no_auth: true
+      list:
+        method: GET
+        path: "/wp/v2/block-patterns/patterns"
+        response:
+          type: array
+        no_auth: true
+  block-renderer:
+    description: Render a block server-side
+    endpoints:
+      render:
+        method: GET
+        path: "/wp/v2/block-renderer/{name}"
+        params:
+          - name: name
+            type: string
+            positional: true
+            required: true
+            description: Name identifier
+          - name: name
+            type: string
+            description: Unique registered name for the block.
+          - name: context
+            type: string
+            enum: [edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: attributes
+            type: string
+            description: Attributes for the block.
+          - name: post_id
+            type: int
+            description: ID of the post context.
+        response:
+          type: object
+  block-types:
+    description: Registered block types
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/block-types"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: namespace
+            type: string
+            description: Block namespace.
+        response:
+          type: array
+        no_auth: true
+      get:
+        method: GET
+        path: "/wp/v2/block-types/{namespace}"
+        params:
+          - name: namespace
+            type: string
+            positional: true
+            required: true
+            description: Namespace identifier
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: namespace
+            type: string
+            description: Block namespace.
+        response:
+          type: object
+        no_auth: true
+  blocks:
+    description: "Reusable blocks (wp_block)"
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/blocks"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: after
+            type: string
+            description: Limit response to posts published after a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_after
+            type: string
+            description: Limit response to posts modified after a given ISO8601 compliant date.
+            format: date-time
+          - name: before
+            type: string
+            description: Limit response to posts published before a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_before
+            type: string
+            description: Limit response to posts modified before a given ISO8601 compliant date.
+            format: date-time
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: search_semantics
+            type: string
+            enum: [exact]
+            description: How to interpret the search input.
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [author, date, id, include, modified, parent, relevance, slug, include_slugs, title]
+            description: Sort collection by post attribute.
+          - name: search_columns
+            type: string
+            enum: [post_title, post_content, post_excerpt]
+            description: "Array of column names to be searched. (comma-separated)"
+          - name: slug
+            type: string
+            description: "Limit result set to posts with one or more specific slugs. (comma-separated)"
+          - name: status
+            type: string
+            default: publish
+            enum: [publish, future, draft, pending, private, trash, auto-draft, inherit, any]
+            description: "Limit result set to posts assigned one or more statuses. (comma-separated)"
+          - name: tax_relation
+            type: string
+            enum: [AND, OR]
+            description: Limit result set based on relationship between multiple taxonomies.
+          - name: wp_pattern_category
+            type: string
+            description: Limit result set to items with specific terms assigned in the wp_pattern_category taxonomy.
+          - name: wp_pattern_category_exclude
+            type: string
+            description: Limit result set to items except those with specific terms assigned in the wp_pattern_category taxonomy.
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/blocks"
+        body:
+          - name: date
+            type: string
+            description: "The date the post was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the post was published, as GMT."
+            format: date-time
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the post unique to its type.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the post.
+          - name: password
+            type: string
+            description: A password to protect access to the content and excerpt.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: content
+            type: string
+            description: The content for the post.
+          - name: excerpt
+            type: string
+            description: The excerpt for the post.
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: template
+            type: string
+            description: The theme file to use to display the post.
+          - name: wp_pattern_category
+            type: string
+            description: "The terms assigned to the post in the wp_pattern_category taxonomy. (comma-separated)"
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/blocks/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: excerpt_length
+            type: int
+            description: Override the default excerpt length.
+          - name: password
+            type: string
+            description: The password for the post if it is password protected.
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/blocks/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: date
+            type: string
+            description: "The date the post was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the post was published, as GMT."
+            format: date-time
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the post unique to its type.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the post.
+          - name: password
+            type: string
+            description: A password to protect access to the content and excerpt.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: content
+            type: string
+            description: The content for the post.
+          - name: excerpt
+            type: string
+            description: The excerpt for the post.
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: template
+            type: string
+            description: The theme file to use to display the post.
+          - name: wp_pattern_category
+            type: string
+            description: "The terms assigned to the post in the wp_pattern_category taxonomy. (comma-separated)"
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/blocks/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  blocks-autosaves:
+    description: Blocks autosaves
+    endpoints:
+      get:
+        method: GET
+        path: "/wp/v2/blocks/{parent}/autosaves/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the autosave.
+          - name: id
+            type: int
+            description: The ID for the autosave.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+  block-revisions:
+    description: Blocks revisions
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/blocks/{parent}/revisions"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [date, id, include, relevance, slug, include_slugs, title]
+            description: Sort collection by object attribute.
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp/v2/blocks/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the revision.
+          - name: id
+            type: int
+            description: Unique identifier for the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/blocks/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  categories:
+    description: Categories
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/categories"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: order
+            type: string
+            default: asc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: name
+            enum: [id, include, name, slug, include_slugs, term_group, description, count]
+            description: Sort collection by term attribute.
+          - name: hide_empty
+            type: bool
+            default: false
+            description: Whether to hide terms not assigned to any posts.
+          - name: parent
+            type: int
+            description: Limit result set to terms assigned to a specific parent.
+          - name: post
+            type: int
+            description: Limit result set to terms assigned to a specific post.
+          - name: slug
+            type: string
+            description: "Limit result set to terms with one or more specific slugs. (comma-separated)"
+        response:
+          type: array
+        no_auth: true
+      create:
+        method: POST
+        path: "/wp/v2/categories"
+        body:
+          - name: description
+            type: string
+            description: HTML description of the term.
+          - name: name
+            type: string
+            required: true
+            description: HTML title for the term.
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the term unique to its type.
+          - name: parent
+            type: int
+            description: The parent term ID.
+          - name: meta
+            type: string
+            description: Meta fields.
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/categories/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the term.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+        no_auth: true
+      update:
+        method: POST
+        path: "/wp/v2/categories/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the term.
+          - name: description
+            type: string
+            description: HTML description of the term.
+          - name: name
+            type: string
+            description: HTML title for the term.
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the term unique to its type.
+          - name: parent
+            type: int
+            description: The parent term ID.
+          - name: meta
+            type: string
+            description: Meta fields.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/categories/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  comments:
+    description: Comments
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/comments"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: after
+            type: string
+            description: Limit response to comments published after a given ISO8601 compliant date.
+            format: date-time
+          - name: author
+            type: string
+            description: "Limit result set to comments assigned to specific user IDs. Requires authorization. (comma-separated)"
+          - name: author_exclude
+            type: string
+            description: "Ensure result set excludes comments assigned to specific user IDs. Requires authorization. (comma-separated)"
+          - name: author_email
+            type: string
+            description: Limit result set to that from a specific author email. Requires authorization.
+            format: email
+          - name: before
+            type: string
+            description: Limit response to comments published before a given ISO8601 compliant date.
+            format: date-time
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date_gmt
+            enum: [date, date_gmt, id, include, post, parent, type]
+            description: Sort collection by comment attribute.
+          - name: parent
+            type: string
+            description: "Limit result set to comments of specific parent IDs. (comma-separated)"
+          - name: parent_exclude
+            type: string
+            description: "Ensure result set excludes specific parent IDs. (comma-separated)"
+          - name: post
+            type: string
+            description: "Limit result set to comments assigned to specific post IDs. (comma-separated)"
+          - name: status
+            type: string
+            default: approve
+            description: Limit result set to comments assigned a specific status. Requires authorization.
+          - name: type
+            type: string
+            default: comment
+            description: Limit result set to comments assigned a specific type. Requires authorization.
+          - name: password
+            type: string
+            description: The password for the post if it is password protected.
+        response:
+          type: array
+        no_auth: true
+      create:
+        method: POST
+        path: "/wp/v2/comments"
+        body:
+          - name: author
+            type: int
+            description: "The ID of the user object, if author was a user."
+          - name: author_email
+            type: string
+            description: Email address for the comment author.
+            format: email
+          - name: author_ip
+            type: string
+            description: IP address for the comment author.
+            format: ip
+          - name: author_name
+            type: string
+            description: Display name for the comment author.
+          - name: author_url
+            type: string
+            description: URL for the comment author.
+            format: uri
+          - name: author_user_agent
+            type: string
+            description: User agent for the comment author.
+          - name: content
+            type: string
+            description: The content for the comment.
+          - name: date
+            type: string
+            description: "The date the comment was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the comment was published, as GMT."
+            format: date-time
+          - name: parent
+            type: int
+            default: 0
+            description: The ID for the parent of the comment.
+          - name: post
+            type: int
+            default: 0
+            description: The ID of the associated post object.
+          - name: status
+            type: string
+            description: State of the comment.
+          - name: meta
+            type: string
+            description: Meta fields.
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/comments/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the comment.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: password
+            type: string
+            description: "The password for the parent post of the comment (if the post is password protected)."
+        response:
+          type: object
+        no_auth: true
+      update:
+        method: POST
+        path: "/wp/v2/comments/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the comment.
+          - name: author
+            type: int
+            description: "The ID of the user object, if author was a user."
+          - name: author_email
+            type: string
+            description: Email address for the comment author.
+            format: email
+          - name: author_ip
+            type: string
+            description: IP address for the comment author.
+            format: ip
+          - name: author_name
+            type: string
+            description: Display name for the comment author.
+          - name: author_url
+            type: string
+            description: URL for the comment author.
+            format: uri
+          - name: author_user_agent
+            type: string
+            description: User agent for the comment author.
+          - name: content
+            type: string
+            description: The content for the comment.
+          - name: date
+            type: string
+            description: "The date the comment was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the comment was published, as GMT."
+            format: date-time
+          - name: parent
+            type: int
+            description: The ID for the parent of the comment.
+          - name: post
+            type: int
+            description: The ID of the associated post object.
+          - name: status
+            type: string
+            description: State of the comment.
+          - name: meta
+            type: string
+            description: Meta fields.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/comments/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  font-collections:
+    description: Font collections
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/font-collections"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+        response:
+          type: array
+        no_auth: true
+      get:
+        method: GET
+        path: "/wp/v2/font-collections/{slug}"
+        params:
+          - name: slug
+            type: string
+            positional: true
+            required: true
+            description: Slug identifier
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+        no_auth: true
+  font-families:
+    description: Font families
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/font-families"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: search_semantics
+            type: string
+            enum: [exact]
+            description: How to interpret the search input.
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: id
+            enum: [id, include]
+            description: Sort collection by post attribute.
+          - name: slug
+            type: string
+            description: "Limit result set to posts with one or more specific slugs. (comma-separated)"
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/font-families"
+        body:
+          - name: theme_json_version
+            type: int
+            default: 3
+            description: Version of the theme.json schema used for the typography settings.
+          - name: font_family_settings
+            type: string
+            required: true
+            description: "font-family declaration in theme.json format, encoded as a string."
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/font-families/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/font-families/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: theme_json_version
+            type: int
+            default: 3
+            description: Version of the theme.json schema used for the typography settings.
+          - name: font_family_settings
+            type: string
+            required: true
+            description: "font-family declaration in theme.json format, encoded as a string."
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/font-families/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  font-faces:
+    description: Font faces within a font family
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/font-families/{font_family_id}/font-faces"
+        params:
+          - name: font_family_id
+            type: int
+            positional: true
+            required: true
+            description: Font Family Id identifier
+          - name: font_family_id
+            type: int
+            required: true
+            description: The ID for the parent font family of the font face.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: search_semantics
+            type: string
+            enum: [exact]
+            description: How to interpret the search input.
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: id
+            enum: [id, include]
+            description: Sort collection by post attribute.
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/font-families/{font_family_id}/font-faces"
+        params:
+          - name: font_family_id
+            type: int
+            positional: true
+            required: true
+            description: Font Family Id identifier
+        body:
+          - name: font_family_id
+            type: int
+            required: true
+            description: The ID for the parent font family of the font face.
+          - name: theme_json_version
+            type: int
+            default: 3
+            description: Version of the theme.json schema used for the typography settings.
+          - name: font_face_settings
+            type: string
+            required: true
+            description: "font-face declaration in theme.json format, encoded as a string."
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/font-families/{font_family_id}/font-faces/{id}"
+        params:
+          - name: font_family_id
+            type: int
+            positional: true
+            required: true
+            description: Font Family Id identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: font_family_id
+            type: int
+            required: true
+            description: The ID for the parent font family of the font face.
+          - name: id
+            type: int
+            required: true
+            description: Unique identifier for the font face.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/font-families/{font_family_id}/font-faces/{id}"
+        params:
+          - name: font_family_id
+            type: int
+            positional: true
+            required: true
+            description: Font Family Id identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  global-styles:
+    description: "Global styles (theme.json)"
+    endpoints:
+      get:
+        method: GET
+        path: "/wp/v2/global-styles/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: ID of global styles config.
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/global-styles/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: styles
+            type: string
+            description: Global styles.
+          - name: settings
+            type: string
+            description: Global settings.
+          - name: title
+            type: string
+            description: Title of the global styles variation.
+        response:
+          type: object
+      variations:
+        method: GET
+        path: "/wp/v2/global-styles/themes/{stylesheet}/variations"
+        params:
+          - name: stylesheet
+            type: string
+            positional: true
+            required: true
+            description: Stylesheet identifier
+          - name: stylesheet
+            type: string
+            description: The theme identifier
+        response:
+          type: object
+      theme:
+        method: GET
+        path: "/wp/v2/global-styles/themes/{stylesheet}"
+        params:
+          - name: stylesheet
+            type: string
+            positional: true
+            required: true
+            description: Stylesheet identifier
+          - name: stylesheet
+            type: string
+            description: The theme identifier
+        response:
+          type: object
+  global-styles-revisions:
+    description: Global-Styles revisions
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/global-styles/{parent}/revisions"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            description: Maximum number of items to be returned in result set.
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp/v2/global-styles/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the global styles revision.
+          - name: id
+            type: int
+            description: Unique identifier for the global styles revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+  media:
+    description: Media library items
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/media"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: after
+            type: string
+            description: Limit response to posts published after a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_after
+            type: string
+            description: Limit response to posts modified after a given ISO8601 compliant date.
+            format: date-time
+          - name: author
+            type: string
+            description: "Limit result set to posts assigned to specific authors. (comma-separated)"
+          - name: author_exclude
+            type: string
+            description: "Ensure result set excludes posts assigned to specific authors. (comma-separated)"
+          - name: before
+            type: string
+            description: Limit response to posts published before a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_before
+            type: string
+            description: Limit response to posts modified before a given ISO8601 compliant date.
+            format: date-time
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: search_semantics
+            type: string
+            enum: [exact]
+            description: How to interpret the search input.
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [author, date, id, include, modified, parent, relevance, slug, include_slugs, title]
+            description: Sort collection by post attribute.
+          - name: parent
+            type: string
+            description: "Limit result set to items with particular parent IDs. (comma-separated)"
+          - name: parent_exclude
+            type: string
+            description: "Limit result set to all items except those of a particular parent ID. (comma-separated)"
+          - name: search_columns
+            type: string
+            enum: [post_title, post_content, post_excerpt]
+            description: "Array of column names to be searched. (comma-separated)"
+          - name: slug
+            type: string
+            description: "Limit result set to posts with one or more specific slugs. (comma-separated)"
+          - name: status
+            type: string
+            default: inherit
+            enum: [inherit, private, trash]
+            description: "Limit result set to posts assigned one or more statuses. (comma-separated)"
+          - name: media_type
+            type: string
+            enum: [image, audio, video, application, text]
+            description: "Limit result set to attachments of a particular media type or media types. (comma-separated)"
+          - name: mime_type
+            type: string
+            description: "Limit result set to attachments of a particular MIME type or MIME types. (comma-separated)"
+        response:
+          type: array
+        no_auth: true
+      create:
+        method: POST
+        path: "/wp/v2/media"
+        body:
+          - name: date
+            type: string
+            description: "The date the post was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the post was published, as GMT."
+            format: date-time
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the post unique to its type.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the post.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: author
+            type: int
+            description: The ID for the author of the post.
+          - name: featured_media
+            type: int
+            description: The ID of the featured media for the post.
+          - name: comment_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not comments are open on the post.
+          - name: ping_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not the post can be pinged.
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: template
+            type: string
+            description: The theme file to use to display the post.
+          - name: jetpack_sharing_enabled
+            type: bool
+            description: "Are sharing buttons enabled?"
+          - name: alt_text
+            type: string
+            description: Alternative text to display when attachment is not displayed.
+          - name: caption
+            type: string
+            description: The attachment caption.
+          - name: description
+            type: string
+            description: The attachment description.
+          - name: post
+            type: int
+            description: The ID for the associated post of the attachment.
+          - name: generate_sub_sizes
+            type: bool
+            default: true
+            description: Whether to generate image sub sizes.
+          - name: convert_format
+            type: bool
+            default: true
+            description: Whether to convert image formats.
+          - name: url
+            type: string
+            description: "URL of an external image to sideload into the media library, instead of uploading a file."
+            format: uri
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/media/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+        no_auth: true
+      update:
+        method: POST
+        path: "/wp/v2/media/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: date
+            type: string
+            description: "The date the post was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the post was published, as GMT."
+            format: date-time
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the post unique to its type.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the post.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: author
+            type: int
+            description: The ID for the author of the post.
+          - name: featured_media
+            type: int
+            description: The ID of the featured media for the post.
+          - name: comment_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not comments are open on the post.
+          - name: ping_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not the post can be pinged.
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: template
+            type: string
+            description: The theme file to use to display the post.
+          - name: jetpack_sharing_enabled
+            type: bool
+            description: "Are sharing buttons enabled?"
+          - name: alt_text
+            type: string
+            description: Alternative text to display when attachment is not displayed.
+          - name: caption
+            type: string
+            description: The attachment caption.
+          - name: description
+            type: string
+            description: The attachment description.
+          - name: post
+            type: int
+            description: The ID for the associated post of the attachment.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/media/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+      edit:
+        method: POST
+        path: "/wp/v2/media/{id}/edit"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: src
+            type: string
+            required: true
+            description: URL to the edited image file.
+            format: uri
+          - name: modifiers
+            type: string
+            description: "Array of image edits. (comma-separated)"
+          - name: rotation
+            type: int
+            description: "The amount to rotate the image clockwise in degrees. DEPRECATED: Use `modifiers` instead."
+          - name: x
+            type: float
+            description: "As a percentage of the image, the x position to start the crop from. DEPRECATED: Use `modifiers` instead."
+          - name: y
+            type: float
+            description: "As a percentage of the image, the y position to start the crop from. DEPRECATED: Use `modifiers` instead."
+          - name: width
+            type: float
+            description: "As a percentage of the image, the width to crop the image to. DEPRECATED: Use `modifiers` instead."
+          - name: height
+            type: float
+            description: "As a percentage of the image, the height to crop the image to. DEPRECATED: Use `modifiers` instead."
+          - name: caption
+            type: string
+            description: The attachment caption.
+          - name: description
+            type: string
+            description: The attachment description.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: post
+            type: int
+            description: The ID for the associated post of the attachment.
+          - name: alt_text
+            type: string
+            description: Alternative text to display when attachment is not displayed.
+        response:
+          type: object
+      post-process:
+        method: POST
+        path: "/wp/v2/media/{id}/post-process"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the attachment.
+          - name: action
+            type: string
+            required: true
+            enum: [create-image-subsizes]
+        response:
+          type: object
+  menu-items:
+    description: Navigation menu items
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/menu-items"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 100
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: after
+            type: string
+            description: Limit response to posts published after a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_after
+            type: string
+            description: Limit response to posts modified after a given ISO8601 compliant date.
+            format: date-time
+          - name: before
+            type: string
+            description: Limit response to posts published before a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_before
+            type: string
+            description: Limit response to posts modified before a given ISO8601 compliant date.
+            format: date-time
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: search_semantics
+            type: string
+            enum: [exact]
+            description: How to interpret the search input.
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: asc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: menu_order
+            enum: [author, date, id, include, modified, parent, relevance, slug, include_slugs, title, menu_order]
+            description: Sort collection by object attribute.
+          - name: search_columns
+            type: string
+            enum: [post_title, post_content, post_excerpt]
+            description: "Array of column names to be searched. (comma-separated)"
+          - name: slug
+            type: string
+            description: "Limit result set to posts with one or more specific slugs. (comma-separated)"
+          - name: status
+            type: string
+            default: publish
+            enum: [publish, future, draft, pending, private, trash, auto-draft, inherit, any]
+            description: "Limit result set to posts assigned one or more statuses. (comma-separated)"
+          - name: tax_relation
+            type: string
+            enum: [AND, OR]
+            description: Limit result set based on relationship between multiple taxonomies.
+          - name: menus
+            type: string
+            description: Limit result set to items with specific terms assigned in the menus taxonomy.
+          - name: menus_exclude
+            type: string
+            description: Limit result set to items except those with specific terms assigned in the menus taxonomy.
+          - name: menu_order
+            type: int
+            description: Limit result set to posts with a specific menu_order value.
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/menu-items"
+        body:
+          - name: title
+            type: string
+            description: The title for the object.
+          - name: type
+            type: string
+            default: custom
+            enum: [taxonomy, post_type, post_type_archive, custom]
+            description: "The family of objects originally represented, such as \"post_type\" or \"taxonomy\"."
+          - name: status
+            type: string
+            default: publish
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the object.
+          - name: parent
+            type: int
+            default: 0
+            description: The ID for the parent of the object.
+          - name: attr_title
+            type: string
+            description: Text for the title attribute of the link element for this menu item.
+          - name: classes
+            type: string
+            description: "Class names for the link element of this menu item. (comma-separated)"
+          - name: description
+            type: string
+            description: The description of this menu item.
+          - name: menu_order
+            type: int
+            default: 1
+            description: "The DB ID of the nav_menu_item that is this item's menu parent, if any, otherwise 0."
+          - name: object
+            type: string
+            description: "The type of object originally represented, such as \"category\", \"post\", or \"attachment\"."
+          - name: object_id
+            type: int
+            default: 0
+            description: "The database ID of the original object this menu item represents, for example the ID for posts or the term_id for categories."
+          - name: target
+            type: string
+            enum: [_blank, ""]
+            description: The target attribute of the link element for this menu item.
+          - name: url
+            type: string
+            description: The URL to which this menu item points.
+            format: uri
+          - name: xfn
+            type: string
+            description: "The XFN relationship expressed in the link of this menu item. (comma-separated)"
+          - name: menus
+            type: int
+            description: The terms assigned to the object in the nav_menu taxonomy.
+          - name: meta
+            type: string
+            description: Meta fields.
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/menu-items/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/menu-items/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: title
+            type: string
+            description: The title for the object.
+          - name: type
+            type: string
+            enum: [taxonomy, post_type, post_type_archive, custom]
+            description: "The family of objects originally represented, such as \"post_type\" or \"taxonomy\"."
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the object.
+          - name: parent
+            type: int
+            description: The ID for the parent of the object.
+          - name: attr_title
+            type: string
+            description: Text for the title attribute of the link element for this menu item.
+          - name: classes
+            type: string
+            description: "Class names for the link element of this menu item. (comma-separated)"
+          - name: description
+            type: string
+            description: The description of this menu item.
+          - name: menu_order
+            type: int
+            description: "The DB ID of the nav_menu_item that is this item's menu parent, if any, otherwise 0."
+          - name: object
+            type: string
+            description: "The type of object originally represented, such as \"category\", \"post\", or \"attachment\"."
+          - name: object_id
+            type: int
+            description: "The database ID of the original object this menu item represents, for example the ID for posts or the term_id for categories."
+          - name: target
+            type: string
+            enum: [_blank, ""]
+            description: The target attribute of the link element for this menu item.
+          - name: url
+            type: string
+            description: The URL to which this menu item points.
+            format: uri
+          - name: xfn
+            type: string
+            description: "The XFN relationship expressed in the link of this menu item. (comma-separated)"
+          - name: menus
+            type: int
+            description: The terms assigned to the object in the nav_menu taxonomy.
+          - name: meta
+            type: string
+            description: Meta fields.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/menu-items/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  menu-items-autosaves:
+    description: Menu-Items autosaves
+    endpoints:
+      get:
+        method: GET
+        path: "/wp/v2/menu-items/{parent}/autosaves/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the autosave.
+          - name: id
+            type: int
+            description: The ID for the autosave.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+  menu-locations:
+    description: Registered menu locations
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/menu-locations"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: array
+        no_auth: true
+      get:
+        method: GET
+        path: "/wp/v2/menu-locations/{location}"
+        params:
+          - name: location
+            type: string
+            positional: true
+            required: true
+            description: Location identifier
+          - name: location
+            type: string
+            description: An alphanumeric identifier for the menu location.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+        no_auth: true
+  menus:
+    description: Navigation menus
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/menus"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: asc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: name
+            enum: [id, include, name, slug, include_slugs, term_group, description, count]
+            description: Sort collection by term attribute.
+          - name: hide_empty
+            type: bool
+            default: false
+            description: Whether to hide terms not assigned to any posts.
+          - name: post
+            type: int
+            description: Limit result set to terms assigned to a specific post.
+          - name: slug
+            type: string
+            description: "Limit result set to terms with one or more specific slugs. (comma-separated)"
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/menus"
+        body:
+          - name: description
+            type: string
+            description: HTML description of the term.
+          - name: name
+            type: string
+            required: true
+            description: HTML title for the term.
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the term unique to its type.
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: locations
+            type: string
+            description: "The locations assigned to the menu. (comma-separated)"
+          - name: auto_add
+            type: bool
+            description: Whether to automatically add top level pages to this menu.
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/menus/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the term.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/menus/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the term.
+          - name: description
+            type: string
+            description: HTML description of the term.
+          - name: name
+            type: string
+            description: HTML title for the term.
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the term unique to its type.
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: locations
+            type: string
+            description: "The locations assigned to the menu. (comma-separated)"
+          - name: auto_add
+            type: bool
+            description: Whether to automatically add top level pages to this menu.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/menus/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  navigation:
+    description: "Navigation post type (wp_navigation)"
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/navigation"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: after
+            type: string
+            description: Limit response to posts published after a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_after
+            type: string
+            description: Limit response to posts modified after a given ISO8601 compliant date.
+            format: date-time
+          - name: before
+            type: string
+            description: Limit response to posts published before a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_before
+            type: string
+            description: Limit response to posts modified before a given ISO8601 compliant date.
+            format: date-time
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: search_semantics
+            type: string
+            enum: [exact]
+            description: How to interpret the search input.
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [author, date, id, include, modified, parent, relevance, slug, include_slugs, title]
+            description: Sort collection by post attribute.
+          - name: search_columns
+            type: string
+            enum: [post_title, post_content, post_excerpt]
+            description: "Array of column names to be searched. (comma-separated)"
+          - name: slug
+            type: string
+            description: "Limit result set to posts with one or more specific slugs. (comma-separated)"
+          - name: status
+            type: string
+            default: publish
+            enum: [publish, future, draft, pending, private, trash, auto-draft, inherit, any]
+            description: "Limit result set to posts assigned one or more statuses. (comma-separated)"
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/navigation"
+        body:
+          - name: date
+            type: string
+            description: "The date the post was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the post was published, as GMT."
+            format: date-time
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the post unique to its type.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the post.
+          - name: password
+            type: string
+            description: A password to protect access to the content and excerpt.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: content
+            type: string
+            description: The content for the post.
+          - name: template
+            type: string
+            description: The theme file to use to display the post.
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/navigation/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: password
+            type: string
+            description: The password for the post if it is password protected.
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/navigation/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: date
+            type: string
+            description: "The date the post was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the post was published, as GMT."
+            format: date-time
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the post unique to its type.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the post.
+          - name: password
+            type: string
+            description: A password to protect access to the content and excerpt.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: content
+            type: string
+            description: The content for the post.
+          - name: template
+            type: string
+            description: The theme file to use to display the post.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/navigation/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  navigation-autosaves:
+    description: Navigation autosaves
+    endpoints:
+      get:
+        method: GET
+        path: "/wp/v2/navigation/{parent}/autosaves/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the autosave.
+          - name: id
+            type: int
+            description: The ID for the autosave.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+  navigation-revisions:
+    description: Navigation revisions
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/navigation/{parent}/revisions"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [date, id, include, relevance, slug, include_slugs, title]
+            description: Sort collection by object attribute.
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp/v2/navigation/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the revision.
+          - name: id
+            type: int
+            description: Unique identifier for the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/navigation/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  pages:
+    description: Pages
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/pages"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: after
+            type: string
+            description: Limit response to posts published after a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_after
+            type: string
+            description: Limit response to posts modified after a given ISO8601 compliant date.
+            format: date-time
+          - name: author
+            type: string
+            description: "Limit result set to posts assigned to specific authors. (comma-separated)"
+          - name: author_exclude
+            type: string
+            description: "Ensure result set excludes posts assigned to specific authors. (comma-separated)"
+          - name: before
+            type: string
+            description: Limit response to posts published before a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_before
+            type: string
+            description: Limit response to posts modified before a given ISO8601 compliant date.
+            format: date-time
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: menu_order
+            type: int
+            description: Limit result set to posts with a specific menu_order value.
+          - name: search_semantics
+            type: string
+            enum: [exact]
+            description: How to interpret the search input.
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [author, date, id, include, modified, parent, relevance, slug, include_slugs, title, menu_order]
+            description: Sort collection by post attribute.
+          - name: parent
+            type: string
+            description: "Limit result set to items with particular parent IDs. (comma-separated)"
+          - name: parent_exclude
+            type: string
+            description: "Limit result set to all items except those of a particular parent ID. (comma-separated)"
+          - name: search_columns
+            type: string
+            enum: [post_title, post_content, post_excerpt]
+            description: "Array of column names to be searched. (comma-separated)"
+          - name: slug
+            type: string
+            description: "Limit result set to posts with one or more specific slugs. (comma-separated)"
+          - name: status
+            type: string
+            default: publish
+            enum: [publish, future, draft, pending, private, trash, auto-draft, inherit, any]
+            description: "Limit result set to posts assigned one or more statuses. (comma-separated)"
+        response:
+          type: array
+        no_auth: true
+      create:
+        method: POST
+        path: "/wp/v2/pages"
+        body:
+          - name: date
+            type: string
+            description: "The date the post was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the post was published, as GMT."
+            format: date-time
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the post unique to its type.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the post.
+          - name: password
+            type: string
+            description: A password to protect access to the content and excerpt.
+          - name: parent
+            type: int
+            description: The ID for the parent of the post.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: content
+            type: string
+            description: The content for the post.
+          - name: author
+            type: int
+            description: The ID for the author of the post.
+          - name: excerpt
+            type: string
+            description: The excerpt for the post.
+          - name: featured_media
+            type: int
+            description: The ID of the featured media for the post.
+          - name: comment_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not comments are open on the post.
+          - name: ping_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not the post can be pinged.
+          - name: menu_order
+            type: int
+            description: The order of the post in relation to other posts.
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: template
+            type: string
+            description: The theme file to use to display the post.
+          - name: jetpack_sharing_enabled
+            type: bool
+            description: "Are sharing buttons enabled?"
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/pages/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: excerpt_length
+            type: int
+            description: Override the default excerpt length.
+          - name: password
+            type: string
+            description: The password for the post if it is password protected.
+        response:
+          type: object
+        no_auth: true
+      update:
+        method: POST
+        path: "/wp/v2/pages/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: date
+            type: string
+            description: "The date the post was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the post was published, as GMT."
+            format: date-time
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the post unique to its type.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the post.
+          - name: password
+            type: string
+            description: A password to protect access to the content and excerpt.
+          - name: parent
+            type: int
+            description: The ID for the parent of the post.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: content
+            type: string
+            description: The content for the post.
+          - name: author
+            type: int
+            description: The ID for the author of the post.
+          - name: excerpt
+            type: string
+            description: The excerpt for the post.
+          - name: featured_media
+            type: int
+            description: The ID of the featured media for the post.
+          - name: comment_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not comments are open on the post.
+          - name: ping_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not the post can be pinged.
+          - name: menu_order
+            type: int
+            description: The order of the post in relation to other posts.
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: template
+            type: string
+            description: The theme file to use to display the post.
+          - name: jetpack_sharing_enabled
+            type: bool
+            description: "Are sharing buttons enabled?"
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/pages/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  pages-autosaves:
+    description: Pages autosaves
+    endpoints:
+      get:
+        method: GET
+        path: "/wp/v2/pages/{parent}/autosaves/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the autosave.
+          - name: id
+            type: int
+            description: The ID for the autosave.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+  page-revisions:
+    description: Pages revisions
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/pages/{parent}/revisions"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [date, id, include, relevance, slug, include_slugs, title]
+            description: Sort collection by object attribute.
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp/v2/pages/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the revision.
+          - name: id
+            type: int
+            description: Unique identifier for the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/pages/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  pattern-directory:
+    description: Patterns from the pattern directory
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/pattern-directory/patterns"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 100
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: category
+            type: int
+            description: Limit results to those matching a category ID.
+          - name: keyword
+            type: int
+            description: Limit results to those matching a keyword ID.
+          - name: slug
+            type: string
+            description: "Limit results to those matching a pattern (slug). (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [author, date, id, include, modified, parent, relevance, slug, include_slugs, title, favorite_count]
+            description: Sort collection by post attribute.
+        response:
+          type: array
+        no_auth: true
+  plugins:
+    description: Installed plugins
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/plugins"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: status
+            type: string
+            description: "Limits results to plugins with the given status. (comma-separated)"
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/plugins"
+        body:
+          - name: slug
+            type: string
+            required: true
+            description: WordPress.org plugin directory slug.
+          - name: status
+            type: string
+            default: inactive
+            description: The plugin activation status.
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/plugins/{plugin}"
+        params:
+          - name: plugin
+            type: string
+            positional: true
+            required: true
+            description: Plugin identifier
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: plugin
+            type: string
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/plugins/{plugin}"
+        params:
+          - name: plugin
+            type: string
+            positional: true
+            required: true
+            description: Plugin identifier
+        body:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: plugin
+            type: string
+          - name: status
+            type: string
+            description: The plugin activation status.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/plugins/{plugin}"
+        params:
+          - name: plugin
+            type: string
+            positional: true
+            required: true
+            description: Plugin identifier
+        response:
+          type: object
+  posts:
+    description: Blog posts
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/posts"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: after
+            type: string
+            description: Limit response to posts published after a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_after
+            type: string
+            description: Limit response to posts modified after a given ISO8601 compliant date.
+            format: date-time
+          - name: author
+            type: string
+            description: "Limit result set to posts assigned to specific authors. (comma-separated)"
+          - name: author_exclude
+            type: string
+            description: "Ensure result set excludes posts assigned to specific authors. (comma-separated)"
+          - name: before
+            type: string
+            description: Limit response to posts published before a given ISO8601 compliant date.
+            format: date-time
+          - name: modified_before
+            type: string
+            description: Limit response to posts modified before a given ISO8601 compliant date.
+            format: date-time
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: search_semantics
+            type: string
+            enum: [exact]
+            description: How to interpret the search input.
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [author, date, id, include, modified, parent, relevance, slug, include_slugs, title]
+            description: Sort collection by post attribute.
+          - name: search_columns
+            type: string
+            enum: [post_title, post_content, post_excerpt]
+            description: "Array of column names to be searched. (comma-separated)"
+          - name: slug
+            type: string
+            description: "Limit result set to posts with one or more specific slugs. (comma-separated)"
+          - name: status
+            type: string
+            default: publish
+            enum: [publish, future, draft, pending, private, trash, auto-draft, inherit, any]
+            description: "Limit result set to posts assigned one or more statuses. (comma-separated)"
+          - name: tax_relation
+            type: string
+            enum: [AND, OR]
+            description: Limit result set based on relationship between multiple taxonomies.
+          - name: categories
+            type: string
+            description: Limit result set to items with specific terms assigned in the categories taxonomy.
+          - name: categories_exclude
+            type: string
+            description: Limit result set to items except those with specific terms assigned in the categories taxonomy.
+          - name: tags
+            type: string
+            description: Limit result set to items with specific terms assigned in the tags taxonomy.
+          - name: tags_exclude
+            type: string
+            description: Limit result set to items except those with specific terms assigned in the tags taxonomy.
+          - name: sticky
+            type: bool
+            description: Limit result set to items that are sticky.
+          - name: ignore_sticky
+            type: bool
+            default: true
+            description: Whether to ignore sticky posts or not.
+          - name: format
+            type: string
+            enum: [standard, aside, chat, gallery, link, image, quote, status, video, audio]
+            description: "Limit result set to items assigned one or more given formats. (comma-separated)"
+        response:
+          type: array
+        no_auth: true
+      create:
+        method: POST
+        path: "/wp/v2/posts"
+        body:
+          - name: date
+            type: string
+            description: "The date the post was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the post was published, as GMT."
+            format: date-time
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the post unique to its type.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the post.
+          - name: password
+            type: string
+            description: A password to protect access to the content and excerpt.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: content
+            type: string
+            description: The content for the post.
+          - name: author
+            type: int
+            description: The ID for the author of the post.
+          - name: excerpt
+            type: string
+            description: The excerpt for the post.
+          - name: featured_media
+            type: int
+            description: The ID of the featured media for the post.
+          - name: comment_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not comments are open on the post.
+          - name: ping_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not the post can be pinged.
+          - name: format
+            type: string
+            enum: [standard, aside, chat, gallery, link, image, quote, status, video, audio]
+            description: The format for the post.
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: sticky
+            type: bool
+            description: Whether or not the post should be treated as sticky.
+          - name: template
+            type: string
+            description: The theme file to use to display the post.
+          - name: categories
+            type: string
+            description: "The terms assigned to the post in the category taxonomy. (comma-separated)"
+          - name: tags
+            type: string
+            description: "The terms assigned to the post in the post_tag taxonomy. (comma-separated)"
+          - name: jetpack_publicize_connections
+            type: string
+            description: "(comma-separated)"
+          - name: jetpack_sharing_enabled
+            type: bool
+            description: "Are sharing buttons enabled?"
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/posts/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: excerpt_length
+            type: int
+            description: Override the default excerpt length.
+          - name: password
+            type: string
+            description: The password for the post if it is password protected.
+        response:
+          type: object
+        no_auth: true
+      update:
+        method: POST
+        path: "/wp/v2/posts/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the post.
+          - name: date
+            type: string
+            description: "The date the post was published, in the site's timezone."
+            format: date-time
+          - name: date_gmt
+            type: string
+            description: "The date the post was published, as GMT."
+            format: date-time
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the post unique to its type.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: A named status for the post.
+          - name: password
+            type: string
+            description: A password to protect access to the content and excerpt.
+          - name: title
+            type: string
+            description: The title for the post.
+          - name: content
+            type: string
+            description: The content for the post.
+          - name: author
+            type: int
+            description: The ID for the author of the post.
+          - name: excerpt
+            type: string
+            description: The excerpt for the post.
+          - name: featured_media
+            type: int
+            description: The ID of the featured media for the post.
+          - name: comment_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not comments are open on the post.
+          - name: ping_status
+            type: string
+            enum: [open, closed]
+            description: Whether or not the post can be pinged.
+          - name: format
+            type: string
+            enum: [standard, aside, chat, gallery, link, image, quote, status, video, audio]
+            description: The format for the post.
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: sticky
+            type: bool
+            description: Whether or not the post should be treated as sticky.
+          - name: template
+            type: string
+            description: The theme file to use to display the post.
+          - name: categories
+            type: string
+            description: "The terms assigned to the post in the category taxonomy. (comma-separated)"
+          - name: tags
+            type: string
+            description: "The terms assigned to the post in the post_tag taxonomy. (comma-separated)"
+          - name: jetpack_publicize_connections
+            type: string
+            description: "(comma-separated)"
+          - name: jetpack_sharing_enabled
+            type: bool
+            description: "Are sharing buttons enabled?"
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/posts/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  posts-autosaves:
+    description: Posts autosaves
+    endpoints:
+      get:
+        method: GET
+        path: "/wp/v2/posts/{parent}/autosaves/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the autosave.
+          - name: id
+            type: int
+            description: The ID for the autosave.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+  post-revisions:
+    description: Posts revisions
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/posts/{parent}/revisions"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [date, id, include, relevance, slug, include_slugs, title]
+            description: Sort collection by object attribute.
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp/v2/posts/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: int
+            description: The ID for the parent of the revision.
+          - name: id
+            type: int
+            description: Unique identifier for the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/posts/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: int
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  search:
+    description: Search across post types
+    endpoints:
+      query:
+        method: GET
+        path: "/wp/v2/search"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: type
+            type: string
+            default: post
+            enum: [post, term, post-format]
+            description: Limit results to items of an object type.
+          - name: subtype
+            type: string
+            default: any
+            enum: [post, page, podcast, category, post_tag, series, any]
+            description: "Limit results to items of one or more object subtypes. (comma-separated)"
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+        response:
+          type: array
+        no_auth: true
+  settings:
+    description: Site settings
+    endpoints:
+      get:
+        method: GET
+        path: "/wp/v2/settings"
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/settings"
+        body:
+          - name: public_post_preview_expiration_time
+            type: int
+            description: Default expiration time in seconds.
+          - name: wordpress_api_key
+            type: string
+            description: API key for the Akismet Anti-spam connector.
+          - name: title
+            type: string
+            description: Site title.
+          - name: description
+            type: string
+            description: Site tagline.
+          - name: timezone
+            type: string
+            description: A city in the same timezone as you.
+          - name: date_format
+            type: string
+            description: A date format for all date strings.
+          - name: time_format
+            type: string
+            description: A time format for all time strings.
+          - name: start_of_week
+            type: int
+            description: A day number of the week that the week should start on.
+          - name: language
+            type: string
+            description: WordPress locale code.
+          - name: use_smilies
+            type: bool
+            description: "Convert emoticons like :-) and :-P to graphics on display."
+          - name: default_category
+            type: int
+            description: Default post category.
+          - name: default_post_format
+            type: string
+            description: Default post format.
+          - name: posts_per_page
+            type: int
+            description: Blog pages show at most.
+          - name: show_on_front
+            type: string
+            description: What to show on the front page
+          - name: page_on_front
+            type: int
+            description: The ID of the page that should be displayed on the front page
+          - name: page_for_posts
+            type: int
+            description: The ID of the page that should display the latest posts
+          - name: default_ping_status
+            type: string
+            enum: [open, closed]
+            description: "Allow link notifications from other blogs (pingbacks and trackbacks) on new articles."
+          - name: default_comment_status
+            type: string
+            enum: [open, closed]
+            description: Allow people to submit comments on new posts.
+          - name: site_logo
+            type: int
+            description: Site logo.
+          - name: site_icon
+            type: int
+            description: Site icon.
+          - name: jetpack_social_image_generator_settings
+            type: string
+          - name: jetpack_social_utm_settings
+            type: string
+          - name: jetpack-social_show_pricing_page
+            type: bool
+          - name: jetpack-social-note
+            type: bool
+          - name: jetpack_social_notes_config
+            type: string
+          - name: jetpack_social_message_template
+            type: string
+          - name: cookie_consent_template
+            type: string
+          - name: Blogroll Recommendations
+            type: string
+            description: "Site Recommendations (comma-separated)"
+        response:
+          type: object
+  sidebars:
+    description: Widget sidebars
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/sidebars"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp/v2/sidebars/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: string
+            description: The id of a registered sidebar
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/sidebars/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: widgets
+            type: string
+            description: "Nested widgets. (comma-separated)"
+        response:
+          type: object
+  statuses:
+    description: Registered post statuses
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/statuses"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: array
+        no_auth: true
+      get:
+        method: GET
+        path: "/wp/v2/statuses/{status}"
+        params:
+          - name: status
+            type: string
+            positional: true
+            required: true
+            description: Status identifier
+          - name: status
+            type: string
+            description: An alphanumeric identifier for the status.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+        no_auth: true
+  tags:
+    description: Tags
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/tags"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: asc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: name
+            enum: [id, include, name, slug, include_slugs, term_group, description, count]
+            description: Sort collection by term attribute.
+          - name: hide_empty
+            type: bool
+            default: false
+            description: Whether to hide terms not assigned to any posts.
+          - name: post
+            type: int
+            description: Limit result set to terms assigned to a specific post.
+          - name: slug
+            type: string
+            description: "Limit result set to terms with one or more specific slugs. (comma-separated)"
+        response:
+          type: array
+        no_auth: true
+      create:
+        method: POST
+        path: "/wp/v2/tags"
+        body:
+          - name: description
+            type: string
+            description: HTML description of the term.
+          - name: name
+            type: string
+            required: true
+            description: HTML title for the term.
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the term unique to its type.
+          - name: meta
+            type: string
+            description: Meta fields.
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/tags/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the term.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+        no_auth: true
+      update:
+        method: POST
+        path: "/wp/v2/tags/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the term.
+          - name: description
+            type: string
+            description: HTML description of the term.
+          - name: name
+            type: string
+            description: HTML title for the term.
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the term unique to its type.
+          - name: meta
+            type: string
+            description: Meta fields.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/tags/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  taxonomies:
+    description: Registered taxonomies
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/taxonomies"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: type
+            type: string
+            description: Limit results to taxonomies associated with a specific post type.
+        response:
+          type: array
+        no_auth: true
+      get:
+        method: GET
+        path: "/wp/v2/taxonomies/{taxonomy}"
+        params:
+          - name: taxonomy
+            type: string
+            positional: true
+            required: true
+            description: Taxonomy identifier
+          - name: taxonomy
+            type: string
+            description: An alphanumeric identifier for the taxonomy.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+        no_auth: true
+  template-parts:
+    description: Block template parts
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/template-parts"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: wp_id
+            type: int
+            description: Limit to the specified post id.
+          - name: area
+            type: string
+            description: Limit to the specified template part area.
+          - name: post_type
+            type: string
+            description: Post type to get the templates for.
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/template-parts"
+        body:
+          - name: slug
+            type: string
+            required: true
+            description: Unique slug identifying the template.
+          - name: theme
+            type: string
+            description: Theme identifier for the template.
+          - name: type
+            type: string
+            description: Type of template.
+          - name: content
+            type: string
+            default: ""
+            description: Content of template.
+          - name: title
+            type: string
+            default: ""
+            description: Title of template.
+          - name: description
+            type: string
+            default: ""
+            description: Description of template.
+          - name: status
+            type: string
+            default: publish
+            enum: [publish, future, draft, pending, private]
+            description: Status of template.
+          - name: author
+            type: int
+            description: The ID for the author of the template.
+          - name: area
+            type: string
+            description: "Where the template part is intended for use (header, footer, etc.)"
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/template-parts/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: string
+            description: The id of a template
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/template-parts/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: string
+            description: The id of a template
+          - name: slug
+            type: string
+            description: Unique slug identifying the template.
+          - name: theme
+            type: string
+            description: Theme identifier for the template.
+          - name: type
+            type: string
+            description: Type of template.
+          - name: content
+            type: string
+            description: Content of template.
+          - name: title
+            type: string
+            description: Title of template.
+          - name: description
+            type: string
+            description: Description of template.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: Status of template.
+          - name: author
+            type: int
+            description: The ID for the author of the template.
+          - name: area
+            type: string
+            description: "Where the template part is intended for use (header, footer, etc.)"
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/template-parts/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+      lookup:
+        method: GET
+        path: "/wp/v2/template-parts/lookup"
+        params:
+          - name: slug
+            type: string
+            required: true
+            description: The slug of the template to get the fallback for
+          - name: is_custom
+            type: bool
+            description: Indicates if a template is custom or part of the template hierarchy
+          - name: template_prefix
+            type: string
+            description: "The template prefix for the created template. This is used to extract the main template type, e.g. in `taxonomy-books` extracts the `taxonomy`"
+        response:
+          type: object
+  template-parts-autosaves:
+    description: Template-Parts autosaves
+    endpoints:
+      get:
+        method: GET
+        path: "/wp/v2/template-parts/{parent}/autosaves/{id}"
+        params:
+          - name: parent
+            type: string
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: string
+            description: The id of a template
+          - name: id
+            type: int
+            description: The ID for the autosave.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+  template-part-revisions:
+    description: Template-Parts revisions
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/template-parts/{parent}/revisions"
+        params:
+          - name: parent
+            type: string
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: parent
+            type: string
+            description: The id of a template
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [date, id, include, relevance, slug, include_slugs, title]
+            description: Sort collection by object attribute.
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp/v2/template-parts/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: string
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: string
+            description: The id of a template
+          - name: id
+            type: int
+            description: Unique identifier for the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/template-parts/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: string
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  templates:
+    description: Block templates
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/templates"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: wp_id
+            type: int
+            description: Limit to the specified post id.
+          - name: area
+            type: string
+            description: Limit to the specified template part area.
+          - name: post_type
+            type: string
+            description: Post type to get the templates for.
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/templates"
+        body:
+          - name: slug
+            type: string
+            required: true
+            description: Unique slug identifying the template.
+          - name: theme
+            type: string
+            description: Theme identifier for the template.
+          - name: type
+            type: string
+            description: Type of template.
+          - name: content
+            type: string
+            default: ""
+            description: Content of template.
+          - name: title
+            type: string
+            default: ""
+            description: Title of template.
+          - name: description
+            type: string
+            default: ""
+            description: Description of template.
+          - name: status
+            type: string
+            default: publish
+            enum: [publish, future, draft, pending, private]
+            description: Status of template.
+          - name: author
+            type: int
+            description: The ID for the author of the template.
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/templates/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: string
+            description: The id of a template
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/templates/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: string
+            description: The id of a template
+          - name: slug
+            type: string
+            description: Unique slug identifying the template.
+          - name: theme
+            type: string
+            description: Theme identifier for the template.
+          - name: type
+            type: string
+            description: Type of template.
+          - name: content
+            type: string
+            description: Content of template.
+          - name: title
+            type: string
+            description: Title of template.
+          - name: description
+            type: string
+            description: Description of template.
+          - name: status
+            type: string
+            enum: [publish, future, draft, pending, private]
+            description: Status of template.
+          - name: author
+            type: int
+            description: The ID for the author of the template.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/templates/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+      lookup:
+        method: GET
+        path: "/wp/v2/templates/lookup"
+        params:
+          - name: slug
+            type: string
+            required: true
+            description: The slug of the template to get the fallback for
+          - name: is_custom
+            type: bool
+            description: Indicates if a template is custom or part of the template hierarchy
+          - name: template_prefix
+            type: string
+            description: "The template prefix for the created template. This is used to extract the main template type, e.g. in `taxonomy-books` extracts the `taxonomy`"
+        response:
+          type: object
+  templates-autosaves:
+    description: Templates autosaves
+    endpoints:
+      get:
+        method: GET
+        path: "/wp/v2/templates/{parent}/autosaves/{id}"
+        params:
+          - name: parent
+            type: string
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: string
+            description: The id of a template
+          - name: id
+            type: int
+            description: The ID for the autosave.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+  template-revisions:
+    description: Templates revisions
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/templates/{parent}/revisions"
+        params:
+          - name: parent
+            type: string
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: parent
+            type: string
+            description: The id of a template
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: desc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: date
+            enum: [date, id, include, relevance, slug, include_slugs, title]
+            description: Sort collection by object attribute.
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp/v2/templates/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: string
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: parent
+            type: string
+            description: The id of a template
+          - name: id
+            type: int
+            description: Unique identifier for the revision.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/templates/{parent}/revisions/{id}"
+        params:
+          - name: parent
+            type: string
+            positional: true
+            required: true
+            description: Parent identifier
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  themes:
+    description: Installed themes
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/themes"
+        params:
+          - name: status
+            type: string
+            description: "Limit result set to themes assigned one or more statuses. (comma-separated)"
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp/v2/themes/{stylesheet}"
+        params:
+          - name: stylesheet
+            type: string
+            positional: true
+            required: true
+            description: Stylesheet identifier
+          - name: stylesheet
+            type: string
+            description: "The theme's stylesheet. This uniquely identifies the theme."
+        response:
+          type: object
+  types:
+    description: Registered post types
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/types"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: array
+        no_auth: true
+      get:
+        method: GET
+        path: "/wp/v2/types/{type}"
+        params:
+          - name: type
+            type: string
+            positional: true
+            required: true
+            description: Type identifier
+          - name: type
+            type: string
+            description: An alphanumeric identifier for the post type.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+        no_auth: true
+  users:
+    description: Users
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/users"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: asc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: name
+            enum: [id, include, name, registered_date, slug, include_slugs, email, url]
+            description: Sort collection by user attribute.
+          - name: slug
+            type: string
+            description: "Limit result set to users with one or more specific slugs. (comma-separated)"
+          - name: roles
+            type: string
+            description: "Limit result set to users matching at least one specific role provided. Accepts csv list or single role. (comma-separated)"
+          - name: capabilities
+            type: string
+            description: "Limit result set to users matching at least one specific capability provided. Accepts csv list or single capability. (comma-separated)"
+          - name: who
+            type: string
+            enum: [authors]
+            description: Limit result set to users who are considered authors.
+          - name: has_published_posts
+            type: bool
+            enum: [post, page, attachment, nav_menu_item, wp_block, wp_template, wp_template_part, wp_global_styles, wp_navigation, wp_font_family, wp_font_face, feedback, jetpack_form, jp_act_log_event, jp_pay_order, jp_pay_product, podcast]
+            description: Limit result set to users who have published posts.
+          - name: search_columns
+            type: string
+            enum: [email, name, id, username, slug]
+            description: "Array of column names to be searched. (comma-separated)"
+        response:
+          type: array
+        no_auth: true
+      create:
+        method: POST
+        path: "/wp/v2/users"
+        body:
+          - name: username
+            type: string
+            required: true
+            description: Login name for the user.
+          - name: name
+            type: string
+            description: Display name for the user.
+          - name: first_name
+            type: string
+            description: First name for the user.
+          - name: last_name
+            type: string
+            description: Last name for the user.
+          - name: email
+            type: string
+            required: true
+            description: The email address for the user.
+            format: email
+          - name: url
+            type: string
+            description: URL of the user.
+            format: uri
+          - name: description
+            type: string
+            description: Description of the user.
+          - name: locale
+            type: string
+            enum: ["", en_US, af, am, arg, ar, arq, ary, as, ast, az, azb, az_TR, ba, bal, bcc, bel, bg_BG, bgn, bho, bn_BD, bn_IN, bo, bre, brx, bs_BA, ca, ca_valencia, ceb, ckb, co, cor, cs_CZ, cy, da_DK, de_DE, de_DE_formal, de_AT, de_CH, de_CH_informal]
+            description: Locale for the user.
+          - name: nickname
+            type: string
+            description: The nickname for the user.
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the user.
+          - name: roles
+            type: string
+            description: "Roles assigned to the user. (comma-separated)"
+          - name: password
+            type: string
+            required: true
+            description: "Password for the user (never included)."
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: pending_email
+            type: string
+          - name: 2fa_required
+            type: bool
+          - name: 2fa_available_providers
+            type: string
+            description: "(comma-separated)"
+          - name: 2fa_primary_provider
+            type: string
+            description: "(comma-separated)"
+          - name: 2fa_backup_codes_remaining
+            type: string
+          - name: 2fa_revalidation
+            type: string
+            description: "(comma-separated)"
+          - name: 2fa_webauthn_keys
+            type: string
+            description: "(comma-separated)"
+          - name: 2fa_webauthn_register_nonce
+            type: string
+            description: "(comma-separated)"
+          - name: svn_password_required
+            type: bool
+          - name: svn_password_created
+            type: bool
+          - name: application_passwords
+            type: string
+            description: "(comma-separated)"
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/users/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the user.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+        no_auth: true
+      update:
+        method: POST
+        path: "/wp/v2/users/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the user.
+          - name: username
+            type: string
+            description: Login name for the user.
+          - name: name
+            type: string
+            description: Display name for the user.
+          - name: first_name
+            type: string
+            description: First name for the user.
+          - name: last_name
+            type: string
+            description: Last name for the user.
+          - name: email
+            type: string
+            description: The email address for the user.
+            format: email
+          - name: url
+            type: string
+            description: URL of the user.
+            format: uri
+          - name: description
+            type: string
+            description: Description of the user.
+          - name: locale
+            type: string
+            enum: ["", en_US, af, am, arg, ar, arq, ary, as, ast, az, azb, az_TR, ba, bal, bcc, bel, bg_BG, bgn, bho, bn_BD, bn_IN, bo, bre, brx, bs_BA, ca, ca_valencia, ceb, ckb, co, cor, cs_CZ, cy, da_DK, de_DE, de_DE_formal, de_AT, de_CH, de_CH_informal]
+            description: Locale for the user.
+          - name: nickname
+            type: string
+            description: The nickname for the user.
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the user.
+          - name: roles
+            type: string
+            description: "Roles assigned to the user. (comma-separated)"
+          - name: password
+            type: string
+            description: "Password for the user (never included)."
+          - name: meta
+            type: string
+            description: Meta fields.
+          - name: pending_email
+            type: string
+          - name: 2fa_required
+            type: bool
+          - name: 2fa_available_providers
+            type: string
+            description: "(comma-separated)"
+          - name: 2fa_primary_provider
+            type: string
+            description: "(comma-separated)"
+          - name: 2fa_backup_codes_remaining
+            type: string
+          - name: 2fa_revalidation
+            type: string
+            description: "(comma-separated)"
+          - name: 2fa_webauthn_keys
+            type: string
+            description: "(comma-separated)"
+          - name: 2fa_webauthn_register_nonce
+            type: string
+            description: "(comma-separated)"
+          - name: svn_password_required
+            type: bool
+          - name: svn_password_created
+            type: bool
+          - name: application_passwords
+            type: string
+            description: "(comma-separated)"
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/users/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  application-passwords:
+    description: Application passwords for a user
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/users/{user_id}/application-passwords"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+            description: User Id identifier
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/users/{user_id}/application-passwords"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+            description: User Id identifier
+        body:
+          - name: app_id
+            type: string
+            description: A UUID provided by the application to uniquely identify it. It is recommended to use an UUID v5 with the URL or DNS namespace.
+          - name: name
+            type: string
+            required: true
+            description: The name of the application password.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/users/{user_id}/application-passwords"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+            description: User Id identifier
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/users/{user_id}/application-passwords/{uuid}"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+            description: User Id identifier
+          - name: uuid
+            type: string
+            positional: true
+            required: true
+            description: Uuid identifier
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/users/{user_id}/application-passwords/{uuid}"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+            description: User Id identifier
+          - name: uuid
+            type: string
+            positional: true
+            required: true
+            description: Uuid identifier
+        body:
+          - name: app_id
+            type: string
+            description: A UUID provided by the application to uniquely identify it. It is recommended to use an UUID v5 with the URL or DNS namespace.
+          - name: name
+            type: string
+            description: The name of the application password.
+        response:
+          type: object
+      introspect:
+        method: GET
+        path: "/wp/v2/users/{user_id}/application-passwords/introspect"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+            description: User Id identifier
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: array
+  widget-types:
+    description: Registered widget types
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/widget-types"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp/v2/widget-types/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: string
+            description: The widget type id.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      encode:
+        method: POST
+        path: "/wp/v2/widget-types/{id}/encode"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: string
+            required: true
+            description: The widget type id.
+          - name: instance
+            type: string
+            description: Current instance settings of the widget.
+          - name: form_data
+            type: string
+            description: Serialized widget form data to encode into instance settings.
+        response:
+          type: object
+      render:
+        method: POST
+        path: "/wp/v2/widget-types/{id}/render"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: string
+            required: true
+            description: The widget type id.
+          - name: instance
+            type: string
+            description: Current instance settings of the widget.
+        response:
+          type: object
+  widgets:
+    description: Widgets
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/widgets"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: sidebar
+            type: string
+            description: The sidebar to return widgets for.
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/widgets"
+        body:
+          - name: id
+            type: string
+            description: Unique identifier for the widget.
+          - name: id_base
+            type: string
+            description: The type of the widget. Corresponds to ID in widget-types endpoint.
+          - name: sidebar
+            type: string
+            required: true
+            default: wp_inactive_widgets
+            description: The sidebar the widget belongs to.
+          - name: instance
+            type: string
+            description: "Instance settings of the widget, if supported."
+          - name: form_data
+            type: string
+            description: URL-encoded form data from the widget admin form. Used to update a widget that does not support instance. Write only.
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/widgets/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/widgets/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: string
+            description: Unique identifier for the widget.
+          - name: id_base
+            type: string
+            description: The type of the widget. Corresponds to ID in widget-types endpoint.
+          - name: sidebar
+            type: string
+            description: The sidebar the widget belongs to.
+          - name: instance
+            type: string
+            description: "Instance settings of the widget, if supported."
+          - name: form_data
+            type: string
+            description: URL-encoded form data from the widget admin form. Used to update a widget that does not support instance. Write only.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/widgets/{id}"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  pattern-categories:
+    description: "Block pattern categories (taxonomy)"
+    endpoints:
+      list:
+        method: GET
+        path: "/wp/v2/wp_pattern_category"
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection.
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum number of items to be returned in result set.
+          - name: search
+            type: string
+            description: Limit results to those matching a string.
+          - name: exclude
+            type: string
+            description: "Ensure result set excludes specific IDs. (comma-separated)"
+          - name: include
+            type: string
+            description: "Limit result set to specific IDs. (comma-separated)"
+          - name: offset
+            type: int
+            description: Offset the result set by a specific number of items.
+          - name: order
+            type: string
+            default: asc
+            enum: [asc, desc]
+            description: Order sort attribute ascending or descending.
+          - name: orderby
+            type: string
+            default: name
+            enum: [id, include, name, slug, include_slugs, term_group, description, count]
+            description: Sort collection by term attribute.
+          - name: hide_empty
+            type: bool
+            default: false
+            description: Whether to hide terms not assigned to any posts.
+          - name: post
+            type: int
+            description: Limit result set to terms assigned to a specific post.
+          - name: slug
+            type: string
+            description: "Limit result set to terms with one or more specific slugs. (comma-separated)"
+        response:
+          type: array
+      create:
+        method: POST
+        path: "/wp/v2/wp_pattern_category"
+        body:
+          - name: description
+            type: string
+            description: HTML description of the term.
+          - name: name
+            type: string
+            required: true
+            description: HTML title for the term.
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the term unique to its type.
+          - name: meta
+            type: string
+            description: Meta fields.
+        response:
+          type: object
+      get:
+        method: GET
+        path: "/wp/v2/wp_pattern_category/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+          - name: id
+            type: int
+            description: Unique identifier for the term.
+          - name: context
+            type: string
+            default: view
+            enum: [view, embed, edit]
+            description: "Scope under which the request is made; determines fields present in response."
+        response:
+          type: object
+      update:
+        method: POST
+        path: "/wp/v2/wp_pattern_category/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        body:
+          - name: id
+            type: int
+            description: Unique identifier for the term.
+          - name: description
+            type: string
+            description: HTML description of the term.
+          - name: name
+            type: string
+            description: HTML title for the term.
+          - name: slug
+            type: string
+            description: An alphanumeric identifier for the term unique to its type.
+          - name: meta
+            type: string
+            description: Meta fields.
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/wp/v2/wp_pattern_category/{id}"
+        params:
+          - name: id
+            type: int
+            positional: true
+            required: true
+            description: Id identifier
+        response:
+          type: object
+  batch:
+    description: "Atomic multi-request batching (core /batch/v1)"
+    endpoints:
+      run:
+        method: POST
+        path: "/batch/v1"
+        description: Execute up to 25 write requests in one round trip
+        body:
+          - name: requests
+            type: string
+            required: true
+            description: "JSON array of {method,path,body,headers}; max 25 items"
+          - name: validation
+            type: string
+            default: normal
+            enum: [require-all-validate, normal]
+            description: require-all-validate aborts the whole batch if any request fails validation
+        response:
+          type: object
+  abilities:
+    description: "WordPress Abilities API — the platform-native agent surface (WP 6.9+)"
+    endpoints:
+      list:
+        method: GET
+        path: "/wp-abilities/v1/abilities"
+        description: List abilities this site exposes to agents
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, edit, embed]
+            description: Response detail scope
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum items to return
+          - name: category
+            type: string
+            description: Limit to one ability category
+          - name: namespace
+            type: string
+            description: Limit to one ability namespace
+          - name: meta
+            type: string
+            description: Filter by ability meta
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/wp-abilities/v1/abilities/{name}"
+        description: "Describe one ability, including its input schema"
+        params:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Ability name, e.g. core/get-site-info"
+        response:
+          type: object
+      run:
+        method: POST
+        path: "/wp-abilities/v1/abilities/{name}/run"
+        description: Execute an ability with a JSON input payload
+        params:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Ability name, e.g. core/get-site-info"
+        body:
+          - name: input
+            type: string
+            description: "JSON object matching the ability's declared input schema"
+        response:
+          type: object
+      ability-categories:
+        method: GET
+        path: "/wp-abilities/v1/categories"
+        description: List ability categories
+        params:
+          - name: context
+            type: string
+            default: view
+            enum: [view, edit, embed]
+            description: Response detail scope
+          - name: page
+            type: int
+            default: 1
+            description: Current page of the collection
+          - name: per_page
+            type: int
+            default: 10
+            description: Maximum items to return
+        response:
+          type: array
+      ability-category:
+        method: GET
+        path: "/wp-abilities/v1/categories/{slug}"
+        description: Describe one ability category
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: Category slug
+        response:
+          type: object
+  oembed:
+    description: "oEmbed discovery and proxying (core /oembed/1.0)"
+    endpoints:
+      get:
+        method: GET
+        path: "/oembed/1.0/embed"
+        description: oEmbed response for a URL on this site
+        no_auth: true
+        params:
+          - name: url
+            type: string
+            required: true
+            description: URL of the post to embed
+            format: uri
+          - name: format
+            type: string
+            default: json
+            enum: [json, xml]
+            description: Response format
+          - name: maxwidth
+            type: int
+            description: Maximum embed width in pixels
+        response:
+          type: object
+      proxy:
+        method: GET
+        path: "/oembed/1.0/proxy"
+        description: Proxy an external oEmbed request through this site
+        params:
+          - name: url
+            type: string
+            required: true
+            description: External URL to fetch oEmbed data for
+            format: uri
+          - name: maxwidth
+            type: int
+            description: Maximum embed width in pixels
+          - name: maxheight
+            type: int
+            description: Maximum embed height in pixels
+          - name: discover
+            type: bool
+            default: true
+            description: Whether to perform oEmbed discovery on the URL
+        response:
+          type: object

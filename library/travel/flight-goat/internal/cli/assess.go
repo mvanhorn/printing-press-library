@@ -496,7 +496,7 @@ func printAssessTable(w io.Writer, report *assessReport) {
 }
 
 func assessGetAero(c *client.Client, name, path string, params map[string]string) (json.RawMessage, assessSource) {
-	raw, err := c.Get(path, params)
+	raw, err := c.Get(context.Background(), path, params)
 	source := assessSource{Name: name, Path: path, Params: cleanAssessParams(params), Status: "ok"}
 	if err != nil {
 		source.Status = "error"

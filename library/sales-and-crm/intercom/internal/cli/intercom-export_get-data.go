@@ -14,24 +14,39 @@ import (
 func newIntercomExportGetDataCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "get-data <job_identifier>",
-		Aliases:     []string{"get"},
-		Short:       "You can view the status of your job by sending a `GET` request to the URL `https://api.intercom.",
+		Use:     "get-data <job_identifier>",
+		Aliases: []string{"get"},
+		Short:   "You can view the status of your job by sending a `GET` request to the URL `https://api.intercom.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  intercom-pp-cli intercom-export get-data example-value",
 		Annotations: map[string]string{"pp:endpoint": "intercom-export.get-data", "pp:method": "GET", "pp:path": "/export/content/data/{job_identifier}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <job_identifier>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <job_identifier>"))
 			}
+			path := "/export/content/data/{job_identifier}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("job_identifier is required\nUsage: %s <%s>", cmd.CommandPath(), "job_identifier"))
+			}
+			path = replacePathParam(path, "job_identifier", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/export/content/data/{job_identifier}"
-			path = replacePathParam(path, "job_identifier", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "intercom-export", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "intercom-export", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -76,7 +91,7 @@ func newIntercomExportGetDataCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

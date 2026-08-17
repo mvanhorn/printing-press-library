@@ -1,0 +1,51 @@
+﻿version: 2
+project_name: paperclip-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: paperclip-pp-cli
+    main: ./cmd/paperclip-pp-cli
+    binary: paperclip-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/project-management/paperclip-self-hosted/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: paperclip-pp-mcp
+    main: ./cmd/paperclip-pp-mcp
+    binary: paperclip-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: paperclip-pp-cli
+    repository:
+      owner: veltri-23
+      name: homebrew-tap
+    homepage: "https://github.com/veltri-23/paperclip-pp-cli"
+    description: "REST API for the Paperclip AI agent management platform"
+    install: |
+      bin.install "paperclip-pp-cli"
+      bin.install "paperclip-pp-mcp"

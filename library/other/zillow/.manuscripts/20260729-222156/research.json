@@ -1,0 +1,371 @@
+{
+  "api_name": "zillow",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Printing Press Redfin CLI",
+      "url": "https://github.com/mvanhorn/printing-press-library/tree/main/library/other/redfin",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Bridge live requests require separate approval and were not exercised without an approved token.",
+    "Public Research data is regional time series, not property-level listing inventory."
+  ],
+  "patterns": [
+    "read-only",
+    "official public CSV",
+    "normalized local SQLite",
+    "explainable compound analysis",
+    "optional permissioned Bridge access"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-29T22:55:00Z",
+  "novel_features": [
+    {
+      "name": "Client affordability gap",
+      "command": "affordability gap",
+      "description": "Compare household income with Zillow's regional homeowner-income-needed estimate.",
+      "rationale": "Joins a client-specific input with the latest sourced regional estimate while preserving date and provenance.",
+      "example": "zillow-pp-cli affordability gap \"Austin, TX\" --income 120000 --agent",
+      "why_it_matters": "Use when an agent must turn a generic affordability estimate into a client-specific answer.",
+      "group": "Client decisions"
+    },
+    {
+      "name": "Rent/value yield proxy",
+      "command": "yield-proxy",
+      "description": "Join ZORI and ZHVI on a common date for a transparent gross rent-to-value proxy.",
+      "rationale": "Requires aligning two independently released Zillow series before calculating the proxy.",
+      "example": "zillow-pp-cli yield-proxy \"Austin, TX\" --agent",
+      "why_it_matters": "Use for quick, explainable rent-versus-value comparisons without pretending the proxy is net yield.",
+      "group": "Client decisions"
+    },
+    {
+      "name": "Supply absorption ratio",
+      "command": "supply-ratio",
+      "description": "Join inventory and sales nowcast into an approximate months-of-inventory ratio.",
+      "rationale": "The useful signal appears only after aligning stock and sales-flow datasets on a common date.",
+      "example": "zillow-pp-cli supply-ratio \"Austin, TX\" --agent",
+      "why_it_matters": "Use when an agent needs a compact supply-balance signal with its approximation stated.",
+      "group": "Market structure"
+    },
+    {
+      "name": "Market turning points",
+      "command": "turning-points",
+      "description": "Find dated slope sign reversals across temperature, inventory, days pending, and ZHVI.",
+      "rationale": "Requires scanning multiple normalized time series rather than reading a latest-value endpoint.",
+      "example": "zillow-pp-cli turning-points \"Austin, TX\" --months 24 --agent",
+      "why_it_matters": "Use when an agent must identify when a market changed direction, not merely its current level.",
+      "group": "Market structure"
+    },
+    {
+      "name": "Weighted regional shortlist",
+      "command": "shortlist",
+      "description": "Rank regions with explicit user weights and visible min-max-normalized components.",
+      "rationale": "Combines several Zillow series under user-owned priorities while exposing every normalized component.",
+      "example": "zillow-pp-cli shortlist --regions \"394355,394530\" --weight zhvi=-0.4 --weight zori=0.6 --agent",
+      "why_it_matters": "Use for relocation or market-screening work where ranking criteria must remain auditable.",
+      "group": "Regional screening"
+    },
+    {
+      "name": "Sync quality audit",
+      "command": "quality audit",
+      "description": "Detect missing observations, duplicate regions, coverage gaps, and large monthly jumps.",
+      "rationale": "Audits normalized source data before downstream conclusions are trusted.",
+      "example": "zillow-pp-cli quality audit --jump-threshold 20 --agent -- zhvi",
+      "why_it_matters": "Use before analysis when freshness, gaps, or anomalous changes could invalidate a conclusion.",
+      "group": "Evidence quality"
+    },
+    {
+      "name": "Market breadth",
+      "command": "breadth",
+      "description": "Measure rising, falling, and unchanged regions by state or geography type.",
+      "rationale": "Aggregates direction across every covered region instead of over-weighting a headline metro.",
+      "example": "zillow-pp-cli breadth --months 12 --group-by state --agent -- zhvi",
+      "why_it_matters": "Use when an agent needs to tell whether a trend is broad or isolated.",
+      "group": "Regional screening"
+    },
+    {
+      "name": "Buy versus rent break-even",
+      "command": "buy-vs-rent",
+      "description": "Run a visible-assumption ownership-versus-rent cash-flow scenario.",
+      "rationale": "Combines regional Zillow values and rents with explicit financing and ownership assumptions.",
+      "example": "zillow-pp-cli buy-vs-rent \"Austin, TX\" --rate 6.5 --years 7 --agent",
+      "why_it_matters": "Use when an agent needs an inspectable scenario rather than a black-box recommendation.",
+      "group": "Client decisions"
+    },
+    {
+      "name": "Negotiation leverage",
+      "command": "negotiation",
+      "description": "Combine price cuts, sale-to-list ratio, days pending, and inventory into an explainable score.",
+      "rationale": "Buyer leverage is clearer when listing behavior, sale outcomes, market time, and supply are evaluated together.",
+      "example": "zillow-pp-cli negotiation \"Austin, TX\" --agent",
+      "why_it_matters": "Use for buyer preparation when every score component must be shown.",
+      "group": "Client decisions"
+    },
+    {
+      "name": "Price-tier spread",
+      "command": "tier-spread",
+      "description": "Compare bottom-, middle-, and top-tier ZHVI growth.",
+      "rationale": "Aligns three separate tier datasets to reveal divergence hidden by a single market average.",
+      "example": "zillow-pp-cli tier-spread \"Austin, TX\" --agent",
+      "why_it_matters": "Use when affordability tiers may be moving differently from the headline market.",
+      "group": "Market structure"
+    },
+    {
+      "name": "Demand pressure",
+      "command": "demand-pressure",
+      "description": "Combine rental demand and for-sale market momentum with component-level evidence.",
+      "rationale": "Cross-market pressure only appears after joining renter demand with for-sale signals.",
+      "example": "zillow-pp-cli demand-pressure \"Austin, TX\" --agent",
+      "why_it_matters": "Use when an agent must compare rental and ownership demand in one sourced view.",
+      "group": "Market structure"
+    },
+    {
+      "name": "New-construction gap",
+      "command": "new-build-gap",
+      "description": "Compare new-construction pricing and sales activity with typical regional home value.",
+      "rationale": "Aligns new-build price and sales series with the broader ZHVI benchmark.",
+      "example": "zillow-pp-cli new-build-gap \"Austin, TX\" --agent",
+      "why_it_matters": "Use when an agent needs to quantify the new-build premium and activity context.",
+      "group": "Market structure"
+    },
+    {
+      "name": "Client-ready market brief",
+      "command": "client-brief",
+      "description": "Compose deterministic Markdown or JSON briefs from sourced regional metrics.",
+      "rationale": "Builds a reproducible brief from the same evidence-backed calculations exposed by the CLI.",
+      "example": "zillow-pp-cli client-brief \"Austin, TX\" --income 120000 --format markdown",
+      "why_it_matters": "Use when an agent must hand a human a concise brief without inventing narrative facts.",
+      "group": "Agent delivery"
+    },
+    {
+      "name": "Formula and provenance explainer",
+      "command": "explain",
+      "description": "Show formulas, datasets, freshness behavior, and caveats for compound commands.",
+      "rationale": "Makes derived metrics auditable before an agent repeats them to a client or employer.",
+      "example": "zillow-pp-cli explain --agent -- negotiation",
+      "why_it_matters": "Use before relying on a compound score or scenario in consequential work.",
+      "group": "Evidence quality"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Client affordability gap",
+      "command": "affordability gap",
+      "description": "Compare household income with Zillow's regional homeowner-income-needed estimate.",
+      "rationale": "Joins a client-specific input with the latest sourced regional estimate while preserving date and provenance.",
+      "example": "zillow-pp-cli affordability gap \"Austin, TX\" --income 120000 --agent",
+      "why_it_matters": "Use when an agent must turn a generic affordability estimate into a client-specific answer.",
+      "group": "Client decisions"
+    },
+    {
+      "name": "Rent/value yield proxy",
+      "command": "yield-proxy",
+      "description": "Join ZORI and ZHVI on a common date for a transparent gross rent-to-value proxy.",
+      "rationale": "Requires aligning two independently released Zillow series before calculating the proxy.",
+      "example": "zillow-pp-cli yield-proxy \"Austin, TX\" --agent",
+      "why_it_matters": "Use for quick, explainable rent-versus-value comparisons without pretending the proxy is net yield.",
+      "group": "Client decisions"
+    },
+    {
+      "name": "Supply absorption ratio",
+      "command": "supply-ratio",
+      "description": "Join inventory and sales nowcast into an approximate months-of-inventory ratio.",
+      "rationale": "The useful signal appears only after aligning stock and sales-flow datasets on a common date.",
+      "example": "zillow-pp-cli supply-ratio \"Austin, TX\" --agent",
+      "why_it_matters": "Use when an agent needs a compact supply-balance signal with its approximation stated.",
+      "group": "Market structure"
+    },
+    {
+      "name": "Market turning points",
+      "command": "turning-points",
+      "description": "Find dated slope sign reversals across temperature, inventory, days pending, and ZHVI.",
+      "rationale": "Requires scanning multiple normalized time series rather than reading a latest-value endpoint.",
+      "example": "zillow-pp-cli turning-points \"Austin, TX\" --months 24 --agent",
+      "why_it_matters": "Use when an agent must identify when a market changed direction, not merely its current level.",
+      "group": "Market structure"
+    },
+    {
+      "name": "Weighted regional shortlist",
+      "command": "shortlist",
+      "description": "Rank regions with explicit user weights and visible min-max-normalized components.",
+      "rationale": "Combines several Zillow series under user-owned priorities while exposing every normalized component.",
+      "example": "zillow-pp-cli shortlist --regions \"394355,394530\" --weight zhvi=-0.4 --weight zori=0.6 --agent",
+      "why_it_matters": "Use for relocation or market-screening work where ranking criteria must remain auditable.",
+      "group": "Regional screening"
+    },
+    {
+      "name": "Sync quality audit",
+      "command": "quality audit",
+      "description": "Detect missing observations, duplicate regions, coverage gaps, and large monthly jumps.",
+      "rationale": "Audits normalized source data before downstream conclusions are trusted.",
+      "example": "zillow-pp-cli quality audit --jump-threshold 20 --agent -- zhvi",
+      "why_it_matters": "Use before analysis when freshness, gaps, or anomalous changes could invalidate a conclusion.",
+      "group": "Evidence quality"
+    },
+    {
+      "name": "Market breadth",
+      "command": "breadth",
+      "description": "Measure rising, falling, and unchanged regions by state or geography type.",
+      "rationale": "Aggregates direction across every covered region instead of over-weighting a headline metro.",
+      "example": "zillow-pp-cli breadth --months 12 --group-by state --agent -- zhvi",
+      "why_it_matters": "Use when an agent needs to tell whether a trend is broad or isolated.",
+      "group": "Regional screening"
+    },
+    {
+      "name": "Buy versus rent break-even",
+      "command": "buy-vs-rent",
+      "description": "Run a visible-assumption ownership-versus-rent cash-flow scenario.",
+      "rationale": "Combines regional Zillow values and rents with explicit financing and ownership assumptions.",
+      "example": "zillow-pp-cli buy-vs-rent \"Austin, TX\" --rate 6.5 --years 7 --agent",
+      "why_it_matters": "Use when an agent needs an inspectable scenario rather than a black-box recommendation.",
+      "group": "Client decisions"
+    },
+    {
+      "name": "Negotiation leverage",
+      "command": "negotiation",
+      "description": "Combine price cuts, sale-to-list ratio, days pending, and inventory into an explainable score.",
+      "rationale": "Buyer leverage is clearer when listing behavior, sale outcomes, market time, and supply are evaluated together.",
+      "example": "zillow-pp-cli negotiation \"Austin, TX\" --agent",
+      "why_it_matters": "Use for buyer preparation when every score component must be shown.",
+      "group": "Client decisions"
+    },
+    {
+      "name": "Price-tier spread",
+      "command": "tier-spread",
+      "description": "Compare bottom-, middle-, and top-tier ZHVI growth.",
+      "rationale": "Aligns three separate tier datasets to reveal divergence hidden by a single market average.",
+      "example": "zillow-pp-cli tier-spread \"Austin, TX\" --agent",
+      "why_it_matters": "Use when affordability tiers may be moving differently from the headline market.",
+      "group": "Market structure"
+    },
+    {
+      "name": "Demand pressure",
+      "command": "demand-pressure",
+      "description": "Combine rental demand and for-sale market momentum with component-level evidence.",
+      "rationale": "Cross-market pressure only appears after joining renter demand with for-sale signals.",
+      "example": "zillow-pp-cli demand-pressure \"Austin, TX\" --agent",
+      "why_it_matters": "Use when an agent must compare rental and ownership demand in one sourced view.",
+      "group": "Market structure"
+    },
+    {
+      "name": "New-construction gap",
+      "command": "new-build-gap",
+      "description": "Compare new-construction pricing and sales activity with typical regional home value.",
+      "rationale": "Aligns new-build price and sales series with the broader ZHVI benchmark.",
+      "example": "zillow-pp-cli new-build-gap \"Austin, TX\" --agent",
+      "why_it_matters": "Use when an agent needs to quantify the new-build premium and activity context.",
+      "group": "Market structure"
+    },
+    {
+      "name": "Client-ready market brief",
+      "command": "client-brief",
+      "description": "Compose deterministic Markdown or JSON briefs from sourced regional metrics.",
+      "rationale": "Builds a reproducible brief from the same evidence-backed calculations exposed by the CLI.",
+      "example": "zillow-pp-cli client-brief \"Austin, TX\" --income 120000 --format markdown",
+      "why_it_matters": "Use when an agent must hand a human a concise brief without inventing narrative facts.",
+      "group": "Agent delivery"
+    },
+    {
+      "name": "Formula and provenance explainer",
+      "command": "explain",
+      "description": "Show formulas, datasets, freshness behavior, and caveats for compound commands.",
+      "rationale": "Makes derived metrics auditable before an agent repeats them to a client or employer.",
+      "example": "zillow-pp-cli explain --agent -- negotiation",
+      "why_it_matters": "Use before relying on a compound score or scenario in consequential work.",
+      "group": "Evidence quality"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Zillow",
+    "headline": "Official Zillow Research data, normalized for explainable housing-market decisions.",
+    "value_prop": "Sync public Zillow Research time series, compare regions, and build sourced affordability, supply, demand, negotiation, and relocation analysis. Core commands never scrape Zillow.com; optional Bridge requests remain separately authorized and uncached.",
+    "auth_narrative": "Public Zillow Research commands require no authentication. Bridge access is optional and requires an approved BRIDGE_ACCESS_TOKEN; the CLI sends it only as bearer authorization and never caches Bridge responses.",
+    "quickstart": [
+      {
+        "command": "zillow-pp-cli doctor",
+        "comment": "Confirm paths and local runtime health without credentials."
+      },
+      {
+        "command": "zillow-pp-cli region resolve \"Austin, TX\" --agent",
+        "comment": "Resolve a human place name against official dataset coverage."
+      },
+      {
+        "command": "zillow-pp-cli summary \"Austin, TX\" --agent",
+        "comment": "Fetch a sourced regional snapshot."
+      },
+      {
+        "command": "zillow-pp-cli negotiation \"Austin, TX\" --agent",
+        "comment": "Turn several official series into an explainable buyer-leverage view."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A region name is ambiguous or not found.",
+        "fix": "Run zillow-pp-cli region resolve \"\u003ccity, state\u003e\" --metric zhvi --agent and reuse the returned region ID."
+      },
+      {
+        "symptom": "Local mode says a dataset is unavailable.",
+        "fix": "Run zillow-pp-cli sync market --metrics all --agent, then retry with --data-source local."
+      },
+      {
+        "symptom": "Zillow Research returns HTTP 429.",
+        "fix": "Honor the reported Retry-After value, reduce request frequency with --rate-limit, and retry later."
+      },
+      {
+        "symptom": "Bridge reports no token.",
+        "fix": "Obtain dataset approval first, then set BRIDGE_ACCESS_TOKEN in the invoking process environment."
+      }
+    ],
+    "when_to_use": "Use for read-only US housing-market research, regional comparisons, relocation screens, affordability scenarios, and client-ready evidence briefs based on public Zillow Research data. Prefer it when formulas, dates, source URLs, and caveats must remain visible.",
+    "anti_triggers": [
+      "Do not use this CLI to scrape Zillow.com or automate consumer listing pages.",
+      "Do not use it to publish, edit, contact, bid on, or transact on a property.",
+      "Do not treat derived scores or scenarios as appraisal, lending, legal, tax, or investment advice.",
+      "Do not use Bridge commands without explicit dataset approval."
+    ],
+    "recipes": [
+      {
+        "title": "Buyer negotiation brief",
+        "command": "zillow-pp-cli negotiation \"Austin, TX\" --agent",
+        "explanation": "Shows leverage score, every component, source dates, and caveats."
+      },
+      {
+        "title": "Buy-versus-rent scenario",
+        "command": "zillow-pp-cli buy-vs-rent \"Austin, TX\" --rate 6.5 --years 7 --agent",
+        "explanation": "Compares cash flow using visible financing, growth, tax, insurance, maintenance, and transaction assumptions."
+      },
+      {
+        "title": "Regional shortlist",
+        "command": "zillow-pp-cli shortlist --regions \"394355,394530\" --weight zhvi=-0.4 --weight zori=0.6 --agent",
+        "explanation": "Ranks candidate markets while exposing normalized components and user-supplied weights."
+      },
+      {
+        "title": "Compact sourced snapshot",
+        "command": "zillow-pp-cli summary \"Austin, TX\" --agent --select results.region,results.metrics,results.evidence",
+        "explanation": "Keeps only the region, core metrics, and evidence fields for low-context agent use."
+      },
+      {
+        "title": "Offline SQL",
+        "command": "zillow-pp-cli sql \"SELECT metric, COUNT(*) AS rows FROM observations GROUP BY metric\" --agent",
+        "explanation": "Queries normalized observations locally after sync with a read-only SQL gate."
+      }
+    ],
+    "trigger_phrases": [
+      "compare housing markets",
+      "analyze Austin home values",
+      "build a buyer negotiation brief",
+      "check rent versus home value",
+      "use Zillow data",
+      "run Zillow"
+    ]
+  }
+}

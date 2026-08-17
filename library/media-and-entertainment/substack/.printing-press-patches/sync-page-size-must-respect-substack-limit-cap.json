@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "sync-page-size-must-respect-substack-limit-cap",
+  "applied_at": "2026-07-26",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Substack validates list-endpoint limits server-side, so sync must reconcile the final effective page size after user overrides and clamp it per resource. The request limit, short-page check, and offset stride must always share that value.",
+  "reason": "The generated page size exceeds Substack's accepted cap, and --param, --global-param, or --resource-param can replace the request limit after defaults are installed. If that final value is not parsed and clamped, large overrides restore the HTTP 400 while smaller overrides diverge from the paginator's stop check and offset stride. Reconcile after all user parameters are applied, clamp per resource, and write the same effective limit back to both request params and paginator state.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_page_size_test.go"
+  ],
+  "validated_outcome": "Tests cover the generated default, per-resource endpoint caps, smaller limits, all three user override paths, rejection of non-positive or non-numeric values, and agreement between the outgoing request limit and paginator state. Live measurements remain: /api/v1/archive accepts limit=50 and rejects limit=51+.",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/1524"
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "spotify-fix-playlist-track-pagination",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260707-145126",
+  "base_printing_press_version": "4.27.1",
+  "summary": "fetchFullPlaylist helper paginates /playlists/{id}/tracks for T1 diff, T2 dedupe, and T3 merge so playlists over 100 tracks are not silently truncated.",
+  "reason": "GET /playlists/{id} embeds tracks as a PagingObject with a hard cap of 100. All three commands previously consumed `pl.Tracks.Items` from that single call, so any playlist over 100 tracks produced a wrong (not empty) snapshot/dedupe/merge. The new helper fetches metadata via ?fields=id,name,snapshot_id and tracks via paginated /playlists/{id}/tracks. Generator-side fix tracked in mvanhorn/cli-printing-press#1277.",
+  "files": [
+    "internal/cli/transcendence_helpers.go",
+    "internal/cli/transcendence_t1_diff.go",
+    "internal/cli/transcendence_t2_dedupe.go",
+    "internal/cli/transcendence_t3_merge.go"
+  ]
+}

@@ -1,0 +1,148 @@
+Move:
+  post:
+    tags:
+      - ThingOps
+    summary: Move a thing(s) to a new collection
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: ids
+        required: true
+        description: The ids of the thing(s) to move
+        schema:
+          type: string
+          example: "2"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - source_collection_id
+              - target_collection_id
+            properties:
+              source_collection_id:
+                description: Set the id of the collection where the specified thing is located
+                type: integer
+                format: int
+              target_collection_id:
+                description:  Set the id of the collection where the specified thing will be moved
+                type: integer
+                format: int
+    responses:
+      '200':
+        description: An array of Thing ids
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Copy:
+  post:
+    tags:
+      - ThingOps
+    summary: Copy a thing(s) to a new collection
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: ids
+        required: true
+        description: The ids of the thing(s) to copy
+        schema:
+          type: string
+          example: "2"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - source_collection_id
+              - target_collection_id
+            properties:
+              source_collection_id:
+                description: Set the id of the collection where the specified thing is located
+                type: integer
+                format: int
+              target_collection_id:
+                description:  Set the id of the collection where the specified thing will be copied
+                type: integer
+                format: int
+    responses:
+      '200':
+        description: An array of Thing ids
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Remove:
+  post:
+    tags:
+      - ThingOps
+    summary: Remove a thing(s) from a collection
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: ids
+        required: true
+        description: The ids of the thing(s) to remove
+        schema:
+          type: string
+          example: "2"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - collection_id
+            properties:
+              collection_id:
+                description: Set the id of the collection from which the specified thing will be removed
+                type: integer
+                format: int
+    responses:
+      '200':
+        description: An array of Thing ids
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

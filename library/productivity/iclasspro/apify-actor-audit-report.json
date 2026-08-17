@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/iclasspro-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260805-132802-de816ded",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

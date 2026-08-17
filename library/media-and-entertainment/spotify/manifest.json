@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "spotify-pp-mcp",
   "display_name": "Spotify Web",
-  "version": "4.5.2",
-  "description": "Spotify Web API surface as MCP tools.",
+  "version": "2025.5.18",
+  "description": "You can use Spotify's Web API to discover music and podcasts, manage your Spotify library, control audio playback",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -15,7 +15,9 @@
       "command": "${__dirname}/bin/spotify-pp-mcp",
       "args": [],
       "env": {
-        "SPOTIFY_OAUTH_2_0": "${user_config.spotify_oauth_2_0}"
+        "SPOTIFY_OAUTH_2_0": "${user_config.spotify_oauth_2_0}",
+        "SPOTIFY_PLAYLIST_ID": "${user_config.spotify_playlist_id}",
+        "SPOTIFY_USER_ID": "${user_config.spotify_user_id}"
       }
     }
   },
@@ -23,8 +25,20 @@
     "spotify_oauth_2_0": {
       "type": "string",
       "title": "SPOTIFY_OAUTH_2_0",
-      "description": "Sets SPOTIFY_OAUTH_2_0 for the Spotify Web MCP server.",
+      "description": "Sets SPOTIFY_OAUTH_2_0 for the Spotify Web MCP server. Get a credential from https://developer.spotify.com/documentation/general/guides/authorization-guide/.",
       "sensitive": true,
+      "required": true
+    },
+    "spotify_playlist_id": {
+      "type": "string",
+      "title": "SPOTIFY_PLAYLIST_ID",
+      "description": "Sets SPOTIFY_PLAYLIST_ID for the endpoint template variable {playlist_id}.",
+      "required": true
+    },
+    "spotify_user_id": {
+      "type": "string",
+      "title": "SPOTIFY_USER_ID",
+      "description": "Sets SPOTIFY_USER_ID for the endpoint template variable {user_id}.",
       "required": true
     }
   },

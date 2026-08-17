@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -31,13 +32,12 @@ type FeedbackEntry struct {
 const feedbackMaxTextLen = 4096
 
 func feedbackFilePath() (string, error) {
-	home, err := os.UserHomeDir()
+	dir, err := cliutil.DataDir()
 	if err != nil {
-		return "", fmt.Errorf("resolving home dir: %w", err)
+		return "", err
 	}
-	dir := filepath.Join(home, ".espn-pp-cli")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return "", fmt.Errorf("creating state dir: %w", err)
+		return "", fmt.Errorf("creating feedback data dir: %w", err)
 	}
 	return filepath.Join(dir, "feedback.jsonl"), nil
 }
@@ -81,7 +81,7 @@ func postFeedback(url string, entry FeedbackEntry) error {
 		return fmt.Errorf("building feedback request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "espn-pp-cli/feedback")
+	req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/feedback")
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -100,7 +100,7 @@ func newFeedbackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feedback [text]",
 		Short: "Record feedback about this CLI (local by default; upstream opt-in)",
-		Long: `Feedback is captured locally first at ~/.espn-pp-cli/feedback.jsonl.
+		Long: `Feedback is captured locally first in the CLI data directory's feedback.jsonl.
 When ` + "`ESPN_FEEDBACK_ENDPOINT`" + ` is set and either --send is
 passed or ` + "`ESPN_FEEDBACK_AUTO_SEND=true`" + `, the entry is
 POSTed as JSON after the local write.
@@ -153,12 +153,12 @@ maintainer sees it.`,
 			}
 
 			if flags.asJSON {
-				return flags.printJSON(cmd, map[string]any{
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"recorded":  true,
 					"truncated": truncated,
 					"upstream":  upstreamResult,
 					"entry":     entry,
-				})
+				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "feedback recorded locally (%d chars%s)\n", len(text), func() string {
 				if truncated {
@@ -184,6 +184,12 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List recent feedback entries",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
+		Example: `  espn-pp-cli feedback list
+  espn-pp-cli feedback list --limit 5
+  espn-pp-cli feedback list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			p, err := feedbackFilePath()
 			if err != nil {
@@ -193,7 +199,7 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				if os.IsNotExist(err) {
 					if flags.asJSON {
-						return flags.printJSON(cmd, []FeedbackEntry{})
+						return printJSONFiltered(cmd.OutOrStdout(), []FeedbackEntry{}, flags)
 					}
 					return nil
 				}
@@ -214,7 +220,7 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 			if limit > 0 && limit < len(entries) {
 				entries = entries[len(entries)-limit:]
 			}
-			return flags.printJSON(cmd, entries)
+			return printJSONFiltered(cmd.OutOrStdout(), entries, flags)
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum number of recent entries to return")

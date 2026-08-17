@@ -1,0 +1,18 @@
+{
+  "api_name": "human-goat",
+  "base_url": "https://www.taskrabbit.com",
+  "description": "Hire real humans from the terminal — autonomous TaskRabbit checkout with a verified undo, plus Magic remote errands, in one agent-native binary.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "cookie_domain": ".taskrabbit.com",
+    "cookies": [
+      "session",
+      "XSRF-TOKEN"
+    ]
+  },
+  "required_headers": [],
+  "tools": []
+}

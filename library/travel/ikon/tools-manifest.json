@@ -1,0 +1,34 @@
+{
+  "api_name": "ikon",
+  "base_url": "https://account.ikonpass.com",
+  "description": "Ikon Pass CLI — reservation availability, passes, Friends & Family vouchers, and multi-season usage history.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": ".ikonpass.com",
+    "cookies": [
+      "session"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "resorts_list",
+      "description": "List all Ikon destinations with reservation flags, codes, and regions. Returns array of Resort.",
+      "method": "GET",
+      "path": "/api/v2/resorts",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

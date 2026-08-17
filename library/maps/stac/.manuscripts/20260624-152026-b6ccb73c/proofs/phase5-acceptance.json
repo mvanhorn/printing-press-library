@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "stac",
+  "run_id": "20260624-152026-b6ccb73c",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 87,
+  "tests_passed": 87,
+  "tests_skipped": 51,
+  "auth_context": {
+    "type": "none"
+  }
+}

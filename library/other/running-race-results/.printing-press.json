@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-20T13:34:12Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "running-race-results",
+  "display_name": "Running Race Results",
+  "cli_name": "running-race-results-pp-cli",
+  "creator": {
+    "handle": "jiahongc",
+    "name": "Jiahong Chen"
+  },
+  "owner": "jiahongc",
+  "printer": "jiahongc",
+  "printer_name": "Jiahong Chen",
+  "spec_url": "https://github.com/jiahongc/running-race-results",
+  "spec_source": "manual-port",
+  "run_id": "20260620-093412-manual-port",
+  "category": "other",
+  "description": "Look up running race results across NYRR, Mika Timing, Athlinks, and RaceResult by fuzzy race name, bib, runner name, or athlete history.",
+  "auth_type": "none",
+  "auth_optional": true,
+  "auth_env_vars": [
+    "ATHLINKS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Fuzzy race result lookup",
+      "command": "lookup",
+      "description": "Resolve a human race name to the right provider and edition, then return a unified runner result by bib or runner name."
+    },
+    {
+      "name": "Cross-event athlete history",
+      "command": "athlete",
+      "description": "Show a runner's race history across Athlinks or NYRR using a name search, racer id, or the optional Athlinks current-user token."
+    }
+  ]
+}

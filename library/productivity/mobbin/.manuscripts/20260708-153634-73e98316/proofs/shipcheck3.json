@@ -1,0 +1,64 @@
+{
+  "passed": false,
+  "exit_code": 1,
+  "started_at": "2026-07-08T23:37:30Z",
+  "elapsed_ms": 14064,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 1,
+      "passed": false,
+      "started_at": "2026-07-08T23:37:30Z",
+      "elapsed_ms": 10355,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/porgy/cli-printing-press verify --dir /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/working/mobbin-pp-cli --write-manifest /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/working/mobbin-pp-cli/.printing-press.json --spec /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/research/mobbin-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-08T23:37:41Z",
+      "elapsed_ms": 328,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/porgy/cli-printing-press validate-narrative --strict --full-examples --research /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/research.json --binary /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/working/mobbin-pp-cli/mobbin-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-08T23:37:41Z",
+      "elapsed_ms": 1298,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/porgy/cli-printing-press dogfood --dir /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/working/mobbin-pp-cli --spec /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/research/mobbin-spec.yaml --research-dir /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-08T23:37:42Z",
+      "elapsed_ms": 13,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/porgy/cli-printing-press workflow-verify --dir /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/working/mobbin-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-08T23:37:42Z",
+      "elapsed_ms": 34,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/porgy/cli-printing-press apify-audit --dir /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/working/mobbin-pp-cli --research-dir /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-08T23:37:42Z",
+      "elapsed_ms": 1430,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/porgy/cli-printing-press verify-skill --dir /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/working/mobbin-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-08T23:37:44Z",
+      "elapsed_ms": 602,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/porgy/cli-printing-press scorecard --dir /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/working/mobbin-pp-cli --write-manifest /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/working/mobbin-pp-cli/.printing-press.json --research-dir /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316 --spec /Users/tmchow/printing-press/.runstate/porgy-9c3d3a2f/runs/20260708-153634-73e98316/research/mobbin-spec.yaml --live-check"
+    }
+  ]
+}

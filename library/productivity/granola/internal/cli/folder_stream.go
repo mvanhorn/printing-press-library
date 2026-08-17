@@ -9,10 +9,11 @@ import (
 )
 
 // pp:client-call
-// folder stream reads granola.Cache via openGranolaCache() in granola_helpers.go
-// and meeting artifacts via buildArtifacts() in extract.go — both already pass the
-// store/sibling-import signal. The heuristic inspects files individually, so this
-// marker asserts the same real-data shape for folder_stream.go.
+// folder stream reads local Granola data via openGranolaRead() in
+// granola_helpers.go and meeting artifacts via buildArtifacts() in extract.go —
+// both already pass the store/sibling-import signal. The heuristic inspects
+// files individually, so this marker asserts the same real-data shape for
+// folder_stream.go.
 
 func newFolderCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
@@ -35,20 +36,25 @@ func newFolderListCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			c, err := openGranolaCache()
+			// PATCH(dual-path-store-read): store first, cache fallback.
+			// description / is_favourited exist only in the cache's
+			// documentListsMetadata, so store-sourced folders report them
+			// empty rather than dropping the folder entirely.
+			v, err := openGranolaRead(cmd.Context())
 			if err != nil {
 				return err
 			}
+			defer v.Close()
 			out := []map[string]any{}
-			for fid, md := range c.DocumentListsMetadata {
+			for _, f := range v.Folders() {
 				out = append(out, map[string]any{
-					"id":            fid,
-					"title":         md.Title,
-					"description":   md.Description,
-					"workspace_id":  md.WorkspaceID,
-					"meeting_count": len(c.DocumentLists[fid]),
-					"is_favourited": md.IsFavourited,
-					"parent_id":     md.ParentDocumentListID,
+					"id":            f.ID,
+					"title":         f.Title,
+					"description":   f.Description,
+					"workspace_id":  f.WorkspaceID,
+					"meeting_count": len(v.FolderMeetings(f.ID)),
+					"is_favourited": f.IsFavourited,
+					"parent_id":     f.ParentDocumentListID,
 				})
 			}
 			return emitJSON(cmd, flags, out)
@@ -73,18 +79,20 @@ func newFolderStreamCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 			key := args[0]
-			c, err := openGranolaCache()
+			// PATCH(dual-path-store-read): store first, cache fallback.
+			v, err := openGranolaRead(cmd.Context())
 			if err != nil {
 				return err
 			}
-			f := c.FolderByName(key)
+			defer v.Close()
+			f := v.FolderByName(key)
 			if f == nil {
 				return notFoundErr(fmt.Errorf("folder %q not found", key))
 			}
-			mids := c.FolderMeetings(f.ID)
+			mids := v.FolderMeetings(f.ID)
 			w := cmd.OutOrStdout()
 			for _, mid := range mids {
-				a, err := buildArtifacts(mid, flags.dataSource != "local", panel)
+				a, err := buildArtifacts(cmd.Context(), mid, flags.dataSource != "local", panel)
 				if err != nil {
 					_ = emitNDJSONLine(w, map[string]any{"id": mid, "error": err.Error()})
 					continue

@@ -1,0 +1,79 @@
+{
+  "api_name": "simplefin",
+  "base_url": "https://bridge.simplefin.org/simplefin",
+  "description": "Pull every bank, card, and brokerage account through SimpleFIN into a local SQLite ledger — with net worth, cash flow, recurring-charge detection, and holdings gain/loss no single bank app can show.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {SIMPLEFIN_ACCESS_URL}",
+    "in": "header",
+    "env_vars": [
+      "SIMPLEFIN_ACCESS_URL"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SIMPLEFIN_ACCESS_URL",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_list",
+      "description": "Live fetch the full Account Set (all institutions) from the SimpleFIN server. Optional: start-date, end-date, pending (plus 3 more). Returns the AccountSet.",
+      "method": "GET",
+      "path": "/accounts",
+      "params": [
+        {
+          "name": "start-date",
+          "type": "string",
+          "location": "query",
+          "description": "Only return transactions on or after this date (unix epoch, or relative like 30d/1w). Max 90-day span per call."
+        },
+        {
+          "name": "end-date",
+          "type": "string",
+          "location": "query",
+          "description": "Only return transactions before this date (unix epoch, or relative)."
+        },
+        {
+          "name": "pending",
+          "type": "int",
+          "location": "query",
+          "description": "Set to 1 to include pending transactions."
+        },
+        {
+          "name": "account",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to a specific account id. Repeatable upstream; pass comma-separated."
+        },
+        {
+          "name": "balances-only",
+          "type": "int",
+          "location": "query",
+          "description": "Set to 1 to skip transaction data and return balances only."
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "query",
+          "description": "SimpleFIN protocol version (2 recommended)."
+        }
+      ]
+    },
+    {
+      "name": "info_get",
+      "description": "Report which SimpleFIN protocol versions the server supports. Returns the ServerInfo.",
+      "method": "GET",
+      "path": "/info",
+      "params": []
+    }
+  ]
+}

@@ -25,7 +25,7 @@ This skill drives the `openipa-pp-cli` binary. **You must verify the CLI is inst
 2. Verify: `openipa-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/openipa/cmd/openipa-pp-cli@latest
@@ -139,6 +139,8 @@ These capabilities aren't available in any other tool for this API.
 
 - `openipa-pp-cli enti cerca` — Cerca enti per nome o descrizione
 - `openipa-pp-cli enti get` — Dati anagrafici completi di un ente per codice IPA
+- `openipa-pp-cli enti istat` — Abbina codice IPA ↔ ISTAT tramite dataset CKAN (`--codice <IPA>` o `--istat <ISTAT>`)
+- `openipa-pp-cli enti categorie` — Lista live delle categorie IPA con codici (filtrabile con `--cerca <testo>`)
 
 **fatturazione** — Servizi di fatturazione elettronica (SFE) — ricerca uffici destinatari
 

@@ -35,14 +35,13 @@ func newStickiesCreateStickyCmd(flags *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}
+			path := "/stickies/"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/stickies/"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -54,39 +53,40 @@ func newStickiesCreateStickyCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyBackgroundColor != "" {
-					body["background_color"] = bodyBackgroundColor
+					bodyMap["background_color"] = bodyBackgroundColor
 				}
 				if bodyColor != "" {
-					body["color"] = bodyColor
+					bodyMap["color"] = bodyColor
 				}
 				if bodyCreatedBy != "" {
-					body["created_by"] = bodyCreatedBy
+					bodyMap["created_by"] = bodyCreatedBy
 				}
 				if bodyDeletedAt != "" {
-					body["deleted_at"] = bodyDeletedAt
+					bodyMap["deleted_at"] = bodyDeletedAt
 				}
 				if bodyDescription != "" {
-					body["description"] = bodyDescription
+					bodyMap["description"] = bodyDescription
 				}
 				if bodyDescriptionHtml != "" {
-					body["description_html"] = bodyDescriptionHtml
+					bodyMap["description_html"] = bodyDescriptionHtml
 				}
 				if bodyDescriptionStripped != "" {
-					body["description_stripped"] = bodyDescriptionStripped
+					bodyMap["description_stripped"] = bodyDescriptionStripped
 				}
 				if bodyLogoProps != "" {
-					body["logo_props"] = bodyLogoProps
+					bodyMap["logo_props"] = bodyLogoProps
 				}
 				if bodyName != "" {
-					body["name"] = bodyName
+					bodyMap["name"] = bodyName
 				}
 				if bodySortOrder != 0.0 {
-					body["sort_order"] = bodySortOrder
+					bodyMap["sort_order"] = bodySortOrder
 				}
 				if bodyUpdatedBy != "" {
-					body["updated_by"] = bodyUpdatedBy
+					bodyMap["updated_by"] = bodyUpdatedBy
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -156,6 +156,9 @@ func newStickiesCreateStickyCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -194,7 +197,11 @@ func newStickiesCreateStickyCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

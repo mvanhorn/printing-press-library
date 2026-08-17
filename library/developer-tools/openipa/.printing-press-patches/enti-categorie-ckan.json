@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "enti-categorie-ckan",
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260514-212234",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add enti categorie command for live IPA category listing via CKAN.",
+  "reason": "sede enti --categoria requires knowing category codes; this command queries the categorie-enti CKAN dataset live so users can discover codes with --cerca <text>.",
+  "files": [
+    "internal/cli/enti_categorie.go",
+    "internal/cli/enti.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build/vet pass. Live test: enti categorie --cerca istruz → L33, L17."
+}

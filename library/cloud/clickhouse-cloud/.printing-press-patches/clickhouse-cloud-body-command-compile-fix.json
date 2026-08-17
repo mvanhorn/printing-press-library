@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "clickhouse-cloud-body-command-compile-fix",
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260628-001835",
+  "base_printing_press_version": "4.26.0",
+  "summary": "Remove unused cliutil imports and empty stdin-body guards from two generated ClickHouse Cloud mutation commands.",
+  "reason": "The ClickHouse Cloud spec has body fields that do not need cliutil helpers in these two commands. The generated imports made the package fail to compile before validation could complete.",
+  "files": [
+    "internal/cli/services_clickpipes_click-pipe-create.go",
+    "internal/cli/services_instance-update.go"
+  ],
+  "validated_outcome": "Focused source inspection confirmed the commands only need encoding/json, fmt, io, os, and cobra; gofmt was run after removing the unused imports and no-op guards."
+}

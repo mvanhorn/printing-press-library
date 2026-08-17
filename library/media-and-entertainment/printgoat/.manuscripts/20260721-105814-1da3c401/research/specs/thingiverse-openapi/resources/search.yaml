@@ -1,0 +1,370 @@
+ByTermThings:
+  get:
+    tags:
+      - Search
+    summary: Search for Things
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: term
+        required: false
+        description: The search query to perform
+        schema:
+          type: string
+          example: test
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+      - in: query
+        name: sort
+        required: false
+        description: Sort method
+        schema:
+          type: string
+          enum: [ "relevant", "text", "popular", "makes", "newest" ]
+      - in: query
+        name: posted_before
+        required: false
+        description: Only show Things posted before this date. Check out the Elasticsearch date math [docs](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math)
+        schema:
+          type: string
+      - in: query
+        name: posted_after
+        required: false
+        description: Only show Things posted after this date. Check out the Elasticsearch date math [docs](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math)
+        schema:
+          type: string
+      - in: query
+        name: is_edu_approved
+        required: false
+        description: EDU - Only show educational Things
+        schema:
+          type: string
+      - in: query
+        name: subjects
+        required: false
+        description: EDU - Only show Things marked as for these subject IDs
+        schema:
+          type: string
+      - in: query
+        name: grades
+        required: false
+        description: EDU - Only show Things marked as for these grade IDs
+        schema:
+          type: string
+      - in: query
+        name: standards
+        required: false
+        description: EDU - Only show Things marked as for these standard IDs
+        schema:
+          type: string
+      - in: query
+        name: license
+        required: false
+        description: Only show Things with this license (e.g. "ccsa" for Creative Commons - Attribution - Share Alike)
+        schema:
+          type: string
+      - in: query
+        name: customizable
+        required: false
+        description: Only show customizable Things
+        schema:
+          type: string
+      - in: query
+        name: show_customized
+        required: false
+        description: Also include Things that have been customized from a different Thing. By default these are filtered out
+        schema:
+          type: string
+      - in: query
+        name: has_makes
+        required: false
+        description: Only show Things that have Makes
+        schema:
+          type: integer
+          enum: [0, 1]
+      - in: query
+        name: is_featured
+        required: false
+        description: Only show Things that have Makes
+        schema:
+          type: integer
+          enum: [0, 1]
+      - in: query
+        name: is_fis_challenge_winnereatured
+        required: false
+        description: Only show Things that are marked as a challenge winner
+        schema:
+          type: integer
+          enum: [0, 1]
+      - in: query
+        name: liked_by
+        required: false
+        description: Only show Things liked by this user ID
+        schema:
+          type: string
+      - in: query
+        name: made_by
+        required: false
+        description: Only show Things made by this user ID
+        schema:
+          type: string
+      - in: query
+        name: is_derivative
+        required: false
+        description: Only show remixes
+        schema:
+          type: integer
+          enum: [0, 1]
+      - in: query
+        name: category_id
+        required: false
+        description: Only show Things in this category ID
+        schema:
+          type: integer
+          minimum: 0
+    responses:
+      '200':
+        description: A list of items matching the search
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  hits: 
+                    type: array
+                    items:
+                      $ref: '../schemas/thing_schema.yaml'     
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ByTermMakes:
+  get:
+    tags:
+      - Search
+    summary: Search for Makes
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: term
+        required: false
+        description: The search query to perform
+        schema:
+          type: string
+          example: test
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+      - in: query
+        name: sort
+        required: false
+        description: Sort method
+        schema:
+          type: string
+          enum: [ "relevant", "popular", "newest" ]
+      - in: query
+        name: user_id
+        required: false
+        description: Only show Makes made by this user ID
+        schema:
+          type: integer
+          minimum: 0
+    responses:
+      '200':
+        description: A list of items matching the search
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  hits: 
+                    type: array
+                    items:
+                      $ref: '../schemas/copy_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ByTermUsers:
+  get:
+    tags:
+      - Search
+    summary: Search for Users
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: term
+        required: false
+        description: The search query to perform
+        schema:
+          type: string
+          example: test
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+      - in: query
+        name: sort
+        required: false
+        description: Sort method
+        schema:
+          type: string
+          enum: [ "relevant", "designs", "followers", "makes" ]
+      - in: query
+        name: users_thing_count
+        required: false
+        description: Only show users that have at least 1 published Thing
+        schema:
+          type: integer
+      - in: query
+        name: users_user_types
+        required: false
+        description: Only show users that are of this type
+        schema:
+          type: integer
+          example: 4
+      - in: query
+        name: skill_level
+        required: false
+        description: Only show users that are of this skill level
+        schema:
+          type: string
+          enum: ["Novice", "Intermediate", "Advanced"]
+      - in: query
+        name: programs
+        required: false
+        description: Only show users that use this design program
+        schema:
+          type: integer
+          example: 35
+    responses:
+      '200':
+        description: A list of items matching the search
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  hits: 
+                    type: array
+                    items:
+                      $ref: '../schemas/user_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ByTermCollections:
+  get:
+    tags:
+      - Search
+    summary: Search for Collections
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: term
+        required: false
+        description: The search query to perform
+        schema:
+          type: string
+          example: test
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+      - in: query
+        name: sort
+        required: false
+        description: Sort method
+        schema:
+          type: string
+          enum: [ "relevant", "things", "newest", "popular" ]
+      - in: query
+        name: is_featured
+        required: false
+        description: Only show Collections that have been featured
+        schema:
+          type: integer
+          enum: [0, 1]
+      - in: query
+        name: liked_by
+        required: false
+        description: Only show Collections liked by this user ID
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: A list of items matching the search
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  hits: 
+                    type: array
+                    items:
+                      $ref: '../schemas/collection_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ByTermAutocomplete:
+  get:
+    tags:
+      - Search
+    description: Search data by term for autocomplete
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: term
+        required: false
+        description: The search query to perform
+        schema:
+          type: string
+          example: test
+    responses:
+      '200':
+        description: None
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ByTag:
+  get:
+    tags:
+      - Search
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: tag
+        required: false
+        schema:
+          type: string
+          example: test
+    responses:
+      '200':
+        description: None
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "lever-add-sync-command",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-044310",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Added the missing sync command that generated-tree guidance, MCP error text, and docs all reference.",
+  "reason": "The scaffold references 'lever-pp-cli sync' in missing-store guidance (data_source.go), sync-hint text, and the learnHookSkipList, but generated no command. sync <company> fetches all open postings (mode=json) and persists them under a company-scoped key (postings:<company>) with durability verification before recording sync state. --dry-run short-circuits before any network or store work; --agent/--json emits the standard {meta,results} envelope instead of plain text. Mirrors the greenhouse package's sync command shape.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; live end-to-end: 'lever-pp-cli sync leverdemo' persisted 388 postings, '--data-source local' returns only that company's rows, --dry-run writes nothing, --agent emits a JSON envelope with stored/skipped counts.",
+  "upstream_issue": null
+}

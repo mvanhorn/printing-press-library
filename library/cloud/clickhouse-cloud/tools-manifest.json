@@ -1,0 +1,4670 @@
+{
+  "api_name": "clickhouse-cloud",
+  "base_url": "https://api.clickhouse.cloud",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {CLICKHOUSE_CLOUD_USERNAME}:{CLICKHOUSE_CLOUD_PASSWORD}",
+    "env_vars": [
+      "CLICKHOUSE_CLOUD_USERNAME",
+      "CLICKHOUSE_CLOUD_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "CLICKHOUSE_CLOUD_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "inferred": true
+      },
+      {
+        "name": "CLICKHOUSE_CLOUD_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://clickhouse.com/docs/cloud/manage/openapi"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "activities_activity-get",
+      "description": "Returns a single organization activity by ID. Required: organizationId, activityId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/activities/{activityId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "activityId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested activity.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_activity-get-list",
+      "description": "Returns a list of all organization activities. Required: organizationId. Optional: from_date, to_date.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/activities",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "from_date",
+          "type": "string",
+          "location": "query",
+          "description": "A starting date for a search"
+        },
+        {
+          "name": "to_date",
+          "type": "string",
+          "location": "query",
+          "description": "An ending date for a search"
+        }
+      ]
+    },
+    {
+      "name": "byoc-infrastructure_create",
+      "description": "Create a new BYOC Infrastructure in the organization. Returns the configuration of the newly created infrastructure. Required: organizationId. Optional: accountId, availabilityZoneSuffixes, displayName (plus 2 more).",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/byocInfrastructure",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "body",
+          "description": "Cloud account ID the BYOC infrastructure is configured for"
+        },
+        {
+          "name": "availabilityZoneSuffixes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of availability zone suffixes"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Human readable name for infrastructure"
+        },
+        {
+          "name": "regionId",
+          "type": "string",
+          "location": "body",
+          "description": "Region in which the BYOC infrastructure will be located"
+        },
+        {
+          "name": "vpcCidrRange",
+          "type": "string",
+          "location": "body",
+          "description": "CIDR range for VPC"
+        }
+      ]
+    },
+    {
+      "name": "byoc-infrastructure_delete",
+      "description": "Removes a BYOC Infrastructure from the organization. Required: organizationId, byocInfrastructureId. Returns the ByocInfrastructureDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/byocInfrastructure/{byocInfrastructureId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "byocInfrastructureId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested BYOC Infrastructure",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "byoc-infrastructure_update",
+      "description": "Update configuration of the BYOC infrastructure. Returns the modified infrastructure. Required: organizationId, byocInfrastructureId. Optional: displayName.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/byocInfrastructure/{byocInfrastructureId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "byocInfrastructureId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested BYOC Infrastructure",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Human readable name for infrastructure object"
+        }
+      ]
+    },
+    {
+      "name": "invitations_create",
+      "description": "Creates organization invitation. Required: organizationId. Optional: assignedRoleIds, email, role. Returns the new InvitationsCreateResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/invitations",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization to invite a user to.",
+          "required": true
+        },
+        {
+          "name": "assignedRoleIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of role IDs to assign to the invited user when they accept the invitation"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email of the invited user. Only a user with this email can join using the invitation. The email is stored in a lowercase form."
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "DEPRECATED. Use `assignedRoleIds` instead. Role to assign to the invited user in the organization."
+        }
+      ]
+    },
+    {
+      "name": "invitations_delete",
+      "description": "Deletes a single organization invitation. Required: organizationId, invitationId. Returns the InvitationsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/invitations/{invitationId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that has the invitation.",
+          "required": true
+        },
+        {
+          "name": "invitationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invitations_get",
+      "description": "Returns details for a single organization invitation. Required: organizationId, invitationId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/invitations/{invitationId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "invitationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invitations_get-list",
+      "description": "Returns list of all organization invitations. Required: organizationId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/invitations",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_openapi-create",
+      "description": "Creates new API key. Required: organizationId. Optional: assignedRoleIds, expireAt, hashData (plus 4 more). Returns the new KeysOpenapiCreateResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/keys",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that will own the key.",
+          "required": true
+        },
+        {
+          "name": "assignedRoleIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of role UUIDs to assign to the API key"
+        },
+        {
+          "name": "expireAt",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp the key expires. If not present, `null` or is empty the key never expires. ISO-8601."
+        },
+        {
+          "name": "hashData",
+          "type": "string",
+          "location": "body",
+          "description": "Hash data"
+        },
+        {
+          "name": "ipAccessList",
+          "type": "array",
+          "location": "body",
+          "description": "List of IP addresses allowed to access the API using this key"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the key."
+        },
+        {
+          "name": "roles",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "DEPRECATED. Use `assignedRoleIds` instead. List of roles assigned to the key. Contains at least 1 element."
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "Initial state of the key: 'enabled', 'disabled'. If not provided the new key will be 'enabled'."
+        }
+      ]
+    },
+    {
+      "name": "keys_openapi-delete",
+      "description": "Deletes API key. Only a key not used to authenticate the active request can be deleted. Required: organizationId, keyId. Returns the KeysOpenapiDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/keys/{keyId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the key.",
+          "required": true
+        },
+        {
+          "name": "keyId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the key to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_openapi-get",
+      "description": "Returns a single key details. Required: organizationId, keyId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/keys/{keyId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "keyId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested key.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_openapi-get-list",
+      "description": "Returns a list of all keys in the organization. Required: organizationId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/keys",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_openapi-update",
+      "description": "Updates API key properties. Required: organizationId, keyId. Optional: assignedRoleIds, expireAt, ipAccessList (plus 3 more). Returns the updated KeysOpenapiUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/keys/{keyId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the key.",
+          "required": true
+        },
+        {
+          "name": "keyId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the key to update.",
+          "required": true
+        },
+        {
+          "name": "assignedRoleIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of role UUIDs to assign to the API key"
+        },
+        {
+          "name": "expireAt",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp the key expires. If `null` or is empty the key never expires. ISO-8601."
+        },
+        {
+          "name": "ipAccessList",
+          "type": "array",
+          "location": "body",
+          "description": "List of IP addresses allowed to access the API using this key"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the key"
+        },
+        {
+          "name": "roles",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "DEPRECATED. Use `assignedRoleIds` instead. List of roles assigned to the key."
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State of the key: 'enabled', 'disabled'."
+        }
+      ]
+    },
+    {
+      "name": "members_delete",
+      "description": "Removes a user from the organization. Required: organizationId, userId. Returns the MembersDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/members/{userId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "members_get",
+      "description": "Returns a single organization member details. Required: organizationId, userId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/members/{userId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization the member is part of.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "members_get-list",
+      "description": "Returns a list of all members in the organization. Required: organizationId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/members",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "members_update",
+      "description": "Updates organization member role. Required: organizationId, userId. Optional: assignedRoleIds, role. Returns the updated MembersUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/members/{userId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization the member is part of.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user to patch",
+          "required": true
+        },
+        {
+          "name": "assignedRoleIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of role IDs to assign to the member"
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "DEPRECATED. Use `assignedRoleIds` instead. Role of the member in the organization."
+        }
+      ]
+    },
+    {
+      "name": "organizations_get",
+      "description": "Returns details of a single organization. In order to get the details, the auth key must belong to the organization. Required: organizationId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_get-list",
+      "description": "Returns a list with a single organization associated with the API key in the request.",
+      "method": "GET",
+      "path": "/v1/organizations",
+      "params": []
+    },
+    {
+      "name": "organizations_update",
+      "description": "Updates organization fields. Requires ADMIN auth key role. Required: organizationId. Optional: enableCoreDumps, name, privateEndpoints. Returns the updated OrganizationsUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization to update.",
+          "required": true
+        },
+        {
+          "name": "enableCoreDumps",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether crash reports (core dumps) collection is enabled for services in the organization. When disabled at the organization level, individual services cannot enable crash reports."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the organization."
+        },
+        {
+          "name": "privateEndpoints",
+          "type": "string",
+          "location": "body",
+          "description": "Private endpoints"
+        }
+      ]
+    },
+    {
+      "name": "postgres_org-prometheus-get",
+      "description": "**Disclaimer:** This beta endpoint is evolving; the API contract may change. Returns Prometheus metrics for all PostgreSQL services in an organization. Maximum 100 services supported. Required: organizationId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/postgres/prometheus",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "postgres_service-create",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Creates a new Postgres service in the organization and returns it. The service is started asynchronously. Required: organizationId, name, provider, region, size. Optional: haType, pgBouncerConfig, pgConfig (plus 2 more).",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/postgres",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that will own the service.",
+          "required": true
+        },
+        {
+          "name": "haType",
+          "type": "string",
+          "location": "body",
+          "description": "Type of high availability: “none” for no replication, “async” for asynchronous replication to a single standby, and “sync” for synchronous replication to two standbys."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Postgres service. Alphanumerical string with whitespaces up to 50 characters.",
+          "required": true
+        },
+        {
+          "name": "pgBouncerConfig",
+          "type": "object",
+          "location": "body",
+          "description": "PgBouncer [runtime configuration](https://www.pgbouncer.org/config.html) configuration."
+        },
+        {
+          "name": "pg-config-default-transaction-isolation",
+          "wire_name": "pgConfig.default_transaction_isolation",
+          "type": "string",
+          "location": "body",
+          "description": "Sets the default transaction isolation level for new transactions."
+        },
+        {
+          "name": "pg-config-effective-cache-size",
+          "wire_name": "pgConfig.effective_cache_size",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the planner's assumption about the total size of data caches."
+        },
+        {
+          "name": "pg-config-effective-io-concurrency",
+          "wire_name": "pgConfig.effective_io_concurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Number of concurrent disk I/O operations the planner expects. Higher values (100-200) benefit SSDs."
+        },
+        {
+          "name": "pg-config-idle-in-transaction-session-timeout",
+          "wire_name": "pgConfig.idle_in_transaction_session_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any session that has been idle within an open transaction for longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-idle-session-timeout",
+          "wire_name": "pgConfig.idle_session_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any session that has been idle for longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-lock-timeout",
+          "wire_name": "pgConfig.lock_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Abort any statement that waits longer than the specified time while attempting to acquire a lock. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-maintenance-work-mem",
+          "wire_name": "pgConfig.maintenance_work_mem",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum memory to be used for maintenance operations."
+        },
+        {
+          "name": "pg-config-max-connections",
+          "wire_name": "pgConfig.max_connections",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum number of concurrent connections to the database server."
+        },
+        {
+          "name": "pg-config-max-parallel-maintenance-workers",
+          "wire_name": "pgConfig.max_parallel_maintenance_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of parallel workers for maintenance operations like CREATE INDEX and VACUUM."
+        },
+        {
+          "name": "pg-config-max-parallel-workers",
+          "wire_name": "pgConfig.max_parallel_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of workers that can be used for parallel operations. Cannot exceed max_worker_processes."
+        },
+        {
+          "name": "pg-config-max-parallel-workers-per-gather",
+          "wire_name": "pgConfig.max_parallel_workers_per_gather",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of parallel workers per executor node for parallel queries. Use 0 to disable parallel queries."
+        },
+        {
+          "name": "pg-config-max-slot-wal-keep-size",
+          "wire_name": "pgConfig.max_slot_wal_keep_size",
+          "type": "int",
+          "location": "body",
+          "description": "Specifies the maximum size of WAL files that replication slots are allowed to retain. Use -1 for unlimited."
+        },
+        {
+          "name": "pg-config-max-wal-size",
+          "wire_name": "pgConfig.max_wal_size",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum size WAL can grow between checkpoints. Larger values improve write performance but increase crash recovery time."
+        },
+        {
+          "name": "pg-config-max-worker-processes",
+          "wire_name": "pgConfig.max_worker_processes",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of background processes the system can support. Includes parallel query workers, logical replication, and more."
+        },
+        {
+          "name": "pg-config-min-wal-size",
+          "wire_name": "pgConfig.min_wal_size",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum size to shrink the WAL to. WAL files are recycled rather than removed when below this size."
+        },
+        {
+          "name": "pg-config-random-page-cost",
+          "wire_name": "pgConfig.random_page_cost",
+          "type": "float",
+          "location": "body",
+          "description": "Sets the planner's estimate of the cost of a non-sequentially-fetched disk page. Lower values (1.1-1.5) are better for SSDs."
+        },
+        {
+          "name": "pg-config-ssl-min-protocol-version",
+          "wire_name": "pgConfig.ssl_min_protocol_version",
+          "type": "string",
+          "location": "body",
+          "description": "Sets the minimum SSL/TLS protocol version allowed for client connections."
+        },
+        {
+          "name": "pg-config-statement-timeout",
+          "wire_name": "pgConfig.statement_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Abort any statement that runs longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-transaction-timeout",
+          "wire_name": "pgConfig.transaction_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any statement that takes more than the specified time, even while active. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-wal-compression",
+          "wire_name": "pgConfig.wal_compression",
+          "type": "string",
+          "location": "body",
+          "description": "Compress full-page writes in WAL. Reduces I/O at the cost of CPU. Options vary by PostgreSQL version."
+        },
+        {
+          "name": "pg-config-wal-keep-size",
+          "wire_name": "pgConfig.wal_keep_size",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum size of past WAL files kept in pg_wal for standby servers. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-wal-sender-timeout",
+          "wire_name": "pgConfig.wal_sender_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate replication connections that are inactive for longer than this time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-work-mem",
+          "wire_name": "pgConfig.work_mem",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the amount of memory Postgres will use for internal operations like sorting and hashing as part of executing a query."
+        },
+        {
+          "name": "postgresVersion",
+          "type": "string",
+          "location": "body",
+          "description": "Postgres version"
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "The cloud provider for a Postgres service.",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "body",
+          "description": "The cloud region for a Postgres service.",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "body",
+          "description": "The VM size for a Postgres service.",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags associated with the Postgres service."
+        }
+      ]
+    },
+    {
+      "name": "postgres_service-delete",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Deletes a Postgres service that belongs to the organization. Required: organizationId, postgresId. Returns the PostgresServiceDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "postgres_service-get",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Returns a Postgres service that belongs to the organization. Required: organizationId, postgresId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "postgres_service-get-list",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Returns a list of all Postgres services in the organization. Required: organizationId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/postgres",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the services.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "postgres_service-patch",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Update a Postgres service that belongs to the organization. **WARNING:** Changing the name also updates the host name and certificates for the service. Required: organizationId, postgresId. Optional: haType, name, size (plus 1 more). Returns the updated PostgresServicePatchResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        },
+        {
+          "name": "haType",
+          "type": "string",
+          "location": "body",
+          "description": "Type of high availability: “none” for no replication, “async” for asynchronous replication to a single standby, and “sync” for synchronous replication to two standbys."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Postgres service. Alphanumerical string with whitespaces up to 50 characters."
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "body",
+          "description": "The VM size for a Postgres service."
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags associated with the Postgres service."
+        }
+      ]
+    },
+    {
+      "name": "postgres_ca-certificates_postgres-service-certs-get",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Download CA certificates for a PostgreSQL service. Required: organizationId, postgresId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/caCertificates",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/x-pem-file"
+        }
+      ]
+    },
+    {
+      "name": "postgres_config_postgres-instance-get",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Returns the configuration data for a Postgres service and its PgBouncer service. Required: organizationId, postgresId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/config",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "postgres_config_postgres-instance-patch",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Update the existing Postgres service and pgBouncer configuration. Required: organizationId, postgresId, pgBouncerConfig, pgConfig. Returns the updated ConfigPostgresInstancePatchResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/config",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        },
+        {
+          "name": "pgBouncerConfig",
+          "type": "object",
+          "location": "body",
+          "description": "PgBouncer [runtime configuration](https://www.pgbouncer.org/config.html) configuration.",
+          "required": true
+        },
+        {
+          "name": "pg-config-default-transaction-isolation",
+          "wire_name": "pgConfig.default_transaction_isolation",
+          "type": "string",
+          "location": "body",
+          "description": "Sets the default transaction isolation level for new transactions."
+        },
+        {
+          "name": "pg-config-effective-cache-size",
+          "wire_name": "pgConfig.effective_cache_size",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the planner's assumption about the total size of data caches."
+        },
+        {
+          "name": "pg-config-effective-io-concurrency",
+          "wire_name": "pgConfig.effective_io_concurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Number of concurrent disk I/O operations the planner expects. Higher values (100-200) benefit SSDs."
+        },
+        {
+          "name": "pg-config-idle-in-transaction-session-timeout",
+          "wire_name": "pgConfig.idle_in_transaction_session_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any session that has been idle within an open transaction for longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-idle-session-timeout",
+          "wire_name": "pgConfig.idle_session_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any session that has been idle for longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-lock-timeout",
+          "wire_name": "pgConfig.lock_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Abort any statement that waits longer than the specified time while attempting to acquire a lock. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-maintenance-work-mem",
+          "wire_name": "pgConfig.maintenance_work_mem",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum memory to be used for maintenance operations."
+        },
+        {
+          "name": "pg-config-max-connections",
+          "wire_name": "pgConfig.max_connections",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum number of concurrent connections to the database server."
+        },
+        {
+          "name": "pg-config-max-parallel-maintenance-workers",
+          "wire_name": "pgConfig.max_parallel_maintenance_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of parallel workers for maintenance operations like CREATE INDEX and VACUUM."
+        },
+        {
+          "name": "pg-config-max-parallel-workers",
+          "wire_name": "pgConfig.max_parallel_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of workers that can be used for parallel operations. Cannot exceed max_worker_processes."
+        },
+        {
+          "name": "pg-config-max-parallel-workers-per-gather",
+          "wire_name": "pgConfig.max_parallel_workers_per_gather",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of parallel workers per executor node for parallel queries. Use 0 to disable parallel queries."
+        },
+        {
+          "name": "pg-config-max-slot-wal-keep-size",
+          "wire_name": "pgConfig.max_slot_wal_keep_size",
+          "type": "int",
+          "location": "body",
+          "description": "Specifies the maximum size of WAL files that replication slots are allowed to retain. Use -1 for unlimited."
+        },
+        {
+          "name": "pg-config-max-wal-size",
+          "wire_name": "pgConfig.max_wal_size",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum size WAL can grow between checkpoints. Larger values improve write performance but increase crash recovery time."
+        },
+        {
+          "name": "pg-config-max-worker-processes",
+          "wire_name": "pgConfig.max_worker_processes",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of background processes the system can support. Includes parallel query workers, logical replication, and more."
+        },
+        {
+          "name": "pg-config-min-wal-size",
+          "wire_name": "pgConfig.min_wal_size",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum size to shrink the WAL to. WAL files are recycled rather than removed when below this size."
+        },
+        {
+          "name": "pg-config-random-page-cost",
+          "wire_name": "pgConfig.random_page_cost",
+          "type": "float",
+          "location": "body",
+          "description": "Sets the planner's estimate of the cost of a non-sequentially-fetched disk page. Lower values (1.1-1.5) are better for SSDs."
+        },
+        {
+          "name": "pg-config-ssl-min-protocol-version",
+          "wire_name": "pgConfig.ssl_min_protocol_version",
+          "type": "string",
+          "location": "body",
+          "description": "Sets the minimum SSL/TLS protocol version allowed for client connections."
+        },
+        {
+          "name": "pg-config-statement-timeout",
+          "wire_name": "pgConfig.statement_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Abort any statement that runs longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-transaction-timeout",
+          "wire_name": "pgConfig.transaction_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any statement that takes more than the specified time, even while active. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-wal-compression",
+          "wire_name": "pgConfig.wal_compression",
+          "type": "string",
+          "location": "body",
+          "description": "Compress full-page writes in WAL. Reduces I/O at the cost of CPU. Options vary by PostgreSQL version."
+        },
+        {
+          "name": "pg-config-wal-keep-size",
+          "wire_name": "pgConfig.wal_keep_size",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum size of past WAL files kept in pg_wal for standby servers. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-wal-sender-timeout",
+          "wire_name": "pgConfig.wal_sender_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate replication connections that are inactive for longer than this time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-work-mem",
+          "wire_name": "pgConfig.work_mem",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the amount of memory Postgres will use for internal operations like sorting and hashing as part of executing a query."
+        }
+      ]
+    },
+    {
+      "name": "postgres_config_postgres-instance-post",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Replace the existing Postgres service and pgBouncer configuration. Required: organizationId, postgresId, pgBouncerConfig, pgConfig. Returns the new ConfigPostgresInstancePostResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/config",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        },
+        {
+          "name": "pgBouncerConfig",
+          "type": "object",
+          "location": "body",
+          "description": "PgBouncer [runtime configuration](https://www.pgbouncer.org/config.html) configuration.",
+          "required": true
+        },
+        {
+          "name": "pg-config-default-transaction-isolation",
+          "wire_name": "pgConfig.default_transaction_isolation",
+          "type": "string",
+          "location": "body",
+          "description": "Sets the default transaction isolation level for new transactions."
+        },
+        {
+          "name": "pg-config-effective-cache-size",
+          "wire_name": "pgConfig.effective_cache_size",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the planner's assumption about the total size of data caches."
+        },
+        {
+          "name": "pg-config-effective-io-concurrency",
+          "wire_name": "pgConfig.effective_io_concurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Number of concurrent disk I/O operations the planner expects. Higher values (100-200) benefit SSDs."
+        },
+        {
+          "name": "pg-config-idle-in-transaction-session-timeout",
+          "wire_name": "pgConfig.idle_in_transaction_session_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any session that has been idle within an open transaction for longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-idle-session-timeout",
+          "wire_name": "pgConfig.idle_session_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any session that has been idle for longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-lock-timeout",
+          "wire_name": "pgConfig.lock_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Abort any statement that waits longer than the specified time while attempting to acquire a lock. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-maintenance-work-mem",
+          "wire_name": "pgConfig.maintenance_work_mem",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum memory to be used for maintenance operations."
+        },
+        {
+          "name": "pg-config-max-connections",
+          "wire_name": "pgConfig.max_connections",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum number of concurrent connections to the database server."
+        },
+        {
+          "name": "pg-config-max-parallel-maintenance-workers",
+          "wire_name": "pgConfig.max_parallel_maintenance_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of parallel workers for maintenance operations like CREATE INDEX and VACUUM."
+        },
+        {
+          "name": "pg-config-max-parallel-workers",
+          "wire_name": "pgConfig.max_parallel_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of workers that can be used for parallel operations. Cannot exceed max_worker_processes."
+        },
+        {
+          "name": "pg-config-max-parallel-workers-per-gather",
+          "wire_name": "pgConfig.max_parallel_workers_per_gather",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of parallel workers per executor node for parallel queries. Use 0 to disable parallel queries."
+        },
+        {
+          "name": "pg-config-max-slot-wal-keep-size",
+          "wire_name": "pgConfig.max_slot_wal_keep_size",
+          "type": "int",
+          "location": "body",
+          "description": "Specifies the maximum size of WAL files that replication slots are allowed to retain. Use -1 for unlimited."
+        },
+        {
+          "name": "pg-config-max-wal-size",
+          "wire_name": "pgConfig.max_wal_size",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum size WAL can grow between checkpoints. Larger values improve write performance but increase crash recovery time."
+        },
+        {
+          "name": "pg-config-max-worker-processes",
+          "wire_name": "pgConfig.max_worker_processes",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of background processes the system can support. Includes parallel query workers, logical replication, and more."
+        },
+        {
+          "name": "pg-config-min-wal-size",
+          "wire_name": "pgConfig.min_wal_size",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum size to shrink the WAL to. WAL files are recycled rather than removed when below this size."
+        },
+        {
+          "name": "pg-config-random-page-cost",
+          "wire_name": "pgConfig.random_page_cost",
+          "type": "float",
+          "location": "body",
+          "description": "Sets the planner's estimate of the cost of a non-sequentially-fetched disk page. Lower values (1.1-1.5) are better for SSDs."
+        },
+        {
+          "name": "pg-config-ssl-min-protocol-version",
+          "wire_name": "pgConfig.ssl_min_protocol_version",
+          "type": "string",
+          "location": "body",
+          "description": "Sets the minimum SSL/TLS protocol version allowed for client connections."
+        },
+        {
+          "name": "pg-config-statement-timeout",
+          "wire_name": "pgConfig.statement_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Abort any statement that runs longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-transaction-timeout",
+          "wire_name": "pgConfig.transaction_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any statement that takes more than the specified time, even while active. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-wal-compression",
+          "wire_name": "pgConfig.wal_compression",
+          "type": "string",
+          "location": "body",
+          "description": "Compress full-page writes in WAL. Reduces I/O at the cost of CPU. Options vary by PostgreSQL version."
+        },
+        {
+          "name": "pg-config-wal-keep-size",
+          "wire_name": "pgConfig.wal_keep_size",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum size of past WAL files kept in pg_wal for standby servers. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-wal-sender-timeout",
+          "wire_name": "pgConfig.wal_sender_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate replication connections that are inactive for longer than this time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-work-mem",
+          "wire_name": "pgConfig.work_mem",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the amount of memory Postgres will use for internal operations like sorting and hashing as part of executing a query."
+        }
+      ]
+    },
+    {
+      "name": "postgres_metrics_postgres-instance-get",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Returns bucketed time-series metrics for a PostgreSQL service over the requested window (CPU, memory, disk, network, connections, cache hit ratio, throughput, transactions, and more). Use this to chart or analyze how a service behaved over time. Required: organizationId, postgresId, from_date, to_date. Optional: bucket_size_seconds.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/metrics",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "from_date",
+          "type": "string",
+          "location": "query",
+          "description": "Inclusive start of the time window (RFC 3339 date-time).",
+          "required": true
+        },
+        {
+          "name": "to_date",
+          "type": "string",
+          "location": "query",
+          "description": "Exclusive end of the time window (RFC 3339 date-time).",
+          "required": true
+        },
+        {
+          "name": "bucket_size_seconds",
+          "type": "int",
+          "location": "query",
+          "description": "Time-series bucket size in seconds. When omitted, a bucket size is derived from the requested window. Requests are capped at 250 data points."
+        }
+      ]
+    },
+    {
+      "name": "postgres_password_postgres-service-set",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Sets a new password for a Postgres service's superuser account. Required: organizationId, postgresId. Optional: password. Returns the updated PasswordPostgresServiceSetResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/password",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Optional password. If not provided a new password is generated and provided in the response. Must contain: * At least one lowercase letter * At least one uppercase letter * At least one digit"
+        }
+      ]
+    },
+    {
+      "name": "postgres_prometheus_postgres-instance-get",
+      "description": "**Disclaimer:** This beta endpoint is evolving; the API contract may change. Returns Prometheus metrics for a PostgreSQL service. Required: organizationId, postgresId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/prometheus",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "postgres_read-replica_postgres-instance-create",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Initiate the process to create a new read replica for a Postgres service. Required: organizationId, postgresId, name. Optional: pgBouncerConfig, pgConfig, tags. Returns the new ReadReplicaPostgresInstanceCreateResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/readReplica",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Postgres service. Alphanumerical string with whitespaces up to 50 characters.",
+          "required": true
+        },
+        {
+          "name": "pgBouncerConfig",
+          "type": "object",
+          "location": "body",
+          "description": "PgBouncer [runtime configuration](https://www.pgbouncer.org/config.html) configuration."
+        },
+        {
+          "name": "pg-config-default-transaction-isolation",
+          "wire_name": "pgConfig.default_transaction_isolation",
+          "type": "string",
+          "location": "body",
+          "description": "Sets the default transaction isolation level for new transactions."
+        },
+        {
+          "name": "pg-config-effective-cache-size",
+          "wire_name": "pgConfig.effective_cache_size",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the planner's assumption about the total size of data caches."
+        },
+        {
+          "name": "pg-config-effective-io-concurrency",
+          "wire_name": "pgConfig.effective_io_concurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Number of concurrent disk I/O operations the planner expects. Higher values (100-200) benefit SSDs."
+        },
+        {
+          "name": "pg-config-idle-in-transaction-session-timeout",
+          "wire_name": "pgConfig.idle_in_transaction_session_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any session that has been idle within an open transaction for longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-idle-session-timeout",
+          "wire_name": "pgConfig.idle_session_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any session that has been idle for longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-lock-timeout",
+          "wire_name": "pgConfig.lock_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Abort any statement that waits longer than the specified time while attempting to acquire a lock. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-maintenance-work-mem",
+          "wire_name": "pgConfig.maintenance_work_mem",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum memory to be used for maintenance operations."
+        },
+        {
+          "name": "pg-config-max-connections",
+          "wire_name": "pgConfig.max_connections",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum number of concurrent connections to the database server."
+        },
+        {
+          "name": "pg-config-max-parallel-maintenance-workers",
+          "wire_name": "pgConfig.max_parallel_maintenance_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of parallel workers for maintenance operations like CREATE INDEX and VACUUM."
+        },
+        {
+          "name": "pg-config-max-parallel-workers",
+          "wire_name": "pgConfig.max_parallel_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of workers that can be used for parallel operations. Cannot exceed max_worker_processes."
+        },
+        {
+          "name": "pg-config-max-parallel-workers-per-gather",
+          "wire_name": "pgConfig.max_parallel_workers_per_gather",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of parallel workers per executor node for parallel queries. Use 0 to disable parallel queries."
+        },
+        {
+          "name": "pg-config-max-slot-wal-keep-size",
+          "wire_name": "pgConfig.max_slot_wal_keep_size",
+          "type": "int",
+          "location": "body",
+          "description": "Specifies the maximum size of WAL files that replication slots are allowed to retain. Use -1 for unlimited."
+        },
+        {
+          "name": "pg-config-max-wal-size",
+          "wire_name": "pgConfig.max_wal_size",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum size WAL can grow between checkpoints. Larger values improve write performance but increase crash recovery time."
+        },
+        {
+          "name": "pg-config-max-worker-processes",
+          "wire_name": "pgConfig.max_worker_processes",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of background processes the system can support. Includes parallel query workers, logical replication, and more."
+        },
+        {
+          "name": "pg-config-min-wal-size",
+          "wire_name": "pgConfig.min_wal_size",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum size to shrink the WAL to. WAL files are recycled rather than removed when below this size."
+        },
+        {
+          "name": "pg-config-random-page-cost",
+          "wire_name": "pgConfig.random_page_cost",
+          "type": "float",
+          "location": "body",
+          "description": "Sets the planner's estimate of the cost of a non-sequentially-fetched disk page. Lower values (1.1-1.5) are better for SSDs."
+        },
+        {
+          "name": "pg-config-ssl-min-protocol-version",
+          "wire_name": "pgConfig.ssl_min_protocol_version",
+          "type": "string",
+          "location": "body",
+          "description": "Sets the minimum SSL/TLS protocol version allowed for client connections."
+        },
+        {
+          "name": "pg-config-statement-timeout",
+          "wire_name": "pgConfig.statement_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Abort any statement that runs longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-transaction-timeout",
+          "wire_name": "pgConfig.transaction_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any statement that takes more than the specified time, even while active. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-wal-compression",
+          "wire_name": "pgConfig.wal_compression",
+          "type": "string",
+          "location": "body",
+          "description": "Compress full-page writes in WAL. Reduces I/O at the cost of CPU. Options vary by PostgreSQL version."
+        },
+        {
+          "name": "pg-config-wal-keep-size",
+          "wire_name": "pgConfig.wal_keep_size",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum size of past WAL files kept in pg_wal for standby servers. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-wal-sender-timeout",
+          "wire_name": "pgConfig.wal_sender_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate replication connections that are inactive for longer than this time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-work-mem",
+          "wire_name": "pgConfig.work_mem",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the amount of memory Postgres will use for internal operations like sorting and hashing as part of executing a query."
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags associated with the Postgres service."
+        }
+      ]
+    },
+    {
+      "name": "postgres_restored-service_postgres-instance-restore",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Restore a Postgres database from continuous backup, optionally at a specific point in time. Required: organizationId, postgresId, name, restoreTarget. Optional: pgBouncerConfig, pgConfig, tags. Returns the new RestoredServicePostgresInstanceRestoreResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/restoredService",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Postgres service. Alphanumerical string with whitespaces up to 50 characters.",
+          "required": true
+        },
+        {
+          "name": "pgBouncerConfig",
+          "type": "object",
+          "location": "body",
+          "description": "PgBouncer [runtime configuration](https://www.pgbouncer.org/config.html) configuration."
+        },
+        {
+          "name": "pg-config-default-transaction-isolation",
+          "wire_name": "pgConfig.default_transaction_isolation",
+          "type": "string",
+          "location": "body",
+          "description": "Sets the default transaction isolation level for new transactions."
+        },
+        {
+          "name": "pg-config-effective-cache-size",
+          "wire_name": "pgConfig.effective_cache_size",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the planner's assumption about the total size of data caches."
+        },
+        {
+          "name": "pg-config-effective-io-concurrency",
+          "wire_name": "pgConfig.effective_io_concurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Number of concurrent disk I/O operations the planner expects. Higher values (100-200) benefit SSDs."
+        },
+        {
+          "name": "pg-config-idle-in-transaction-session-timeout",
+          "wire_name": "pgConfig.idle_in_transaction_session_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any session that has been idle within an open transaction for longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-idle-session-timeout",
+          "wire_name": "pgConfig.idle_session_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any session that has been idle for longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-lock-timeout",
+          "wire_name": "pgConfig.lock_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Abort any statement that waits longer than the specified time while attempting to acquire a lock. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-maintenance-work-mem",
+          "wire_name": "pgConfig.maintenance_work_mem",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum memory to be used for maintenance operations."
+        },
+        {
+          "name": "pg-config-max-connections",
+          "wire_name": "pgConfig.max_connections",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum number of concurrent connections to the database server."
+        },
+        {
+          "name": "pg-config-max-parallel-maintenance-workers",
+          "wire_name": "pgConfig.max_parallel_maintenance_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of parallel workers for maintenance operations like CREATE INDEX and VACUUM."
+        },
+        {
+          "name": "pg-config-max-parallel-workers",
+          "wire_name": "pgConfig.max_parallel_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of workers that can be used for parallel operations. Cannot exceed max_worker_processes."
+        },
+        {
+          "name": "pg-config-max-parallel-workers-per-gather",
+          "wire_name": "pgConfig.max_parallel_workers_per_gather",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of parallel workers per executor node for parallel queries. Use 0 to disable parallel queries."
+        },
+        {
+          "name": "pg-config-max-slot-wal-keep-size",
+          "wire_name": "pgConfig.max_slot_wal_keep_size",
+          "type": "int",
+          "location": "body",
+          "description": "Specifies the maximum size of WAL files that replication slots are allowed to retain. Use -1 for unlimited."
+        },
+        {
+          "name": "pg-config-max-wal-size",
+          "wire_name": "pgConfig.max_wal_size",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum size WAL can grow between checkpoints. Larger values improve write performance but increase crash recovery time."
+        },
+        {
+          "name": "pg-config-max-worker-processes",
+          "wire_name": "pgConfig.max_worker_processes",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of background processes the system can support. Includes parallel query workers, logical replication, and more."
+        },
+        {
+          "name": "pg-config-min-wal-size",
+          "wire_name": "pgConfig.min_wal_size",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum size to shrink the WAL to. WAL files are recycled rather than removed when below this size."
+        },
+        {
+          "name": "pg-config-random-page-cost",
+          "wire_name": "pgConfig.random_page_cost",
+          "type": "float",
+          "location": "body",
+          "description": "Sets the planner's estimate of the cost of a non-sequentially-fetched disk page. Lower values (1.1-1.5) are better for SSDs."
+        },
+        {
+          "name": "pg-config-ssl-min-protocol-version",
+          "wire_name": "pgConfig.ssl_min_protocol_version",
+          "type": "string",
+          "location": "body",
+          "description": "Sets the minimum SSL/TLS protocol version allowed for client connections."
+        },
+        {
+          "name": "pg-config-statement-timeout",
+          "wire_name": "pgConfig.statement_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Abort any statement that runs longer than the specified time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-transaction-timeout",
+          "wire_name": "pgConfig.transaction_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate any statement that takes more than the specified time, even while active. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-wal-compression",
+          "wire_name": "pgConfig.wal_compression",
+          "type": "string",
+          "location": "body",
+          "description": "Compress full-page writes in WAL. Reduces I/O at the cost of CPU. Options vary by PostgreSQL version."
+        },
+        {
+          "name": "pg-config-wal-keep-size",
+          "wire_name": "pgConfig.wal_keep_size",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum size of past WAL files kept in pg_wal for standby servers. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-wal-sender-timeout",
+          "wire_name": "pgConfig.wal_sender_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Terminate replication connections that are inactive for longer than this time. Use 0 to disable."
+        },
+        {
+          "name": "pg-config-work-mem",
+          "wire_name": "pgConfig.work_mem",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the amount of memory Postgres will use for internal operations like sorting and hashing as part of executing a query."
+        },
+        {
+          "name": "restoreTarget",
+          "type": "string",
+          "location": "body",
+          "description": "The point in time at which to recover, as either date/time, named restore point, or a specific transaction ID.",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags associated with the Postgres service."
+        }
+      ]
+    },
+    {
+      "name": "postgres_slow-query-patterns_get",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Returns aggregate metrics for a single slow query pattern together with its most recent individual executions. Required: organizationId, postgresId, queryId, db_name, db_user, db_operation. Optional: app, timestamp.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/slowQueryPatterns/{queryId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        },
+        {
+          "name": "queryId",
+          "type": "string",
+          "location": "path",
+          "description": "Stable identifier for the query pattern.",
+          "required": true
+        },
+        {
+          "name": "db_name",
+          "type": "string",
+          "location": "query",
+          "description": "Database name filter.",
+          "required": true
+        },
+        {
+          "name": "db_user",
+          "type": "string",
+          "location": "query",
+          "description": "Database user filter.",
+          "required": true
+        },
+        {
+          "name": "db_operation",
+          "type": "string",
+          "location": "query",
+          "description": "Database operation filter (for example, SELECT, INSERT, UPDATE, DELETE, UTILITY).",
+          "required": true
+        },
+        {
+          "name": "app",
+          "type": "string",
+          "location": "query",
+          "description": "Application name filter."
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp of a specific execution (RFC 3339)."
+        }
+      ]
+    },
+    {
+      "name": "postgres_slow-query-patterns_get-list",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Returns aggregate metrics for the slowest query patterns observed on a Postgres service during the given time window. Use this to discover which queries dominate total execution time, CPU, I/O, or WAL generation. Required: organizationId, postgresId, from_date, to_date. Optional: db_name, db_user, db_operation (plus 5 more).",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/slowQueryPatterns",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        },
+        {
+          "name": "from_date",
+          "type": "string",
+          "location": "query",
+          "description": "Inclusive start of the time window (RFC 3339 date-time).",
+          "required": true
+        },
+        {
+          "name": "to_date",
+          "type": "string",
+          "location": "query",
+          "description": "Exclusive end of the time window (RFC 3339 date-time).",
+          "required": true
+        },
+        {
+          "name": "db_name",
+          "type": "string",
+          "location": "query",
+          "description": "Database name filter."
+        },
+        {
+          "name": "db_user",
+          "type": "string",
+          "location": "query",
+          "description": "Database user filter."
+        },
+        {
+          "name": "db_operation",
+          "type": "string",
+          "location": "query",
+          "description": "Database operation filter (for example, SELECT, INSERT, UPDATE, DELETE, UTILITY)."
+        },
+        {
+          "name": "app",
+          "type": "string",
+          "location": "query",
+          "description": "Application name filter."
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort results by."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order. One of `asc` or `desc`."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to skip before returning."
+        }
+      ]
+    },
+    {
+      "name": "postgres_state_postgres-service-patch",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Initiate a process for a Postgres service: * restart: Initiates a service restart * promote: Promotes a read replica to primary * switchover: Switch a primary over to a standby. Required: organizationId, postgresId. Optional: command. Returns the updated StatePostgresServicePatchResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/postgres/{postgresId}/state",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the Postgres service.",
+          "required": true
+        },
+        {
+          "name": "postgresId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested Postgres service.",
+          "required": true
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "location": "body",
+          "description": "Postgres status, which initiates a process."
+        }
+      ]
+    },
+    {
+      "name": "private-endpoint-config_get-list",
+      "description": "Deprecated. Please follow [documentation](https://clickhouse.com/docs/manage/security/aws-privatelink#add-endpoint-id-to-services-allow-list) for the updated process. Required: organizationId, cloud_provider, region_id. Returns the PrivateEndpointConfigGetListResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/privateEndpointConfig",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "cloud_provider",
+          "type": "string",
+          "location": "query",
+          "description": "Cloud provider identifier. One of aws, gcp, or azure.",
+          "required": true
+        },
+        {
+          "name": "region_id",
+          "type": "string",
+          "location": "query",
+          "description": "Region identifier within specific cloud providers.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "prometheus_get",
+      "description": "Returns prometheus metrics for all services in an organization. Required: organizationId. Optional: filtered_metrics.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/prometheus",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "filtered_metrics",
+          "type": "string",
+          "location": "query",
+          "description": "Return a filtered list of Prometheus metrics."
+        }
+      ]
+    },
+    {
+      "name": "roles_delete",
+      "description": "Deletes an existing custom role. System roles cannot be deleted. This operation will remove the role and all its associated policies. Required: organizationId, roleId. Returns the RolesDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/roles/{roleId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested role.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "roles_get",
+      "description": "Returns details for a specific role. Required: organizationId, roleId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/roles/{roleId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested role.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "roles_get-list",
+      "description": "Returns all available roles (system + custom) for an organization. Required: organizationId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/roles",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "roles_patch",
+      "description": "Updates an existing custom role. System roles cannot be updated. All fields are optional - only provided fields will be updated. Required: organizationId, roleId. Optional: actors, name, policies. Returns the updated RolesPatchResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/roles/{roleId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested role.",
+          "required": true
+        },
+        {
+          "name": "actors",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "New list of actor resource IDs (replaces existing actors)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New name for the role"
+        },
+        {
+          "name": "policies",
+          "type": "array",
+          "location": "body",
+          "description": "New list of policies (replaces existing policies)"
+        }
+      ]
+    },
+    {
+      "name": "roles_post",
+      "description": "Creates a new custom role for an organization with specified policies and actors. Required: organizationId, actors, name, policies. Returns the new RolesPostResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/roles",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "actors",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of actor resource IDs to assign to this role (e.g., ['user/uuid', 'apiKey/uuid'])",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the role",
+          "required": true
+        },
+        {
+          "name": "policies",
+          "type": "array",
+          "location": "body",
+          "description": "List of policies to create for this role",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_instance-create",
+      "description": "Creates a new service in the organization, and returns the current service state and a password to access the service. The service is started asynchronously. Required: organizationId. Optional: backupId, byocId, complianceType (plus 24 more).",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/services",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that will own the service.",
+          "required": true
+        },
+        {
+          "name": "backupId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional backup ID used as an initial state for the new service. When used the region and the tier of the new instance must be the same as the values of the original instance."
+        },
+        {
+          "name": "byocId",
+          "type": "string",
+          "location": "body",
+          "description": "This is the ID returned after setting up a region for Bring Your Own Cloud (BYOC). When the byocId parameter is specified, the minReplicaMemoryGb and the maxReplicaGb parameters are required too, with values included among the following sizes: 48, 116, 172, 232."
+        },
+        {
+          "name": "complianceType",
+          "type": "string",
+          "location": "body",
+          "description": "Type of regulatory compliance for service."
+        },
+        {
+          "name": "dataWarehouseId",
+          "type": "string",
+          "location": "body",
+          "description": "Data warehouse containing this service"
+        },
+        {
+          "name": "enableCoreDumps",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables the underlying infra for collecting core dumps. Default is enabled."
+        },
+        {
+          "name": "encryptionAssumedRoleIdentifier",
+          "type": "string",
+          "location": "body",
+          "description": "Optional role to use for disk encryption"
+        },
+        {
+          "name": "encryptionKey",
+          "type": "string",
+          "location": "body",
+          "description": "Optional customer provided disk encryption key"
+        },
+        {
+          "name": "endpoints",
+          "type": "array",
+          "location": "body",
+          "description": "List of service endpoints to enable or disable"
+        },
+        {
+          "name": "hasTransparentDataEncryption",
+          "type": "bool",
+          "location": "body",
+          "description": "True if the service should have the Transparent Data Encryption (TDE) enabled. TDE is only available for ENTERPRISE organizations tiers and can only be enabled at service creation."
+        },
+        {
+          "name": "idleScaling",
+          "type": "bool",
+          "location": "body",
+          "description": "When set to true the service is allowed to scale down to zero when idle. True by default."
+        },
+        {
+          "name": "idleTimeoutMinutes",
+          "type": "float",
+          "location": "body",
+          "description": "Set minimum idling timeout (in minutes). Must be \u003e= 5 minutes."
+        },
+        {
+          "name": "ipAccessList",
+          "type": "array",
+          "location": "body",
+          "description": "List of IP addresses allowed to access the service"
+        },
+        {
+          "name": "isReadonly",
+          "type": "bool",
+          "location": "body",
+          "description": "True if this service is read-only. It can only be read-only if a dataWarehouseId is provided."
+        },
+        {
+          "name": "maxReplicaMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum total memory of each replica during auto-scaling in Gb. Must be a multiple of 4 and lower than or equal to 120* for non paid services or 356* for paid services.* - maximum replica size subject to cloud provider hardware availability in your selected region."
+        },
+        {
+          "name": "maxTotalMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "DEPRECATED - inaccurate for services with non-default numbers of replicas. Use `maxReplicaMemoryGb` instead. Maximum memory of three workers during auto-scaling in Gb. Available only for 'production' services. Must be a multiple of 12 and lower than or equal to 360 for non paid services or 1068 for paid services. Always absent for horizontal-autoscaling services (replica count is variable)."
+        },
+        {
+          "name": "minReplicaMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "Minimum total memory of each replica during auto-scaling in Gb. Must be a multiple of 4 and greater than or equal to 8."
+        },
+        {
+          "name": "minTotalMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "DEPRECATED - inaccurate for services with non-default numbers of replicas. Use `minReplicaMemoryGb` instead. Minimum memory of three workers during auto-scaling in Gb. Available only for 'production' services. Must be a multiple of 12 and greater than or equal to 24. Always absent for horizontal-autoscaling services (replica count is variable)."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the service. Alphanumerical string with whitespaces up to 50 characters."
+        },
+        {
+          "name": "numReplicas",
+          "type": "float",
+          "location": "body",
+          "description": "Number of replicas for the service. The number of replicas must be between 2 and 20 for the first service in a warehouse. Services that are created in an existing warehouse can have a number of replicas as low as 1. Further restrictions may apply based on your organization's tier. It defaults to 1 for the BASIC tier and 3 for the SCALE and ENTERPRISE tiers. Present only when the service uses vertical autoscaling. For horizontal autoscaling, use minReplicas and maxReplicas instead."
+        },
+        {
+          "name": "privateEndpointIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "DEPRECATED. To associate the service with private endpoints, first create the service, then use the `Update Service Basic Details` endpoint with the `privateEndpointIds` field to modify private endpoints."
+        },
+        {
+          "name": "privatePreviewTermsChecked",
+          "type": "bool",
+          "location": "body",
+          "description": "Accept the private preview terms and conditions. It is only needed when creating the first service in the organization in case of a private preview"
+        },
+        {
+          "name": "profile",
+          "type": "string",
+          "location": "body",
+          "description": "Custom instance profile. Only available for ENTERPRISE organization tiers."
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "Cloud provider"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "body",
+          "description": "Service region."
+        },
+        {
+          "name": "releaseChannel",
+          "type": "string",
+          "location": "body",
+          "description": "Select fast if you want to get new ClickHouse releases as soon as they are available. You'll get new features faster, but with a higher risk of bugs. Select slow if you would like to defer releases to give yourself more time to test. This feature is only available for production services. default is the regular release channel."
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags associated with the service."
+        },
+        {
+          "name": "tier",
+          "type": "string",
+          "location": "body",
+          "description": "DEPRECATED for BASIC, SCALE and ENTERPRISE organization tiers. Use `minReplicaMemoryGb`, `maxReplicaMemoryGb`, and `numReplicas` instead. Tier of the service: 'development', 'production', 'dedicated_high_mem', 'dedicated_high_cpu', 'dedicated_standard', 'dedicated_standard_n2d_standard_4', 'dedicated_standard_n2d_standard_8', 'dedicated_standard_n2d_standard_32', 'dedicated_standard_n2d_standard_128', 'dedicated_standard_n2d_standard_32_16SSD', 'dedicated_standard_n2d_standard_64_24SSD'. Production services scale, Development are fixed size. Azure services don't support Development tier"
+        }
+      ]
+    },
+    {
+      "name": "services_instance-delete",
+      "description": "Deletes the service. The service must be in stopped state and is deleted asynchronously after this method call. Required: organizationId, serviceId. Returns the ServicesInstanceDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_instance-get",
+      "description": "Returns a service that belongs to the organization. Required: organizationId, serviceId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_instance-get-list",
+      "description": "Returns a list of all services in the organization. Required: organizationId. Optional: filter.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "array",
+          "location": "query",
+          "description": "Filter criteria to apply when retrieving the resource. Currently, only filtering by resource tags is supported."
+        }
+      ]
+    },
+    {
+      "name": "services_instance-update",
+      "description": "Updates basic service details like service name or IP access list. Required: organizationId, serviceId. Optional: enableCoreDumps, endpoints, ipAccessList (plus 5 more). Returns the updated ServicesInstanceUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service to update.",
+          "required": true
+        },
+        {
+          "name": "enableCoreDumps",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, the underlying infra is enabled for collecting core dumps."
+        },
+        {
+          "name": "endpoints",
+          "type": "array",
+          "location": "body",
+          "description": "List of service endpoints to change"
+        },
+        {
+          "name": "ipAccessList",
+          "type": "string",
+          "location": "body",
+          "description": "Ip access list"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the service. Alphanumerical string with whitespaces up to 50 characters."
+        },
+        {
+          "name": "privateEndpointIds",
+          "type": "string",
+          "location": "body",
+          "description": "Private endpoint ids"
+        },
+        {
+          "name": "releaseChannel",
+          "type": "string",
+          "location": "body",
+          "description": "Select fast if you want to get new ClickHouse releases as soon as they are available. You'll get new features faster, but with a higher risk of bugs. Select slow if you would like to defer releases to give yourself more time to test. This feature is only available for production services. default is the regular release channel."
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "transparentDataEncryptionKeyId",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the key to rotate"
+        }
+      ]
+    },
+    {
+      "name": "services_backup-bucket_create",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Create service backup bucket. Requires ADMIN auth key role. Required: organizationId, serviceId. Returns the new BackupBucketCreateResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/backupBucket",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_backup-bucket_delete",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Delete service backup bucket. Requires ADMIN auth key role. Required: organizationId, serviceId. Returns the BackupBucketDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/backupBucket",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_backup-bucket_get",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Returns the service backup bucket. Required: organizationId, serviceId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/backupBucket",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_backup-bucket_update",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. Update service backup bucket. Requires ADMIN auth key role. The secrets of the specified bucket provider are always required. Required: organizationId, serviceId. Returns the updated BackupBucketUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/backupBucket",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_backup-configuration_get",
+      "description": "Returns the service backup configuration. Required: organizationId, serviceId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/backupConfiguration",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_backup-configuration_update",
+      "description": "Updates service backup configuration. Requires ADMIN auth key role. Setting the properties with null value, will reset the properties to theirs default values. Required: organizationId, serviceId. Optional: backupPeriodInHours, backupRetentionPeriodInHours, backupStartTime. Returns the updated BackupConfigurationUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/backupConfiguration",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        },
+        {
+          "name": "backupPeriodInHours",
+          "type": "float",
+          "location": "body",
+          "description": "The interval in hours between each backup."
+        },
+        {
+          "name": "backupRetentionPeriodInHours",
+          "type": "float",
+          "location": "body",
+          "description": "The minimum duration in hours for which the backups are available. Must be a whole number of days between 24 (1 day) and 1080 (45 days) — i.e. a multiple of 24."
+        },
+        {
+          "name": "backupStartTime",
+          "type": "string",
+          "location": "body",
+          "description": "The time in HH:MM format for the backups to be performed (evaluated in UTC timezone). When defined the backup period resets to every 24 hours."
+        }
+      ]
+    },
+    {
+      "name": "services_backups_get",
+      "description": "Returns a single backup info. Required: organizationId, serviceId, backupId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/backups/{backupId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the backup.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service the backup was created from.",
+          "required": true
+        },
+        {
+          "name": "backupId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested backup.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_backups_get-list",
+      "description": "Returns a list of all backups for the service. The most recent backups comes first in the list. Required: organizationId, serviceId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/backups",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the backup.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service the backup was created from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickhouse-settings_service-delete",
+      "description": "**Disclaimer:** This beta endpoint is evolving; the API contract may change. Removes a previously-configured ClickHouse setting, reverting its effective value to the platform default. Settings under `spec.extraConfig.server.*` (e.g. `keep_alive_timeout`, `shared_merge_tree_disable_merges_and_mutations_assignment`) trigger a ClickHouse server rollout restart; other settings propagate to all replicas after a short delay. Deleting a setting that was never configured is a no-op (200 OK). Required: organizationId, serviceId, settingName. Returns the ClickhouseSettingsServiceDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickhouseSettings/{settingName}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        },
+        {
+          "name": "settingName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the setting to reset.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickhouse-settings_service-get",
+      "description": "**Disclaimer:** This beta endpoint is evolving; the API contract may change. Returns the current value of a ClickHouse setting for the service. Use the [schema endpoint](#tag/Service/operation/serviceClickhouseSettingsSchemaGet) to discover which settings are configurable. Required: organizationId, serviceId, settingName.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickhouseSettings/{settingName}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        },
+        {
+          "name": "settingName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the setting to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickhouse-settings_service-list-get",
+      "description": "**Disclaimer:** This beta endpoint is evolving; the API contract may change. Returns the configured ClickHouse settings for the service. Only settings that have been explicitly set are included. Required: organizationId, serviceId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickhouseSettings",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickhouse-settings_service-schema-get",
+      "description": "**Disclaimer:** This beta endpoint is evolving; the API contract may change. Returns the schema of all configurable ClickHouse settings, including types, valid values, descriptions, and warnings. Required: organizationId, serviceId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickhouseSettings/schema",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickhouse-settings_service-update",
+      "description": "**Disclaimer:** This beta endpoint is evolving; the API contract may change. Updates one or more ClickHouse settings for the service. To reset a setting to its platform default, use the [DELETE single setting](#tag/Service/operation/serviceClickhouseSettingDelete) endpoint. Use the [schema endpoint](#tag/Service/operation/serviceClickhouseSettingsSchemaGet) to discover which settings are configurable. Required: organizationId, serviceId, settings. Returns the updated ClickhouseSettingsServiceUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickhouseSettings",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        },
+        {
+          "name": "settings",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object of setting names to values. Example: {'compatibility': '24.8'}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes_click-pipe-create",
+      "description": "Create a new ClickPipe. Required: organizationId, serviceId. Optional: destination, fieldMappings, name (plus 3 more). Returns the new ClickpipesClickPipeCreateResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipes",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service to create the ClickPipe for.",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination"
+        },
+        {
+          "name": "fieldMappings",
+          "type": "array",
+          "location": "body",
+          "description": "Field mappings of the ClickPipe. Note that all destination columns must be included in the mappings."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the ClickPipe."
+        },
+        {
+          "name": "scaling",
+          "type": "string",
+          "location": "body",
+          "description": "Scaling"
+        },
+        {
+          "name": "settings",
+          "type": "string",
+          "location": "body",
+          "description": "Settings"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Source"
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes_click-pipe-delete",
+      "description": "Delete the specified ClickPipe. Required: organizationId, serviceId, clickPipeId. Returns the ClickpipesClickPipeDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipes/{clickPipeId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the ClickPipe.",
+          "required": true
+        },
+        {
+          "name": "clickPipeId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickPipe to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes_click-pipe-get",
+      "description": "Returns the specified ClickPipe. Required: organizationId, serviceId, clickPipeId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipes/{clickPipeId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the ClickPipe.",
+          "required": true
+        },
+        {
+          "name": "clickPipeId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested ClickPipe.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes_click-pipe-get-list",
+      "description": "Returns a list of ClickPipes. Required: organizationId, serviceId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipes",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the ClickPipe.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes_click-pipe-scaling-update",
+      "description": "Change scaling settings for the specified ClickPipe. This endpoint supports Kafka, Kinesis, and object storage pipes (S3, GCS, Azure Blob). **Note:** For database ClickPipes (PostgreSQL, MySQL, MongoDB, BigQuery), use the [Update CDC ClickPipes scaling](#tag/ClickPipes/operation/clickPipeCdcScalingUpdate) endpoint instead. Required: organizationId, serviceId, clickPipeId. Optional: concurrency, replicaCpuMillicores, replicaMemoryGb (plus 1 more). Returns the updated ClickpipesClickPipeScalingUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipes/{clickPipeId}/scaling",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the ClickPipe.",
+          "required": true
+        },
+        {
+          "name": "clickPipeId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickPipe to update scaling settings.",
+          "required": true
+        },
+        {
+          "name": "concurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Number of concurrency to scale to. Use to scale S3 pipes."
+        },
+        {
+          "name": "replicaCpuMillicores",
+          "type": "int",
+          "location": "body",
+          "description": "CPU in millicores for each replica. Use to scale streaming pipes."
+        },
+        {
+          "name": "replicaMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "Memory in GB for each replica. Use to scale streaming pipes."
+        },
+        {
+          "name": "replicas",
+          "type": "int",
+          "location": "body",
+          "description": "Number of replicas to scale to. Use to scale Kafka pipes."
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes_click-pipe-settings-get",
+      "description": "Returns the advanced settings for the specified ClickPipe. Required: organizationId, serviceId, clickPipeId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipes/{clickPipeId}/settings",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the ClickPipe.",
+          "required": true
+        },
+        {
+          "name": "clickPipeId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickPipe to get settings for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes_click-pipe-settings-update",
+      "description": "Update the advanced settings for the specified ClickPipe. Send key-value pairs where values can be strings, numbers, or booleans. Required: organizationId, serviceId, clickPipeId. Optional: clickhouse_max_download_threads, clickhouse_max_insert_threads, clickhouse_max_threads (plus 9 more). Returns the updated ClickpipesClickPipeSettingsUpdateResponse.",
+      "method": "PUT",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipes/{clickPipeId}/settings",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the ClickPipe.",
+          "required": true
+        },
+        {
+          "name": "clickPipeId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickPipe to update settings for.",
+          "required": true
+        },
+        {
+          "name": "clickhouse_max_download_threads",
+          "type": "int",
+          "location": "body",
+          "description": "Max download threads. Maximum number of concurrent download threads"
+        },
+        {
+          "name": "clickhouse_max_insert_threads",
+          "type": "int",
+          "location": "body",
+          "description": "Max insert threads. Maximum number of concurrent insert threads"
+        },
+        {
+          "name": "clickhouse_max_threads",
+          "type": "int",
+          "location": "body",
+          "description": "Max threads. Maximum number of concurrent threads for file processing"
+        },
+        {
+          "name": "clickhouse_min_insert_block_size_bytes",
+          "type": "int",
+          "location": "body",
+          "description": "Min insert block size bytes. Minimum size of data block for insert (in bytes)"
+        },
+        {
+          "name": "clickhouse_parallel_distributed_insert_select",
+          "type": "int",
+          "location": "body",
+          "description": "Parallel distributed insert select. Parallel distributed insert select setting"
+        },
+        {
+          "name": "clickhouse_parallel_view_processing",
+          "type": "bool",
+          "location": "body",
+          "description": "parallel view processing. Whether to enable pushing to attached views concurrently instead of sequentially"
+        },
+        {
+          "name": "object_storage_concurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Object storage concurrency. Number of concurrent file processing threads"
+        },
+        {
+          "name": "object_storage_max_file_count",
+          "type": "int",
+          "location": "body",
+          "description": "Max file count. Maximum number of files to process in a single insert batch"
+        },
+        {
+          "name": "object_storage_max_insert_bytes",
+          "type": "int",
+          "location": "body",
+          "description": "Max insert bytes. Number of bytes to process in a single insert batch"
+        },
+        {
+          "name": "object_storage_polling_interval_ms",
+          "type": "int",
+          "location": "body",
+          "description": "Object storage polling interval. Configures the refresh interval for querying continuous ingest for new object storage data"
+        },
+        {
+          "name": "object_storage_use_cluster_function",
+          "type": "bool",
+          "location": "body",
+          "description": "use cluster function. Whether to use ClickHouse cluster function for distributed processing"
+        },
+        {
+          "name": "streaming_max_insert_wait_ms",
+          "type": "int",
+          "location": "body",
+          "description": "Streaming max insert wait time. Configures the max wait period before inserting data into the ClickHouse."
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes_click-pipe-state-update",
+      "description": "Start, stop or resync ClickPipe. Stopping a ClickPipe will stop the ingestion process from any state. Starting is allowed for ClickPipes in the 'Stopped' state or with a 'Failed' state. Resyncing is only for Postgres and MySQL pipes and can be done from any state. Required: organizationId, serviceId, clickPipeId. Optional: command. Returns the updated ClickpipesClickPipeStateUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipes/{clickPipeId}/state",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the ClickPipe.",
+          "required": true
+        },
+        {
+          "name": "clickPipeId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickPipe to update state.",
+          "required": true
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "location": "body",
+          "description": "Command to change the state: 'start', 'stop', 'resync'."
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes_click-pipe-update",
+      "description": "Update the specified ClickPipe. Required: organizationId, serviceId, clickPipeId. Optional: destination, fieldMappings, name (plus 2 more). Returns the updated ClickpipesClickPipeUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipes/{clickPipeId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service to create the ClickPipe for.",
+          "required": true
+        },
+        {
+          "name": "clickPipeId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested ClickPipe.",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination"
+        },
+        {
+          "name": "fieldMappings",
+          "type": "array",
+          "location": "body",
+          "description": "Field mappings of the ClickPipe. This will not update the table schema, only the ClickPipe configuration."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the ClickPipe."
+        },
+        {
+          "name": "settings",
+          "type": "string",
+          "location": "body",
+          "description": "Settings"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Source"
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes-cdc-scaling_click-pipe-cdc-scaling-get",
+      "description": "Get scaling settings for database ClickPipes (PostgreSQL, MySQL, MongoDB, BigQuery). The infrastructure is shared between all database ClickPipes in the service, both for initial load and CDC. For billing purposes, 2 CPU cores and 8 GB of RAM [correspond](https://clickhouse.com/docs/cloud/manage/billing/overview#clickpipes-for-postgres-cdc) to one compute unit. **Note:** For Kafka, Kinesis, and object storage pipes (S3, GCS, Azure Blob), see [Get ClickPipe](#tag/ClickPipes/operation/clickPipeGet). **This endpoint becomes available once at least one database ClickPipe was provisioned.**. Required: organizationId, serviceId. Returns the ClickpipesCdcScalingClickPipeCdcScalingGetResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipesCdcScaling",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the ClickPipe.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes-cdc-scaling_click-pipe-cdc-scaling-update",
+      "description": "Update scaling settings for database ClickPipes (PostgreSQL, MySQL, MongoDB, BigQuery). The infrastructure is shared between all database ClickPipes in the service, both for initial load and CDC. Scaling settings may take a few minutes to fully propagate. For billing purposes, 2 CPU cores and 8 GB of RAM [correspond](https://clickhouse.com/docs/cloud/manage/billing/overview#clickpipes-for-postgres-cdc) to one compute unit. If your organization tier changes, database ClickPipes will be [rescaled](https://clickhouse.com/docs/cloud/manage/billing/overview#compute) appropriately. **Note:** For Kafka, Kinesis, and object storage pipes (S3, GCS, Azure Blob), see [Get ClickPipe](#tag/ClickPipes/operation/clickPipeGet). **This endpoint becomes available once at least one database ClickPipe was provisioned.**. Required: organizationId, serviceId. Optional: replicaCpuMillicores, replicaMemoryGb. Returns the updated ClickpipesCdcScalingClickPipeCdcScalingUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipesCdcScaling",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the ClickPipe.",
+          "required": true
+        },
+        {
+          "name": "replicaCpuMillicores",
+          "type": "int",
+          "location": "body",
+          "description": "CPU in millicores for DB ClickPipes."
+        },
+        {
+          "name": "replicaMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "Memory in GiB for DB ClickPipes. Must be 4× the CPU core count."
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes-reverse-private-endpoints_click-pipe-reverse-private-endpoint-create",
+      "description": "Create a new reverse private endpoint. Required: organizationId, serviceId. Optional: customPrivateDnsMappings, description, gcpServiceAttachment (plus 6 more). Returns the new ClickpipesReversePrivateEndpointsClickPipeReversePrivateEndpointCreateResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipesReversePrivateEndpoints",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the Reverse Private Endpoint.",
+          "required": true
+        },
+        {
+          "name": "customPrivateDnsMappings",
+          "type": "array",
+          "location": "body",
+          "description": "Optional private DNS names for Reverse Private Endpoint. Can be used as data source destination address. Must be unique across the ClickHouse service. Currently, available in Private Preview for Google Private Service Connect (PSC) forwarding rules. Supports exact names and leading wildcard names such as *.example.com"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Reverse private endpoint description. Maximum length is 255 characters."
+        },
+        {
+          "name": "gcpServiceAttachment",
+          "type": "string",
+          "location": "body",
+          "description": "Private Preview. GCP PSC service attachment URI. Required for GCP_PSC_SERVICE_ATTACHMENT type. Format: projects/{project}/regions/{region}/serviceAttachments/{name}."
+        },
+        {
+          "name": "mskAuthentication",
+          "type": "string",
+          "location": "body",
+          "description": "MSK cluster authentication type. Required for MSK_MULTI_VPC type."
+        },
+        {
+          "name": "mskClusterArn",
+          "type": "string",
+          "location": "body",
+          "description": "MSK cluster ARN. Required for MSK_MULTI_VPC type."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Reverse private endpoint type."
+        },
+        {
+          "name": "vpcEndpointServiceName",
+          "type": "string",
+          "location": "body",
+          "description": "VPC endpoint service name."
+        },
+        {
+          "name": "vpcResourceConfigurationId",
+          "type": "string",
+          "location": "body",
+          "description": "VPC resource configuration ID. Required for VPC_RESOURCE type."
+        },
+        {
+          "name": "vpcResourceShareArn",
+          "type": "string",
+          "location": "body",
+          "description": "VPC resource share ARN. Required for VPC_RESOURCE type."
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes-reverse-private-endpoints_click-pipe-reverse-private-endpoint-delete",
+      "description": "Delete the reverse private endpoint with the specified ID. Required: organizationId, serviceId, reversePrivateEndpointId. Returns the ClickpipesReversePrivateEndpointsClickPipeReversePrivateEndpointDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipesReversePrivateEndpoints/{reversePrivateEndpointId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the Reverse Private Endpoint.",
+          "required": true
+        },
+        {
+          "name": "reversePrivateEndpointId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the reverse private endpoint to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes-reverse-private-endpoints_click-pipe-reverse-private-endpoint-get",
+      "description": "Returns the reverse private endpoint with the specified ID. Required: organizationId, serviceId, reversePrivateEndpointId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipesReversePrivateEndpoints/{reversePrivateEndpointId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the Reverse Private Endpoint.",
+          "required": true
+        },
+        {
+          "name": "reversePrivateEndpointId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the reverse private endpoint to get.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes-reverse-private-endpoints_click-pipe-reverse-private-endpoint-get-list",
+      "description": "Returns a list of reverse private endpoints for the specified service. Required: organizationId, serviceId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipesReversePrivateEndpoints",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the Reverse Private Endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickpipes-reverse-private-endpoints_click-pipe-reverse-private-endpoint-update",
+      "description": "Update mutable fields for an existing reverse private endpoint. customPrivateDnsMappings is a full replacement list. Use an empty array to clear mappings. Required: organizationId, serviceId, reversePrivateEndpointId. Optional: customPrivateDnsMappings. Returns the updated ClickpipesReversePrivateEndpointsClickPipeReversePrivateEndpointUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickpipesReversePrivateEndpoints/{reversePrivateEndpointId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service that owns the Reverse Private Endpoint.",
+          "required": true
+        },
+        {
+          "name": "reversePrivateEndpointId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the reverse private endpoint to update.",
+          "required": true
+        },
+        {
+          "name": "customPrivateDnsMappings",
+          "type": "array",
+          "location": "body",
+          "description": "Optional private DNS names for Reverse Private Endpoint. Can be used as data source destination address. Must be unique across the ClickHouse service. Currently, available in Private Preview for Google Private Service Connect (PSC) forwarding rules. Supports exact names and leading wildcard names such as *.example.com"
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-create-alert",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Creates a new alert. Required: organizationId, serviceId. Optional: channel, dashboardId, groupBy (plus 12 more). Returns the new ClickstackClickStackCreateAlertResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/alerts",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel"
+        },
+        {
+          "name": "dashboardId",
+          "type": "string",
+          "location": "body",
+          "description": "Dashboard ID for tile-based alerts."
+        },
+        {
+          "name": "groupBy",
+          "type": "string",
+          "location": "body",
+          "description": "Group-by key for saved search alerts."
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "body",
+          "description": "Evaluation interval for the alert."
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Alert message template."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Human-friendly alert name."
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Freeform note for the alert. Supports markdown formatting."
+        },
+        {
+          "name": "savedSearchId",
+          "type": "string",
+          "location": "body",
+          "description": "Saved search ID for saved_search alerts."
+        },
+        {
+          "name": "scheduleOffsetMinutes",
+          "type": "int",
+          "location": "body",
+          "description": "Offset from the interval boundary in minutes. For example, 2 with a 5m interval evaluates windows at :02, :07, :12, etc. (UTC)."
+        },
+        {
+          "name": "scheduleStartAt",
+          "type": "string",
+          "location": "body",
+          "description": "Absolute UTC start time anchor. Alert windows start from this timestamp and repeat every interval."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Alert source type (tile-based or saved search)."
+        },
+        {
+          "name": "threshold",
+          "type": "float",
+          "location": "body",
+          "description": "Threshold value for triggering the alert. For between and not_between threshold types, this is the lower bound."
+        },
+        {
+          "name": "thresholdMax",
+          "type": "float",
+          "location": "body",
+          "description": "Upper bound for between and not_between threshold types. Required when thresholdType is between or not_between, must be \u003e= threshold."
+        },
+        {
+          "name": "thresholdType",
+          "type": "string",
+          "location": "body",
+          "description": "Threshold comparison direction."
+        },
+        {
+          "name": "tileId",
+          "type": "string",
+          "location": "body",
+          "description": "Tile ID for tile-based alerts. Must be a line, stacked bar, or number type tile."
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-create-dashboard",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Creates a new dashboard. Required: organizationId, serviceId, name, tiles. Optional: containers, filters, savedFilterValues (plus 3 more). Returns the new ClickstackClickStackCreateDashboardResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/dashboards",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        },
+        {
+          "name": "containers",
+          "type": "array",
+          "location": "body",
+          "description": "Optional grouping containers. Each tile may join a container via tile.containerId, and a tab inside it via tile.tabId."
+        },
+        {
+          "name": "filters",
+          "type": "array",
+          "location": "body",
+          "description": "Dashboard filter keys to add to the dashboard and apply across all tiles"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Dashboard name.",
+          "required": true
+        },
+        {
+          "name": "savedFilterValues",
+          "type": "array",
+          "location": "body",
+          "description": "Optional default dashboard filter values to persist on the dashboard."
+        },
+        {
+          "name": "savedQuery",
+          "type": "string",
+          "location": "body",
+          "description": "Optional default dashboard query to persist on the dashboard."
+        },
+        {
+          "name": "savedQueryLanguage",
+          "type": "string",
+          "location": "body",
+          "description": "Query language used by savedQuery."
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tags for organizing and filtering dashboards."
+        },
+        {
+          "name": "tiles",
+          "type": "array",
+          "location": "body",
+          "description": "List of tiles/charts to include in the dashboard.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-delete-alert",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Deletes an alert. Required: organizationId, serviceId, clickStackAlertId. Returns the ClickstackClickStackDeleteAlertResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/alerts/{clickStackAlertId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        },
+        {
+          "name": "clickStackAlertId",
+          "type": "string",
+          "location": "path",
+          "description": "ClickStack Alert ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-delete-dashboard",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Deletes a dashboard. Required: organizationId, serviceId, clickStackDashboardId. Returns the ClickstackClickStackDeleteDashboardResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/dashboards/{clickStackDashboardId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        },
+        {
+          "name": "clickStackDashboardId",
+          "type": "string",
+          "location": "path",
+          "description": "ClickStack Dashboard ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-get-alert",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Retrieves a specific alert by ID. Required: organizationId, serviceId, clickStackAlertId. Returns the ClickstackClickStackGetAlertResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/alerts/{clickStackAlertId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        },
+        {
+          "name": "clickStackAlertId",
+          "type": "string",
+          "location": "path",
+          "description": "ClickStack Alert ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-get-dashboard",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Retrieves a specific dashboard by ID. Required: organizationId, serviceId, clickStackDashboardId. Returns the ClickstackClickStackGetDashboardResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/dashboards/{clickStackDashboardId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        },
+        {
+          "name": "clickStackDashboardId",
+          "type": "string",
+          "location": "path",
+          "description": "ClickStack Dashboard ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-list-alerts",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Retrieves a list of all alerts for the authenticated team. Required: organizationId, serviceId. Returns array of ClickStackAlertResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/alerts",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-list-dashboards",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Retrieves a list of all dashboards for the authenticated team. Required: organizationId, serviceId. Returns array of ClickStackDashboardResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/dashboards",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-list-sources",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Retrieves a list of all sources for the authenticated team. Required: organizationId, serviceId. Returns array of ClickStackSource.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/sources",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-list-webhooks",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Retrieves a list of all webhooks for the authenticated team. Required: organizationId, serviceId. Returns array of ClickStackWebhook.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/webhooks",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-update-alert",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Updates an existing alert. Required: organizationId, serviceId, clickStackAlertId. Optional: channel, dashboardId, groupBy (plus 12 more). Returns the updated ClickstackClickStackUpdateAlertResponse.",
+      "method": "PUT",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/alerts/{clickStackAlertId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        },
+        {
+          "name": "clickStackAlertId",
+          "type": "string",
+          "location": "path",
+          "description": "ClickStack Alert ID",
+          "required": true
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel"
+        },
+        {
+          "name": "dashboardId",
+          "type": "string",
+          "location": "body",
+          "description": "Dashboard ID for tile-based alerts."
+        },
+        {
+          "name": "groupBy",
+          "type": "string",
+          "location": "body",
+          "description": "Group-by key for saved search alerts."
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "body",
+          "description": "Evaluation interval for the alert."
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Alert message template."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Human-friendly alert name."
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Freeform note for the alert. Supports markdown formatting."
+        },
+        {
+          "name": "savedSearchId",
+          "type": "string",
+          "location": "body",
+          "description": "Saved search ID for saved_search alerts."
+        },
+        {
+          "name": "scheduleOffsetMinutes",
+          "type": "int",
+          "location": "body",
+          "description": "Offset from the interval boundary in minutes. For example, 2 with a 5m interval evaluates windows at :02, :07, :12, etc. (UTC)."
+        },
+        {
+          "name": "scheduleStartAt",
+          "type": "string",
+          "location": "body",
+          "description": "Absolute UTC start time anchor. Alert windows start from this timestamp and repeat every interval."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Alert source type (tile-based or saved search)."
+        },
+        {
+          "name": "threshold",
+          "type": "float",
+          "location": "body",
+          "description": "Threshold value for triggering the alert. For between and not_between threshold types, this is the lower bound."
+        },
+        {
+          "name": "thresholdMax",
+          "type": "float",
+          "location": "body",
+          "description": "Upper bound for between and not_between threshold types. Required when thresholdType is between or not_between, must be \u003e= threshold."
+        },
+        {
+          "name": "thresholdType",
+          "type": "string",
+          "location": "body",
+          "description": "Threshold comparison direction."
+        },
+        {
+          "name": "tileId",
+          "type": "string",
+          "location": "body",
+          "description": "Tile ID for tile-based alerts. Must be a line, stacked bar, or number type tile."
+        }
+      ]
+    },
+    {
+      "name": "services_clickstack_click-stack-update-dashboard",
+      "description": "**This endpoint is in beta.** API contract is stable, and no breaking changes are expected in the future. ClickStack: Updates an existing dashboard. **Concurrency:** This endpoint does not support optimistic concurrency control. Concurrent PUT requests for the same dashboard may silently overwrite each other, which can leave orphan tile-to-container references on layout-shape edits. Clients should serialize edits to a given dashboard. Required: organizationId, serviceId, clickStackDashboardId, name, tiles. Optional: containers, filters, savedFilterValues (plus 3 more). Returns the updated ClickstackClickStackUpdateDashboardResponse.",
+      "method": "PUT",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/clickstack/dashboards/{clickStackDashboardId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the ClickStack service.",
+          "required": true
+        },
+        {
+          "name": "clickStackDashboardId",
+          "type": "string",
+          "location": "path",
+          "description": "ClickStack Dashboard ID",
+          "required": true
+        },
+        {
+          "name": "containers",
+          "type": "array",
+          "location": "body",
+          "description": "Optional grouping containers. Each tile may join a container via tile.containerId, and a tab inside it via tile.tabId."
+        },
+        {
+          "name": "filters",
+          "type": "array",
+          "location": "body",
+          "description": "Dashboard filter keys on the dashboard, applied across all tiles"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Dashboard name.",
+          "required": true
+        },
+        {
+          "name": "savedFilterValues",
+          "type": "array",
+          "location": "body",
+          "description": "Optional default dashboard filter values to persist on the dashboard."
+        },
+        {
+          "name": "savedQuery",
+          "type": "string",
+          "location": "body",
+          "description": "Optional default dashboard query to persist on the dashboard."
+        },
+        {
+          "name": "savedQueryLanguage",
+          "type": "string",
+          "location": "body",
+          "description": "Query language used by savedQuery."
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tags for organizing and filtering dashboards."
+        },
+        {
+          "name": "tiles",
+          "type": "array",
+          "location": "body",
+          "description": "Full list of tiles for the dashboard. Existing tiles are matched by ID; tiles with an ID that does not match an existing tile will be assigned a new generated ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_password_instance-update",
+      "description": "Sets a new password for the service. Required: organizationId, serviceId. Optional: newDoubleSha1Hash, newPasswordHash. Returns the updated PasswordInstanceUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/password",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service to update password.",
+          "required": true
+        },
+        {
+          "name": "newDoubleSha1Hash",
+          "type": "string",
+          "location": "body",
+          "description": "Optional double SHA1 password hash for MySQL protocol. If newPasswordHash is not provided this key will be ignored and the generated password will be used. Algorithm: echo -n 'yourpassword' | sha1sum | tr -d '-' | xxd -r -p | sha1sum | tr -d '-'"
+        },
+        {
+          "name": "newPasswordHash",
+          "type": "string",
+          "location": "body",
+          "description": "Optional password hash. Used to avoid password transmission over network. If not provided a new password is generated and is provided in the response. Otherwise this hash is used. Algorithm: echo -n 'yourpassword' | sha256sum | tr -d '-' | xxd -r -p | base64"
+        }
+      ]
+    },
+    {
+      "name": "services_private-endpoint_instance-create",
+      "description": "Create a new private endpoint. The private endpoint will be associated with this service and organization. Required: organizationId, serviceId. Optional: description, id. Returns the new PrivateEndpointInstanceCreateResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/privateEndpoint",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested service.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of private endpoint"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Private endpoint identifier"
+        }
+      ]
+    },
+    {
+      "name": "services_private-endpoint-config_instance-get",
+      "description": "Information required to set up a private endpoint. Required: organizationId, serviceId. Returns the PrivateEndpointConfigInstanceGetResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/privateEndpointConfig",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_prometheus_instance-get",
+      "description": "Returns prometheus metrics for a service. Required: organizationId, serviceId. Optional: filtered_metrics.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/prometheus",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested service.",
+          "required": true
+        },
+        {
+          "name": "filtered_metrics",
+          "type": "string",
+          "location": "query",
+          "description": "Return a filtered list of Prometheus metrics."
+        }
+      ]
+    },
+    {
+      "name": "services_replica-scaling_instance-update",
+      "description": "Updates minimum and maximum memory limits per replica and idle mode scaling behavior for the service. Supports both vertical autoscaling (fixed replica count, variable memory) and horizontal autoscaling (variable replica count, fixed memory). The memory settings are available only for 'production' services and must be a multiple of 4 starting from 8GB. For vertical autoscaling, please contact support to enable adjustment of numReplicas. For horizontal autoscaling (minReplicas/maxReplicas/replicaMemoryGb), contact support to enable the feature for your organization. Required: organizationId, serviceId. Optional: idleScaling, idleTimeoutMinutes, maxReplicaMemoryGb (plus 5 more). Returns the updated ReplicaScalingInstanceUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/replicaScaling",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service to update scaling parameters.",
+          "required": true
+        },
+        {
+          "name": "idleScaling",
+          "type": "bool",
+          "location": "body",
+          "description": "When set to true the service is allowed to scale down to zero when idle. True by default."
+        },
+        {
+          "name": "idleTimeoutMinutes",
+          "type": "float",
+          "location": "body",
+          "description": "Set minimum idling timeout (in minutes). Must be \u003e= 5 minutes."
+        },
+        {
+          "name": "maxReplicaMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum auto-scaling memory in Gb for a single replica. Available only for 'production' services. Must be a multiple of 4 and lower than or equal to 120 for non paid services or 356 for paid services. Used for vertical autoscaling. Mutually exclusive with replicaMemoryGb."
+        },
+        {
+          "name": "maxReplicas",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum number of replicas for horizontal autoscaling. Must be provided together with minReplicas. Mutually exclusive with numReplicas. Requires horizontal autoscaling to be enabled for the service."
+        },
+        {
+          "name": "minReplicaMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "Minimum auto-scaling memory in Gb for a single replica. Available only for 'production' services. Must be a multiple of 4 and greater than or equal to 8. Used for vertical autoscaling. Mutually exclusive with replicaMemoryGb."
+        },
+        {
+          "name": "minReplicas",
+          "type": "float",
+          "location": "body",
+          "description": "Minimum number of replicas for horizontal autoscaling. Must be provided together with maxReplicas. Mutually exclusive with numReplicas. Requires horizontal autoscaling to be enabled for the service."
+        },
+        {
+          "name": "numReplicas",
+          "type": "float",
+          "location": "body",
+          "description": "Fixed replica count for vertical autoscaling. Mutually exclusive with minReplicas/maxReplicas. Please contact support to enable adjustment of numReplicas. When switching from horizontal autoscaling mode the existing replica memory is preserved as the new vertical min/max range; include minReplicaMemoryGb/maxReplicaMemoryGb in the same request to set an explicit range."
+        },
+        {
+          "name": "replicaMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "Fixed memory per replica in Gb for horizontal autoscaling. Must be a multiple of 4, at least 8 Gb, and at most 120 Gb for non paid services or 356 Gb for paid services. Mutually exclusive with minReplicaMemoryGb/maxReplicaMemoryGb. Requires horizontal autoscaling to be enabled for the service."
+        }
+      ]
+    },
+    {
+      "name": "services_scaling_instance-update",
+      "description": "Updates minimum and maximum total memory limits and idle mode scaling behavior for the service. The memory settings are available only for 'production' services and must be a multiple of 12 starting from 24GB. Please contact support to enable adjustment of numReplicas. Required: organizationId, serviceId. Optional: idleScaling, idleTimeoutMinutes, maxTotalMemoryGb (plus 2 more). Returns the updated ScalingInstanceUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/scaling",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service to update scaling parameters.",
+          "required": true
+        },
+        {
+          "name": "idleScaling",
+          "type": "bool",
+          "location": "body",
+          "description": "When set to true the service is allowed to scale down to zero when idle. True by default."
+        },
+        {
+          "name": "idleTimeoutMinutes",
+          "type": "float",
+          "location": "body",
+          "description": "Set minimum idling timeout (in minutes). Must be \u003e= 5 minutes."
+        },
+        {
+          "name": "maxTotalMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "DEPRECATED - inaccurate for services with non-default numbers of replicas. Use `maxReplicaMemoryGb` instead. Maximum memory of three workers during auto-scaling in Gb. Available only for 'production' services. Must be a multiple of 12 and lower than or equal to 360 for non paid services or 1068 for paid services. Always absent for horizontal-autoscaling services (replica count is variable)."
+        },
+        {
+          "name": "minTotalMemoryGb",
+          "type": "float",
+          "location": "body",
+          "description": "DEPRECATED - inaccurate for services with non-default numbers of replicas. Use `minReplicaMemoryGb` instead. Minimum memory of three workers during auto-scaling in Gb. Available only for 'production' services. Must be a multiple of 12 and greater than or equal to 24. Always absent for horizontal-autoscaling services (replica count is variable)."
+        },
+        {
+          "name": "numReplicas",
+          "type": "float",
+          "location": "body",
+          "description": "Number of replicas for the service. The number of replicas must be between 2 and 20 for the first service in a warehouse. Services that are created in an existing warehouse can have a number of replicas as low as 1. Further restrictions may apply based on your organization's tier. It defaults to 1 for the BASIC tier and 3 for the SCALE and ENTERPRISE tiers."
+        }
+      ]
+    },
+    {
+      "name": "services_scaling-schedule_delete",
+      "description": "**Disclaimer:** This beta endpoint is evolving; the API contract may change. Deletes the autoscaling schedule for a service. If a schedule entry is currently active, the base scaling config is restored to the instance before the schedule is removed. Returns 404 if no schedule exists. Requires the scheduled autoscaling feature to be enabled for the organization. Required: organizationId, serviceId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/scalingSchedule",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_scaling-schedule_get",
+      "description": "**Disclaimer:** This beta endpoint is evolving; the API contract may change. Returns the autoscaling schedule for a service. Returns 404 if no schedule has been configured or if the schedule was cleared. Requires the scheduled autoscaling feature to be enabled for the organization. Required: organizationId, serviceId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/scalingSchedule",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_scaling-schedule_upsert",
+      "description": "**Disclaimer:** This beta endpoint is evolving; the API contract may change. Creates or fully replaces the autoscaling schedule for a service. Pass an empty `entries` array to clear the schedule — a subsequent GET will return 404, and the response will contain an empty `baseConfig` (all fields absent). The base scaling config (applied when no entry is active) is managed separately via the `replicaScaling` endpoint. Requires the scheduled autoscaling feature to be enabled for the organization. Required: organizationId, serviceId, entries. Returns the new ScalingScheduleUpsertResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/scalingSchedule",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        },
+        {
+          "name": "entries",
+          "type": "array",
+          "location": "body",
+          "description": "List of schedule entries. Pass an empty array to clear the schedule.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_service-query-endpoint_instance-query-endpoint-delete",
+      "description": "Delete the service query endpoint for a given instance. Required: organizationId, serviceId. Returns the ServiceQueryEndpointInstanceQueryEndpointDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/serviceQueryEndpoint",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_service-query-endpoint_instance-query-endpoint-get",
+      "description": "Get the configuration for the service query endpoint that allows executing queries via API. Required: organizationId, serviceId. Returns the ServiceQueryEndpointInstanceQueryEndpointGetResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/serviceQueryEndpoint",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_service-query-endpoint_instance-query-endpoint-upsert",
+      "description": "Create the service query endpoint that allows executing queries via API. Required: organizationId, serviceId. Optional: allowedOrigins, openApiKeys, roles. Returns the new ServiceQueryEndpointInstanceQueryEndpointUpsertResponse.",
+      "method": "POST",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/serviceQueryEndpoint",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested service.",
+          "required": true
+        },
+        {
+          "name": "allowedOrigins",
+          "type": "string",
+          "location": "body",
+          "description": "The allowed origins as comma separated list of domains"
+        },
+        {
+          "name": "openApiKeys",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The version of the service query endpoint"
+        },
+        {
+          "name": "roles",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The roles"
+        }
+      ]
+    },
+    {
+      "name": "services_state_instance-update",
+      "description": "Starts or stop service. Required: organizationId, serviceId. Optional: command. Returns the updated StateInstanceUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/state",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service to update state.",
+          "required": true
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "location": "body",
+          "description": "Command to change the state: 'start', 'stop', 'awake'."
+        }
+      ]
+    },
+    {
+      "name": "services_upgrade-window_delete",
+      "description": "Deletes the upgrade window for a service, restoring the default scheduling behaviour. The upgrade window can only be deleted on primary services. Deletion succeeds even if the organization has lost the scheduled upgrades entitlement, so a window can be cleared after entitlement loss. Errors: - 400: the service is a secondary service. - 401: missing, invalid, or disabled API key. - 403: caller lacks `control-plane:service:manage` on the service. - 404: service does not exist, is not visible to the caller, or no upgrade window is configured. Required: organizationId, serviceId. Returns the UpgradeWindowDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/upgradeWindow",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_upgrade-window_get",
+      "description": "Returns the configured upgrade window for a service. Errors: - 401: missing, invalid, or disabled API key. - 403: caller lacks `control-plane:service:view` on the service. - 404: service does not exist, is not visible to the caller, or no upgrade window has been configured. Required: organizationId, serviceId.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/upgradeWindow",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_upgrade-window_update",
+      "description": "Creates or fully replaces the upgrade window for a service. The upgrade window currently lasts 6 hours from `startHourUtc`. The upgrade window can only be set on primary services; secondary services inherit the primary service window. Errors: - 400: invalid field values (`weekday` not in 0–6, `startHourUtc` not in {0, 6, 12, 18}), or the service is a secondary service. - 401: missing, invalid, or disabled API key. - 403: caller lacks `control-plane:service:manage` on the service, or the organization does not have the scheduled upgrades feature enabled. - 404: service does not exist or is not visible to the caller. Required: organizationId, serviceId, startHourUtc, weekday. Returns the updated UpgradeWindowUpdateResponse.",
+      "method": "PUT",
+      "path": "/v1/organizations/{organizationId}/services/{serviceId}/upgradeWindow",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the organization that owns the service.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the service.",
+          "required": true
+        },
+        {
+          "name": "startHourUtc",
+          "type": "int",
+          "location": "body",
+          "description": "UTC hour when the upgrade window starts. Must be one of 0, 6, 12, or 18. The upgrade window currently lasts 6 hours from this start time.",
+          "required": true
+        },
+        {
+          "name": "weekday",
+          "type": "int",
+          "location": "body",
+          "description": "Day of the week the upgrade window starts. 0 = Sunday, 1 = Monday, …, 6 = Saturday.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usage-cost_get",
+      "description": "Returns a grand total and a list of daily, per-entity organization usage cost records for the organization in the queried time period (maximum 31 days). All days in both the request and the response are evaluated based on the UTC timezone. Required: organizationId, from_date, to_date. Optional: filter.",
+      "method": "GET",
+      "path": "/v1/organizations/{organizationId}/usageCost",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the requested organization.",
+          "required": true
+        },
+        {
+          "name": "from_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date for the report, e.g. 2024-12-19.",
+          "required": true
+        },
+        {
+          "name": "to_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date (inclusive) for the report, e.g. 2024-12-20. This date cannot be more than 30 days after from_date (for a maximum queried period of 31 days).",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "array",
+          "location": "query",
+          "description": "Filter criteria to apply when retrieving the usage cost report. Currently, only filtering by resource tags is supported."
+        }
+      ]
+    }
+  ]
+}

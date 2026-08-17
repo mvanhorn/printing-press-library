@@ -1,0 +1,46 @@
+Root:
+  get:
+    tags: 
+      - Sitewidenotification
+    summary: Get a sitewidenotification
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+                $ref: '../schemas/sitewidenotification_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ById:
+  get:
+    tags: 
+      - Sitewidenotification
+    summary: Get a sitewidenotification by id
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: The id of the sitewidenotification to get
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+                $ref: '../schemas/sitewidenotification_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

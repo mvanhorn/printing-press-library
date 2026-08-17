@@ -20,8 +20,8 @@ func newPaymentsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "payments",
-		Short:       "There are two methods to query for a user's payment information on a plugin, widget, or Community file. The first...",
-		Long:        "Shortcut for 'payments get'. There are two methods to query for a user's payment information on a plugin, widget, or Community file. The first...",
+		Short:       "There are two methods to query for a user's payment information on a plugin, widget, or Community file.",
+		Long:        "There are two methods to query for a user's payment information on a plugin, widget, or Community file.",
 		Example:     "  figma-pp-cli payments",
 		Annotations: map[string]string{"pp:endpoint": "payments.get", "pp:method": "GET", "pp:path": "/v1/payments", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -33,30 +33,30 @@ func newPaymentsPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/payments"
 			params := map[string]string{}
 			if flagPluginPaymentToken != "" {
-				params["plugin_payment_token"] = fmt.Sprintf("%v", flagPluginPaymentToken)
+				params["plugin_payment_token"] = formatCLIParamValue(flagPluginPaymentToken)
 			}
 			if flagUserId != "" {
-				params["user_id"] = fmt.Sprintf("%v", flagUserId)
+				params["user_id"] = formatCLIParamValue(flagUserId)
 			}
 			if flagCommunityFileId != "" {
-				params["community_file_id"] = fmt.Sprintf("%v", flagCommunityFileId)
+				params["community_file_id"] = formatCLIParamValue(flagCommunityFileId)
 			}
 			if flagPluginId != "" {
-				params["plugin_id"] = fmt.Sprintf("%v", flagPluginId)
+				params["plugin_id"] = formatCLIParamValue(flagPluginId)
 			}
 			if flagWidgetId != "" {
-				params["widget_id"] = fmt.Sprintf("%v", flagWidgetId)
+				params["widget_id"] = formatCLIParamValue(flagWidgetId)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "payments", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "payments", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -64,14 +64,12 @@ func newPaymentsPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -99,11 +97,11 @@ func newPaymentsPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagPluginPaymentToken, "plugin-payment-token", "", "Short-lived token returned from 'getPluginPaymentTokenAsync' in the plugin payments API and used to authenticate to...")
-	cmd.Flags().StringVar(&flagUserId, "user-id", "", "The ID of the user to query payment information about. You can get the user ID by having the user OAuth2 to the...")
-	cmd.Flags().StringVar(&flagCommunityFileId, "community-file-id", "", "The ID of the Community file to query a user's payment information on. You can get the Community file ID from the...")
-	cmd.Flags().StringVar(&flagPluginId, "plugin-id", "", "The ID of the plugin to query a user's payment information on. You can get the plugin ID from the plugin's manifest,...")
-	cmd.Flags().StringVar(&flagWidgetId, "widget-id", "", "The ID of the widget to query a user's payment information on. You can get the widget ID from the widget's manifest,...")
+	cmd.Flags().StringVar(&flagPluginPaymentToken, "plugin-payment-token", "", "Short-lived token returned from 'getPluginPaymentTokenAsync' in the plugin payments API and used to authenticate to")
+	cmd.Flags().StringVar(&flagUserId, "user-id", "", "The ID of the user to query payment information about.")
+	cmd.Flags().StringVar(&flagCommunityFileId, "community-file-id", "", "The ID of the Community file to query a user's payment information on.")
+	cmd.Flags().StringVar(&flagPluginId, "plugin-id", "", "The ID of the plugin to query a user's payment information on.")
+	cmd.Flags().StringVar(&flagWidgetId, "widget-id", "", "The ID of the widget to query a user's payment information on.")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

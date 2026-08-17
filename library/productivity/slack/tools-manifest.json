@@ -1,0 +1,2169 @@
+{
+  "api_name": "slack",
+  "base_url": "https://slack.com/api",
+  "description": "Every Slack read your token can make, mirrored to local SQLite so your history outlives Slack's own retention wall.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "SLACK_BOT_TOKEN",
+      "SLACK_USER_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SLACK_BOT_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "SLACK_USER_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "api-test_test",
+      "description": "Checks API calling code. Optional: error, foo. Returns the ApiTestSuccessSchema. (public)",
+      "method": "GET",
+      "path": "/api.test",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "error",
+          "type": "string",
+          "location": "query",
+          "description": "Error response to return"
+        },
+        {
+          "name": "foo",
+          "type": "string",
+          "location": "query",
+          "description": "example property to return"
+        }
+      ]
+    },
+    {
+      "name": "auth_api_revoke",
+      "description": "Revoke the current authentication token. Optional: test.",
+      "method": "GET",
+      "path": "/auth.revoke",
+      "params": [
+        {
+          "name": "test",
+          "type": "boolean",
+          "location": "query",
+          "description": "Test mode - check without revoking"
+        }
+      ]
+    },
+    {
+      "name": "auth_api_test",
+      "description": "Test the authentication token and get identity info.",
+      "method": "POST",
+      "path": "/auth.test",
+      "params": []
+    },
+    {
+      "name": "bots_get",
+      "description": "Get information about a bot user. Required: bot.",
+      "method": "GET",
+      "path": "/bots.info",
+      "params": [
+        {
+          "name": "bot",
+          "type": "string",
+          "location": "query",
+          "description": "Bot user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat-delete-scheduled-message_chat_delete_scheduled_message",
+      "description": "Deletes a pending scheduled message from the queue. Required: channel, scheduled_message_id. Optional: as_user. Returns the new ChatDeleteScheduledMessageSchema. (public)",
+      "method": "POST",
+      "path": "/chat.deleteScheduledMessage",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "as_user",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass true to delete the message as the authed user with `chat:write:user` scope. [Bot users](/bot-users) in this context are considered authed users. If unused or false, the message will be deleted with `chat:write:bot` scope."
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "The channel the scheduled_message is posting to",
+          "required": true
+        },
+        {
+          "name": "scheduled_message_id",
+          "type": "string",
+          "location": "body",
+          "description": "`scheduled_message_id` returned from call to chat.scheduleMessage",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat-me-message_chat_me_message",
+      "description": "Share a me message into a channel. Optional: channel, text. Returns the new ChatMeMessageSchema. (public)",
+      "method": "POST",
+      "path": "/chat.meMessage",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel to send message to. Can be a public channel, private group or IM channel. Can be an encoded ID, or a name."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text of the message to send."
+        }
+      ]
+    },
+    {
+      "name": "chat-post-ephemeral_chat_post_ephemeral",
+      "description": "Sends an ephemeral message to a user in a channel. Required: channel, user. Optional: as_user, attachments, blocks (plus 7 more). Returns the new ChatPostEphemeralSuccessSchema. (public)",
+      "method": "POST",
+      "path": "/chat.postEphemeral",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "as_user",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass true to post the message as the authed user. Defaults to true if the chat:write:bot scope is not included. Otherwise, defaults to false."
+        },
+        {
+          "name": "attachments",
+          "type": "string",
+          "location": "body",
+          "description": "A JSON-based array of structured attachments, presented as a URL-encoded string."
+        },
+        {
+          "name": "blocks",
+          "type": "string",
+          "location": "body",
+          "description": "A JSON-based array of structured blocks, presented as a URL-encoded string."
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel, private group, or IM channel to send message to. Can be an encoded ID, or a name.",
+          "required": true
+        },
+        {
+          "name": "icon_emoji",
+          "type": "string",
+          "location": "body",
+          "description": "Emoji to use as the icon for this message. Overrides `icon_url`. Must be used in conjunction with `as_user` set to `false`, otherwise ignored. See [authorship](#authorship) below."
+        },
+        {
+          "name": "icon_url",
+          "type": "string",
+          "location": "body",
+          "description": "URL to an image to use as the icon for this message. Must be used in conjunction with `as_user` set to false, otherwise ignored. See [authorship](#authorship) below."
+        },
+        {
+          "name": "link_names",
+          "type": "bool",
+          "location": "body",
+          "description": "Find and link channel names and usernames."
+        },
+        {
+          "name": "parse",
+          "type": "string",
+          "location": "body",
+          "description": "Change how messages are treated. Defaults to `none`. See [below](#formatting)."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "How this field works and whether it is required depends on other fields you use in your API call. [See below](#text_usage) for more detail."
+        },
+        {
+          "name": "thread_ts",
+          "type": "string",
+          "location": "body",
+          "description": "Provide another message's `ts` value to post this message in a thread. Avoid using a reply's `ts` value; use its parent's value instead. Ephemeral messages in threads are only shown if there is already an active thread."
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "`id` of the user who will receive the ephemeral message. The user should be in the channel specified by the `channel` argument.",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Set your bot's user name. Must be used in conjunction with `as_user` set to false, otherwise ignored. See [authorship](#authorship) below."
+        }
+      ]
+    },
+    {
+      "name": "chat-unfurl_chat_unfurl",
+      "description": "Provide custom unfurl behavior for user-posted URLs. Required: channel, ts. Optional: unfurls, user_auth_message, user_auth_required (plus 1 more). Returns the new ChatUnfurlSuccessSchema. (public)",
+      "method": "POST",
+      "path": "/chat.unfurl",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID of the message",
+          "required": true
+        },
+        {
+          "name": "ts",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp of the message to add unfurl behavior to.",
+          "required": true
+        },
+        {
+          "name": "unfurls",
+          "type": "string",
+          "location": "body",
+          "description": "URL-encoded JSON map with keys set to URLs featured in the the message, pointing to their unfurl blocks or message attachments."
+        },
+        {
+          "name": "user_auth_message",
+          "type": "string",
+          "location": "body",
+          "description": "Provide a simply-formatted string to send as an ephemeral message to the user as invitation to authenticate further and enable full unfurling behavior"
+        },
+        {
+          "name": "user_auth_required",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to `true` or `1` to indicate the user must install your Slack app to trigger unfurls for this domain"
+        },
+        {
+          "name": "user_auth_url",
+          "type": "string",
+          "location": "body",
+          "description": "Send users to this custom URL where they will complete authentication in your app to fully trigger unfurling. Value should be properly URL-encoded."
+        }
+      ]
+    },
+    {
+      "name": "conversations_archive",
+      "description": "Archive a channel. Required: channel.",
+      "method": "POST",
+      "path": "/conversations.archive",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID to archive",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_create",
+      "description": "Create a new channel. Required: name. Optional: is_private.",
+      "method": "POST",
+      "path": "/conversations.create",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the channel",
+          "required": true
+        },
+        {
+          "name": "is_private",
+          "type": "boolean",
+          "location": "body",
+          "description": "Create a private channel"
+        }
+      ]
+    },
+    {
+      "name": "conversations_get",
+      "description": "Get information about a channel. Required: channel.",
+      "method": "GET",
+      "path": "/conversations.info",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_history",
+      "description": "Fetch message history for a channel. Required: channel. Optional: limit, cursor, oldest (plus 1 more).",
+      "method": "GET",
+      "path": "/conversations.history",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of messages to return (max 1000)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "oldest",
+          "type": "string",
+          "location": "query",
+          "description": "Only messages after this Unix timestamp"
+        },
+        {
+          "name": "latest",
+          "type": "string",
+          "location": "query",
+          "description": "Only messages before this Unix timestamp"
+        }
+      ]
+    },
+    {
+      "name": "conversations_invite",
+      "description": "Invite users to a channel. Required: channel, users.",
+      "method": "POST",
+      "path": "/conversations.invite",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "users",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated list of user IDs to invite",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_list",
+      "description": "List all channels in the workspace. Optional: types, limit, cursor (plus 1 more). Returns array of Channel.",
+      "method": "GET",
+      "path": "/conversations.list",
+      "params": [
+        {
+          "name": "types",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated channel types: public_channel, private_channel, mpim, im"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of channels to return (max 1000)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "exclude_archived",
+          "type": "boolean",
+          "location": "query",
+          "description": "Exclude archived channels"
+        }
+      ]
+    },
+    {
+      "name": "conversations_mark",
+      "description": "Mark a channel as read up to a specific message. Required: channel, ts.",
+      "method": "POST",
+      "path": "/conversations.mark",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "ts",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp of the message to mark as read",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_members",
+      "description": "List members of a channel. Required: channel. Optional: limit, cursor.",
+      "method": "GET",
+      "path": "/conversations.members",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum members to return"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "conversations_replies",
+      "description": "Fetch replies in a thread. Required: channel, ts. Optional: limit, cursor.",
+      "method": "GET",
+      "path": "/conversations.replies",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID containing the thread",
+          "required": true
+        },
+        {
+          "name": "ts",
+          "type": "string",
+          "location": "query",
+          "description": "Thread parent message timestamp",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of replies to return"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "conversations_set_purpose",
+      "description": "Set the purpose for a channel. Required: channel, purpose.",
+      "method": "POST",
+      "path": "/conversations.setPurpose",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "purpose",
+          "type": "string",
+          "location": "body",
+          "description": "New purpose text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_set_topic",
+      "description": "Set the topic for a channel. Required: channel, topic.",
+      "method": "POST",
+      "path": "/conversations.setTopic",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "topic",
+          "type": "string",
+          "location": "body",
+          "description": "New topic text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_unarchive",
+      "description": "Unarchive a channel. Required: channel.",
+      "method": "POST",
+      "path": "/conversations.unarchive",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID to unarchive",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations-close_conversations_close",
+      "description": "Closes a direct message or multi-person direct message. Optional: channel. Returns the new ConversationsCloseSuccessSchema. (public)",
+      "method": "POST",
+      "path": "/conversations.close",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Conversation to close."
+        }
+      ]
+    },
+    {
+      "name": "conversations-join_conversations_join",
+      "description": "Joins an existing conversation. Optional: channel. Returns array of ConversationsJoinConversationsJoinItem. (public)",
+      "method": "POST",
+      "path": "/conversations.join",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "ID of conversation to join"
+        }
+      ]
+    },
+    {
+      "name": "conversations-kick_conversations_kick",
+      "description": "Removes a user from a conversation. Optional: channel, user. Returns the new ConversationsKickSuccessSchema. (public)",
+      "method": "POST",
+      "path": "/conversations.kick",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "ID of conversation to remove user from."
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "User ID to be removed."
+        }
+      ]
+    },
+    {
+      "name": "conversations-leave_conversations_leave",
+      "description": "Leaves a conversation. Optional: channel. Returns the new ConversationsLeaveSuccessSchema. (public)",
+      "method": "POST",
+      "path": "/conversations.leave",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Conversation to leave"
+        }
+      ]
+    },
+    {
+      "name": "conversations-open_conversations_open",
+      "description": "Opens or resumes a direct message or multi-person direct message. Optional: channel, return_im, users. Returns array of ConversationsOpenConversationsOpenItem. (public)",
+      "method": "POST",
+      "path": "/conversations.open",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Resume a conversation by supplying an `im` or `mpim`'s ID. Or provide the `users` field instead."
+        },
+        {
+          "name": "return_im",
+          "type": "bool",
+          "location": "body",
+          "description": "Boolean, indicates you want the full IM channel definition in the response."
+        },
+        {
+          "name": "users",
+          "type": "string",
+          "location": "body",
+          "description": "Comma separated lists of users. If only one user is included, this creates a 1:1 DM. The ordering of the users is preserved whenever a multi-person direct message is returned. Supply a `channel` when not supplying `users`."
+        }
+      ]
+    },
+    {
+      "name": "conversations-rename_conversations_rename",
+      "description": "Renames a conversation. Optional: channel, name. Returns array of ConversationsRenameConversationsRenameItem. (public)",
+      "method": "POST",
+      "path": "/conversations.rename",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "ID of conversation to rename"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New name for conversation."
+        }
+      ]
+    },
+    {
+      "name": "dnd_end_dnd",
+      "description": "End the current Do Not Disturb session immediately.",
+      "method": "POST",
+      "path": "/dnd.endDnd",
+      "params": []
+    },
+    {
+      "name": "dnd_end_snooze",
+      "description": "End the current Do Not Disturb session.",
+      "method": "POST",
+      "path": "/dnd.endSnooze",
+      "params": []
+    },
+    {
+      "name": "dnd_get",
+      "description": "Get DND status for the authenticated user. Optional: user.",
+      "method": "GET",
+      "path": "/dnd.info",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User ID (defaults to authed user)"
+        }
+      ]
+    },
+    {
+      "name": "dnd_set_snooze",
+      "description": "Turn on Do Not Disturb for a specified number of minutes. Required: num_minutes.",
+      "method": "POST",
+      "path": "/dnd.setSnooze",
+      "params": [
+        {
+          "name": "num_minutes",
+          "type": "integer",
+          "location": "body",
+          "description": "Number of minutes to snooze",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dnd_team_info",
+      "description": "Get DND status for multiple users. Required: users.",
+      "method": "POST",
+      "path": "/dnd.teamInfo",
+      "params": [
+        {
+          "name": "users",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated list of user IDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emoji_list",
+      "description": "List all custom emoji for the workspace.",
+      "method": "GET",
+      "path": "/emoji.list",
+      "params": []
+    },
+    {
+      "name": "files_delete",
+      "description": "Delete a file. Required: file.",
+      "method": "POST",
+      "path": "/files.delete",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File ID to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_get",
+      "description": "Get information about a file. Required: file.",
+      "method": "GET",
+      "path": "/files.info",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "query",
+          "description": "File ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_list",
+      "description": "List files in the workspace. Optional: channel, user, types (plus 2 more). Returns array of File.",
+      "method": "GET",
+      "path": "/files.list",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by channel"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by user"
+        },
+        {
+          "name": "types",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by file type: all, spaces, snippets, images, etc."
+        },
+        {
+          "name": "count",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of files per page"
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "files_upload",
+      "description": "Upload a file to Slack. Optional: channels, content, filename (plus 2 more).",
+      "method": "POST",
+      "path": "/files.upload",
+      "params": [
+        {
+          "name": "channels",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated channel IDs to share the file with"
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "File content (for text-based files)"
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Filename"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the file"
+        },
+        {
+          "name": "initial_comment",
+          "type": "string",
+          "location": "body",
+          "description": "Initial comment for the file"
+        }
+      ]
+    },
+    {
+      "name": "files-comments-delete_files_comments_delete",
+      "description": "Deletes an existing comment on a file. Optional: file, id. Returns the new FilesCommentsDeleteSchema. (public)",
+      "method": "POST",
+      "path": "/files.comments.delete",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File to delete a comment from."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The comment to delete."
+        }
+      ]
+    },
+    {
+      "name": "files-remote-add_files_remote_add",
+      "description": "Adds a file from a remote service. Optional: external_id, external_url, filetype (plus 4 more). Returns the new DefaultSuccessTemplate. (public)",
+      "method": "POST",
+      "path": "/files.remote.add",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "Creator defined GUID for the file."
+        },
+        {
+          "name": "external_url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of the remote file."
+        },
+        {
+          "name": "filetype",
+          "type": "string",
+          "location": "body",
+          "description": "type of file"
+        },
+        {
+          "name": "indexable_file_contents",
+          "type": "string",
+          "location": "body",
+          "description": "A text file (txt, pdf, doc, etc.) containing textual search terms that are used to improve discovery of the remote file."
+        },
+        {
+          "name": "preview_image",
+          "type": "string",
+          "location": "body",
+          "description": "Preview of the document via `multipart/form-data`."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the file being shared."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Authentication token. Requires scope: `remote_files:write`"
+        }
+      ]
+    },
+    {
+      "name": "files-remote-info_files_remote_info",
+      "description": "Retrieve information about a remote file added to Slack. Optional: token, file, external_id. Returns the DefaultSuccessTemplate. (public)",
+      "method": "GET",
+      "path": "/files.remote.info",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication token. Requires scope: `remote_files:read`"
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "query",
+          "description": "Specify a file by providing its ID."
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "query",
+          "description": "Creator defined GUID for the file."
+        }
+      ]
+    },
+    {
+      "name": "files-remote-list_files_remote_list",
+      "description": "Retrieve information about a remote file added to Slack. Optional: token, channel, ts_from (plus 3 more). Returns the DefaultSuccessTemplate. (public)",
+      "method": "GET",
+      "path": "/files.remote.list",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication token. Requires scope: `remote_files:read`"
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Filter files appearing in a specific channel, indicated by its ID."
+        },
+        {
+          "name": "ts_from",
+          "type": "float",
+          "location": "query",
+          "description": "Filter files created after this timestamp (inclusive)."
+        },
+        {
+          "name": "ts_to",
+          "type": "float",
+          "location": "query",
+          "description": "Filter files created before this timestamp (inclusive)."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate through collections of data by setting the `cursor` parameter to a `next_cursor` attribute returned by a previous request's `response_metadata`. Default value fetches the first 'page' of the collection. See [pagination](/docs/pagination) for more detail."
+        }
+      ]
+    },
+    {
+      "name": "files-remote-remove_files_remote_remove",
+      "description": "Remove a remote file. Optional: external_id, file, token. Returns the new DefaultSuccessTemplate. (public)",
+      "method": "POST",
+      "path": "/files.remote.remove",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "Creator defined GUID for the file."
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "Specify a file by providing its ID."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Authentication token. Requires scope: `remote_files:write`"
+        }
+      ]
+    },
+    {
+      "name": "files-remote-share_files_remote_share",
+      "description": "Share a remote file into a channel. Optional: token, file, external_id (plus 1 more). Returns the DefaultSuccessTemplate. (public)",
+      "method": "GET",
+      "path": "/files.remote.share",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication token. Requires scope: `remote_files:share`"
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "query",
+          "description": "Specify a file registered with Slack by providing its ID. Either this field or `external_id` or both are required."
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "query",
+          "description": "The globally unique identifier (GUID) for the file, as set by the app registering the file with Slack. Either this field or `file` or both are required."
+        },
+        {
+          "name": "channels",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of channel IDs where the file will be shared."
+        }
+      ]
+    },
+    {
+      "name": "files-remote-update_files_remote_update",
+      "description": "Updates an existing remote file. Optional: external_id, external_url, file (plus 5 more). Returns the new DefaultSuccessTemplate. (public)",
+      "method": "POST",
+      "path": "/files.remote.update",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "Creator defined GUID for the file."
+        },
+        {
+          "name": "external_url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of the remote file."
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "Specify a file by providing its ID."
+        },
+        {
+          "name": "filetype",
+          "type": "string",
+          "location": "body",
+          "description": "type of file"
+        },
+        {
+          "name": "indexable_file_contents",
+          "type": "string",
+          "location": "body",
+          "description": "File containing contents that can be used to improve searchability for the remote file."
+        },
+        {
+          "name": "preview_image",
+          "type": "string",
+          "location": "body",
+          "description": "Preview of the document via `multipart/form-data`."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the file being shared."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Authentication token. Requires scope: `remote_files:write`"
+        }
+      ]
+    },
+    {
+      "name": "files-revoke-public-url_files_revoke_public_url",
+      "description": "Revokes public/external sharing access for a file. Optional: file. Returns the new FilesRevokePublicUrlSchema. (public)",
+      "method": "POST",
+      "path": "/files.revokePublicURL",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File to revoke"
+        }
+      ]
+    },
+    {
+      "name": "files-shared-public-url_files_shared_public_url",
+      "description": "Enables a file for public/external sharing. Optional: file. Returns the new FilesSharedPublicUrlSchema. (public)",
+      "method": "POST",
+      "path": "/files.sharedPublicURL",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File to share"
+        }
+      ]
+    },
+    {
+      "name": "messages_delete_message",
+      "description": "Delete a message. Required: channel, ts.",
+      "method": "POST",
+      "path": "/chat.delete",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel containing the message",
+          "required": true
+        },
+        {
+          "name": "ts",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp of the message to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_get_permalink",
+      "description": "Get a permalink URL for a message. Required: channel, message_ts.",
+      "method": "GET",
+      "path": "/chat.getPermalink",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "message_ts",
+          "type": "string",
+          "location": "query",
+          "description": "Message timestamp",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_list_scheduled",
+      "description": "List scheduled messages. Optional: channel.",
+      "method": "POST",
+      "path": "/chat.scheduledMessages.list",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by channel"
+        }
+      ]
+    },
+    {
+      "name": "messages_post_message",
+      "description": "Send a message to a channel, DM, or thread. Required: channel, text. Optional: thread_ts, unfurl_links.",
+      "method": "POST",
+      "path": "/chat.postMessage",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID or name to send the message to",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Message text (supports mrkdwn formatting)",
+          "required": true
+        },
+        {
+          "name": "thread_ts",
+          "type": "string",
+          "location": "body",
+          "description": "Thread timestamp to reply in a thread"
+        },
+        {
+          "name": "unfurl_links",
+          "type": "boolean",
+          "location": "body",
+          "description": "Enable or disable link unfurling"
+        }
+      ]
+    },
+    {
+      "name": "messages_schedule_message",
+      "description": "Schedule a message for later delivery. Required: channel, text, post_at.",
+      "method": "POST",
+      "path": "/chat.scheduleMessage",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel to send the scheduled message to",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Message text",
+          "required": true
+        },
+        {
+          "name": "post_at",
+          "type": "integer",
+          "location": "body",
+          "description": "Unix timestamp for when to send the message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_update_message",
+      "description": "Update an existing message. Required: channel, ts, text.",
+      "method": "POST",
+      "path": "/chat.update",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel containing the message",
+          "required": true
+        },
+        {
+          "name": "ts",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp of the message to update",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "New message text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pins_add",
+      "description": "Pin a message to a channel. Required: channel, timestamp.",
+      "method": "POST",
+      "path": "/pins.add",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "body",
+          "description": "Message timestamp to pin",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pins_list",
+      "description": "List pinned items in a channel. Required: channel.",
+      "method": "GET",
+      "path": "/pins.list",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pins_remove",
+      "description": "Unpin a message from a channel. Required: channel, timestamp.",
+      "method": "POST",
+      "path": "/pins.remove",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "body",
+          "description": "Message timestamp to unpin",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reactions_add",
+      "description": "Add an emoji reaction to a message. Required: channel, name, timestamp.",
+      "method": "POST",
+      "path": "/reactions.add",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel containing the message",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Emoji name without colons",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "body",
+          "description": "Message timestamp",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reactions_get",
+      "description": "Get reactions for a message. Required: channel, timestamp.",
+      "method": "GET",
+      "path": "/reactions.get",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Channel containing the message",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "query",
+          "description": "Message timestamp",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reactions_list",
+      "description": "List reactions made by the authenticated user. Optional: count, cursor, user. Returns array of ReactionItem.",
+      "method": "GET",
+      "path": "/reactions.list",
+      "params": [
+        {
+          "name": "count",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Show reactions by this user (defaults to authed user)"
+        }
+      ]
+    },
+    {
+      "name": "reactions_remove",
+      "description": "Remove an emoji reaction from a message. Required: channel, name, timestamp.",
+      "method": "POST",
+      "path": "/reactions.remove",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel containing the message",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Emoji name without colons",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "body",
+          "description": "Message timestamp",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reminders_add",
+      "description": "Create a new reminder. Required: text, time. Optional: user.",
+      "method": "POST",
+      "path": "/reminders.add",
+      "params": [
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Reminder text",
+          "required": true
+        },
+        {
+          "name": "time",
+          "type": "string",
+          "location": "body",
+          "description": "When to remind: Unix timestamp, or natural language like 'in 15 minutes'",
+          "required": true
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "User to remind (defaults to authed user)"
+        }
+      ]
+    },
+    {
+      "name": "reminders_complete",
+      "description": "Mark a reminder as complete. Required: reminder.",
+      "method": "POST",
+      "path": "/reminders.complete",
+      "params": [
+        {
+          "name": "reminder",
+          "type": "string",
+          "location": "body",
+          "description": "Reminder ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reminders_delete",
+      "description": "Delete a reminder. Required: reminder.",
+      "method": "POST",
+      "path": "/reminders.delete",
+      "params": [
+        {
+          "name": "reminder",
+          "type": "string",
+          "location": "body",
+          "description": "Reminder ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reminders_get",
+      "description": "Get info about a reminder. Required: reminder.",
+      "method": "GET",
+      "path": "/reminders.info",
+      "params": [
+        {
+          "name": "reminder",
+          "type": "string",
+          "location": "query",
+          "description": "Reminder ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reminders_list",
+      "description": "List all reminders for the authenticated user. Returns array of Reminder.",
+      "method": "GET",
+      "path": "/reminders.list",
+      "params": []
+    },
+    {
+      "name": "search_api_messages",
+      "description": "Search for messages matching a query. Required: query. Optional: count, page, sort (plus 1 more).",
+      "method": "GET",
+      "path": "/search.messages",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query (supports Slack search modifiers like from:, in:, has:)",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of results per page"
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number of results"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: score or timestamp"
+        },
+        {
+          "name": "sort_dir",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction: asc or desc"
+        }
+      ]
+    },
+    {
+      "name": "stars_add",
+      "description": "Star a message, file, or channel. Optional: channel, timestamp, file.",
+      "method": "POST",
+      "path": "/stars.add",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID (for starring the channel itself)"
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "body",
+          "description": "Message timestamp (for starring a message)"
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File ID (for starring a file)"
+        }
+      ]
+    },
+    {
+      "name": "stars_list",
+      "description": "List starred items. Optional: count, cursor. Returns array of StarItem.",
+      "method": "GET",
+      "path": "/stars.list",
+      "params": [
+        {
+          "name": "count",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "stars_remove",
+      "description": "Remove a star from an item. Optional: channel, timestamp, file.",
+      "method": "POST",
+      "path": "/stars.remove",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID"
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "body",
+          "description": "Message timestamp"
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File ID"
+        }
+      ]
+    },
+    {
+      "name": "team_access_logs",
+      "description": "Get workspace access logs (requires admin). Optional: count, page.",
+      "method": "GET",
+      "path": "/team.accessLogs",
+      "params": [
+        {
+          "name": "count",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of entries per page"
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "team_billable_info",
+      "description": "Get billable information for workspace users. Optional: user.",
+      "method": "GET",
+      "path": "/team.billableInfo",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by user ID"
+        }
+      ]
+    },
+    {
+      "name": "team_get",
+      "description": "Get information about the workspace.",
+      "method": "GET",
+      "path": "/team.info",
+      "params": []
+    },
+    {
+      "name": "team-integration-logs_team_integration_logs",
+      "description": "Gets the integration logs for the current team. Required: token. Optional: app_id, change_type, count (plus 3 more). Returns array of TeamIntegrationLogsTeamIntegrationLogsItem. (public)",
+      "method": "GET",
+      "path": "/team.integrationLogs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication token. Requires scope: `admin`",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter logs to this Slack app. Defaults to all logs."
+        },
+        {
+          "name": "change_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter logs with this change type. Defaults to all logs."
+        },
+        {
+          "name": "count",
+          "type": "string",
+          "location": "query",
+          "description": "Count"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "service_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter logs to this service. Defaults to all logs."
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Filter logs generated by this user’s actions. Defaults to all logs."
+        }
+      ]
+    },
+    {
+      "name": "team-profile-get_team_profile_get",
+      "description": "Retrieve a team's profile. Required: token. Optional: visibility. Returns the TeamProfileGetSuccessSchema. (public)",
+      "method": "GET",
+      "path": "/team.profile.get",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication token. Requires scope: `users.profile:read`",
+          "required": true
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by visibility."
+        }
+      ]
+    },
+    {
+      "name": "usergroups_create",
+      "description": "Create a new user group. Required: name. Optional: handle, description, channels.",
+      "method": "POST",
+      "path": "/usergroups.create",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the user group",
+          "required": true
+        },
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "body",
+          "description": "Mention handle (e.g., @team-leads)"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the group"
+        },
+        {
+          "name": "channels",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated channel IDs the group defaults to"
+        }
+      ]
+    },
+    {
+      "name": "usergroups_list",
+      "description": "List all user groups in the workspace. Optional: include_users, include_disabled. Returns array of Usergroup.",
+      "method": "GET",
+      "path": "/usergroups.list",
+      "params": [
+        {
+          "name": "include_users",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include user lists in response"
+        },
+        {
+          "name": "include_disabled",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include disabled user groups"
+        }
+      ]
+    },
+    {
+      "name": "usergroups_update",
+      "description": "Update an existing user group. Required: usergroup. Optional: name, handle, description.",
+      "method": "POST",
+      "path": "/usergroups.update",
+      "params": [
+        {
+          "name": "usergroup",
+          "type": "string",
+          "location": "body",
+          "description": "User group ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New name"
+        },
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "body",
+          "description": "New mention handle"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "New description"
+        }
+      ]
+    },
+    {
+      "name": "usergroups_users_list",
+      "description": "List users in a user group. Required: usergroup.",
+      "method": "GET",
+      "path": "/usergroups.users.list",
+      "params": [
+        {
+          "name": "usergroup",
+          "type": "string",
+          "location": "query",
+          "description": "User group ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usergroups_users_update",
+      "description": "Update the members of a user group. Required: usergroup, users.",
+      "method": "POST",
+      "path": "/usergroups.users.update",
+      "params": [
+        {
+          "name": "usergroup",
+          "type": "string",
+          "location": "body",
+          "description": "User group ID",
+          "required": true
+        },
+        {
+          "name": "users",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated list of user IDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usergroups-disable_usergroups_disable",
+      "description": "Disable an existing User Group. Required: usergroup. Optional: include_count. Returns the new UsergroupsDisableSchema. (public)",
+      "method": "POST",
+      "path": "/usergroups.disable",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "include_count",
+          "type": "bool",
+          "location": "body",
+          "description": "Include the number of users in the User Group."
+        },
+        {
+          "name": "usergroup",
+          "type": "string",
+          "location": "body",
+          "description": "The encoded ID of the User Group to disable.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usergroups-enable_usergroups_enable",
+      "description": "Enable a User Group. Required: usergroup. Optional: include_count. Returns the new UsergroupsEnableSchema. (public)",
+      "method": "POST",
+      "path": "/usergroups.enable",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "include_count",
+          "type": "bool",
+          "location": "body",
+          "description": "Include the number of users in the User Group."
+        },
+        {
+          "name": "usergroup",
+          "type": "string",
+          "location": "body",
+          "description": "The encoded ID of the User Group to enable.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get information about a user. Required: user.",
+      "method": "GET",
+      "path": "/users.info",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get_presence",
+      "description": "Get a user's online presence status. Required: user.",
+      "method": "GET",
+      "path": "/users.getPresence",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_list",
+      "description": "List all users in the workspace. Optional: limit, cursor. Returns array of User.",
+      "method": "GET",
+      "path": "/users.list",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of users to return"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "users_lookup_by_email",
+      "description": "Find a user by their email address. Required: email.",
+      "method": "GET",
+      "path": "/users.lookupByEmail",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email address to look up",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_profile_get",
+      "description": "Get a user's profile information. Optional: user.",
+      "method": "GET",
+      "path": "/users.profile.get",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User ID (defaults to authed user)"
+        }
+      ]
+    },
+    {
+      "name": "users_profile_set",
+      "description": "Set the user's profile fields. Optional: profile, name, value.",
+      "method": "POST",
+      "path": "/users.profile.set",
+      "params": [
+        {
+          "name": "profile",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object with profile fields to set"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of a single field to set"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value for the single field"
+        }
+      ]
+    },
+    {
+      "name": "users_set_presence",
+      "description": "Set the user's presence status. Required: presence.",
+      "method": "POST",
+      "path": "/users.setPresence",
+      "params": [
+        {
+          "name": "presence",
+          "type": "string",
+          "location": "body",
+          "description": "Either 'auto' or 'away'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users-conversations_users_conversations",
+      "description": "List conversations the calling user may access. Optional: token, user, types (plus 3 more). Returns array of ObjsConversation. (public)",
+      "method": "GET",
+      "path": "/users.conversations",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication token. Requires scope: `conversations:read`"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Browse conversations by a specific user ID's membership. Non-public channels are restricted to those where the calling user shares membership."
+        },
+        {
+          "name": "types",
+          "type": "string",
+          "location": "query",
+          "description": "Mix and match channel types by providing a comma-separated list of any combination of `public_channel`, `private_channel`, `mpim`, `im`"
+        },
+        {
+          "name": "exclude_archived",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to exclude archived channels from the list"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of items to return. Fewer than the requested number of items may be returned, even if the end of the list hasn't been reached. Must be an integer no larger than 1000."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate through collections of data by setting the `cursor` parameter to a `next_cursor` attribute returned by a previous request's `response_metadata`. Default value fetches the first 'page' of the collection. See [pagination](/docs/pagination) for more detail."
+        }
+      ]
+    },
+    {
+      "name": "users-delete-photo_users_delete_photo",
+      "description": "Delete the user profile photo. Required: token. Returns the new UsersDeletePhotoSchema. (public)",
+      "method": "POST",
+      "path": "/users.deletePhoto",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Authentication token. Requires scope: `users.profile:write`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users-identity_users_identity",
+      "description": "Get a user's identity. Optional: token. Returns array of UsersIdentityUsersIdentityItem. (public)",
+      "method": "GET",
+      "path": "/users.identity",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication token. Requires scope: `identity.basic`"
+        }
+      ]
+    },
+    {
+      "name": "users-set-active_users_set_active",
+      "description": "Marked a user as active. Deprecated and non-functional. Returns the new UsersSetActiveSchema. (public)",
+      "method": "POST",
+      "path": "/users.setActive",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "users-set-photo_users_set_photo",
+      "description": "Set the user profile photo. Required: token. Optional: crop_w, crop_x, crop_y (plus 1 more). Returns the new UsersSetPhotoSchema. (public)",
+      "method": "POST",
+      "path": "/users.setPhoto",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "crop_w",
+          "type": "string",
+          "location": "body",
+          "description": "Width/height of crop box (always square)"
+        },
+        {
+          "name": "crop_x",
+          "type": "string",
+          "location": "body",
+          "description": "X coordinate of top-left corner of crop box"
+        },
+        {
+          "name": "crop_y",
+          "type": "string",
+          "location": "body",
+          "description": "Y coordinate of top-left corner of crop box"
+        },
+        {
+          "name": "image",
+          "type": "string",
+          "location": "body",
+          "description": "File contents via `multipart/form-data`."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Authentication token. Requires scope: `users.profile:write`",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

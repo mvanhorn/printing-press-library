@@ -10,9 +10,8 @@ import (
 func newFeaturesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "features",
-		Short:       "List and create features",
-		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Short:       "Storefront configuration, feature toggles, and timer state",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 

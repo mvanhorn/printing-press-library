@@ -1,0 +1,4 @@
+bridge/node_modules/
+
+# local env loader with private project URL — never commit
+framer-env.sh

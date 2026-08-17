@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "discogs-pp-cli"
+display_name = "Discogs"
+description = "Every Discogs feature — plus a local price-history mirror the API doesn't keep, so you can watch your wantlist like a limit-order book, spot underpriced records, and track your collection's value over time."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/discogs-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+DISCOGS_TOKEN = true

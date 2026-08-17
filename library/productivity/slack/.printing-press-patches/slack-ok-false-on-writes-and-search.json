@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "slack-ok-false-on-writes-and-search",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Detect Slack's HTTP 200 {\"ok\":false} application errors on the command path — 53 generated write commands, live search, and per-record during import — and give them the documented exit code 5.",
+  "reason": "Slack signals application failure with HTTP 200 plus {\"ok\":false,\"error\":\"...\"}, so transport-level error handling never sees it. The generated write commands run detectPartialFailure, which looks for the Google-Ads-shaped partialFailureError field and does not recognise this shape, so the error envelope was printed as a successful result and the command exited 0 — a write to a nonexistent channel was indistinguishable from a delivered message. This is the command-path half of the defect: the reprint's own slack-ok-false-detection patch guards the sync loop (sync.go, archive_sync.go) and does not cover commands. Import was a third variant: it discarded the response body entirely, so a record Slack rejected counted as a success and an import where every record was rejected reported \"N succeeded, 0 failed\" and exited 0 — the exit-code plumbing already moved with `failed`, so detection was the only missing half. checkSlackAPIError wraps with apiErr so every caller matches the documented table (5 = API error) without touching call sites; returned bare, read paths happened to reach 5 anyway because they funnel back through classifyAPIError's default branch, while write paths returned directly and exited 1.",
+  "validated_outcome": "55 guard sites, covering every command in internal/cli that issues a write through the client (verified by enumerating write calls and asserting none lacks the guard). Two generated shapes needed matching: the standard one and the promoted_* variant, which puts a blank line between the write call and the error check. Unit tests assert the guard fires on ok:false with and without a needed scope, and that missing_scope names the scope and the reinstall hint. It does not fire under --dry-run or verify mode: those synthetic envelopes carry no ok field, confirmed by running every canvas and upload dry-run path and seeing normal output. `go build`, `go vet`, `gofmt`, `go test ./...` clean.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/search.go",
+    "internal/cli/import.go",
+    "internal/cli/*.go (53 generated write commands)"
+  ],
+  "upstream": "Same durable fix the reprint's sync-loop patch asks for, and the second time it has been patched by hand on this CLI: the generator should emit a response-envelope error hook for APIs that report failure in a 200 body. A per-spec `error_envelope` declaration (field path, truthiness, an access-denied code list) would let both the sync loop and every generated command fail generically, instead of each Slack-shaped CLI re-patching sync.go and then 53 command files by hand. Until then a reprint silently reintroduces this across the whole command surface."
+}

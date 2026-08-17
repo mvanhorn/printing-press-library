@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -21,25 +22,37 @@ func newMeGetInformationAboutTheUsersCurrentPlaybackCmd(flags *rootFlags) *cobra
 		Example:     "  spotify-pp-cli me get-information-about-the-users-current-playback",
 		Annotations: map[string]string{"pp:endpoint": "me.get-information-about-the-users-current-playback", "pp:method": "GET", "pp:path": "/me/player", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/me/player"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/me/player"
 			params := map[string]string{}
 			if flagMarket != "" {
-				params["market"] = fmt.Sprintf("%v", flagMarket)
+				params["market"] = formatCLIParamValue(flagMarket)
 			}
 			if flagAdditionalTypes != "" {
-				params["additional_types"] = fmt.Sprintf("%v", flagAdditionalTypes)
+				params["additional_types"] = formatCLIParamValue(flagAdditionalTypes)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "me", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "me", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
+				// PATCH (spotify-playback-204-no-content):
+				// Spotify returns 204 with an empty body when there is no
+				// active playback session; surface that as data, not an error.
+				if strings.Contains(err.Error(), "empty response body") {
+					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"is_playing": false,
+						"note":       "no active playback session (Spotify returned 204 No Content)",
+					}, flags)
+				}
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
@@ -75,7 +88,7 @@ func newMeGetInformationAboutTheUsersCurrentPlaybackCmd(flags *rootFlags) *cobra
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagMarket, "market", "", "Market")

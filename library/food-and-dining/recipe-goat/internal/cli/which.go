@@ -28,6 +28,35 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
+	{Command: "goat", Description: "Fetch and rank recipe candidates across curated sites by relevance, ratings, reviews, recency, and site trust", Group: "recipe search"},
+	{Command: "search", Description: "Search recipe titles across curated sites by dish, ingredient, or keyword without fetching full recipes", Group: "recipe search"},
+	{Command: "recipe get", Description: "Fetch and render a recipe URL with optional scaling, unit conversion, Markdown output, and USDA nutrition backfill", Group: "recipe"},
+	{Command: "recipe open", Description: "Open a saved recipe in the default browser", Group: "recipe"},
+	{Command: "recipe reviews", Description: "Show the review-derived modification digest placeholder for a saved recipe", Group: "recipe"},
+	{Command: "recipe cost", Description: "Estimate per-serving cost for a saved recipe", Group: "recipe"},
+	{Command: "trending", Description: "Show top recipes currently featured on curated recipe sites' homepages", Group: "recipe discovery"},
+	{Command: "sub", Description: "Look up culinary substitutions for an ingredient with context and vegan-friendly filters", Group: "ingredient substitutions"},
+	{Command: "trust list", Description: "List built-in per-site trust scores used by the cross-site recipe ranker", Group: "ranking trust"},
+	{Command: "trust set", Description: "Save a local per-site trust adjustment for ranker experimentation", Group: "ranking trust"},
+	{Command: "save", Description: "Fetch and save recipe URLs to the local cookbook with optional tags", Group: "cookbook"},
+	{Command: "cookbook list", Description: "List saved recipes in the local cookbook filtered by tag, site, or author", Group: "cookbook"},
+	{Command: "cookbook search", Description: "Full-text search saved recipes by title and ingredients, with include and exclude ingredient filters", Group: "cookbook search"},
+	{Command: "cookbook match", Description: "Find saved recipes you can make from pantry ingredients and an allowed missing-ingredient count", Group: "pantry cookbook"},
+	{Command: "cookbook tag", Description: "Attach one or more tags to a saved recipe", Group: "cookbook"},
+	{Command: "cookbook untag", Description: "Remove a tag from a saved recipe", Group: "cookbook"},
+	{Command: "cookbook remove", Description: "Remove a recipe from the local cookbook", Group: "cookbook"},
+	{Command: "tonight", Description: "Pick dinner from saved recipes by max cook time, recency, dietary filters, tag, and limit", Group: "meal planning"},
+	{Command: "meal-plan set", Description: "Plan a saved recipe for a date and meal slot", Group: "meal planning"},
+	{Command: "meal-plan show", Description: "Show planned meals over a date range or current week", Group: "meal planning"},
+	{Command: "meal-plan remove", Description: "Clear a planned meal slot", Group: "meal planning"},
+	{Command: "meal-plan shopping-list", Description: "Aggregate ingredients across planned meals into a shopping list grouped by aisle or exported as Markdown, text, or CSV", Group: "shopping list"},
+	{Command: "cook log", Description: "Log a cooking session with rating, notes, and optional date", Group: "cook log"},
+	{Command: "cook history", Description: "List past cooking sessions by recipe or time window", Group: "cook log"},
+	{Command: "sync", Description: "Sync API-backed resources to local SQLite for offline search and analysis", Group: "data"},
+	{Command: "export", Description: "Export API data as JSONL or JSON for backup, migration, or analysis", Group: "data"},
+	{Command: "import", Description: "Import records from JSONL by issuing API create or upsert calls, with dry-run preview support", Group: "data"},
+	{Command: "workflow archive", Description: "Sync all supported resources to the local store for offline access and search", Group: "data workflow"},
+	{Command: "workflow status", Description: "Show local archive status and sync state", Group: "data workflow"},
 	{Command: "foods get", Description: "Get a specific food by FDC ID", Group: "foods"},
 	{Command: "foods list", Description: "List foods paginated", Group: "foods"},
 	{Command: "foods search", Description: "Search USDA FoodData Central for foods matching a query", Group: "foods"},
@@ -136,14 +165,14 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{
 			"pp:typed-exit-codes": "0,2",
 		},
-		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.
+		Long: `which resolves a natural-language capability query (for example, "search recipes" or "ingredient substitution") to the best matching command from this CLI's curated feature index.
 
 Exit codes:
   0  at least one match found
   2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one`,
-		Example: `  recipe-goat-pp-cli which "stale tickets"
-  recipe-goat-pp-cli which "bottleneck"
-  recipe-goat-pp-cli which --limit 1 "send message"
+		Example: `  recipe-goat-pp-cli which "search recipes by ingredient"
+  recipe-goat-pp-cli which "substitute buttermilk"
+  recipe-goat-pp-cli which --limit 1 "shopping list"
   recipe-goat-pp-cli which                                # list the full capability index`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(whichIndex) == 0 {

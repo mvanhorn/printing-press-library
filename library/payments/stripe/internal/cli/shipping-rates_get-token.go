@@ -29,10 +29,12 @@ func newShippingRatesGetTokenCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/shipping_rates/{shipping_rate_token}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("shipping_rate_token is required\nUsage: %s <%s>", cmd.CommandPath(), "shipping_rate_token"))
 			}
-			path = replacePathParam(path, "shipping_rate_token", args[1])
+			path = replacePathParam(path, "shipping_rate_token", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

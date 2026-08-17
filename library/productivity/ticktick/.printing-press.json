@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-08T02:09:30.0737696Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "ticktick",
+  "display_name": "TickTick",
+  "cli_name": "ticktick-pp-cli",
+  "creator": {
+    "handle": "whoisharvey",
+    "name": "Harvey The AI Guy"
+  },
+  "owner": "whoisharvey",
+  "printer": "whoisharvey",
+  "printer_name": "Harvey The AI Guy",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:68682224ceb0bcd4de7e647fc6ed8ab6ed7802f2878af036ef7a5e0121503332",
+  "run_id": "20260707-201031-0987b304",
+  "category": "productivity",
+  "description": "Every TickTick surface — tasks, habits, focus, daily notes — with a corruption-proof daily-note contract and offline analytics no other TickTick tool has.",
+  "mcp_binary": "ticktick-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TICKTICK_SESSION_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Safe Daily-Note Edit",
+      "command": "note edit",
+      "description": "Edit your daily note's content with a corruption-proof contract — the command can never flip the note's task kind or break its subtasks."
+    },
+    {
+      "name": "Agenda",
+      "command": "agenda",
+      "description": "One command returns today's tasks, habits with checkin state, and focus sessions together."
+    },
+    {
+      "name": "Week-in-Review Data Pack",
+      "command": "review",
+      "description": "Gather a week of completed tasks, daily notes, focus totals, and habit checkins as one structured pack ready for synthesis."
+    },
+    {
+      "name": "Habit Streaks",
+      "command": "habits streaks",
+      "description": "Current streak, longest streak, and at-risk-today flags for every habit."
+    },
+    {
+      "name": "Focus Stats",
+      "command": "focus stats",
+      "description": "Focus/pomodoro time aggregated per day or per project over any window."
+    }
+  ]
+}

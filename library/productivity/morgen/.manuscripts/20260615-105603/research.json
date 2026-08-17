@@ -1,0 +1,31 @@
+{
+  "api_name": "morgen",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": null,
+  "patterns": null,
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Daily Agenda",
+      "command": "agenda",
+      "description": "Unified chronological day view merging calendar events and due tasks across all connected accounts.",
+      "rationale": "No single Morgen endpoint returns events and tasks together. agenda auto-discovers connected calendars, fans out /events/list across them for the chosen day, joins in /tasks/list items due that day, and sorts everything into one timeline — the view a daily planner actually needs.",
+      "example": "morgen-pp-cli agenda --date 2026-06-16",
+      "why_it_matters": "Reach for this to see everything on a day in one call instead of querying events per calendar and tasks separately.",
+      "group": "Cross-source synthesis"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Daily Agenda",
+      "command": "agenda",
+      "description": "Unified chronological day view merging calendar events and due tasks across all connected accounts.",
+      "rationale": "No single Morgen endpoint returns events and tasks together. agenda auto-discovers connected calendars, fans out /events/list across them for the chosen day, joins in /tasks/list items due that day, and sorts everything into one timeline — the view a daily planner actually needs.",
+      "example": "morgen-pp-cli agenda --date 2026-06-16",
+      "why_it_matters": "Reach for this to see everything on a day in one call instead of querying events per calendar and tasks separately.",
+      "group": "Cross-source synthesis"
+    }
+  ]
+}

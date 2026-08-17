@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "v0-model-usage-table",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260804-232309-9bd8d5ce",
+  "base_printing_press_version": "4.30.1",
+  "summary": "extras.go migration creates a model_usage(chat_id, model) table so spend --by model can attribute credit cost to model tiers for CLI-originated generations.",
+  "reason": "The v0 API never returns modelId in message responses, so per-model spend attribution requires recording the model at request time in a local table; without it spend --by model would always report unknown.",
+  "files": ["internal/store/extras.go"]
+}

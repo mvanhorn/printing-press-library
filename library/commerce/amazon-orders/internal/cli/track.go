@@ -44,8 +44,11 @@ JSON. For multi-shipment orders use --shipment-id.`,
 			if packageIndex > 0 {
 				params["packageIndex"] = fmt.Sprintf("%d", packageIndex)
 			}
-			raw, err := c.Get("/gp/your-account/ship-track", params)
+			raw, err := authenticatedGet(c, "/gp/your-account/ship-track", params)
 			if err != nil {
+				return classifyAPIError(err, flags)
+			}
+			if err := parser.AuthInterstitialError(raw); err != nil {
 				return classifyAPIError(err, flags)
 			}
 			track, perr := parser.ParseShipTrack(raw)

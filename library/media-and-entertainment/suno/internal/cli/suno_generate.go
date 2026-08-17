@@ -99,7 +99,6 @@ description-driven (non-custom) generation, use the 'generate describe' command 
 			if v := vocalTag(vocal); v != "" {
 				finalTags = appendTag(finalTags, v)
 			}
-			_ = exclude // negative_tags is always "" per upstream contract; --exclude is accepted but folded out.
 
 			variationVal, verr := variationPtr(variation)
 			if verr != nil {
@@ -111,6 +110,7 @@ description-driven (non-custom) generation, use the 'generate describe' command 
 				mv:             mv,
 				title:          title,
 				tags:           finalTags,
+				negativeTags:   strings.TrimSpace(exclude),
 				prompt:         resolvedLyrics,
 				instrumental:   instrumental,
 				personaID:      persona,
@@ -125,7 +125,7 @@ description-driven (non-custom) generation, use the 'generate describe' command 
 
 	cmd.Flags().StringVar(&title, "title", "", "Song title")
 	cmd.Flags().StringVar(&tags, "tags", "", "Style tags (comma-separated, e.g. \"synthwave, melodic\")")
-	cmd.Flags().StringVar(&exclude, "exclude", "", "Styles to exclude (accepted for compatibility; negative_tags is sent empty)")
+	cmd.Flags().StringVar(&exclude, "exclude", "", "Styles to exclude from the generation (comma-separated; sent as negative_tags)")
 	cmd.Flags().StringVar(&lyrics, "lyrics", "", "Lyrics for the song")
 	cmd.Flags().StringVar(&lyricsFile, "lyrics-file", "", "Read lyrics from this file")
 	cmd.Flags().StringVar(&model, "model", defaultGenerateModel, "Model: v5.5, v5, v4.5+, v4.5, v4, v3.5, v3, v2")

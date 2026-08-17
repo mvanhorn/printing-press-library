@@ -48,31 +48,57 @@ func storageDEKPath() string {
 	return filepath.Join(granolaSupportDir(), "storage.dek")
 }
 
+// encryptedCachePath is the layer-2 file whose presence tells us Granola
+// has written encrypted local storage on this machine at some point. It
+// duplicates granola.DefaultEncryptedCachePath for the same reason
+// granolaSupportDir duplicates workos.go's resolver: no import cycle.
+func encryptedCachePath() string {
+	return filepath.Join(granolaSupportDir(), "cache-v6.json.enc")
+}
+
+// keychainEntry is the seam tests replace. Production always uses
+// fetchKeychainEntry; tests swap in a stub so the classification branches
+// below can be exercised without shelling out to the real Keychain, which
+// would block on an approval prompt.
+var keychainEntry = fetchKeychainEntry
+
+func fileExists(p string) bool {
+	_, err := os.Stat(p)
+	return err == nil
+}
+
 // loadDEK performs the full two-tier unwrap:
 //
-//  1. shell out to /usr/bin/security to fetch the Keychain entry
+//  1. read storage.dek; if it is absent, classify why and stop
+//  2. shell out to /usr/bin/security to fetch the Keychain entry
 //     (Granola Safe Storage / Granola Key) - a base64 string
-//  2. PBKDF2-SHA1 derive a 16-byte AES-128 key with the base64 string
+//  3. PBKDF2-SHA1 derive a 16-byte AES-128 key with the base64 string
 //     as the password and Chromium's "saltysalt" / 1003 iterations
-//  3. AES-128-CBC decrypt storage.dek (skipping the "v10" prefix) with
+//  4. AES-128-CBC decrypt storage.dek (skipping the "v10" prefix) with
 //     a 16-byte ASCII-space IV; strip PKCS7 padding
-//  4. base64-decode the plaintext to recover the 32-byte DEK
+//  5. base64-decode the plaintext to recover the 32-byte DEK
 //
 // Returns ErrKeyUnavailable when the Keychain entry is missing or denied,
-// or storage.dek is absent. Returns ErrDecryptFailed when the envelope
-// is malformed (suggesting Granola changed the scheme).
+// or Granola is absent / pre-encryption. Returns ErrSchemeMigrated when
+// the observable state says Granola moved the DEK upstream. Returns
+// ErrDecryptFailed when the envelope is malformed (suggesting Granola
+// changed the scheme).
+//
+// PATCH(dek-migration): storage.dek is read before the Keychain entry so
+// that a machine with no key file to unwrap is classified from local
+// state without ever triggering the Keychain prompt.
 func loadDEK() ([]byte, error) {
-	keychainB64, err := fetchKeychainEntry()
-	if err != nil {
-		return nil, err
-	}
-
 	dekBlob, err := os.ReadFile(storageDEKPath())
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return nil, fmt.Errorf("%w: storage.dek not found at %s (Granola not installed or pre-encryption version)", ErrKeyUnavailable, storageDEKPath())
+			return nil, classifyMissingDEK()
 		}
 		return nil, fmt.Errorf("safestorage: read storage.dek: %w", err)
+	}
+
+	keychainB64, err := keychainEntry()
+	if err != nil {
+		return nil, err
 	}
 
 	if !bytes.HasPrefix(dekBlob, []byte(v10Prefix)) {
@@ -109,6 +135,56 @@ func loadDEK() ([]byte, error) {
 		return nil, fmt.Errorf("%w: storage.dek plaintext is not valid base64: %v", ErrDecryptFailed, err)
 	}
 	return dek, nil
+}
+
+// PATCH(dek-migration): classifyMissingDEK explains an absent storage.dek
+// from observable state alone. Never from a Granola version string -
+// version sniffing breaks on every release, and the same release ships to
+// machines in all of these states.
+//
+// The four signatures, in the order they are ruled out:
+//
+//	support dir absent                 -> Granola is not installed here
+//	no cache-v6.json.enc beside it     -> pre-encryption Granola build
+//	.enc present, Keychain unresolved  -> installed but not signed in
+//	.enc present, Keychain resolves    -> the DEK moved upstream
+//
+// The last one is the migration: Granola imported the DEK into its
+// entitlement-gated access group and then unlinked storage.dek, leaving
+// the legacy "Granola Safe Storage" entry behind. That entry resolving is
+// what separates a migrated install from a signed-out one.
+func classifyMissingDEK() error {
+	dir := granolaSupportDir()
+	if !fileExists(dir) {
+		return fmt.Errorf("%w: Granola support directory %s does not exist (Granola desktop is not installed for this user)", ErrKeyUnavailable, dir)
+	}
+	encPath := encryptedCachePath()
+	if !fileExists(encPath) {
+		return fmt.Errorf("%w: storage.dek not found at %s and no %s beside it (pre-encryption Granola build)", ErrKeyUnavailable, storageDEKPath(), filepath.Base(encPath))
+	}
+	if _, err := keychainEntry(); err != nil {
+		// Missing entry, denial, or timeout - fetchKeychainEntry has
+		// already classified it, and none of those are the migration.
+		return err
+	}
+	return newMigratedSchemeError(fmt.Sprintf(
+		"storage.dek is gone from %s while %s is still present and the %q Keychain item still resolves",
+		dir, filepath.Base(encPath), keychainSvc))
+}
+
+// PATCH(dek-migration): classifyStaleDEKFile reports the failed-migration
+// state - storage.dek still on disk next to an encrypted cache, but its
+// DEK no longer authenticates what Granola writes. Callers reach this only
+// after a GCM rejection on a key read off disk; see Decrypt.
+func classifyStaleDEKFile() error {
+	dekPath := storageDEKPath()
+	encPath := encryptedCachePath()
+	if !fileExists(dekPath) || !fileExists(encPath) {
+		return nil
+	}
+	return newMigratedSchemeError(fmt.Sprintf(
+		"storage.dek at %s unwraps cleanly but its DEK does not authenticate %s; Granola unlinks storage.dek only after a successful import, so this install migrated and left a stale key file behind",
+		dekPath, filepath.Base(encPath)))
 }
 
 // fetchKeychainEntry shells out to /usr/bin/security and returns the

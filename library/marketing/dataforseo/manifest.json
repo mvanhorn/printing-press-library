@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "dataforseo-pp-mcp",
+  "display_name": "Dataforseo Documentation",
+  "version": "4.11.0",
+  "description": "Dataforseo Documentation API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/dataforseo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/dataforseo-pp-mcp",
+      "args": [],
+      "env": {
+        "DATAFORSEO_PASSWORD": "${user_config.dataforseo_password}",
+        "DATAFORSEO_LOGIN": "${user_config.dataforseo_login}"
+      }
+    }
+  },
+  "user_config": {
+    "dataforseo_password": {
+      "type": "string",
+      "title": "DATAFORSEO_PASSWORD",
+      "description": "Sets DATAFORSEO_PASSWORD for the Dataforseo Documentation MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "dataforseo_login": {
+      "type": "string",
+      "title": "DATAFORSEO_LOGIN",
+      "description": "Sets DATAFORSEO_LOGIN for the Dataforseo Documentation MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

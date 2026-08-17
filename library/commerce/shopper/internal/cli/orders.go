@@ -1,11 +1,10 @@
 // Copyright 2026 educrvz and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written novel command: purchase history + month-over-month spend.
 //
-// PATCH: orders-history. The web "Histórico de compras" page reads
-// GET /orders/orders?size=N, an endpoint the generated spec never captured, so
-// the CLI had no way to see past orders or actual spend. This command adds it
-// and, because order totals are what the customer was charged, rolls them up
-// into a month-over-month spend table across one or both storefronts.
+// PATCH: orders-history. GET /orders/orders?size=N powers the web "Histórico de
+// compras" page and was never in the original sniffed spec. Added here with a
+// month-over-month spend rollup across all six Shopper storefronts.
+// pp:data-source live
 
 package cli
 
@@ -17,9 +16,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
-
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/client"
+	"github.com/spf13/cobra"
 )
 
 // order is one row of GET /orders/orders. Dates are "dd/mm/yyyy".
@@ -44,8 +42,8 @@ func newOrdersCmd(flags *rootFlags) *cobra.Command {
 		Long: `Reads your past orders from GET /orders/orders (the data behind the web
 "Histórico de compras" page) and rolls order totals into actual spend.
 
-Store-scoped: pass --store programada|fresh to pick a storefront. 'orders spend'
-defaults to reporting both side by side.`,
+Store-scoped: pass --store to pick a storefront. 'orders spend' queries all
+six storefronts by default (programada, fresh, pet, unica, now, now-bebidas).`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
@@ -54,8 +52,6 @@ defaults to reporting both side by side.`,
 	return cmd
 }
 
-// fetchOrders pulls the order history for whatever store the client's headers
-// currently target. size caps the page; the API returns newest-first.
 func fetchOrders(cmd *cobra.Command, c *client.Client, size int, flags *rootFlags) (ordersResponse, error) {
 	var out ordersResponse
 	params := map[string]string{"size": strconv.Itoa(size)}
@@ -75,7 +71,7 @@ func newOrdersHistoryCmd(flags *rootFlags) *cobra.Command {
 		Use:     "history",
 		Aliases: []string{"list", "ls"},
 		Short:   "List past orders for a store (date, delivery, amount, status)",
-		Example: "  shopper-pp-cli orders history --store fresh --size 20\n  shopper-pp-cli orders history --store programada --json",
+		Example: "  shopper-pp-cli orders history --store fresh --size 20\n  shopper-pp-cli orders history --store now --json",
 		Annotations: map[string]string{
 			"mcp:read-only":          "true",
 			"pp:no-error-path-probe": "true",
@@ -114,10 +110,9 @@ func newOrdersHistoryCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-// monthSpend accumulates one calendar month across storefronts.
 type monthSpend struct {
-	Month      string             `json:"month"` // "2026-04"
-	Label      string             `json:"label"` // "Apr/26"
+	Month      string             `json:"month"`
+	Label      string             `json:"label"`
 	ByStore    map[string]float64 `json:"by_store"`
 	Total      float64            `json:"total"`
 	OrderCount int                `json:"order_count"`
@@ -130,11 +125,9 @@ func newOrdersSpendCmd(flags *rootFlags) *cobra.Command {
 		Use:   "spend",
 		Short: "Month-over-month actual spend, by store",
 		Long: `Sums order totals by the month the order was placed and prints a
-month-over-month table. With no --store it queries all four Shopper storefronts
-(programada, fresh, pet, unica); stores with no spend in the window are hidden
-from the table (and named on stderr) but always present in --json. Pass --store
-to scope to one. Spend is bucketed by order date (when you were charged),
-matching the web purchase history.`,
+month-over-month table. With no --store it queries all six Shopper storefronts
+(programada, fresh, pet, unica, now, now-bebidas); stores with no spend in
+the window are hidden from the human table but always present in --json.`,
 		Example: "  shopper-pp-cli orders spend --months 12\n  shopper-pp-cli orders spend --store fresh --months 6 --json",
 		Annotations: map[string]string{
 			"mcp:read-only":          "true",
@@ -145,9 +138,6 @@ matching the web purchase history.`,
 				return usageErr(fmt.Errorf("--months must be positive"))
 			}
 
-			// Which storefronts to report. An explicit --store scopes to one;
-			// otherwise query all four Shopper storefronts so the report is
-			// complete for any account, regardless of which stores they use.
 			var storeNames []string
 			if flags.store != "" {
 				if _, ok := client.ResolveStore(flags.store); !ok {
@@ -163,7 +153,6 @@ matching the web purchase history.`,
 				return nil
 			}
 
-			// Build the ordered list of YYYY-MM month buckets ending this month.
 			now := time.Now()
 			buckets := lastNMonths(now, months)
 			idx := map[string]int{}
@@ -206,7 +195,6 @@ matching the web purchase history.`,
 				return printJSONFiltered(cmd.OutOrStdout(), ordersSpendView(storeNames, spend), flags)
 			}
 
-			// Per-store totals across the whole window (used to drop empty columns).
 			storeTotals := map[string]float64{}
 			for _, m := range spend {
 				for _, n := range storeNames {
@@ -214,9 +202,6 @@ matching the web purchase history.`,
 				}
 			}
 
-			// Human table: show only stores with spend in the window, so an
-			// account that uses 2 of the 4 stores still gets a clean 2-column
-			// table. The full four-store breakdown is always in --json.
 			shown := make([]string, 0, len(storeNames))
 			hidden := make([]string, 0, len(storeNames))
 			for _, n := range storeNames {
@@ -226,7 +211,7 @@ matching the web purchase history.`,
 					hidden = append(hidden, n)
 				}
 			}
-			if len(shown) == 0 { // every store empty: keep columns so the table isn't blank
+			if len(shown) == 0 {
 				shown = storeNames
 			}
 
@@ -257,8 +242,7 @@ matching the web purchase history.`,
 			}
 			fmt.Fprintf(cmd.ErrOrStderr(), "\nAvg/month over %d months: %s\n", months, formatBRL(grand/float64(months)))
 			if len(hidden) > 0 {
-				// No silent truncation: name the stores we queried but omitted.
-				fmt.Fprintf(cmd.ErrOrStderr(), "No spend over this window for: %s (queried, hidden from table; see --json for all 4).\n", strings.Join(hidden, ", "))
+				fmt.Fprintf(cmd.ErrOrStderr(), "No spend over this window for: %s (queried, hidden from table; see --json for all stores).\n", strings.Join(hidden, ", "))
 			}
 			return nil
 		},
@@ -268,7 +252,6 @@ matching the web purchase history.`,
 	return cmd
 }
 
-// ordersSpendView shapes the JSON payload for --json consumers.
 func ordersSpendView(stores []string, spend []monthSpend) map[string]any {
 	storeTotals := map[string]float64{}
 	var grand float64
@@ -293,16 +276,13 @@ func ordersSpendView(stores []string, spend []monthSpend) map[string]any {
 	}
 }
 
-// --- small parsing/formatting helpers (BRL + dd/mm/yyyy) ---
-
 func stripNBSP(s string) string { return strings.ReplaceAll(s, " ", " ") }
 
-// parseBRL turns "R$ 2.124,65" into 2124.65. Tolerant of NBSP and missing R$.
 func parseBRL(s string) float64 {
 	s = stripNBSP(s)
 	s = strings.ReplaceAll(s, "R$", "")
 	s = strings.TrimSpace(s)
-	s = strings.ReplaceAll(s, ".", "") // thousands sep
+	s = strings.ReplaceAll(s, ".", "")
 	s = strings.ReplaceAll(s, ",", ".")
 	v, err := strconv.ParseFloat(s, 64)
 	if err != nil {
@@ -311,7 +291,6 @@ func parseBRL(s string) float64 {
 	return v
 }
 
-// formatBRL renders 2124.65 as "2.124,65" (no currency symbol, table-friendly).
 func formatBRL(v float64) string {
 	neg := v < 0
 	if neg {
@@ -322,7 +301,6 @@ func formatBRL(v float64) string {
 	if i := strings.IndexByte(s, '.'); i >= 0 {
 		intPart, frac = s[:i], s[i+1:]
 	}
-	// group thousands with '.'
 	var b strings.Builder
 	n := len(intPart)
 	for i, ch := range intPart {
@@ -338,7 +316,6 @@ func formatBRL(v float64) string {
 	return out
 }
 
-// monthKeyFromBR maps "23/04/2026" -> "2026-04".
 func monthKeyFromBR(d string) (string, bool) {
 	parts := strings.Split(strings.TrimSpace(d), "/")
 	if len(parts) != 3 {
@@ -351,8 +328,6 @@ func monthKeyFromBR(d string) (string, bool) {
 	return yyyy + "-" + mm, true
 }
 
-// lastNMonths returns YYYY-MM keys for the n months ending in now's month,
-// oldest first.
 func lastNMonths(now time.Time, n int) []string {
 	keys := make([]string, 0, n)
 	y, m := now.Year(), int(now.Month())
@@ -370,7 +345,6 @@ func lastNMonths(now time.Time, n int) []string {
 
 var monthAbbr = [...]string{"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
 
-// monthLabel maps "2026-04" -> "Apr/26".
 func monthLabel(key string) string {
 	parts := strings.Split(key, "-")
 	if len(parts) != 2 {
@@ -383,10 +357,24 @@ func monthLabel(key string) string {
 	return fmt.Sprintf("%s/%s", monthAbbr[m], parts[0][2:])
 }
 
-// storeLabel normalizes an empty --store to its effective default for messages.
 func storeLabel(s string) string {
 	if s == "" {
 		return "programada (default)"
 	}
 	return s
+}
+
+func init() {
+	// Replace the generated orders promoted command (which only does a bare list)
+	// with the hand-written command that includes history + spend subcommands and
+	// supports all 6 storefronts.
+	registerNovelCommand(func(root *cobra.Command, flags *rootFlags) {
+		for _, c := range root.Commands() {
+			if c.Name() == "orders" {
+				root.RemoveCommand(c)
+				break
+			}
+		}
+		root.AddCommand(newOrdersCmd(flags))
+	})
 }

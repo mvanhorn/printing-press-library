@@ -11,6 +11,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -147,7 +148,7 @@ With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
 				"tracks":      toRemove,
 				"snapshot_id": snapshotID,
 			}
-			_, _, err = c.DeleteWithBody("/playlists/"+playlistID+"/tracks", body)
+			_, _, err = c.DeleteWithBody(context.Background(), "/playlists/"+playlistID+"/tracks", body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

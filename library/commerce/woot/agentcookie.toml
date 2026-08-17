@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "woot-pp-cli"
+display_name = "Woot"
+description = "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/woot-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY = true

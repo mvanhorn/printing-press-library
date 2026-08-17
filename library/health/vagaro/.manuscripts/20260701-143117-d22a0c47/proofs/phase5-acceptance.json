@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "vagaro",
+  "run_id": "20260701-143117-d22a0c47",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 14,
+  "tests_passed": 14,
+  "tests_skipped": 10,
+  "auth_context": {
+    "type": "none"
+  }
+}

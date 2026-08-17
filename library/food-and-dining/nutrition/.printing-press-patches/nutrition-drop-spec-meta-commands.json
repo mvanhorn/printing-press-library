@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "nutrition-drop-spec-meta-commands",
+  "applied_at": "2026-07-02",
+  "base_run_id": "20260702-105700",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Do not register the json-spec/yaml-spec promoted commands (kept as _ = newXCmd suppression).",
+  "reason": "USDA /v1/json-spec and /v1/yaml-spec serve the API's own OpenAPI document, not nutrition data; yaml-spec returns non-JSON that breaks agent JSON expectations and dogfood.",
+  "files": ["internal/cli/root.go"],
+  "validated_outcome": "Commands absent from help and MCP; live dogfood 83/83 clean.",
+  "upstream_issue": ""
+}

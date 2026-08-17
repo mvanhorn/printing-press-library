@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "bambu-studio-manual-cancel",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260711-063302-c519dd7c",
+  "base_printing_press_version": "4.28.0",
+  "summary": "A user stop from Bambu Studio must emit print.canceled even when H2D reports FAILED state and carries the cancel code in fail_reason rather than print_error.",
+  "reason": "H2D manual cancellation reports gcode_state FAILED, print_error 0, mc_print_error_code 0, and fail_reason 50348044. Checking only print_error misclassifies an explicit user cancellation as a printer failure.",
+  "files": [
+    "internal/bambu/types.go",
+    "internal/bambu/bambu_test.go"
+  ],
+  "validated_outcome": "The captured Studio-stop report emits exactly one canceled transition and suppresses the otherwise-derived failed transition."
+}

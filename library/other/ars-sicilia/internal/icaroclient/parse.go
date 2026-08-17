@@ -9,6 +9,12 @@ import (
 	"golang.org/x/net/html"
 )
 
+// docNoRe cattura il numero di documento stabile dal permalink che la pagina
+// di dettaglio costruisce in JavaScript. La short list non lo espone (lì c'è
+// solo `showDoc(N)`, cioè la posizione nella sessione), quindi il permalink si
+// può dare su `get` e non sulle righe di ricerca.
+var docNoRe = regexp.MustCompile(`docno\((\d+)\)`)
+
 // ParseShortList walks the `<ul id="shortListTable">` block, skips the header
 // `<li class="intestazione">` and returns one Record per data row. It also
 // extracts the total page count from the pagination block ("Pagina N di M").
@@ -53,10 +59,25 @@ func ParseDoc(body string, arc Archive, docID int) (Doc, error) {
 		DocID:  docID,
 		Fields: map[string]string{},
 	}
-	// Title node is usually the first h2/h3 inside the main content blocchi.
-	if t := firstTextOfTag(root, "h3"); t != "" {
-		doc.Title = collapseSpaces(t)
+	// Il numero di documento stabile non è in nessun campo della scheda: sta
+	// nello script che alimenta il bottone «Link diretto al documento», come
+	// `icaQuery=docno(9513)`. Si legge dall'HTML grezzo e non dall'albero
+	// perché è dentro il testo di uno <script>, dove non ci sono nodi da
+	// visitare.
+	if m := docNoRe.FindStringSubmatch(body); m != nil {
+		doc.DocNo, _ = strconv.Atoi(m[1])
 	}
+	// The doc page renders every field as a labeled block (see
+	// labeledBlocks). Lift them all into Fields — callers get "Firmatari",
+	// "Gruppo Parlamentare", "Argomenti" etc. as discrete values instead of
+	// having to dig them out of the flattened Body, where neighbouring
+	// blocks run together.
+	for k, v := range labeledBlocks(root) {
+		doc.Fields[k] = v
+	}
+	// The first <h3> on the page is the "Titolo" LABEL, not a page heading:
+	// take the value paired with it.
+	doc.Title = doc.Fields["Titolo"]
 	if doc.Title == "" {
 		if t := firstTextOfTag(root, "h2"); t != "" {
 			doc.Title = collapseSpaces(t)
@@ -133,13 +154,16 @@ func parseRow(li *html.Node, arc Archive, baseURL string) Record {
 			if excerpt := nthPText(div, 0); excerpt != "" && excerpt != rec.Title {
 				rec.Excerpt = collapseSpaces(excerpt)
 			}
-			// Save the raw column text too, minus the title which is already lifted.
-			if rec.Title != "" {
-				text = strings.TrimSpace(strings.TrimPrefix(text, rec.Title))
-				text = strings.TrimSpace(text)
-			}
+			// The Fields entry for this column takes its name from the column
+			// label (e.g. "Titolo", "Argomenti") — it must hold the title
+			// itself. Previously it held the raw div text with the title
+			// stripped out, i.e. the excerpt, which then masqueraded as the
+			// title in JSON/CSV output and in biblioteca's sync ID.
+			text = rec.Title
 		}
-		if text != "" {
+		// An unnamed column is a portal placeholder (see Archive.Columns):
+		// keep it out of Fields rather than emitting an "" key.
+		if colName != "" && text != "" {
 			rec.Fields[colName] = text
 		}
 	}
@@ -263,6 +287,45 @@ func collapseSpaces(s string) string {
 	return strings.Join(fields, " ")
 }
 
+// labeledBlocks collects the doc page's label -> value pairs. Every field is
+// rendered as a labeled block in one of two shapes: ".blocchi_info" wraps its
+// <h3> label in a ".title" div ("Titolo", "Iter"), while ".blocco" carries the
+// <h3> directly ("Firmatari", "Gruppo Parlamentare", "Argomenti", ...). Both
+// hold the value in a ".testo_gestionale" child. First occurrence of a label
+// wins, so a nested block cannot overwrite its parent.
+func labeledBlocks(root *html.Node) map[string]string {
+	out := map[string]string{}
+	walk(root, func(n *html.Node) {
+		if n.Type != html.ElementNode || n.Data != "div" {
+			return
+		}
+		if !hasClass(n, "blocchi_info") && !hasClass(n, "blocco") {
+			return
+		}
+		var label, value string
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			if c.Type != html.ElementNode {
+				continue
+			}
+			switch {
+			case c.Data == "h3":
+				label = collapseSpaces(textContent(c))
+			case c.Data == "div" && hasClass(c, "title"):
+				label = collapseSpaces(firstTextOfTag(c, "h3"))
+			case c.Data == "div" && hasClass(c, "testo_gestionale"):
+				value = collapseSpaces(textContent(c))
+			}
+		}
+		if label == "" || value == "" {
+			return
+		}
+		if _, exists := out[label]; !exists {
+			out[label] = value
+		}
+	})
+	return out
+}
+
 func firstTextOfTag(n *html.Node, tag string) string {
 	if n == nil {
 		return ""
@@ -326,4 +389,34 @@ func extractTotalPages(root *html.Node) int {
 		return found
 	}
 	return 1
+}
+
+// reResultCount cattura il totale dei documenti dal blocco `<ul id="resultsList">`
+// della pagina di apertura sessione, dove il portale scrive
+// `<h3 ...><a>Lista Documenti</a> (302)</h3>`.
+var reResultCount = regexp.MustCompile(`Lista Documenti\s*</a>\s*\(\s*(\d+)\s*\)`)
+
+// ParseResultCount legge il numero di documenti trovati dichiarato dal portale
+// nella pagina `default.jsp`, e dice se c'era.
+//
+// È il totale vero, non una stima: la stessa ricerca che qui dichiara 302 ne
+// restituisce 302 scaricandoli tutti (verificato su un deputato con 31 pagine di
+// cofirme). Il secondo valore distingue «zero documenti» da «il totale non c'è
+// in questa pagina»: senza, un parsing fallito diventerebbe un archivio vuoto.
+//
+// Si prende l'ULTIMA occorrenza, non la prima. Quel blocco è la cronologia della
+// sessione: il portale accumula una voce per ogni ricerca fatta («1. Disegni di
+// Legge», «2. …»), e la ricerca appena eseguita è in fondo. Leggendo la prima,
+// tre conteggi diversi nella stessa sessione tornavano tutti col numero della
+// prima ricerca — 302 per chiunque, un errore che si presenta come un dato.
+func ParseResultCount(body string) (int, bool) {
+	ms := reResultCount.FindAllStringSubmatch(body, -1)
+	if len(ms) == 0 {
+		return 0, false
+	}
+	n, err := strconv.Atoi(ms[len(ms)-1][1])
+	if err != nil {
+		return 0, false
+	}
+	return n, true
 }

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "crestron-auth-cookie-host-domain",
+  "applied_at": "2026-08-02",
+  "base_run_id": "20260802-132209-30c5fe35",
+  "base_printing_press_version": "4.30.0",
+  "summary": "Read Chrome cookies for host www.crestron.com rather than the apex domain crestron.com.",
+  "reason": "The forms-auth ticket .ASPXFORMSAUTH, plus ASP.NET_SessionId and CMSCsrfCookie, are scoped to the host www.crestron.com. Querying the apex domain returns only the .crestron.com-scoped cookies and misses the auth ticket entirely, so auth login --chrome failed with 'Cookie .ASPXFORMSAUTH not found' and firmware downloads stayed gated. spec.yaml carries the corrected cookie_domain so a regeneration inherits the fix; auth.go and doctor.go carry it for the already-generated tree.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/doctor.go",
+    "spec.yaml"
+  ],
+  "validated_outcome": "auth status reports Authenticated for domain www.crestron.com, and firmware release returns gated changelog text plus the direct .zip URL."
+}

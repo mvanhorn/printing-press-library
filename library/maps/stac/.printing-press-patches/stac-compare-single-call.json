@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "stac-compare-single-call",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260624-152026-b6ccb73c",
+  "base_printing_press_version": "4.25.0",
+  "summary": "compare uses one search call per collection instead of a separate count call.",
+  "reason": "compare made a limit=1 count call and then a limit=20 sample call per collection, but stacSearch already returns numberMatched alongside the sample page. Dropped the redundant count call, halving API requests against the public endpoint with no change to output.",
+  "files": ["internal/cli/compare.go"],
+  "validated_outcome": "go build ./... , go vet ./... , go test ./internal/cli/ pass; verify-skill matches shipped CLI source.",
+  "upstream_issue": ""
+}

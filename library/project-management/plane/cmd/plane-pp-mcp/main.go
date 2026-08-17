@@ -24,6 +24,9 @@ const (
 )
 
 func main() {
+	// Pin the learn-event surface for this process and every walker
+	// shell-out child, so usage events record surface=mcp.
+	_ = os.Setenv("PLANE_LEARN_SURFACE", "mcp")
 	s := server.NewMCPServer(
 		"Plane",
 		"1.0.0",

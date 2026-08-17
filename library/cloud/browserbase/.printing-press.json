@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-13T18:26:29.889886Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "browserbase",
+  "display_name": "Browserbase",
+  "cli_name": "browserbase-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "browserbase-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:e323e0149c9a5afd229b9ca30a276013891d5ebba2929b6c9480e6b5313a294d",
+  "run_id": "20260813-205859-c0b56b36",
+  "category": "cloud",
+  "description": "Every Browserbase cloud feature, plus session lifecycle control, local history, and usage analytics no other tool has.",
+  "mcp_binary": "browserbase-pp-mcp",
+  "mcp_tool_count": 51,
+  "mcp_ready": "full",
+  "api_version": "v1",
+  "auth_type": "api_key",
+  "auth_preference": "BrowserbaseAuth",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "auth_key_url": "https://www.browserbase.com/settings",
+  "novel_features": [
+    {
+      "name": "Orphaned-session sweeper",
+      "command": "sessions orphans",
+      "description": "Find running sessions that were never released (keepAlive orphans) and the runtime they're burning, then optionally stop them in batch. Requires `sync` first — an unsynced store returns an empty scan."
+    },
+    {
+      "name": "Safe session runner",
+      "command": "sessions run",
+      "description": "Create a session, print its connect URL, and guarantee it is released on completion, timeout, or interrupt."
+    },
+    {
+      "name": "Batch fetcher",
+      "command": "fetch batch",
+      "description": "Fetch a list of URLs with rate-limit pacing and a resumable checkpoint, so large scrape jobs survive interruptions."
+    },
+    {
+      "name": "Project digest",
+      "command": "projects digest",
+      "description": "See everything that ran in a project this week — sessions, agent runs, and downloads grouped by day — from the local store. Requires `sync` first; an unsynced store returns an empty digest."
+    },
+    {
+      "name": "Agent-run diff",
+      "command": "agents runs diff",
+      "description": "Compare two agent runs structurally — message sequences and final structured results — to see what changed between prompt iterations."
+    },
+    {
+      "name": "Usage trend",
+      "command": "usage trend",
+      "description": "Track per-project browserMinutes and proxyBytes over sync history and spot quota creep before the bill arrives. Requires `sync` first; an unsynced store returns an empty trend."
+    },
+    {
+      "name": "Web activity history",
+      "command": "web history",
+      "description": "Review past fetch and search calls with cached results, and re-emit a cached response without re-hitting the API. Requires `sync` first; an unsynced store returns an empty history."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Orphaned-session sweeper",
+      "command": "sessions orphans",
+      "description": "Find running sessions that were never released (keepAlive orphans) and the runtime they're burning, then optionally stop them in batch. Requires `sync` first — an unsynced store returns an empty scan."
+    },
+    {
+      "name": "Safe session runner",
+      "command": "sessions run",
+      "description": "Create a session, print its connect URL, and guarantee it is released on completion, timeout, or interrupt."
+    },
+    {
+      "name": "Batch fetcher",
+      "command": "fetch batch",
+      "description": "Fetch a list of URLs with rate-limit pacing and a resumable checkpoint, so large scrape jobs survive interruptions."
+    },
+    {
+      "name": "Project digest",
+      "command": "projects digest",
+      "description": "See everything that ran in a project this week — sessions, agent runs, and downloads grouped by day — from the local store. Requires `sync` first; an unsynced store returns an empty digest."
+    },
+    {
+      "name": "Agent-run diff",
+      "command": "agents runs diff",
+      "description": "Compare two agent runs structurally — message sequences and final structured results — to see what changed between prompt iterations."
+    },
+    {
+      "name": "Usage trend",
+      "command": "usage trend",
+      "description": "Track per-project browserMinutes and proxyBytes over sync history and spot quota creep before the bill arrives. Requires `sync` first; an unsynced store returns an empty trend."
+    },
+    {
+      "name": "Web activity history",
+      "command": "web history",
+      "description": "Review past fetch and search calls with cached results, and re-emit a cached response without re-hitting the API. Requires `sync` first; an unsynced store returns an empty history."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 85,
+    "total": 85,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 93,
+      "grade": "A",
+      "total": 93
+    }
+  }
+}

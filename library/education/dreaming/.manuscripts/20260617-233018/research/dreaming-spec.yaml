@@ -1,0 +1,289 @@
+openapi: 3.0.3
+info:
+  title: Dreaming
+  version: "1.0.0"
+  description: >-
+    Offline-first CLI for the Dreaming comprehensible-input language app
+    (Dreaming Spanish / French). Tracks hours, the L1-L7 fluency roadmap,
+    and the leveled video catalog via Dreaming's internal Netlify Functions API.
+servers:
+  - url: https://app.dreaming.com/.netlify/functions
+    description: Dreaming internal API (Netlify Functions)
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >-
+        Account bearer token. Copy it from app.dreaming.com localStorage key
+        'token', set DREAMING_TOKEN, or run 'auth login' (email/password).
+      x-auth-vars:
+        - name: DREAMING_TOKEN
+          kind: per_call
+          required: true
+          sensitive: true
+          description: Bearer token from app.dreaming.com localStorage 'token' or via 'auth login'.
+  schemas:
+    User:
+      type: object
+      properties:
+        email: {type: string}
+        name: {type: string}
+        watchTime: {type: integer, description: Total on-platform watch time in seconds}
+        externalTimeSeconds: {type: integer, description: Total logged external input in seconds}
+        dailyGoalSeconds: {type: integer, description: Daily goal in seconds}
+        Subscription:
+          type: object
+          properties:
+            status: {type: string}
+            currentPeriodEnd: {type: string}
+            cancelAtDateEnd: {type: boolean}
+    DayWatchedTime:
+      type: object
+      properties:
+        date: {type: string, description: YYYY-MM-DD}
+        timeSeconds: {type: integer}
+    ExternalTime:
+      type: object
+      properties:
+        _id: {type: string}
+        type: {type: string, description: "e.g. watching, initial"}
+        description: {type: string}
+        timeSeconds: {type: integer}
+        date: {type: string, description: YYYY-MM-DD}
+    ExternalTimeList:
+      type: object
+      properties:
+        externalTimes:
+          type: array
+          items: {$ref: '#/components/schemas/ExternalTime'}
+    Video:
+      type: object
+      properties:
+        _id: {type: string}
+        title: {type: string}
+        level: {type: string, description: superbeginner | beginner | intermediate | advanced}
+        difficulty: {type: integer, description: Fine-grained 1-100 difficulty rating}
+        dialect: {type: string, description: Spanish-speaking region / accent}
+        guide: {type: string, description: On-screen teacher/host}
+        subscription: {type: string, description: free | premium}
+        duration: {type: integer, description: Seconds}
+        topic: {type: string}
+        series: {type: string}
+    VideoList:
+      type: object
+      properties:
+        Videos:
+          type: array
+          items: {$ref: '#/components/schemas/Video'}
+    VideoDetail:
+      type: object
+      properties:
+        video:
+          type: object
+          properties:
+            _id: {type: string}
+            title: {type: string}
+            description: {type: string}
+            duration: {type: integer}
+            publishedAt: {type: string}
+            episodeNumber: {type: integer}
+            tags: {type: array, items: {type: string}}
+            guides: {type: array, items: {type: string}}
+            subtitles: {type: string, description: Full inline WEBVTT caption text}
+            sources:
+              type: object
+              properties:
+                bunny: {type: string, description: Signed HLS m3u8 master URL (no DRM)}
+                youtube: {type: string, description: YouTube video id for free videos}
+    PlaylistEntry:
+      type: object
+      properties:
+        videoId: {type: string}
+        addedDate: {type: string}
+    SignInRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: {type: string}
+        password: {type: string}
+    SignInResponse:
+      type: object
+      properties:
+        token: {type: string}
+paths:
+  /user:
+    get:
+      operationId: getUser
+      tags: [user]
+      summary: Get your account stats (hours, daily goal, subscription)
+      parameters:
+        - name: timezone
+          in: query
+          required: false
+          schema: {type: string}
+          description: IANA timezone (e.g. America/New_York) for day boundaries
+      responses:
+        '200':
+          description: User stats
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User'}
+  /dayWatchedTime:
+    get:
+      operationId: listDayWatchedTime
+      tags: [days]
+      summary: List per-day on-platform watch time
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema: {type: string}
+          description: Optional single day (YYYY-MM-DD); omit for full series
+      responses:
+        '200':
+          description: Daily watch-time series
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/DayWatchedTime'}
+  /externalTime:
+    get:
+      operationId: listExternalTime
+      tags: [external]
+      summary: List your external (outside-platform) input-time log entries
+      parameters:
+        - name: language
+          in: query
+          required: false
+          schema: {type: string, default: es, enum: [es, fr]}
+          description: Catalog/log language (es or fr)
+      responses:
+        '200':
+          description: External time entries
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExternalTimeList'}
+    post:
+      operationId: addExternalTime
+      tags: [external]
+      summary: Log an external input-time entry
+      parameters:
+        - name: language
+          in: query
+          required: false
+          schema: {type: string, default: es, enum: [es, fr]}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, timeSeconds]
+              properties:
+                date: {type: string, description: YYYY-MM-DD}
+                description: {type: string}
+                timeSeconds: {type: integer}
+                type: {type: string, default: watching}
+      responses:
+        '200':
+          description: Created entry
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExternalTime'}
+    delete:
+      operationId: deleteExternalTime
+      tags: [external]
+      summary: Delete an external input-time entry by id
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: {type: string}
+          description: External-time entry _id
+      responses:
+        '200':
+          description: Deleted
+  /videos:
+    get:
+      operationId: listVideos
+      tags: [videos]
+      summary: List the video catalog
+      parameters:
+        - name: language
+          in: query
+          required: false
+          schema: {type: string, default: es, enum: [es, fr]}
+      responses:
+        '200':
+          description: Catalog
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/VideoList'}
+  /video:
+    get:
+      operationId: getVideo
+      tags: [videos]
+      summary: Get a single video's metadata, captions, and stream sources
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: {type: string}
+          description: 24-hex video id
+      responses:
+        '200':
+          description: Video detail (includes inline WEBVTT subtitles and HLS source)
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/VideoDetail'}
+  /playlist:
+    get:
+      operationId: listPlaylist
+      tags: [playlist]
+      summary: List your watched-video playlist
+      responses:
+        '200':
+          description: Watched videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/PlaylistEntry'}
+  /inspectExternalVideo:
+    get:
+      operationId: inspectExternalVideo
+      tags: [external]
+      summary: Resolve a YouTube URL for external-time logging
+      parameters:
+        - name: videoUrl
+          in: query
+          required: true
+          schema: {type: string}
+          description: YouTube video URL to resolve
+      responses:
+        '200':
+          description: Resolved external-video metadata
+          content:
+            application/json:
+              schema: {type: object}
+  /signIn:
+    post:
+      operationId: signIn
+      tags: [auth]
+      summary: Exchange email/password for a bearer token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SignInRequest'}
+      responses:
+        '200':
+          description: Token
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SignInResponse'}

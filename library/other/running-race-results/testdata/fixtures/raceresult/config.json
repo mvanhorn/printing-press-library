@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "url": "https://my.raceresult.com/390537/results/config?lang=en",
+    "event": "17. REWE Team Challenge Dresden, 2026-06-17",
+    "eventId": 390537,
+    "capturedAt": "2026-06-18"
+  },
+  "key": "93941475da0e781fdf01c051062b7423",
+  "contests": {
+    "1": "REWE Team Challenge "
+  },
+  "splits": [],
+  "eventname": "17. REWE Team Challenge Dresden",
+  "EventOver": true,
+  "server": "my-us-1.raceresult.com",
+  "Tab": {
+    "URLName": "results",
+    "Type": "lists",
+    "Config": {
+      "Lists": [
+        {
+          "Name": "Ergebnislisten|internet-teams - Männer",
+          "Mode": "",
+          "Contest": "1",
+          "ShowAs": "Teamwertung - Männer-Teams",
+          "Format": "V",
+          "ID": "48B9A5"
+        },
+        {
+          "Name": "Ergebnislisten|internet-teams - Frauen",
+          "Mode": "",
+          "Contest": "1",
+          "ShowAs": "Teamwertung - Frauen-Teams",
+          "Format": "V",
+          "ID": "889783"
+        },
+        {
+          "Name": "Ergebnislisten|Internet-einzel - Frauen",
+          "Mode": "",
+          "Contest": "1",
+          "ShowAs": "Einzelwertung - Frauen",
+          "Format": "V",
+          "ID": "459D30"
+        },
+        {
+          "Name": "Ergebnislisten|Internet-einzel - Männer",
+          "Mode": "",
+          "Contest": "1",
+          "ShowAs": "Einzelwertung - Männer",
+          "Format": "V",
+          "ID": "CE0D5F"
+        }
+      ]
+    }
+  }
+}

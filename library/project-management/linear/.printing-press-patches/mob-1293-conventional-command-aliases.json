@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "mob-1293-conventional-command-aliases",
+  "applied_at": "2026-07-14",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Accept the conventional comment-create, issue-read, and document-read command phrases agents repeatedly try while retaining the compact canonical command surface.",
+  "reason": "Routine agent invocations repeatedly lose a turn to conventional but unsupported verbs. Hidden aliases should share the canonical handlers so body files, media, comma-separated reads, data-source selection, and output flags cannot drift.",
+  "files": [
+    "SKILL.md",
+    "README.md",
+    "internal/cli/comments.go",
+    "internal/cli/documents.go",
+    "internal/cli/helpers.go",
+    "internal/cli/issues.go",
+    "internal/cli/mob1293_aliases_test.go",
+    "internal/cli/which.go",
+    "internal/cli/which_test.go"
+  ],
+  "validated_outcome": "Regression tests prove comments create matches comments add for literal body files and repeated media, issue get/view/show preserve ordered comma reads and global flags, document get/view preserve positional reads, which routes conventional phrasing to canonical commands, and unsupported subcommands identify the invalid token."
+}

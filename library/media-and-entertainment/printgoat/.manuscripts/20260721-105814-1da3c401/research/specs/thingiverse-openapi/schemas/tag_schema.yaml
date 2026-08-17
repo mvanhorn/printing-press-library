@@ -1,0 +1,19 @@
+type: object
+properties:
+  name:
+    type: string
+    example: Benchy
+  url:
+    type: string
+    example: https://staging.thingiverse.com/tags/benchy
+  count:
+    type: integer
+    format: int
+    example: 76
+  things_url:
+    type: string
+    example: https://api.thingiverse.com/tags/benchy/things
+  absolute_url:
+    type: string
+    example: /tag:Benchy
+  
