@@ -12,7 +12,7 @@
     "type": "none",
     "api_key_available": true
   },
-  "source_fingerprint": "915c380f7aef2f906e5720917df132d9dca7e760662b4753444c55122756a2d9",
+  "source_fingerprint": "296c81007fcbaac490e3f923f5061b15df16679329065accca531490b974b8e3",
   "source_files": {
     "cmd/tiimo-pp-cli/main.go": "67ca5d16b68a3b21f99611f073991b60b1e5993074b4cfd95679a206b3999d07",
     "cmd/tiimo-pp-mcp/main.go": "9db75bfcf45a7a4e5fc3b2f02677dd0865630e05cf637000cf8b3835311932e1",
@@ -103,8 +103,8 @@
     "internal/cli/tiimo_fixtures.go": "cb6345fb6bcd1d1b315524060232915f27d913ff7380185919e59bd2a2d90c85",
     "internal/cli/tiimo_local.go": "b563728abf7686a26f4fdf82705556afb0bc3d75104310825787b63878cf8be4",
     "internal/cli/tiimo_profile.go": "9fa194d390349c40c7bcfe62c2fc52ec3ded47221ea2059129b2daf2dcde2a1e",
-    "internal/cli/tiimo_sync.go": "e612845d508be58a87688f7bce129ce613a8d3cefd04b393a97b820a8aaf0482",
-    "internal/cli/tiimo_sync_prune_test.go": "f86c9a239b31e4ee101a5a58897f1dbce9416f78ed19fab6e68231d84555c4f0",
+    "internal/cli/tiimo_sync.go": "ce0a2af455374769927913eece22c76c42fe14f6a179734859f5c4859a144693",
+    "internal/cli/tiimo_sync_prune_test.go": "f816cb47dfd64f3a12f0648e380882624c7aa48bce99fefb5484d47b50f70fc0",
     "internal/cli/tiimo_todo.go": "256bf485208e20a97c4969e5bb4e98679a13109345d9dad96aaa172fb5bb4b6b",
     "internal/cli/tiimo_write.go": "1b2c9a1110b02f1bd05e6a8cb09cedccaec4c0496ed1d23810a97e5c16e4418f",
     "internal/cli/todo_add.go": "eb39eaae9753a3c9ba0746fe985d8a07c2906963d3f5d0b06a33f0925915e22a",

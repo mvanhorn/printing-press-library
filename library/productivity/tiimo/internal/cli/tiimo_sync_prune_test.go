@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -130,22 +131,34 @@ func TestCanPruneOccurrencesGuards(t *testing.T) {
 	all := func(string) bool { return true }
 	ok := []syncResourceResult{{Resource: "activities", Status: "ok"}, {Resource: "calendar_events", Status: "ok"}}
 
-	if can, why := canPruneOccurrences(ok, all, 0); !can {
+	if can, why := canPruneOccurrences(ok, all, 0, false); !can {
 		t.Fatalf("clean run should prune, refused: %s", why)
 	}
-	if can, _ := canPruneOccurrences(ok, all, 5); can {
+	if can, _ := canPruneOccurrences(ok, all, 5, false); can {
 		t.Error("--max-pages truncation must block pruning")
 	}
 	failed := []syncResourceResult{{Resource: "activities", Status: "error"}, {Resource: "calendar_events", Status: "ok"}}
-	if can, _ := canPruneOccurrences(failed, all, 0); can {
+	if can, _ := canPruneOccurrences(failed, all, 0, false); can {
 		t.Error("a failed resource must block pruning")
 	}
+	calFailed := []syncResourceResult{{Resource: "activities", Status: "ok"}, {Resource: "calendar_events", Status: "error"}}
+	if can, _ := canPruneOccurrences(calFailed, all, 0, false); can {
+		t.Error("a failed calendar sync must block pruning: its occurrences are missing from the seen set")
+	}
 	onlyActivities := func(n string) bool { return n == "activities" }
-	if can, _ := canPruneOccurrences(ok, onlyActivities, 0); can {
+	if can, _ := canPruneOccurrences(ok, onlyActivities, 0, false); can {
 		t.Error("calendar events share the table; skipping them must block pruning")
 	}
 	missing := []syncResourceResult{{Resource: "activities", Status: "ok"}}
-	if can, _ := canPruneOccurrences(missing, all, 0); can {
+	if can, _ := canPruneOccurrences(missing, all, 0, false); can {
 		t.Error("a resource with no result must block pruning")
+	}
+	// --profile syncs one profile, so the seen set cannot account for the
+	// others -- and the sweep cannot be narrowed, because activity rows carry
+	// no profile column. Pruning here would delete other profiles' data.
+	if can, why := canPruneOccurrences(ok, all, 0, true); can {
+		t.Error("--profile makes the seen set partial and must block pruning")
+	} else if !strings.Contains(why, "--profile") {
+		t.Errorf("refusal should name --profile, got %q", why)
 	}
 }

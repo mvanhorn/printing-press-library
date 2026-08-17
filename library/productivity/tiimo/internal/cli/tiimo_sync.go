@@ -350,7 +350,7 @@ clears recorded sync state so freshness checks re-evaluate from scratch.`,
 			// Pruning deletes user-visible data, so it runs only when this run
 			// is a COMPLETE account of the window. Every precondition below is
 			// a way that assumption can break:
-			if pruneOK, why := canPruneOccurrences(results, selected, flagMaxPages); pruneOK {
+			if pruneOK, why := canPruneOccurrences(results, selected, flagMaxPages, strings.TrimSpace(flagProfile) != ""); pruneOK {
 				removed, pErr := pruneStaleOccurrences(st, from, to, seenOccurrences)
 				switch {
 				case pErr != nil:
@@ -618,6 +618,7 @@ func syncCalendarEvents(ctx context.Context, c apiGetter, st *store.Store, pid s
 	total := 0
 	attempted := 0
 	succeeded := 0
+	recordFailures := 0
 	var firstErr error
 	for _, cal := range cals {
 		if cal.CalendarID == "" || cal.Hidden || !cal.Connected {
@@ -654,10 +655,20 @@ func syncCalendarEvents(ctx context.Context, c apiGetter, st *store.Store, pid s
 			for date, items := range byDate {
 				for _, raw := range items {
 					keyed, key, err := occurrenceID(raw, date)
-					if err != nil {
-						continue
+					if err == nil {
+						err = st.UpsertActivities(keyed)
 					}
-					if err := st.UpsertActivities(keyed); err != nil {
+					if err != nil {
+						// Count it. These two steps used to `continue`
+						// silently, which let the function return success
+						// while some occurrences never entered the seen set --
+						// and pruning then deleted those rows as stale. A
+						// record this run failed to account for must make the
+						// run non-authoritative, exactly as in syncActivities.
+						recordFailures++
+						if firstErr == nil {
+							firstErr = err
+						}
 						continue
 					}
 					if seen != nil {
@@ -675,6 +686,9 @@ func syncCalendarEvents(ctx context.Context, c apiGetter, st *store.Store, pid s
 	// HTTP 500 (ArgumentNullException) for some linked calendars -- an upstream
 	// server fault, not a client error -- so treat it as a partial result when
 	// any other calendar was readable.
+	if recordFailures > 0 {
+		return total, fmt.Errorf("%d calendar event record(s) failed to store: %w", recordFailures, firstErr)
+	}
 	if attempted > 0 && succeeded == 0 && firstErr != nil {
 		return total, fmt.Errorf("every linked calendar failed: %w", firstErr)
 	}
@@ -762,7 +776,16 @@ type apiGetter interface {
 // why. Pruning is mark-and-sweep: anything the run did not see is treated as
 // gone upstream. That inference is only sound when the run actually looked
 // everywhere, so each guard below closes a specific way it could be wrong.
-func canPruneOccurrences(results []syncResourceResult, selected func(string) bool, maxPages int) (bool, string) {
+func canPruneOccurrences(results []syncResourceResult, selected func(string) bool, maxPages int, profileFiltered bool) (bool, string) {
+	if profileFiltered {
+		// --profile syncs ONE profile, so the seen set only accounts for that
+		// profile's occurrences -- but activity rows carry no profile column,
+		// so the sweep cannot be narrowed to match. Pruning here would delete
+		// every other profile's activities. This is the same hazard the
+		// union-across-profiles accumulation exists to avoid; --profile
+		// narrows the set being unioned, which puts the hole right back.
+		return false, "--profile limits the sync to one profile and activity rows are not profile-scoped"
+	}
 	if maxPages > 0 {
 		// --max-pages stops the window walk early, so unvisited days would
 		// look empty and every occurrence in them would look stale.
