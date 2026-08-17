@@ -397,8 +397,40 @@ func (s *Store) recordProviderFactsBestEffort(resourceType string, items []json.
 			}
 		}
 		if id == "" {
+			id = nestedContainerResourceID(resourceType, obj)
+		}
+		if id == "" {
 			continue
 		}
 		_, _ = s.RecordProviderFact(resourceType, id, item)
 	}
+}
+
+// nestedIDContainerKeys maps a resourceType to the key holding its real id
+// one level down, for single-object endpoint responses whose id doesn't sit
+// at the top level. unwrapIDBearingEnvelopeItem can't cover this case: it
+// requires exactly one object-valued top-level field, but classes_show's
+// response has many (ride, playlist, averages, segments, ...), only one of
+// which ("ride") carries the id.
+var nestedIDContainerKeys = map[string]string{
+	"classes": "ride",
+}
+
+// nestedContainerResourceID resolves an id nested one level down per
+// nestedIDContainerKeys, without disturbing the item that actually gets
+// cached: unlike unwrapIDBearingEnvelopeItem, the FULL outer object is what
+// gets stored (its sibling fields -- e.g. classes_show's top-level
+// "segments"/"averages" alongside "ride" -- are real content offline
+// readers need, e.g. offline_classes_structure, not envelope noise to
+// discard).
+func nestedContainerResourceID(resourceType string, obj map[string]any) string {
+	key, ok := nestedIDContainerKeys[resourceType]
+	if !ok {
+		return ""
+	}
+	inner, ok := obj[key].(map[string]any)
+	if !ok {
+		return ""
+	}
+	return ExtractResourceID(resourceType, inner)
 }

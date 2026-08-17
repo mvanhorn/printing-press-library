@@ -52,6 +52,57 @@ func TestUpsertBatchWithFacts_UnwrapsIDBearingEnvelopeItems(t *testing.T) {
 	}
 }
 
+// TestUpsertBatchWithFacts_ClassesShowNestedRideIDStillCaches guards a
+// round-9 live verification finding: classes_show's live response wraps its
+// real id under a top-level "ride" object ({"ride":{"id":"...",...},
+// "segments":{...},"averages":{...},...}) rather than exposing "id" at the
+// top level like the classes LIST endpoint's flat items do. The generic
+// unwrapIDBearingEnvelopeItem fallback can't help here -- it only fires when
+// exactly one top-level field is an object, and classes_show's response has
+// several (ride, playlist, averages, segments, ...). Before this fix,
+// EVERY classes_show call silently failed to cache -- confirmed live: 99
+// class ids present in `resources` (via the bulk classes sync) had no
+// corresponding provider_payloads row, and offline_classes_show/
+// offline_classes_structure/offline_intervals errored "stored catalog_classes
+// fact <id> not found" for every one of them, even after directly fetching
+// each one live via classes_show. nestedContainerResourceID must resolve the
+// id from obj["ride"]["id"] while still caching the FULL outer object (not
+// just the inner "ride" value) -- its sibling fields (segments, averages)
+// are exactly what offline_classes_structure/offline_intervals need and
+// aren't present at all in the classes LIST endpoint's flatter item shape.
+func TestUpsertBatchWithFacts_ClassesShowNestedRideIDStillCaches(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	item := json.RawMessage(`{"ride":{"id":"ride-nested-1","title":"30 min Pop Run"},"segments":{"segment_list":[{"id":"seg-1"}]},"averages":{"output":150}}`)
+	stored, extractFailures, err := s.UpsertBatchWithFacts("classes", []json.RawMessage{item})
+	if err != nil {
+		t.Fatalf("UpsertBatchWithFacts: %v", err)
+	}
+	if stored != 1 || extractFailures != 0 {
+		t.Fatalf("stored=%d extractFailures=%d, want stored=1 extractFailures=0", stored, extractFailures)
+	}
+
+	fact, err := s.GetProviderFact("classes", "ride-nested-1")
+	if err != nil {
+		t.Fatalf("GetProviderFact(classes, ride-nested-1): %v (nested ride.id not resolved, or resources/provider_payloads drifted)", err)
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(fact.Payload, &payload); err != nil {
+		t.Fatalf("unmarshal cached payload: %v", err)
+	}
+	if _, ok := payload["segments"]; !ok {
+		t.Fatalf("cached payload lost its \"segments\" sibling field -- must cache the full outer object, not just the inner \"ride\" value: %#v", payload)
+	}
+	if _, ok := payload["ride"]; !ok {
+		t.Fatalf("cached payload lost its \"ride\" field: %#v", payload)
+	}
+}
+
 // TestUpsertWithFacts_UsesCallerSuppliedID guards against
 // recordProviderFactsBestEffort's body-derived id resolution ever creeping
 // into UpsertWithFacts: callers of Upsert already know the id (sometimes,

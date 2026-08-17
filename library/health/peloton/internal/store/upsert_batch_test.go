@@ -312,6 +312,42 @@ func TestUpsertBatch_UnwrapsIDBearingEnvelopeItems(t *testing.T) {
 	}
 }
 
+// TestUpsertBatch_ClassesNestedRideIDStoresFullOuterObject is UpsertBatch's
+// counterpart to TestUpsertBatchWithFacts_ClassesShowNestedRideIDStillCaches
+// in peloton_test.go: the classes_show live response's id lives under
+// obj["ride"]["id"], which the generic unwrapIDBearingEnvelopeItem fallback
+// can't reach (it only fires for exactly one top-level object field;
+// classes_show's response has several). Before nestedContainerResourceID,
+// UpsertBatch also silently dropped these into `resources` -- the
+// "warning: 1/1 classes items returned but not cached locally" message a
+// round-9 report saw came from exactly this path, independent of (and
+// alongside) the provider_payloads gap in peloton_test.go's version.
+func TestUpsertBatch_ClassesNestedRideIDStoresFullOuterObject(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	item := json.RawMessage(`{"ride":{"id":"ride-nested-2","title":"45 min Ride"},"segments":{"segment_list":[]}}`)
+	stored, extractFailures, err := s.UpsertBatch("classes", []json.RawMessage{item})
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 1 || extractFailures != 0 {
+		t.Fatalf("stored=%d extractFailures=%d, want stored=1 extractFailures=0", stored, extractFailures)
+	}
+
+	row, err := s.Get("classes", "ride-nested-2")
+	if err != nil {
+		t.Fatalf("Get classes/ride-nested-2: %v (nested ride.id not resolved)", err)
+	}
+	if !strings.Contains(string(row), `"segments"`) {
+		t.Fatalf("stored row lost its \"segments\" sibling field -- must store the full outer object: %s", row)
+	}
+}
+
 func TestUpsertBatch_PreservesLargeIntegerResourceIDs(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)

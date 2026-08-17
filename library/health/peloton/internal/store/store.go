@@ -1450,6 +1450,9 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			}
 		}
 		if id == "" {
+			id = nestedContainerResourceID(resourceType, obj)
+		}
+		if id == "" {
 			skippedCount++
 			extractFailures++
 			continue
