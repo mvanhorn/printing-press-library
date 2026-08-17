@@ -9,6 +9,7 @@
 //	go run ./tools/release-ledger/main.go --init-missing
 //	go run ./tools/release-ledger/main.go --changed-from <sha> --changed-to <sha>
 //	go run ./tools/release-ledger/main.go --check --changed-from <sha> --changed-to <sha>
+//	go run ./tools/release-ledger/main.go --list-first-parent --changed-from <sha> --changed-to <sha>
 package main
 
 import (
@@ -64,15 +65,16 @@ type printingPressManifest struct {
 }
 
 type options struct {
-	initMissing  bool
-	check        bool
-	changedFrom  string
-	changedTo    string
-	releasedAt   time.Time
-	sourceCommit string
-	changeTitle  string
-	changePR     int
-	changeURL    string
+	initMissing     bool
+	check           bool
+	listFirstParent bool
+	changedFrom     string
+	changedTo       string
+	releasedAt      time.Time
+	sourceCommit    string
+	changeTitle     string
+	changePR        int
+	changeURL       string
 }
 
 type updateResult struct {
@@ -85,6 +87,16 @@ func main() {
 	opts, err := parseFlags()
 	if err != nil {
 		log.Fatal(err)
+	}
+	if opts.listFirstParent {
+		commits, err := firstParentCommits(opts.changedFrom, opts.changedTo)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, commit := range commits {
+			fmt.Println(commit)
+		}
+		return
 	}
 
 	results, err := run(opts)
@@ -117,6 +129,7 @@ func parseFlags() (options, error) {
 	var releasedAt string
 	flag.BoolVar(&opts.initMissing, "init-missing", false, "initialize CLIs missing release metadata")
 	flag.BoolVar(&opts.check, "check", false, "exit non-zero if the selected release ledger entries would change")
+	flag.BoolVar(&opts.listFirstParent, "list-first-parent", false, "list first-parent commits in the selected range")
 	flag.StringVar(&opts.changedFrom, "changed-from", "", "git ref to diff from when selecting changed CLIs")
 	flag.StringVar(&opts.changedTo, "changed-to", "", "git ref to diff to when selecting changed CLIs")
 	flag.StringVar(&releasedAt, "released-at", "", "release timestamp (RFC3339); defaults to now")
@@ -128,6 +141,9 @@ func parseFlags() (options, error) {
 
 	if opts.initMissing && (opts.changedFrom != "" || opts.changedTo != "") {
 		return opts, errors.New("--init-missing cannot be combined with --changed-from/--changed-to")
+	}
+	if opts.listFirstParent && (opts.initMissing || opts.check) {
+		return opts, errors.New("--list-first-parent cannot be combined with --init-missing/--check")
 	}
 	if !opts.initMissing && (opts.changedFrom == "" || opts.changedTo == "") {
 		return opts, errors.New("use --init-missing or provide both --changed-from and --changed-to")
@@ -229,6 +245,17 @@ func listCLIDirs(root string) ([]string, error) {
 	}
 	sort.Strings(dirs)
 	return dirs, nil
+}
+
+func firstParentCommits(from, to string) ([]string, error) {
+	out, err := gitOutput("rev-list", "--first-parent", "--reverse", from+".."+to)
+	if err != nil {
+		return nil, err
+	}
+	if out == "" {
+		return nil, nil
+	}
+	return strings.Split(out, "\n"), nil
 }
 
 func changedCLIKeys(from, to string) (map[string]bool, error) {
