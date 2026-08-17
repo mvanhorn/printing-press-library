@@ -94,6 +94,9 @@ func newSettingsDeleteWorkspaceCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["key"] = bodyKey
 				}
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 			data, statusCode, err := c.DeleteWithParamsAndBody(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyDeleteError(cmd.OutOrStdout(), err, flags)

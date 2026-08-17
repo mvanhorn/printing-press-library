@@ -57,6 +57,9 @@ func newObjectsRecordsDeleteWorkspacesCmd(flags *rootFlags) *cobra.Command {
 			if cmd.Flags().Changed("silent") || flagSilent != false {
 				params["silent"] = formatCLIParamValue(flagSilent)
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 			data, statusCode, err := c.DeleteWithParams(cmd.Context(), path, params)
 			if err != nil {
 				return classifyDeleteError(cmd.OutOrStdout(), err, flags)
