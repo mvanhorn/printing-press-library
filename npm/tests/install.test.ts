@@ -590,7 +590,7 @@ test("install command keeps public v0 names while using the vzero module path", 
         category: "ai",
         api: "v0",
         description: "Generate web apps with v0.",
-        path: "library/ai/vzero",
+        path: "library/ai/v0",
       },
     ],
   };
@@ -598,8 +598,9 @@ test("install command keeps public v0 names while using the vzero module path", 
   const skillCalls: string[] = [];
   const command = createInstallCommand({
     fetchRegistry: async () => v0Registry,
-    resolveModulePath: async () =>
-      "github.com/mvanhorn/printing-press-library/library/ai/vzero",
+    resolveModulePath: async () => {
+      throw new Error("v0 uses an install-module override before fetching go.mod");
+    },
     detectGo: async () => ({ installed: true }),
     goInstall: async (modulePath) => {
       goCalls.push(modulePath);
@@ -617,7 +618,7 @@ test("install command keeps public v0 names while using the vzero module path", 
 
   assert.equal(await command(["v0"]), 0);
   assert.deepEqual(goCalls, [
-    "github.com/mvanhorn/printing-press-library/library/ai/vzero/cmd/v0-pp-cli",
+    "github.com/mvanhorn/printing-press-library/library/ai/v0/vzero/cmd/v0-pp-cli",
   ]);
   assert.deepEqual(skillCalls, ["pp-v0"]);
 });

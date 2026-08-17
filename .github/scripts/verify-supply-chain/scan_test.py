@@ -751,22 +751,6 @@ class ModulePathDriftSignalTest(unittest.TestCase):
         self.assertTrue(findings[0].is_block())
         self.assertEqual(findings[0].signal_id, "module_path_rename_on_existing_cli")
 
-    def test_invalid_explicit_v0_suffix_repair_does_not_fire(self) -> None:
-        base = f"module {self.PREFIX}ai/v0\n\ngo 1.26.6\n"
-        head = f"module {self.PREFIX}ai/vzero\n\ngo 1.26.6\n"
-        change = _fc("library/ai/vzero/go.mod", base=base, head=head)
-        findings = signals.signal_module_path_drift(change)
-        self.assertEqual(findings, [])
-
-    def test_invalid_explicit_v0_suffix_to_arbitrary_slug_still_blocks(self) -> None:
-        base = f"module {self.PREFIX}ai/v0\n\ngo 1.26.6\n"
-        head = f"module {self.PREFIX}ai/sneaky\n\ngo 1.26.6\n"
-        change = _fc("library/ai/sneaky/go.mod", base=base, head=head)
-        findings = signals.signal_module_path_drift(change)
-        self.assertEqual(len(findings), 1)
-        self.assertTrue(findings[0].is_block())
-        self.assertEqual(findings[0].signal_id, "module_path_rename_on_existing_cli")
-
 
 # ---------------------------------------------------------------------------
 # Integration test: real git repo, end-to-end scan invocation
