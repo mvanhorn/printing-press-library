@@ -81,10 +81,25 @@ jobs:
             python3 .github/scripts/verify-skill/check_skill_guard_literals.py "$dir/SKILL.md"
           }
 
+          has_cli_source() {
+            local dir="$1"
+            if [ -d "$dir/internal/cli" ]; then return 0; fi
+            local count=0
+            shopt -s nullglob
+            local nested=("$dir"*/internal/cli)
+            shopt -u nullglob
+            for path in "${nested[@]}"; do
+              if [ -d "$path" ]; then
+                count=$((count + 1))
+              fi
+            done
+            [ "$count" -eq 1 ]
+          }
+
           verify_dir() {
             local dir="$1"
             if [ ! -f "$dir/SKILL.md" ]; then return; fi
-            if [ ! -d "$dir/internal/cli" ]; then return; fi
+            if ! has_cli_source "$dir"; then return; fi
             CLI_COUNT=$((CLI_COUNT + 1))
             echo "::group::$dir"
             check_skill_guard_literals "$dir"
@@ -135,7 +150,7 @@ jobs:
               .github/workflows/verify-skills.yml|.github/scripts/verify-skill/*)
                 run_verifier_tests
                 ;;
-              library/*/*/SKILL.md|library/*/*/internal/cli/*)
+              library/*/*/SKILL.md|library/*/*/internal/cli/*|library/*/*/*/internal/cli/*)
                 rest="${file#library/}"
                 category="${rest%%/*}"
                 rest="${rest#*/}"
