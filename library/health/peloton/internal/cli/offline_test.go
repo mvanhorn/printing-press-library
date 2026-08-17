@@ -369,15 +369,19 @@ func TestOfflineRepeatIncludesPerformanceFacts(t *testing.T) {
 // TestOfflineRepeatDefaultsToPerformanceSummaryUnlessFull guards NEW ISSUE
 // (offline_repeat payload size) from a seventh live post-fix verification
 // sweep: a real account's largest performance record was ~5MB, dominated by
-// per-second sample arrays (metrics: 522KB, location_data: 4.3MB,
+// per-second sample arrays (metrics[].values: 522KB, location_data: 4.3MB,
 // seconds_since_pedaling_start: 157KB) -- two workouts' worth of that
 // unconditionally embedded in offline_repeat's output (added the prior
 // round) routinely exceeded the 60KB MCP result budget, discarding almost
 // all of the comparative content behind a raw-text truncation fallback.
-// Default output must keep only the compact summary fields (well under
-// 15KB even for the largest real record); --full must still provide the
-// complete record for callers who actually want it and can accept the
-// size.
+// Default output must keep the compact summary fields (well under 15KB
+// even for the largest real record) plus each metric's aggregate fields
+// (average_value/max_value/zones[]) with only its "values" sample array
+// stripped -- an eighth round found the first version of this fix dropped
+// "metrics" wholesale, which cost the only real comparison signal for any
+// workout whose summaries/average_summaries are thin (non-power activities
+// like stretches or yoga). --full must still provide the complete record,
+// values arrays and all, for callers who actually want it.
 func TestOfflineRepeatDefaultsToPerformanceSummaryUnlessFull(t *testing.T) {
 	home := t.TempDir()
 	db, err := store.Open(filepath.Join(home, "data", "data.db"))
@@ -392,9 +396,10 @@ func TestOfflineRepeatDefaultsToPerformanceSummaryUnlessFull(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Mirrors the real API's field names: summaries/average_summaries are
-	// the compact, comparison-relevant aggregates; metrics is the large
-	// per-second sample array that must NOT appear by default.
-	perf := `{"summaries":[{"slug":"calories","value":400}],"average_summaries":[{"slug":"avg_pace","value":9.1}],"duration":1800,"metrics":[{"display_name":"Output","values":[1,2,3,4,5]}]}`
+	// the compact top-level aggregates; each metrics[] entry mixes small
+	// aggregate fields (average_value/max_value) that must survive by
+	// default with a "values" sample array that must not.
+	perf := `{"summaries":[{"slug":"calories","value":400}],"average_summaries":[{"slug":"avg_pace","value":9.1}],"duration":1800,"metrics":[{"display_name":"Heart Rate","average_value":141,"max_value":145,"values":[424242,424243,424244]}]}`
 	if _, err := db.RecordProviderFact("performance", "p1", json.RawMessage(perf)); err != nil {
 		t.Fatal(err)
 	}
@@ -413,8 +418,11 @@ func TestOfflineRepeatDefaultsToPerformanceSummaryUnlessFull(t *testing.T) {
 	if !strings.Contains(string(encoded), "avg_pace") {
 		t.Fatalf("default output dropped a summary field it should have kept: %s", encoded)
 	}
-	if strings.Contains(string(encoded), "Output") {
-		t.Fatalf("default output included the large per-second metrics field, defeating the whole point: %s", encoded)
+	if !strings.Contains(string(encoded), "Heart Rate") || !strings.Contains(string(encoded), "141") {
+		t.Fatalf("default output dropped metric aggregate fields it should have kept: %s", encoded)
+	}
+	if strings.Contains(string(encoded), "424242") {
+		t.Fatalf("default output included the large per-second metrics values array, defeating the whole point: %s", encoded)
 	}
 
 	got, err = executeOffline(t, home, "offline", "repeat", "p1", "p2", "--full")
@@ -422,7 +430,7 @@ func TestOfflineRepeatDefaultsToPerformanceSummaryUnlessFull(t *testing.T) {
 		t.Fatalf("offline repeat p1 p2 --full: %v", err)
 	}
 	encoded, _ = json.Marshal(got)
-	if !strings.Contains(string(encoded), "avg_pace") || !strings.Contains(string(encoded), "Output") {
+	if !strings.Contains(string(encoded), "avg_pace") || !strings.Contains(string(encoded), "424242") {
 		t.Fatalf("--full output should include both summary and per-second fields: %s", encoded)
 	}
 }
@@ -474,6 +482,13 @@ func TestOfflineIDCmdKeepsFieldsAtTopLevelRegardlessOfCaveat(t *testing.T) {
 	}
 	if _, ok := selData["samples"]; !ok {
 		t.Fatalf("--select samples returned nothing usable on a caveat-firing call: %#v", selData)
+	}
+	// An eighth round found --select silently dropped "caveats" even though
+	// it isn't in the requested field list -- caveats is metadata about the
+	// response (why a field is empty), not selectable content, and must
+	// survive projection unconditionally the same way "meta" already does.
+	if _, ok := selData["caveats"]; !ok {
+		t.Fatalf("--select dropped caveats, hiding why the selected field is empty: %#v", selData)
 	}
 
 	// newOfflineWorkoutCmd builds its own RunE rather than routing through

@@ -346,6 +346,21 @@ func printOffline(cmd *cobra.Command, flags *rootFlags, value any) error {
 		return err
 	}
 	data := json.RawMessage(raw)
+	// caveats is metadata about the response (why a field is empty/missing),
+	// not selectable content -- a --select projection that omits it silently
+	// discards the one thing explaining an otherwise-surprising empty field,
+	// inviting a caller to misread "no caveat mentioned" as "no data gap"
+	// rather than "I didn't ask to see it". Captured before filtering and
+	// restored unconditionally after, the same way "meta" already survives
+	// --select untouched.
+	var caveats json.RawMessage
+	if obj, ok := value.(map[string]any); ok {
+		if c, present := obj["caveats"]; present {
+			if raw, err := json.Marshal(c); err == nil {
+				caveats = raw
+			}
+		}
+	}
 	if flags.selectFields != "" {
 		data = filterFields(data, flags.selectFields)
 	} else if flags.compact {
@@ -354,6 +369,14 @@ func printOffline(cmd *cobra.Command, flags *rootFlags, value any) error {
 	var filteredValue any
 	if err := json.Unmarshal(data, &filteredValue); err != nil {
 		return err
+	}
+	if caveats != nil {
+		if obj, ok := filteredValue.(map[string]any); ok {
+			var c any
+			if err := json.Unmarshal(caveats, &c); err == nil {
+				obj["caveats"] = c
+			}
+		}
 	}
 	envelope, err := json.Marshal(map[string]any{"meta": map[string]any{"source": "local", "network": false}, "data": filteredValue})
 	if err != nil {
@@ -674,13 +697,52 @@ func normalKey(key string) string {
 }
 
 // performanceSummaryFields are the compact, comparison-relevant fields of a
-// "performance" record -- confirmed against the largest real record on a
-// live account: together well under 15KB even for a multi-hour workout.
-// Everything else in that same record was per-second sample data (metrics:
-// 522KB, location_data: 4.3MB, seconds_since_pedaling_start: 157KB) --
-// exactly the fields offline_repeat's default output must NOT include, or
-// two workouts' worth vastly exceeds the MCP result budget.
+// "performance" record copied verbatim -- confirmed against the largest
+// real record on a live account: together well under 15KB even for a
+// multi-hour workout. "metrics" is handled separately by
+// stripMetricSampleValues below rather than listed here, since only part of
+// it (each entry's "values" array) is the bulky per-second data; the rest
+// (average_value/max_value/zones[] durations) is exactly the aggregate
+// comparison signal offline_repeat needs, especially for any workout whose
+// summaries/average_summaries are thin (e.g. non-power activities like
+// stretches or yoga). location_data and seconds_since_pedaling_start are
+// dropped entirely -- pure per-second sample arrays with no aggregate form
+// (confirmed live: location_data 4.3MB, seconds_since_pedaling_start 157KB
+// on the largest real record) -- along with any other unlisted field.
 var performanceSummaryFields = []string{"summaries", "average_summaries", "duration", "effort_zones", "splits_data", "splits_metrics", "summary_available"}
+
+// stripMetricSampleValues copies a performance record's "metrics" array,
+// dropping each entry's "values" field (the per-second sample array, e.g.
+// 300 points for a 5-minute segment, far more for a long ride) while
+// keeping its aggregate fields (average_value, max_value, zones[] with
+// per-zone durations) intact. Those aggregates are the real comparison
+// signal offline_repeat exists to surface -- dropping "metrics" wholesale,
+// as an earlier version of this allowlist did, kept the size win but cost
+// the comparison itself for any workout without rich summaries/
+// average_summaries.
+func stripMetricSampleValues(metrics any) any {
+	arr, ok := metrics.([]any)
+	if !ok {
+		return metrics
+	}
+	out := make([]any, len(arr))
+	for i, m := range arr {
+		obj, ok := m.(map[string]any)
+		if !ok {
+			out[i] = m
+			continue
+		}
+		trimmed := make(map[string]any, len(obj))
+		for k, v := range obj {
+			if k == "values" {
+				continue
+			}
+			trimmed[k] = v
+		}
+		out[i] = trimmed
+	}
+	return out
+}
 
 // repeatFact builds one side of offline_repeat's comparison: the workout's
 // id, recorded date, and its stored performance record, when available.
@@ -719,13 +781,16 @@ func repeatFact(cmd *cobra.Command, id string, full bool) any {
 		out["performance"] = payload
 		return out
 	}
-	summary := make(map[string]any, len(performanceSummaryFields))
+	summary := make(map[string]any, len(performanceSummaryFields)+1)
 	for _, key := range performanceSummaryFields {
 		if v, present := obj[key]; present {
 			summary[key] = v
 		}
 	}
+	if metrics, present := obj["metrics"]; present {
+		summary["metrics"] = stripMetricSampleValues(metrics)
+	}
 	out["performance"] = summary
-	out["performance_note"] = "summary fields only; pass --full for the complete raw record (may be several MB for long workouts)"
+	out["performance_note"] = "summary fields plus per-metric aggregates (each metric's per-second \"values\" array is stripped); pass --full for the complete raw record (may be several MB for long workouts)"
 	return out
 }
