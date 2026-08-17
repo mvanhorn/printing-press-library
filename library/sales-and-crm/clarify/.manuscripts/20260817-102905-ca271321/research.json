@@ -1,0 +1,243 @@
+{
+  "api_name": "clarify",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "clarifyhq/skills",
+      "url": "https://github.com/clarifyhq/skills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-17T14:45:00Z",
+  "novel_features": [
+    {
+      "name": "Meeting prep pack",
+      "command": "prep",
+      "description": "One command before a call: the meeting's attendees, their company, open deals, and transcript excerpts from past meetings with that company.",
+      "rationale": "Assembled from the local mirror with transcript full-text search; Clarify's hosted MCP needs four to six online calls for the same picture.",
+      "example": "clarify-pp-cli prep --next --agent",
+      "why_it_matters": "Reach for this when the task is preparing for one specific upcoming meeting rather than fetching raw records. Requires a synced local mirror (sync --resources resources --path-context object=\u003ctype\u003e first).",
+      "group": "Rituals the CRM knows but cannot run"
+    },
+    {
+      "name": "Morning briefing",
+      "command": "brief",
+      "description": "Start-of-day overview: today's meetings joined to their companies, open deals, and yesterday's record activity, on one screen.",
+      "rationale": "Cross-entity join across meetings, companies, deals, and activities in local SQLite; the API has no analytics or briefing endpoint.",
+      "example": "clarify-pp-cli brief --json",
+      "why_it_matters": "Use this for a whole-day overview; use prep for a single meeting. Requires a synced local mirror (sync --resources resources --path-context object=\u003ctype\u003e first).",
+      "group": "Rituals the CRM knows but cannot run"
+    },
+    {
+      "name": "Follow-up gaps",
+      "command": "followup",
+      "description": "The dropped-ball list: meetings with no subsequent activity, comment, or task on the linked deal or company.",
+      "rationale": "A local anti-join the upstream API cannot express (no OR across fields, no gap queries).",
+      "example": "clarify-pp-cli followup --since 7d --json",
+      "why_it_matters": "Run it after a busy week to find meetings that never got a follow-up; --no-deal also surfaces companies with meetings but no open deal. Requires a synced local mirror (sync --resources resources --path-context object=\u003ctype\u003e first).",
+      "group": "Rituals the CRM knows but cannot run"
+    },
+    {
+      "name": "Stale-deal report",
+      "command": "stale",
+      "description": "Open deals with no activity in N days, grouped by pipeline stage.",
+      "rationale": "Aggregates over record update timestamps in the local mirror; Clarify's API ships no analytics endpoints.",
+      "example": "clarify-pp-cli stale --days 14 --json",
+      "why_it_matters": "The Monday pipeline-review question answered in one command instead of a CSV export. Requires a synced local mirror (sync --resources resources --path-context object=\u003ctype\u003e first).",
+      "group": "Pipeline analytics the API does not have"
+    },
+    {
+      "name": "Record dossier",
+      "command": "dossier",
+      "description": "A complete background bundle on any record: fields, relationships, activities, comments, and related meetings with transcript references, in one compact payload.",
+      "rationale": "Replaces the hosted MCP's multi-call chain with a single local-first command shaped for agent context windows.",
+      "example": "clarify-pp-cli dossier 5f8b7d2e-9c4a-4e1b-8f3d-2a6c9e0b4d71 --agent --select record,related",
+      "why_it_matters": "The one-call answer to 'tell me everything about this person/company/deal' — use prep instead when the subject is a specific upcoming meeting. Requires a synced local mirror.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Pipeline velocity",
+      "command": "velocity",
+      "description": "Per-stage dwell time and stage-to-stage conversion counts, accrued from a local stage-history table across repeated runs (the first run reports the current stage distribution).",
+      "rationale": "Computed from a stage-snapshot table maintained at sync time — history no Clarify surface keeps.",
+      "example": "clarify-pp-cli velocity --json",
+      "why_it_matters": "Answers 'how long do deals sit in each stage' without exporting anything to a spreadsheet. Requires a synced local mirror; dwell and conversion analytics build up as you re-run sync and velocity over time.",
+      "group": "Pipeline analytics the API does not have"
+    },
+    {
+      "name": "Duplicate finder",
+      "command": "dupes",
+      "description": "Finds likely duplicate people or companies by shared email, domain, or normalized name, and prints ready-to-run merge commands.",
+      "rationale": "Local GROUP BY over the mirror paired with Clarify's record-merges endpoint; the auto-capture engine makes dupes inevitable.",
+      "example": "clarify-pp-cli dupes --type person --json",
+      "why_it_matters": "Weekly hygiene sweep for auto-built CRM data; each finding comes with the exact merge invocation to fix it. Requires a synced local mirror (sync --resources resources --path-context object=\u003ctype\u003e first).",
+      "group": "Pipeline analytics the API does not have"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Meeting prep pack",
+      "command": "prep",
+      "description": "One command before a call: the meeting's attendees, their company, open deals, and transcript excerpts from past meetings with that company.",
+      "rationale": "Assembled from the local mirror with transcript full-text search; Clarify's hosted MCP needs four to six online calls for the same picture.",
+      "example": "clarify-pp-cli prep --next --agent",
+      "why_it_matters": "Reach for this when the task is preparing for one specific upcoming meeting rather than fetching raw records. Requires a synced local mirror (sync --resources resources --path-context object=\u003ctype\u003e first).",
+      "group": "Rituals the CRM knows but cannot run"
+    },
+    {
+      "name": "Morning briefing",
+      "command": "brief",
+      "description": "Start-of-day overview: today's meetings joined to their companies, open deals, and yesterday's record activity, on one screen.",
+      "rationale": "Cross-entity join across meetings, companies, deals, and activities in local SQLite; the API has no analytics or briefing endpoint.",
+      "example": "clarify-pp-cli brief --json",
+      "why_it_matters": "Use this for a whole-day overview; use prep for a single meeting. Requires a synced local mirror (sync --resources resources --path-context object=\u003ctype\u003e first).",
+      "group": "Rituals the CRM knows but cannot run"
+    },
+    {
+      "name": "Follow-up gaps",
+      "command": "followup",
+      "description": "The dropped-ball list: meetings with no subsequent activity, comment, or task on the linked deal or company.",
+      "rationale": "A local anti-join the upstream API cannot express (no OR across fields, no gap queries).",
+      "example": "clarify-pp-cli followup --since 7d --json",
+      "why_it_matters": "Run it after a busy week to find meetings that never got a follow-up; --no-deal also surfaces companies with meetings but no open deal. Requires a synced local mirror (sync --resources resources --path-context object=\u003ctype\u003e first).",
+      "group": "Rituals the CRM knows but cannot run"
+    },
+    {
+      "name": "Stale-deal report",
+      "command": "stale",
+      "description": "Open deals with no activity in N days, grouped by pipeline stage.",
+      "rationale": "Aggregates over record update timestamps in the local mirror; Clarify's API ships no analytics endpoints.",
+      "example": "clarify-pp-cli stale --days 14 --json",
+      "why_it_matters": "The Monday pipeline-review question answered in one command instead of a CSV export. Requires a synced local mirror (sync --resources resources --path-context object=\u003ctype\u003e first).",
+      "group": "Pipeline analytics the API does not have"
+    },
+    {
+      "name": "Record dossier",
+      "command": "dossier",
+      "description": "A complete background bundle on any record: fields, relationships, activities, comments, and related meetings with transcript references, in one compact payload.",
+      "rationale": "Replaces the hosted MCP's multi-call chain with a single local-first command shaped for agent context windows.",
+      "example": "clarify-pp-cli dossier 5f8b7d2e-9c4a-4e1b-8f3d-2a6c9e0b4d71 --agent --select record,related",
+      "why_it_matters": "The one-call answer to 'tell me everything about this person/company/deal' — use prep instead when the subject is a specific upcoming meeting. Requires a synced local mirror.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Pipeline velocity",
+      "command": "velocity",
+      "description": "Per-stage dwell time and stage-to-stage conversion counts, accrued from a local stage-history table across repeated runs (the first run reports the current stage distribution).",
+      "rationale": "Computed from a stage-snapshot table maintained at sync time — history no Clarify surface keeps.",
+      "example": "clarify-pp-cli velocity --json",
+      "why_it_matters": "Answers 'how long do deals sit in each stage' without exporting anything to a spreadsheet. Requires a synced local mirror; dwell and conversion analytics build up as you re-run sync and velocity over time.",
+      "group": "Pipeline analytics the API does not have"
+    },
+    {
+      "name": "Duplicate finder",
+      "command": "dupes",
+      "description": "Finds likely duplicate people or companies by shared email, domain, or normalized name, and prints ready-to-run merge commands.",
+      "rationale": "Local GROUP BY over the mirror paired with Clarify's record-merges endpoint; the auto-capture engine makes dupes inevitable.",
+      "example": "clarify-pp-cli dupes --type person --json",
+      "why_it_matters": "Weekly hygiene sweep for auto-built CRM data; each finding comes with the exact merge invocation to fix it. Requires a synced local mirror (sync --resources resources --path-context object=\u003ctype\u003e first).",
+      "group": "Pipeline analytics the API does not have"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "CLARIFY_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Clarify",
+    "headline": "Every Clarify API operation as a typed command, plus the morning briefing, meeting prep, and pipeline analytics the autonomous CRM knows about but cannot run.",
+    "value_prop": "Clarify auto-builds your CRM from email, calendar, and meetings, but its only programmatic surfaces are a hosted MCP server and raw curl. This CLI covers all 75 API operations with the api-key auth scheme and JSON:API envelope handled natively, keeps a local SQLite mirror with transcript full-text search, and adds commands like prep, brief, followup, and dossier that no Clarify surface offers.",
+    "auth_narrative": "Clarify authenticates with an API key sent as `Authorization: api-key \u003ckey\u003e` — not a Bearer token. Create a Personal key in Clarify under Settings, API Keys, then set `CLARIFY_API_KEY` to the raw key; the CLI adds the `api-key` scheme prefix for you. Every request is scoped to a workspace slug (visible in your Clarify login URL); set it once with `CLARIFY_WORKSPACE` or the config file.",
+    "quickstart": [
+      {
+        "command": "clarify-pp-cli doctor --dry-run",
+        "comment": "verify the binary, config, and auth wiring before touching the API"
+      },
+      {
+        "command": "clarify-pp-cli sync --resources resources --path-context object=deal",
+        "comment": "mirror one object type locally; repeat with object=person, company, meeting, task to mirror them all"
+      },
+      {
+        "command": "clarify-pp-cli brief",
+        "comment": "start-of-day overview: today's meetings, their companies, and open deals"
+      },
+      {
+        "command": "clarify-pp-cli stale --days 14 --json",
+        "comment": "deals going cold, grouped by stage"
+      },
+      {
+        "command": "clarify-pp-cli search \"acme\" --limit 10",
+        "comment": "full-text search across everything synced, including meeting transcripts"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Invalid API key even though the key is correct",
+        "fix": "Clarify keys are workspace-scoped: confirm CLARIFY_WORKSPACE matches the workspace the key was created in, and that the key is a Personal key from Settings, API Keys."
+      },
+      {
+        "symptom": "Multi-value fields like email_addresses fail to write",
+        "fix": "Collection fields take {\"items\": [...]} — pass --email-addresses as a JSON object with an items array, not a bare list."
+      },
+      {
+        "symptom": "429 Too Many Requests during imports",
+        "fix": "Use the bulk endpoints (records bulk) instead of per-record calls; the limit is 3000 requests per minute per endpoint and the client honors Retry-After."
+      },
+      {
+        "symptom": "brief, stale, or velocity return empty results",
+        "fix": "These read the local mirror: run clarify-pp-cli sync --resources resources --path-context object=deal (and again for person, company, meeting, task) first."
+      }
+    ],
+    "when_to_use": "Use this CLI whenever a task touches Clarify CRM data from a terminal or agent: querying or updating people, companies, deals, meetings, and tasks; bulk imports; pulling meeting transcripts; or answering pipeline questions (stale deals, velocity, follow-up gaps) that Clarify's own API cannot express. It is the offline-capable alternative to Clarify's hosted MCP server.",
+    "anti_triggers": [
+      "Do not use this CLI to send email or run outreach sequences; Clarify is the CRM of record, not a sending tool.",
+      "Do not use it for other CRMs (Salesforce, HubSpot, Close) — it only speaks to api.clarify.ai.",
+      "Do not use it to transcribe new meetings; it retrieves transcripts Clarify has already produced.",
+      "Do not use dynamic-list SQL commands to run arbitrary analytics upstream; use the local search and analytics commands against the mirror instead."
+    ],
+    "recipes": [
+      {
+        "title": "Prep for your next call",
+        "command": "clarify-pp-cli prep --next --agent",
+        "explanation": "Attendees, their company, open deals, and past-transcript excerpts in one compact payload."
+      },
+      {
+        "title": "Find the week's dropped balls",
+        "command": "clarify-pp-cli followup --since 7d --json",
+        "explanation": "Meetings with no follow-up activity, comment, or task on the linked deal or company."
+      },
+      {
+        "title": "Narrow a big deal query for an agent",
+        "command": "clarify-pp-cli objects resources get my-workspace deal --agent --select data.attributes.name,data.attributes.amount,data.attributes.stage",
+        "explanation": "JSON:API responses are deep; --select with dotted paths keeps only the fields the agent needs."
+      },
+      {
+        "title": "Upsert a lead by email",
+        "command": "clarify-pp-cli objects records create my-workspace person --match-on email_addresses --data-type person --data-attributes '{\"name\":{\"first_name\":\"Jane\",\"last_name\":\"Doe\"},\"email_addresses\":{\"items\":[\"jane@example.com\"]}}' --dry-run",
+        "explanation": "match_on turns the insert into an upsert against the person unique field; drop --dry-run to send it."
+      },
+      {
+        "title": "Weekly dupe sweep",
+        "command": "clarify-pp-cli dupes --type company --json",
+        "explanation": "Likely duplicates by shared domain or normalized name, each with a ready-to-run merge command."
+      }
+    ],
+    "trigger_phrases": [
+      "prep me for my next meeting",
+      "which deals are going stale",
+      "add this lead to Clarify",
+      "pull the transcript from my last call",
+      "which meetings did I never follow up on",
+      "use clarify",
+      "run clarify"
+    ]
+  }
+}
