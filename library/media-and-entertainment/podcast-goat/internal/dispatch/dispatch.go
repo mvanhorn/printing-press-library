@@ -29,6 +29,9 @@ type Options struct {
 	AllowedProviders []string // empty = all; non-empty = only these adapters
 	DryRun           bool     // explain-only; never fetch
 	Explain          bool     // emit Trace even on success
+	// Lang is the subtitle-language selector for the youtube adapter
+	// (yt-dlp --sub-langs syntax, comma-separated). Empty means "en".
+	Lang string
 }
 
 // TraceEntry is one adapter's verdict in the dispatch walk.
@@ -97,8 +100,19 @@ func providerAllowed(name string, allow []string) bool {
 //  5. On adapter error: record verdict=error, continue to the next.
 //  6. On adapter success: record verdict=success and return.
 func Dispatch(ctx context.Context, url string, opts Options) (*DispatchResult, error) {
-	adapters := Registered()
+	return dispatchChain(ctx, url, opts, Registered())
+}
+
+// dispatchChain is the walk over an explicit adapter list; split from
+// Dispatch so tests can drive it with fake adapters.
+func dispatchChain(ctx context.Context, url string, opts Options, adapters []source.Adapter) (*DispatchResult, error) {
 	result := &DispatchResult{}
+	// Track the last recoverable error as a typed value. The final summary
+	// must wrap it with %w — flattening it into a string (the historical
+	// behavior) made errors.As fail downstream, so the CLI could never
+	// react to e.g. CookieMissingError with a targeted hint.
+	var lastRecoverable error
+	var lastRecoverableSrc string
 
 	for _, a := range adapters {
 		entry := TraceEntry{Source: a.Name(), Tier: string(a.Tier())}
@@ -128,7 +142,7 @@ func Dispatch(ctx context.Context, url string, opts Options) (*DispatchResult, e
 			result.FiredBy = a.Name()
 			return result, nil
 		}
-		tr, err := a.Fetch(ctx, url)
+		tr, err := applyOptions(a, opts).Fetch(ctx, url)
 		if err != nil {
 			entry.Verdict = "error"
 			entry.Reason = err.Error()
@@ -136,6 +150,8 @@ func Dispatch(ctx context.Context, url string, opts Options) (*DispatchResult, e
 			// CookieMissing / NotApplicable / NotImplemented are recoverable:
 			// fall through to next adapter.
 			if isRecoverable(err) {
+				lastRecoverable = err
+				lastRecoverableSrc = a.Name()
 				continue
 			}
 			// Hard error: stop and return it.
@@ -151,13 +167,26 @@ func Dispatch(ctx context.Context, url string, opts Options) (*DispatchResult, e
 	// Walked the whole chain with no successful fetch. If a recoverable error
 	// was the last actionable signal — e.g., a cookie-tier adapter matched
 	// but had no cookie captured — surface that to the user instead of the
-	// generic "no adapter matched". The trace already shows the full walk.
-	for i := len(result.Trace) - 1; i >= 0; i-- {
-		if result.Trace[i].Verdict == "error" {
-			return result, fmt.Errorf("%s: %s", result.Trace[i].Source, result.Trace[i].Reason)
-		}
+	// generic "no adapter matched". Wrap with %w so callers can errors.As
+	// into the typed error (CookieMissingError etc.); the trace already
+	// shows the full walk.
+	if lastRecoverable != nil {
+		return result, fmt.Errorf("%s: %w", lastRecoverableSrc, lastRecoverable)
 	}
 	return result, fmt.Errorf("no adapter matched %s", url)
+}
+
+// applyOptions returns the adapter to fetch with, applying per-call options
+// that individual adapters understand. Registered adapters are
+// process-singletons and must never be mutated, so option-carrying variants
+// are shallow copies.
+func applyOptions(a source.Adapter, opts Options) source.Adapter {
+	if yt, ok := a.(*youtube.Adapter); ok && opts.Lang != "" {
+		cp := *yt
+		cp.Lang = opts.Lang
+		return &cp
+	}
+	return a
 }
 
 func isRecoverable(err error) bool {

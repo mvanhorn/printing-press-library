@@ -93,20 +93,33 @@ func newNovelTrendsTriangulateCmd(flags *rootFlags) *cobra.Command {
 				leading = rows[0].Platform
 			}
 
+			if err := allSourcesFailedErr("trends triangulate", len(searchSources), failures); err != nil {
+				return err
+			}
 			warnFetchFailures(cmd, "trends triangulate", failures)
 
 			if novelWantsMachine(cmd.OutOrStdout(), flags) {
+				// null, not "", when no platform returned data — an empty-string
+				// sentinel reads as a real (blank) platform name to agents.
+				var leadingJSON any
+				if leading != "" {
+					leadingJSON = leading
+				}
 				envelope := map[string]any{
 					"query":            query,
 					"platforms":        rows,
-					"leading_platform": leading,
+					"leading_platform": leadingJSON,
 					"fetch_failures":   failures,
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
 			}
 
 			w := cmd.OutOrStdout()
-			fmt.Fprintf(w, "Topic %q across %d platforms (leading: %s)\n\n", query, len(rows), leading)
+			leadingLabel := leading
+			if leadingLabel == "" {
+				leadingLabel = "none"
+			}
+			fmt.Fprintf(w, "Topic %q across %d platforms (leading: %s)\n\n", query, len(rows), leadingLabel)
 			tw := newTabWriter(w)
 			fmt.Fprintln(tw, "RANK\tPLATFORM\tRESULTS")
 			for _, r := range rows {

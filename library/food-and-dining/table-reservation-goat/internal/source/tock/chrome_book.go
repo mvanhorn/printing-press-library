@@ -436,12 +436,71 @@ type tockCheckoutPageState struct {
 	Path                   string   `json:"path"`
 	ConfirmControlPresent  bool     `json:"confirm_control_present"`
 	ConfirmControlEnabled  bool     `json:"confirm_control_enabled"`
+	ConfirmOccluded        bool     `json:"confirm_occluded"`
+	DialogPresent          bool     `json:"dialog_present"`
+	SkipControlPresent     bool     `json:"skip_control_present"`
 	HasCVCField            bool     `json:"has_cvc_field"`
 	CheckboxCount          int      `json:"checkbox_count"`
 	RequiredUncheckedCount int      `json:"required_unchecked_count"`
 	SMSDialogPresent       bool     `json:"sms_dialog_present"`
 	VisibleControlLabels   []string `json:"visible_control_labels,omitempty"`
 }
+
+const tockCheckoutPageStateJS = `
+	(() => {
+		const dlgText = /stay in the know|text confirmation and updates|receive text|text alerts/i;
+		const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+		const rendered = (el) => {
+			if (!el || !el.isConnected || el.closest('[aria-hidden="true"]')) return false;
+			const style = getComputedStyle(el);
+			if (style.display === 'none' || style.visibility === 'hidden') return false;
+			const r = el.getBoundingClientRect();
+			return r.width > 0 && r.height > 0;
+		};
+		const labelledByText = (el) => {
+			const ids = (el.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean);
+			return ids
+				.map((id) => { const ref = document.getElementById(id); return ref ? ref.textContent : ''; })
+				.join(' ');
+		};
+		// Accessible-name precedence: aria-labelledby, aria-label, contents,
+		// title — mirroring how assistive tech names the control.
+		const accessibleName = (el) => clean(
+			labelledByText(el) || el.getAttribute('aria-label') || el.textContent || el.getAttribute('title')
+		);
+		const allControls = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+		const confirm = Array.from(document.querySelectorAll('button[type="submit"], button'))
+			.find((el) => rendered(el) && /reservation|book|complete|confirm/i.test(accessibleName(el)));
+		const semanticDialogs = Array.from(document.querySelectorAll('dialog, [role="dialog"], [aria-modal]'))
+			.filter((host) => rendered(host) && dlgText.test(clean(host.textContent)));
+		const skipPresent = allControls.some((el) => rendered(el) && accessibleName(el) === 'Skip');
+		let confirmOccluded = false;
+		if (confirm) {
+			const r = confirm.getBoundingClientRect();
+			const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+			confirmOccluded = !hit || (hit !== confirm && !confirm.contains(hit));
+		}
+		const checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
+		const legacySMS = Array.from(document.querySelectorAll(
+			'[data-testid="sms-confirmation-dialog-content"], #sms-confirmation-dialog-content'
+		)).some(rendered);
+		const controls = allControls.map(accessibleName).filter(Boolean).slice(0, 16);
+		return {
+			path: location.pathname,
+			confirm_control_present: Boolean(confirm),
+			confirm_control_enabled: Boolean(confirm && !confirm.disabled && confirm.getAttribute('aria-disabled') !== 'true'),
+			confirm_occluded: confirmOccluded,
+			dialog_present: semanticDialogs.length > 0,
+			skip_control_present: skipPresent,
+			has_cvc_field: Boolean(Array.from(document.querySelectorAll('input'))
+				.find((i) => /cvc|cvv|security/i.test((i.placeholder || '') + (i.name || '') + (i.id || '')))),
+			checkbox_count: checkboxes.length,
+			required_unchecked_count: checkboxes.filter((el) => el.required && !el.checked).length,
+			sms_dialog_present: legacySMS || semanticDialogs.length > 0,
+			visible_control_labels: controls
+		};
+	})()
+`
 
 func clickComboboxExperienceLayoutWithRetry(ctx context.Context, venueURL, displayTime, isoDate string, partySize, experienceID int) (context.Context, context.CancelFunc, error) {
 	if err := clickComboboxExperienceLayout(ctx, displayTime, isoDate, partySize, experienceID); err != nil {
@@ -1602,34 +1661,19 @@ func mustMarshalTockPageState(state any) string {
 // arrives: a query-free path, allowlisted controls, and boolean/count state for
 // confirmation, SMS, checkbox, and CVC inputs.
 func checkoutPageStateHint(ctx context.Context) string {
-	js := `
-		(() => {
-			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
-			const controls = Array.from(document.querySelectorAll('button, a, [role="button"]'))
-				.map((el) => clean(el.textContent || el.getAttribute('aria-label'))).filter(Boolean).slice(0, 16);
-			const confirm = Array.from(document.querySelectorAll('button[type="submit"], button'))
-				.find((el) => /reservation|book|complete|confirm/i.test(clean(el.textContent || el.getAttribute('aria-label'))));
-			const checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
-			return {
-				path: location.pathname,
-				confirm_control_present: Boolean(confirm),
-				confirm_control_enabled: Boolean(confirm && !confirm.disabled && confirm.getAttribute('aria-disabled') !== 'true'),
-				has_cvc_field: Boolean(Array.from(document.querySelectorAll('input'))
-					.find((i) => /cvc|cvv|security/i.test((i.placeholder || '') + (i.name || '') + (i.id || '')))),
-				checkbox_count: checkboxes.length,
-				required_unchecked_count: checkboxes.filter((el) => el.required && !el.checked).length,
-				sms_dialog_present: Boolean(document.querySelector('[data-testid="sms-confirmation-dialog-content"], #sms-confirmation-dialog-content')),
-				visible_control_labels: controls
-			};
-		})()
-	`
-	var state tockCheckoutPageState
-	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &state)); err != nil {
+	state, err := readTockCheckoutPageState(ctx)
+	if err != nil {
 		return `{"path":"<unavailable>"}`
 	}
 	state.Path = sanitizeTockPath(state.Path)
 	state.VisibleControlLabels = normalizeTockControlLabels(state.VisibleControlLabels)
 	return mustMarshalTockPageState(state)
+}
+
+func readTockCheckoutPageState(ctx context.Context) (tockCheckoutPageState, error) {
+	var state tockCheckoutPageState
+	err := chromedp.Run(ctx, chromedp.Evaluate(tockCheckoutPageStateJS, &state))
+	return state, err
 }
 
 // waitForCheckoutPage polls for the URL containing /checkout/confirm-purchase.
@@ -1691,9 +1735,22 @@ func waitForReceiptThroughDialogs(ctx context.Context, deadline time.Duration) (
 
 func waitForReceiptThroughDialogsWith(ctx context.Context, deadline time.Duration,
 	dismiss func(context.Context) (bool, error)) (string, error) {
+	return waitForReceiptThroughDialogsWithRetry(ctx, deadline, dismiss, 5*time.Second, clickPlaceReservation)
+}
+
+func waitForReceiptThroughDialogsWithRetry(ctx context.Context, deadline time.Duration,
+	dismiss func(context.Context) (bool, error), retryDelay time.Duration,
+	retryClick func(context.Context) error) (string, error) {
 	stop := time.Now().Add(deadline)
-	reclicked := false
-	var dismissedAt time.Time
+	retryUsed := false
+	dismissals := 0
+	var idleSince time.Time
+	// Each confirm click can raise a fresh recognized dialog (the retry
+	// click re-opens the text-alert prompt), so dismissal stays armed for
+	// the whole wait instead of stopping after the first success. The cap
+	// keeps a dialog that survives its own dismissal from being clicked
+	// forever.
+	const maxDismissals = 3
 	for {
 		var loc string
 		if err := chromedp.Location(&loc).Do(ctx); err == nil {
@@ -1701,12 +1758,35 @@ func waitForReceiptThroughDialogsWith(ctx context.Context, deadline time.Duratio
 				return loc, nil
 			}
 		}
-		if dismissedAt.IsZero() {
+		// Once the receipt deadline has elapsed, do not dispatch another
+		// booking-affecting click and then report a timeout while that click is
+		// still taking effect.
+		if time.Now().After(stop) {
+			return "", fmt.Errorf("receipt page never reached within %s", deadline)
+		}
+
+		var checkoutState tockCheckoutPageState
+		stateOK := false
+		if strings.Contains(loc, "/checkout/") {
+			var err error
+			checkoutState, err = readTockCheckoutPageState(ctx)
+			stateOK = err == nil
+			if !stateOK || checkoutState.DialogPresent {
+				idleSince = time.Time{}
+			} else if idleSince.IsZero() {
+				idleSince = time.Now()
+			}
+		} else {
+			idleSince = time.Time{}
+		}
+
+		if dismissals < maxDismissals {
 			clicked, err := dismiss(ctx)
 			switch {
 			case err == nil:
 				if clicked {
-					dismissedAt = time.Now()
+					dismissals++
+					idleSince = time.Time{}
 				}
 			case isTransientNavigationError(err):
 				// The confirm click can win the race: the page navigates to
@@ -1719,18 +1799,21 @@ func waitForReceiptThroughDialogsWith(ctx context.Context, deadline time.Duratio
 				return "", fmt.Errorf("dismissing post-confirm dialog: %w", err)
 			}
 		}
-		// If the dialog intercepted the original submission, the checkout
-		// page sits idle after the dismissal — re-arm the confirm click
-		// once. clickPlaceReservation only clicks an enabled control, so a
-		// submission already in flight (button disabled/gone) is not
-		// double-fired.
-		if !dismissedAt.IsZero() && !reclicked && time.Since(dismissedAt) > 4*time.Second &&
-			strings.Contains(loc, "/checkout/") {
-			reclicked = true
-			_ = clickPlaceReservation(ctx)
-		}
-		if time.Now().After(stop) {
-			return "", fmt.Errorf("receipt page never reached within %s", deadline)
+		// A checkout that remains idle without a dialog may have lost the
+		// initial trusted click, or may be idle after a dismissed dialog.
+		// Both paths share this one retry token. The dialog-free interval is
+		// restarted whenever a dialog appears or is dismissed.
+		if !retryUsed && stateOK && !idleSince.IsZero() && time.Since(idleSince) >= retryDelay &&
+			checkoutState.ConfirmControlPresent && checkoutState.ConfirmControlEnabled &&
+			!checkoutState.ConfirmOccluded {
+			retryUsed = true
+			// Bound the click by the receipt deadline: clickPlaceReservation
+			// polls a disabled control for up to 15s, and a click dispatched
+			// after the deadline would be reported as a timeout while the
+			// booking is still taking effect.
+			retryCtx, cancelRetry := context.WithDeadline(ctx, stop)
+			_ = retryClick(retryCtx)
+			cancelRetry()
 		}
 		select {
 		case <-ctx.Done():
@@ -1741,88 +1824,66 @@ func waitForReceiptThroughDialogsWith(ctx context.Context, deadline time.Duratio
 }
 
 // dismissPostConfirmDialog finds a blocking post-confirm dialog and clicks
-// its decline/close control with a trusted CDP click. Returns whether a
-// control was clicked. Only decline-flavored controls or an explicit close
-// are used — never an accept/opt-in or ambiguous lone control.
+// its decline control with a trusted CDP click. Returns whether a control was
+// clicked. Accept controls and ambiguous modal stacks are left untouched.
 func dismissPostConfirmDialog(ctx context.Context) (bool, error) {
 	js := `
 		(() => {
-			const dlgText = /stay in the know|text confirmation and updates|receive text/i;
+			const dlgText = /stay in the know|text confirmation and updates|receive text|text alerts/i;
 			const declRE = /no thanks|not now|skip|maybe later|decline|continue without/i;
 			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
-			const visible = (el) => {
+			const rendered = (el) => {
+				if (!el || !el.isConnected || el.closest('[aria-hidden="true"]')) return false;
+				const style = getComputedStyle(el);
+				if (style.display === 'none' || style.visibility === 'hidden') return false;
 				const r = el.getBoundingClientRect();
 				return r.width > 0 && r.height > 0;
 			};
-			const label = (el) => clean([
-				el.textContent,
-				el.getAttribute('aria-label'),
-				el.getAttribute('title'),
-			].filter(Boolean).join(' '));
+			const labelledByText = (el) => {
+				const ids = (el.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean);
+				return ids
+					.map((id) => { const ref = document.getElementById(id); return ref ? ref.textContent : ''; })
+					.join(' ');
+			};
+			// Accessible-name precedence: aria-labelledby, aria-label,
+			// contents, title — a Skip named only through a referenced label
+			// must still be selectable.
+			const label = (el) => clean(
+				labelledByText(el) || el.getAttribute('aria-label') || el.textContent || el.getAttribute('title')
+			);
 			const controls = (host) => Array.from(
 				host.querySelectorAll('button, a, [role="button"]')
-			).filter(visible);
-			const declineIn = (host) => {
+			).filter(rendered);
+			const declineIn = (host, legacy) => {
 				const candidates = controls(host);
-				// Proven live Tock DOM (2026-07-09). Prefer the explicit opt-out
-				// control before applying the provider-agnostic fallback below.
-				const exact = candidates.find((el) => el.getAttribute('data-testid') === 'sms-skip-button');
-				if (exact) return exact;
-				const decline = candidates.find((el) => declRE.test(label(el)));
-				if (decline) return decline;
-				const close = candidates.find((el) => /close|dismiss/i.test(
-					clean(el.getAttribute('aria-label') || el.getAttribute('title'))
-				));
-				if (close) return close;
-				return null;
+				if (legacy) return candidates.find((el) => declRE.test(label(el))) || null;
+				return candidates.find((el) => label(el) === 'Skip') || null;
 			};
-			if (!dlgText.test((document.body && document.body.innerText) || '')) return '';
-
-			// Tock portals this Material UI dialog directly under <body>. The
-			// matching alert content and the action buttons are siblings inside
-			// role="dialog", so searching only the alert's nearby descendants
-			// cannot see the opt-out action.
-			const hosts = [];
-			const addHost = (host) => {
-				if (host && !hosts.includes(host)) hosts.push(host);
-			};
-			const smsContent = document.querySelector(
-				'[data-testid="sms-confirmation-dialog-content"], #sms-confirmation-dialog-content'
-			);
-			addHost(smsContent && smsContent.closest('dialog, [role="dialog"]'));
-			for (const dialog of document.querySelectorAll('dialog, [role="dialog"]')) {
-				if (dlgText.test(clean(dialog.textContent)) || /text alerts|sms/i.test(label(dialog))) {
-					addHost(dialog);
-				}
-			}
-
-			let best = null;
-			for (const el of Array.from(document.querySelectorAll('body *'))) {
-				if (el.children.length > 30) continue;
-				const t = clean(el.textContent);
-				if (!dlgText.test(t) || t.length > 1500) continue;
-				if (best === null || t.length < clean(best.textContent).length) best = el;
-			}
-			if (!best) return '';
-			addHost(best.closest('dialog, [role="dialog"]'));
-
-			// Generic fallback for providers/layouts without dialog semantics:
-			// walk all the way from the matching copy toward <body>, because
-			// actions may live in a sibling section under a higher ancestor.
-			for (let host = best; host && host !== document.body; host = host.parentElement) {
-				addHost(host);
-			}
-			for (const host of hosts) {
-				const decline = declineIn(host);
-				if (!decline) continue;
-				decline.scrollIntoView({ block: 'center' });
+			const hosts = Array.from(document.querySelectorAll('dialog, [role="dialog"], [aria-modal]'))
+				.filter((host) => rendered(host) && dlgText.test(clean(host.textContent)));
+			const candidates = hosts.map((host) => {
+				const legacy = Array.from(host.querySelectorAll(
+					'[data-testid="sms-confirmation-dialog-content"], #sms-confirmation-dialog-content'
+				)).some(rendered);
+				return { host, decline: declineIn(host, legacy) };
+			}).filter((candidate) => candidate.decline);
+			if (candidates.length === 0) return '';
+			const hitTestable = ({decline}, scroll) => {
+				if (scroll) decline.scrollIntoView({ block: 'center' });
 				const r = decline.getBoundingClientRect();
-				return JSON.stringify({
-					x: r.x + r.width / 2,
-					y: r.y + r.height / 2,
-				});
+				const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+				return Boolean(hit && (hit === decline || decline.contains(hit)));
+			};
+			let chosen = null;
+			if (candidates.length === 1) {
+				if (hitTestable(candidates[0], true)) chosen = candidates[0];
+			} else {
+				const active = candidates.filter((candidate) => hitTestable(candidate, false));
+				if (active.length === 1 && hitTestable(active[0], true)) chosen = active[0];
 			}
-			return '';
+			if (!chosen) return '';
+			const r = chosen.decline.getBoundingClientRect();
+			return JSON.stringify({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
 		})()
 	`
 	var raw string
@@ -1967,19 +2028,28 @@ func clickPlaceReservation(ctx context.Context) error {
 				b.scrollIntoView({ block: 'center' });
 				b.setAttribute('data-trg-confirm', '1');
 			};
+			const rendered = (b) => {
+				if (!b || !b.isConnected || b.closest('[aria-hidden="true"]')) return false;
+				const style = getComputedStyle(b);
+				if (style.display === 'none' || style.visibility === 'hidden') return false;
+				const r = b.getBoundingClientRect();
+				return r.width > 0 && r.height > 0;
+			};
 			const btns = Array.from(document.querySelectorAll('button'));
+			for (const b of btns) b.removeAttribute('data-trg-confirm');
 			for (const b of btns) {
+				if (!rendered(b)) continue;
 				const t = (b.textContent || '').trim();
 				if (/place reservation|confirm reservation|book now|complete reservation|complete booking/i.test(t)) {
-					if (b.disabled) return 'disabled:' + t;
+					if (b.disabled || b.getAttribute('aria-disabled') === 'true') return 'disabled:' + t;
 					tag(b);
 					return t;
 				}
 			}
 			// Fallback: any visible blue/primary submit button at bottom of form
 			for (const b of btns) {
-				if (b.type === 'submit') {
-					if (b.disabled) return 'disabled:submit';
+				if (rendered(b) && b.type === 'submit') {
+					if (b.disabled || b.getAttribute('aria-disabled') === 'true') return 'disabled:submit';
 					tag(b);
 					return 'submit';
 				}

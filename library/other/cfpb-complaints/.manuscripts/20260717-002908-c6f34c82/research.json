@@ -1,0 +1,114 @@
+{
+  "api_name": "cfpb-complaints",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Company pulse",
+      "command": "company pulse",
+      "description": "Summarize complaint volume, products, issues, responses, timeliness, narrative availability, and a prior-window delta for one company.",
+      "rationale": ""
+    },
+    {
+      "name": "Cohort-safe peer comparison",
+      "command": "compare companies",
+      "description": "Compare companies inside one explicit cohort while labeling counts as non-market-adjusted complaint volume.",
+      "rationale": ""
+    },
+    {
+      "name": "Emerging-theme delta",
+      "command": "emerging themes",
+      "description": "Rank mechanical product and issue count changes between current and baseline windows without semantic or causal claims.",
+      "rationale": ""
+    },
+    {
+      "name": "Narrative evidence packet",
+      "command": "narratives packet",
+      "description": "Select a newest-first bounded packet of published narratives with complaint IDs, exact cohort dates, and availability caveats.",
+      "rationale": ""
+    },
+    {
+      "name": "Change watch",
+      "command": "watch changes",
+      "description": "Compare the latest bounded cohort with a locally persisted prior observation and report newly observed complaint IDs and categories.",
+      "rationale": ""
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Company pulse",
+      "command": "company pulse",
+      "description": "Summarize complaint volume, products, issues, responses, timeliness, narrative availability, and a prior-window delta for one company.",
+      "rationale": ""
+    },
+    {
+      "name": "Cohort-safe peer comparison",
+      "command": "compare companies",
+      "description": "Compare companies inside one explicit cohort while labeling counts as non-market-adjusted complaint volume.",
+      "rationale": ""
+    },
+    {
+      "name": "Emerging-theme delta",
+      "command": "emerging themes",
+      "description": "Rank mechanical product and issue count changes between current and baseline windows without semantic or causal claims.",
+      "rationale": ""
+    },
+    {
+      "name": "Narrative evidence packet",
+      "command": "narratives packet",
+      "description": "Select a newest-first bounded packet of published narratives with complaint IDs, exact cohort dates, and availability caveats.",
+      "rationale": ""
+    },
+    {
+      "name": "Change watch",
+      "command": "watch changes",
+      "description": "Compare the latest bounded cohort with a locally persisted prior observation and report newly observed complaint IDs and categories.",
+      "rationale": ""
+    }
+  ],
+  "narrative": {
+    "value_prop": "Build reproducible complaint cohorts, company pulses, peer comparisons, emerging-theme tables, and narrative evidence packets without presenting raw complaint counts as quality scores.",
+    "quickstart": [
+      {
+        "command": "cfpb-complaints-pp-cli data-research --size 10 --state NY --agent",
+        "comment": "Inspect a bounded published complaint cohort."
+      },
+      {
+        "command": "cfpb-complaints-pp-cli company pulse --company 'CAPITAL ONE FINANCIAL CORPORATION' --window 30d --agent",
+        "comment": "Summarize one company's recent complaint mix."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A cohort is empty",
+        "fix": ""
+      },
+      {
+        "symptom": "Few narratives appear",
+        "fix": ""
+      }
+    ],
+    "when_to_use": "Use for reproducible research over published CFPB complaint metadata and selected narratives.",
+    "anti_triggers": [
+      "Do not infer consumer identities.",
+      "Do not treat complaint counts as market-adjusted rates or company quality rankings.",
+      "Do not use this CLI to file or resolve a complaint."
+    ],
+    "recipes": [
+      {
+        "title": "Compare peers in one cohort",
+        "command": "cfpb-complaints-pp-cli compare companies 'CAPITAL ONE FINANCIAL CORPORATION' 'DISCOVER BANK' --product 'Credit card' --window 90d --agent",
+        "explanation": "Use identical filters and keep raw-volume caveats attached."
+      },
+      {
+        "title": "Collect traceable narratives",
+        "command": "cfpb-complaints-pp-cli narratives packet --company 'CAPITAL ONE FINANCIAL CORPORATION' --limit 10 --agent",
+        "explanation": "Return complaint IDs with published narrative evidence."
+      }
+    ]
+  }
+}

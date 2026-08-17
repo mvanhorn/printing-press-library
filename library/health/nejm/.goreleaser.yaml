@@ -1,0 +1,51 @@
+version: 2
+project_name: nejm-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: nejm-pp-cli
+    main: ./cmd/nejm-pp-cli
+    binary: nejm-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/health/nejm/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: nejm-pp-mcp
+    main: ./cmd/nejm-pp-mcp
+    binary: nejm-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: nejm-pp-cli
+    repository:
+      owner: laci141
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Browse, search, and triage New England Journal of Medicine articles from the terminal"
+    install: |
+      bin.install "nejm-pp-cli"
+      bin.install "nejm-pp-mcp"

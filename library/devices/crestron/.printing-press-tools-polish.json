@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-03T01:42:02.334903Z",
+  "cli_dir": "\u003ccli-dir\u003e/crestron",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 451,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Generated DO-NOT-EDIT framework file. 'Client profile' is the platform tenant-gating concept and the Short names the exact object listed; a hand-edit here is wiped by the next regeneration, so raising it belongs in the platform_client template."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generated DO-NOT-EDIT learn-loop file. The learnings store is local-only with a single row shape, so the four-word Short is already complete for an agent choosing this tool; any improvement belongs in the shared learn-loop template."
+    }
+  ]
+}

@@ -32,7 +32,7 @@ import yaml
 
 
 # Fallback for unit tests and bootstrap scans before .go-version exists on base.
-DEFAULT_GO_FLOOR = "1.26.5"
+DEFAULT_GO_FLOOR = "1.26.6"
 
 
 # ---------------------------------------------------------------------------

@@ -18,26 +18,41 @@ func newInvitationsWorkspacesPartialUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "workspaces-partial-update <pk>",
-		Aliases:     []string{"update"},
-		Short:       "Update a workspace invite",
+		Use:     "workspaces-partial-update <pk>",
+		Aliases: []string{"update"},
+		Short:   "Update a workspace invite",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  plane-pp-cli invitations workspaces-partial-update example-value",
 		Annotations: map[string]string{"pp:endpoint": "invitations.workspaces-partial-update", "pp:method": "PATCH", "pp:path": "/invitations/{pk}/"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <pk>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <pk>"))
 			}
 			if !stdinBody {
 			}
+			path := "/invitations/{pk}/"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("pk is required\nUsage: %s <%s>", cmd.CommandPath(), "pk"))
+			}
+			path = replacePathParam(path, "pk", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/invitations/{pk}/"
-			path = replacePathParam(path, "pk", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -49,12 +64,13 @@ func newInvitationsWorkspacesPartialUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyEmail != "" {
-					body["email"] = bodyEmail
+					bodyMap["email"] = bodyEmail
 				}
 				if bodyRole != 0 {
-					body["role"] = bodyRole
+					bodyMap["role"] = bodyRole
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
@@ -124,6 +140,9 @@ func newInvitationsWorkspacesPartialUpdateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -162,7 +181,11 @@ func newInvitationsWorkspacesPartialUpdateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

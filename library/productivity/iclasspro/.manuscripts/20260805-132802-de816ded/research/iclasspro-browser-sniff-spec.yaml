@@ -1,0 +1,544 @@
+name: iclasspro
+description: Discovered API spec for portal-iclasspro
+version: 0.1.0
+base_url: https://app.iclasspro.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "limit" from query: search input'
+    - 'rejected auth candidate "page" from query: search input'
+    - 'rejected auth candidate "q" from query: search input'
+config:
+    format: toml
+    path: ~/.config/iclasspro-pp-cli/config.toml
+resources:
+    jwt:
+        description: Operations on organizations
+        endpoints:
+            create_organizations:
+                method: POST
+                path: /api/jwt/v1/organizations
+                description: POST /api/jwt/v1/organizations
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: organizations
+                pagination: null
+    open:
+        description: Operations on count-cart-detailed
+        endpoints:
+            get_active:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/levels/active/{active_id}
+                description: GET /api/open/v1/scottsdalegymnastics/levels/active/{active_id}
+                params:
+                    - name: active_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The active_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ActiveData
+                pagination: null
+                response_path: data
+            get_bookings:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/bookings/{booking_id}
+                description: GET /api/open/v1/scottsdalegymnastics/bookings/{booking_id}
+                params:
+                    - name: booking_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The booking_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: BookingData
+                pagination: null
+                response_path: data
+            get_camp_programs:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/camp-programs/{camp_program_id}
+                description: GET /api/open/v1/scottsdalegymnastics/camp-programs/{camp_program_id}
+                params:
+                    - name: camp_program_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The camp_program_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: CampProgramData
+                pagination: null
+                response_path: data
+            get_camps:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/camps/{camp_id}
+                description: GET /api/open/v1/scottsdalegymnastics/camps/{camp_id}
+                params:
+                    - name: camp_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The camp_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Camp
+                pagination: null
+            get_class_programs:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/class-programs/{class_program_id}
+                description: GET /api/open/v1/scottsdalegymnastics/class-programs/{class_program_id}
+                params:
+                    - name: class_program_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The class_program_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ClassProgramData
+                pagination: null
+                response_path: data
+            get_classes:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/instructors/{instructor_id}/classes
+                description: GET /api/open/v1/scottsdalegymnastics/instructors/{instructor_id}/classes
+                params:
+                    - name: instructor_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The instructor_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ClasseData
+                pagination: null
+                response_path: data
+            get_count_cart_detailed:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/count-cart-detailed/{count_cart_detailed_id}/{count_cart_detailed_id_2}
+                description: GET /api/open/v1/scottsdalegymnastics/count-cart-detailed/{count_cart_detailed_id}/{count_cart_detailed_id_2}
+                params:
+                    - name: count_cart_detailed_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The count_cart_detailed_id path segment
+                      fields: []
+                    - name: count_cart_detailed_id_2
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The count_cart_detailed_id_2 path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: CountCartDetailed
+                pagination: null
+            get_create:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/parties/create/{create_id}
+                description: GET /api/open/v1/scottsdalegymnastics/parties/create/{create_id}
+                params:
+                    - name: create_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The create_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Create
+                pagination: null
+            list_camps:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/camps
+                description: GET /api/open/v1/scottsdalegymnastics/camps
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: locationId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sortBy
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: typeId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: CampData
+                pagination: null
+                response_path: data
+            list_classes:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/classes
+                description: GET /api/open/v1/scottsdalegymnastics/classes
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: locationId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: classes
+                pagination: null
+            list_sessions:
+                method: GET
+                path: /api/open/v1/scottsdalegymnastics/sessions
+                description: GET /api/open/v1/scottsdalegymnastics/sessions
+                params:
+                    - name: data
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: errors
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: message
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Session
+                pagination: null
+types:
+    ActiveData:
+        fields:
+            - name: color
+              type: string
+            - name: id
+              type: integer
+            - name: image
+              type: string
+            - name: name
+              type: string
+            - name: sortOrder
+              type: integer
+            - name: textColor
+              type: string
+    Block:
+        fields:
+            - name: alias
+              type: bool
+            - name: bid
+              type: integer
+            - name: day
+              type: string
+            - name: dayNumber
+              type: integer
+            - name: duration
+              type: integer
+            - name: endDateTime
+              type: string
+            - name: sqlDate
+              type: string
+            - name: startDateTime
+              type: string
+            - name: tsid
+              type: integer
+    BookingData:
+        fields:
+            - name: image
+              type: string
+            - name: subTitle
+              type: string
+            - name: target
+              type: string
+            - name: title
+              type: string
+    Camp:
+        fields:
+            - name: data
+              type: ref:Data3
+            - name: errors
+              type: array
+            - name: message
+              type: string
+    CampData:
+        fields:
+            - name: allowChooseDays
+              type: bool
+            - name: allowToRequestCampThatIsFull
+              type: bool
+            - name: endDate
+              type: string
+            - name: hasOpenings
+              type: bool
+            - name: id
+              type: integer
+            - name: image
+              type: string
+            - name: maxAge
+              type: integer
+            - name: minAge
+              type: integer
+            - name: name
+              type: string
+            - name: openings
+              type: integer
+            - name: openingsDisplay
+              type: string
+            - name: programId
+              type: integer
+            - name: registrationEndDate
+              type: string
+            - name: registrationStartDate
+              type: string
+            - name: schedule
+              type: '[]ref:Schedule'
+            - name: showAlias
+              type: bool
+            - name: showOpenings
+              type: bool
+            - name: startDate
+              type: string
+    CampProgramData:
+        fields:
+            - name: id
+              type: integer
+            - name: name
+              type: string
+    ClassProgramData:
+        fields:
+            - name: id
+              type: integer
+            - name: name
+              type: string
+    ClasseData:
+        fields:
+            - name: firstName
+              type: string
+            - name: id
+              type: integer
+            - name: lastName
+              type: string
+    CountCartDetailed:
+        fields:
+            - name: data
+              type: ref:Data
+            - name: errors
+              type: array
+            - name: message
+              type: string
+    Create:
+        fields:
+            - name: data
+              type: ref:Data2
+            - name: errors
+              type: array
+            - name: message
+              type: string
+    Data:
+        fields:
+            - name: count
+              type: integer
+    Data2:
+        fields:
+            - name: availableDays
+              type: array
+            - name: date
+              type: string
+            - name: useInclusiveTax
+              type: bool
+    Data3:
+        fields:
+            - name: allowChooseDays
+              type: bool
+            - name: allowToRequestCampThatIsFull
+              type: bool
+            - name: allowWebRegistration
+              type: bool
+            - name: autoApprove
+              type: bool
+            - name: blocks
+              type: '[]ref:Block'
+            - name: campRegisterExpired
+              type: bool
+            - name: description
+              type: string
+            - name: endDate
+              type: string
+            - name: hasOpenings
+              type: bool
+            - name: id
+              type: integer
+            - name: image
+              type: string
+            - name: instructors
+              type: array
+            - name: maxAge
+              type: integer
+            - name: minAge
+              type: integer
+            - name: name
+              type: string
+            - name: openings
+              type: integer
+            - name: openingsDisplay
+              type: string
+            - name: programId
+              type: integer
+            - name: programIsDeleted
+              type: bool
+            - name: programName
+              type: string
+            - name: registrationEndDate
+              type: string
+            - name: registrationStartDate
+              type: string
+            - name: roomName
+              type: string
+            - name: schedule
+              type: '[]ref:Schedule2'
+            - name: showAlias
+              type: bool
+            - name: showOnWeb
+              type: bool
+            - name: showOpenings
+              type: bool
+            - name: startDate
+              type: string
+            - name: typeId
+              type: integer
+    Schedule:
+        fields:
+            - name: alias
+              type: string
+            - name: campId
+              type: integer
+            - name: dayInt
+              type: integer
+            - name: dayNumber
+              type: integer
+            - name: endTime
+              type: string
+            - name: id
+              type: integer
+            - name: startTime
+              type: string
+            - name: tsId
+              type: integer
+            - name: type
+              type: string
+    Schedule2:
+        fields:
+            - name: alias
+              type: string
+            - name: campId
+              type: integer
+            - name: dayInt
+              type: integer
+            - name: dayNumber
+              type: integer
+            - name: endTime
+              type: string
+            - name: id
+              type: integer
+            - name: startTime
+              type: string
+            - name: tsId
+              type: integer
+            - name: type
+              type: string
+    Session:
+        fields:
+            - name: data
+              type: array
+            - name: errors
+              type: array
+            - name: message
+              type: string

@@ -29,7 +29,7 @@ This skill drives the `policy-intel-pp-cli` binary. **You must verify the CLI is
 2. Verify: `policy-intel-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/policy-intel/cmd/policy-intel-pp-cli@latest

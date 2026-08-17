@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "api_name": "open-library",
+  "run_id": "20260626-061033",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 10,
+  "tests_passed": 10,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "none",
+    "api_keys_available": false,
+    "secret_material": "none required or committed",
+    "notes": [
+      "Open Library metadata APIs used by this print are public and keyless.",
+      "Optional OPEN_LIBRARY_USER_AGENT and OPEN_LIBRARY_CONTACT_EMAIL configure responsible request identity.",
+      "All live commands are bounded and read-only."
+    ]
+  },
+  "validated_commands": [
+    "open-library-pp-cli --help",
+    "open-library-pp-cli --version",
+    "open-library-pp-cli sources --agent",
+    "open-library-pp-cli doctor --agent",
+    "open-library-pp-cli book \"Designing Data-Intensive Applications\" --limit 3 --agent",
+    "open-library-pp-cli isbn 9780131103627 --agent",
+    "open-library-pp-cli author \"Ursula K. Le Guin\" --limit 3 --agent",
+    "open-library-pp-cli work OL45804W --agent",
+    "open-library-pp-cli editions OL45804W --limit 3 --agent",
+    "open-library-pp-cli subjects \"distributed systems\" --details --limit 3 --agent"
+  ]
+}

@@ -23,7 +23,7 @@ import (
 )
 
 // version preserved from published library on reprint; post-merge workflow stamps next release.
-var version = "2026.7.2"
+var version = "2026.8.2"
 
 type rootFlags struct {
 	asJSON     bool

@@ -13,6 +13,7 @@ func newBibliotecaMultimedialiCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:         "multimediali",
+		Args:        rejectPositionalArgs,
 		Short:       "Cerca nelle Opere Multimediali (archivio 205multimedia).",
 		Example:     "  ars-sicilia-pp-cli biblioteca multimediali --titolo \"Falcone\" --json",
 		Annotations: map[string]string{"pp:endpoint": "biblioteca.multimediali", "mcp:read-only": "true"},

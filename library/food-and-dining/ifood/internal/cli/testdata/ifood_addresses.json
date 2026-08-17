@@ -1,0 +1,18 @@
+[
+  {
+    "id": "address-inactive",
+    "favorite": false,
+    "active": false,
+    "city": "Maceio",
+    "neighborhood": "Centro",
+    "coordinates": {"latitude": -9.66, "longitude": -35.73}
+  },
+  {
+    "id": "address-active",
+    "favorite": true,
+    "active": true,
+    "city": "Maceio",
+    "neighborhood": "Farol",
+    "coordinates": {"latitude": -9.63, "longitude": -35.73}
+  }
+]

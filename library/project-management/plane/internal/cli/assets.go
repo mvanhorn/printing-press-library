@@ -12,7 +12,7 @@ func newAssetsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "assets",
 		Short:       "**File Upload & Presigned URLs** Generate presigned URLs for direct file uploads to cloud storage.",
 		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 

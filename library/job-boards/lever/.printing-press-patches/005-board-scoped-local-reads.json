@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "lever-board-scoped-local-reads",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-044310",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Scoped local-store reads per company via boardScopedType so synced rows for one company never leak into another company's local list/get.",
+  "reason": "The generated resolveLocal reads the unscoped resource type, so a company-scoped sync (postings:stripe) could never be read back, and syncing a second company would return a mix. boardScopedType derives 'postings:<company>' from the path template for list and get-by-ID local reads, matching the sync command's write keys. Note: Lever paths lead with the resource segment ('/postings/{company}'), so the company is the SECOND path segment; the greenhouse package's helper reads the first segment because its paths lead with the board token. Mirrors the greenhouse package's scoped-read fix, adapted to the lever path shape.",
+  "files": [
+    "internal/cli/data_source.go"
+  ],
+  "validated_outcome": "Full go test ./... suite green on Windows (11 packages); live end-to-end verified in an isolated env: sync leverdemo (388) + sync palantir (301) both persist, and --data-source local returns only the requested company's postings (388 vs 301, never mixed).",
+  "upstream_issue": null
+}

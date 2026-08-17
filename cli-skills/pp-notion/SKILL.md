@@ -34,7 +34,7 @@ This skill drives the `notion-pp-cli` binary. **You must verify the CLI is insta
 2. Verify: `notion-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/productivity/notion/cmd/notion-pp-cli@latest
@@ -317,4 +317,4 @@ Parse `$ARGUMENTS`:
    ```bash
    notion-pp-cli <command> [subcommand] [args] --agent
    ```
-4. If ambiguous, drill into subcommand help: `notion-pp-cli <command> --help`.
+4. If ambiguous, drill into subcommand help. Use `notion-pp-cli <command> --help --agent` when you need a machine-readable command/flag envelope; plain `--help` stays human-readable.

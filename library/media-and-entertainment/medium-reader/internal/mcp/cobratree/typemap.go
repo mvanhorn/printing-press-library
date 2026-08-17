@@ -21,6 +21,13 @@ func toolOptionsForFlags(cmd *cobra.Command) []mcplib.ToolOption {
 		if flag == nil || flag.Hidden || flag.Deprecated != "" {
 			return
 		}
+		// PATCH(medium-reader: don't advertise blocked root flags) — a flag in
+		// blockedRootFlags is dropped by cliArgsFromMCP before argv, so exposing
+		// it in the tool schema would let an agent set it only to have it
+		// silently ignored. Omit it here too. See .printing-press-patches/.
+		if blockedRootFlags[flag.Name] {
+			return
+		}
 		if seen[flag.Name] {
 			return
 		}
@@ -73,4 +80,50 @@ func isRequired(flag *pflag.Flag) bool {
 
 func commandTakesArgs(cmd *cobra.Command) bool {
 	return positionalPattern.MatchString(cmd.Use)
+}
+
+// positionalArg describes a command's positional argument surfaced as a
+// first-class MCP tool property instead of the generic "args" string.
+type positionalArg struct {
+	InputName string
+	Display   string
+	Required  bool
+}
+
+// namedPositionals maps a command (by leaf name) to the positional arguments to
+// expose as first-class MCP properties.
+//
+// PATCH(medium-reader: surface named positional "query" for search/corpus) —
+// the generated cobratree only exposes a generic "args" string for a command's
+// positional arguments, so an MCP client calling search/corpus cannot tell it
+// needs a query and must smuggle the term through "args" (finding N1). These two
+// search-style commands take a single free-text <query> positional, so a named
+// "query" property is an unambiguous win. Scoped deliberately: the other
+// positional commands (read <url|id>, feed <@user|publication|tag>,
+// author-archive <user-id>, author-compare <a> <b>) keep the "args" fallback to
+// avoid pipe-style or ordered multi-token property names. Newer generators emit
+// named positionals for every command via a broader cobratree rewrite; this fork
+// ports only the narrow, low-risk slice by hand. See .printing-press-patches/.
+var namedPositionals = map[string][]positionalArg{
+	"search": {{InputName: "query", Display: "<query>", Required: true}},
+	"corpus": {{InputName: "query", Display: "<query>", Required: true}},
+}
+
+// namedPositionalsFor returns the named positional arguments to surface for the
+// command at commandPath (keyed by its leaf name), or nil when the command keeps
+// the generic "args" fallback.
+func namedPositionalsFor(commandPath []string) []positionalArg {
+	if len(commandPath) == 0 {
+		return nil
+	}
+	return namedPositionals[commandPath[len(commandPath)-1]]
+}
+
+// toolOptionForPositional builds the MCP string property for a named positional.
+func toolOptionForPositional(p positionalArg) mcplib.ToolOption {
+	propOpts := []mcplib.PropertyOption{mcplib.Description("Positional argument " + p.Display + " passed to the command (not as a flag).")}
+	if p.Required {
+		propOpts = append(propOpts, mcplib.Required())
+	}
+	return mcplib.WithString(p.InputName, propOpts...)
 }

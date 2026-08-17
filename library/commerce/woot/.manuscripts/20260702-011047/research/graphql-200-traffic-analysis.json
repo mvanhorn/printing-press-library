@@ -1,0 +1,416 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://d24qg5zsx8xdc4.cloudfront.net/graphql?query={getActiveSpotlights{%20Photo%20{%20Url%20}%20SiteIds%20Slot%20Url%20}}",
+    "entry_count": 7,
+    "api_entry_count": 7,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "d24qg5zsx8xdc4.cloudfront.net": 7
+    },
+    "http_version_distribution": {
+      "http/1.1": 7
+    },
+    "time_start": "2026-07-02T01:00:55.641Z",
+    "time_end": "2026-07-02T01:00:56.128Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "graphql",
+      "confidence": 0.92,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "graphql path or operation body"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "api_key",
+        "confidence": 0.85,
+        "header_names": [
+          "x-api-key"
+        ],
+        "evidence": [
+          {
+            "entry_index": 0,
+            "method": "GET",
+            "host": "d24qg5zsx8xdc4.cloudfront.net",
+            "path": "/graphql",
+            "status": 200,
+            "content_type": "application/json; charset=UTF-8",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 1,
+            "method": "GET",
+            "host": "d24qg5zsx8xdc4.cloudfront.net",
+            "path": "/graphql",
+            "status": 200,
+            "content_type": "application/json; charset=UTF-8",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 2,
+            "method": "GET",
+            "host": "d24qg5zsx8xdc4.cloudfront.net",
+            "path": "/graphql",
+            "status": 200,
+            "content_type": "application/json; charset=UTF-8",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 3,
+            "method": "GET",
+            "host": "d24qg5zsx8xdc4.cloudfront.net",
+            "path": "/graphql",
+            "status": 200,
+            "content_type": "application/json; charset=UTF-8",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 4,
+            "method": "GET",
+            "host": "d24qg5zsx8xdc4.cloudfront.net",
+            "path": "/graphql",
+            "status": 200,
+            "content_type": "application/json; charset=UTF-8",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 5,
+            "method": "GET",
+            "host": "d24qg5zsx8xdc4.cloudfront.net",
+            "path": "/graphql",
+            "status": 200,
+            "content_type": "application/json; charset=UTF-8",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 6,
+            "method": "GET",
+            "host": "d24qg5zsx8xdc4.cloudfront.net",
+            "path": "/graphql",
+            "status": 200,
+            "content_type": "application/json; charset=UTF-8",
+            "reason": "API key-like header"
+          }
+        ]
+      }
+    ]
+  },
+  "endpoint_clusters": [
+    {
+      "host": "d24qg5zsx8xdc4.cloudfront.net",
+      "method": "GET",
+      "path": "/graphql",
+      "count": 7,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=UTF-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "list_graphql",
+      "resource": "graphql",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /graphql traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "d24qg5zsx8xdc4.cloudfront.net",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ]
+}

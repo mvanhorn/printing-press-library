@@ -42,7 +42,9 @@ func newCalendarExportCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("--community is required"))
 			}
 
-			path := "/_next/data/{buildId}/" + community + "/calendar.json"
+			// PATCH(amend-2026-08-12: build the path like the generated commands do)
+			path := "/_next/data/{buildId}/{community}/calendar.json"
+			path = replacePathParam(path, "community", community)
 			params := map[string]string{"g": community}
 			raw, err := c.Get(path, params)
 			if err != nil {

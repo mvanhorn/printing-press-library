@@ -1,0 +1,252 @@
+{
+ "target_url": "https://webapp.tiimoapp.com/home",
+ "captured_at": "2026-08-14T21:05:00Z",
+ "interaction_rounds": 9,
+ "auth": {
+  "type": "oauth2_bearer",
+  "site": "api.tiimoapp.com",
+  "issuer": "https://auth.tiimoapp.com/"
+ },
+ "entries": [
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/configuration",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "{\"updatePrompt\": {\"2.20.36\": {\"shouldPrompt\": false, \"isForced\": false}}, \"onboarding\": {\"onboarding_video\": \"https://example.invalid/v.mp4\", \"onboarding_video_widget\": \"https://example.invalid/w.mp4\"}, \"braze\": {\"whitelistEventTypes\": [\"activity\"], \"blacklistEvents\": [{\"event\": \"sample\", \"interaction_type\": \"tap\", \"title\": \"Sample\"}]}, \"streaksVersion\": 2, \"lockedFeatures\": [{\"id\": \"sample_feature\", \"unlockedEntitlementLevel\": \"Pro\"}], \"experiments\": []}",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/profiles",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "[{\"profileId\": \"00000000-0000-4000-8000-000000000001\", \"name\": \"Primary\"}]",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/profiles/00000000-0000-4000-8000-000000000001",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "{\"profileId\": \"00000000-0000-4000-8000-000000000001\", \"name\": \"Primary\"}",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/profiles/00000000-0000-4000-8000-000000000001/activities?fromDate=2026-08-14&toDate=2026-08-15",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "{\"2026-08-14\": [{\"activityId\": \"00000000-0000-4000-8000-0000000000a1\", \"title\": \"Focus block\", \"description\": \"\", \"type\": \"Play\", \"state\": null, \"sortPriority\": 100, \"pausedTime\": null, \"startTime\": \"2026-08-14T09:00:00\", \"endTime\": \"2026-08-14T09:30:00\", \"duration\": 1800, \"startTimeActual\": \"2026-08-14T09:00:00\", \"endTimeActual\": \"2026-08-14T09:30:00\", \"durationActual\": 1800, \"durationPaused\": 0, \"completedAt\": null, \"isAllDay\": false, \"iconId\": \"\\ud83e\\uddea\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"backgroundColor\": null, \"isRepeating\": true, \"recurrenceType\": \"weekdays\", \"repetition\": {\"type\": \"Weekly\", \"weeklyFrequency\": 1, \"weeklyDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"], \"monthlyDays\": [], \"firstDay\": \"2026-08-01T00:00:00\", \"lastDay\": null, \"interval\": 1, \"daily\": false, \"weekly\": true, \"monthly\": false, \"yearly\": false}, \"tagIds\": [], \"checklist\": {\"checklistId\": \"00000000-0000-4000-8000-0000000000c0\", \"checklistItems\": [{\"checklistItemId\": \"00000000-0000-4000-8000-0000000000c9\", \"iconId\": \"\\u2705\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"title\": \"First step\", \"backgroundColor\": null, \"isChecked\": false, \"checkedAt\": null, \"checklistDate\": \"2026-08-14T00:00:00\", \"index\": 0}], \"isCompleted\": false}, \"origin\": null, \"calendarId\": null, \"externalEventId\": null, \"blockRecurrenceUpdateExternalEvent\": false, \"taskEnrichmentId\": null, \"isReadOnly\": false, \"grouping\": {\"groupingType\": \"TimeOfDay\", \"groupingLabel\": \"Morning\"}, \"allowEarlyStart\": true, \"allowEarlyEnd\": true, \"startTimeUtc\": \"2026-08-14T09:00:00\", \"endTimeUtc\": \"2026-08-14T09:30:00\", \"startTimeLocal\": \"0001-01-01T00:00:00\", \"timeUtcOffset\": \"00:00:00\"}], \"2026-08-15\": []}",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "{\"activityId\": \"00000000-0000-4000-8000-0000000000a1\", \"title\": \"Focus block\", \"description\": \"\", \"type\": \"Play\", \"state\": null, \"sortPriority\": 100, \"pausedTime\": null, \"startTime\": \"2026-08-14T09:00:00\", \"endTime\": \"2026-08-14T09:30:00\", \"duration\": 1800, \"startTimeActual\": \"2026-08-14T09:00:00\", \"endTimeActual\": \"2026-08-14T09:30:00\", \"durationActual\": 1800, \"durationPaused\": 0, \"completedAt\": null, \"isAllDay\": false, \"iconId\": \"\\ud83e\\uddea\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"backgroundColor\": null, \"isRepeating\": true, \"recurrenceType\": \"weekdays\", \"repetition\": {\"type\": \"Weekly\", \"weeklyFrequency\": 1, \"weeklyDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"], \"monthlyDays\": [], \"firstDay\": \"2026-08-01T00:00:00\", \"lastDay\": null, \"interval\": 1, \"daily\": false, \"weekly\": true, \"monthly\": false, \"yearly\": false}, \"tagIds\": [], \"checklist\": {\"checklistId\": \"00000000-0000-4000-8000-0000000000c0\", \"checklistItems\": [{\"checklistItemId\": \"00000000-0000-4000-8000-0000000000c9\", \"iconId\": \"\\u2705\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"title\": \"First step\", \"backgroundColor\": null, \"isChecked\": false, \"checkedAt\": null, \"checklistDate\": \"2026-08-14T00:00:00\", \"index\": 0}], \"isCompleted\": false}, \"origin\": null, \"calendarId\": null, \"externalEventId\": null, \"blockRecurrenceUpdateExternalEvent\": false, \"taskEnrichmentId\": null, \"isReadOnly\": false, \"grouping\": {\"groupingType\": \"TimeOfDay\", \"groupingLabel\": \"Morning\"}, \"allowEarlyStart\": true, \"allowEarlyEnd\": true, \"startTimeUtc\": \"2026-08-14T09:00:00\", \"endTimeUtc\": \"2026-08-14T09:30:00\", \"startTimeLocal\": \"0001-01-01T00:00:00\", \"timeUtcOffset\": \"00:00:00\"}",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "POST",
+   "url": "https://api.tiimoapp.com/api/profiles/00000000-0000-4000-8000-000000000001/activities",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "{\"title\": \"Focus block\", \"startTime\": \"2026-08-14T09:00:00\", \"endTime\": \"2026-08-14T09:30:00\", \"duration\": 1800, \"type\": \"Play\", \"isAllDay\": false, \"iconType\": \"UnicodeEmoji\", \"iconId\": \"\\ud83e\\uddea\", \"sortPriority\": 100, \"grouping\": {\"groupingType\": \"TimeOfDay\", \"groupingLabel\": \"Morning\"}}",
+   "response_body": "{\"activityId\": \"00000000-0000-4000-8000-0000000000a1\", \"title\": \"Focus block\", \"description\": \"\", \"type\": \"Play\", \"state\": null, \"sortPriority\": 100, \"pausedTime\": null, \"startTime\": \"2026-08-14T09:00:00\", \"endTime\": \"2026-08-14T09:30:00\", \"duration\": 1800, \"startTimeActual\": \"2026-08-14T09:00:00\", \"endTimeActual\": \"2026-08-14T09:30:00\", \"durationActual\": 1800, \"durationPaused\": 0, \"completedAt\": null, \"isAllDay\": false, \"iconId\": \"\\ud83e\\uddea\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"backgroundColor\": null, \"isRepeating\": true, \"recurrenceType\": \"weekdays\", \"repetition\": {\"type\": \"Weekly\", \"weeklyFrequency\": 1, \"weeklyDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"], \"monthlyDays\": [], \"firstDay\": \"2026-08-01T00:00:00\", \"lastDay\": null, \"interval\": 1, \"daily\": false, \"weekly\": true, \"monthly\": false, \"yearly\": false}, \"tagIds\": [], \"checklist\": {\"checklistId\": \"00000000-0000-4000-8000-0000000000c0\", \"checklistItems\": [{\"checklistItemId\": \"00000000-0000-4000-8000-0000000000c9\", \"iconId\": \"\\u2705\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"title\": \"First step\", \"backgroundColor\": null, \"isChecked\": false, \"checkedAt\": null, \"checklistDate\": \"2026-08-14T00:00:00\", \"index\": 0}], \"isCompleted\": false}, \"origin\": null, \"calendarId\": null, \"externalEventId\": null, \"blockRecurrenceUpdateExternalEvent\": false, \"taskEnrichmentId\": null, \"isReadOnly\": false, \"grouping\": {\"groupingType\": \"TimeOfDay\", \"groupingLabel\": \"Morning\"}, \"allowEarlyStart\": true, \"allowEarlyEnd\": true, \"startTimeUtc\": \"2026-08-14T09:00:00\", \"endTimeUtc\": \"2026-08-14T09:30:00\", \"startTimeLocal\": \"0001-01-01T00:00:00\", \"timeUtcOffset\": \"00:00:00\"}",
+   "response_status": 201,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "PUT",
+   "url": "https://api.tiimoapp.com/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "{\"activityId\": \"00000000-0000-4000-8000-0000000000a1\", \"title\": \"Focus block\", \"description\": \"\", \"type\": \"Play\", \"state\": null, \"sortPriority\": 100, \"pausedTime\": null, \"startTime\": \"2026-08-14T09:00:00\", \"endTime\": \"2026-08-14T09:30:00\", \"duration\": 1800, \"startTimeActual\": \"2026-08-14T09:00:00\", \"endTimeActual\": \"2026-08-14T09:30:00\", \"durationActual\": 1800, \"durationPaused\": 0, \"completedAt\": null, \"isAllDay\": false, \"iconId\": \"\\ud83e\\uddea\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"backgroundColor\": null, \"isRepeating\": true, \"recurrenceType\": \"weekdays\", \"repetition\": {\"type\": \"Weekly\", \"weeklyFrequency\": 1, \"weeklyDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"], \"monthlyDays\": [], \"firstDay\": \"2026-08-01T00:00:00\", \"lastDay\": null, \"interval\": 1, \"daily\": false, \"weekly\": true, \"monthly\": false, \"yearly\": false}, \"tagIds\": [], \"checklist\": {\"checklistId\": \"00000000-0000-4000-8000-0000000000c0\", \"checklistItems\": [{\"checklistItemId\": \"00000000-0000-4000-8000-0000000000c9\", \"iconId\": \"\\u2705\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"title\": \"First step\", \"backgroundColor\": null, \"isChecked\": false, \"checkedAt\": null, \"checklistDate\": \"2026-08-14T00:00:00\", \"index\": 0}], \"isCompleted\": false}, \"origin\": null, \"calendarId\": null, \"externalEventId\": null, \"blockRecurrenceUpdateExternalEvent\": false, \"taskEnrichmentId\": null, \"isReadOnly\": false, \"grouping\": {\"groupingType\": \"TimeOfDay\", \"groupingLabel\": \"Morning\"}, \"allowEarlyStart\": true, \"allowEarlyEnd\": true, \"startTimeUtc\": \"2026-08-14T09:00:00\", \"endTimeUtc\": \"2026-08-14T09:30:00\", \"startTimeLocal\": \"0001-01-01T00:00:00\", \"timeUtcOffset\": \"00:00:00\"}",
+   "response_body": "{\"activityId\": \"00000000-0000-4000-8000-0000000000a1\", \"title\": \"Focus block\", \"description\": \"\", \"type\": \"Play\", \"state\": null, \"sortPriority\": 100, \"pausedTime\": null, \"startTime\": \"2026-08-14T09:00:00\", \"endTime\": \"2026-08-14T09:30:00\", \"duration\": 1800, \"startTimeActual\": \"2026-08-14T09:00:00\", \"endTimeActual\": \"2026-08-14T09:30:00\", \"durationActual\": 1800, \"durationPaused\": 0, \"completedAt\": null, \"isAllDay\": false, \"iconId\": \"\\ud83e\\uddea\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"backgroundColor\": null, \"isRepeating\": true, \"recurrenceType\": \"weekdays\", \"repetition\": {\"type\": \"Weekly\", \"weeklyFrequency\": 1, \"weeklyDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"], \"monthlyDays\": [], \"firstDay\": \"2026-08-01T00:00:00\", \"lastDay\": null, \"interval\": 1, \"daily\": false, \"weekly\": true, \"monthly\": false, \"yearly\": false}, \"tagIds\": [], \"checklist\": {\"checklistId\": \"00000000-0000-4000-8000-0000000000c0\", \"checklistItems\": [{\"checklistItemId\": \"00000000-0000-4000-8000-0000000000c9\", \"iconId\": \"\\u2705\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"title\": \"First step\", \"backgroundColor\": null, \"isChecked\": false, \"checkedAt\": null, \"checklistDate\": \"2026-08-14T00:00:00\", \"index\": 0}], \"isCompleted\": false}, \"origin\": null, \"calendarId\": null, \"externalEventId\": null, \"blockRecurrenceUpdateExternalEvent\": false, \"taskEnrichmentId\": null, \"isReadOnly\": false, \"grouping\": {\"groupingType\": \"TimeOfDay\", \"groupingLabel\": \"Morning\"}, \"allowEarlyStart\": true, \"allowEarlyEnd\": true, \"startTimeUtc\": \"2026-08-14T09:00:00\", \"endTimeUtc\": \"2026-08-14T09:30:00\", \"startTimeLocal\": \"0001-01-01T00:00:00\", \"timeUtcOffset\": \"00:00:00\"}",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "DELETE",
+   "url": "https://api.tiimoapp.com/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "",
+   "response_status": 204,
+   "response_content_type": "",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/profiles/00000000-0000-4000-8000-000000000001/routines?from=2026-08-14&to=2026-08-21",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "[]",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/profiles/00000000-0000-4000-8000-000000000001/tags",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "[{\"tagId\": \"00000000-0000-4000-8000-0000000000t1\", \"name\": \"Work\", \"backgroundColor\": \"#5B8DEF\", \"tagIndex\": 0, \"source\": \"User\", \"iconId\": \"\\ud83d\\udcbc\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\"}]",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/profiles/00000000-0000-4000-8000-000000000001/todo-tasks",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "[{\"profileId\": \"00000000-0000-4000-8000-000000000001\", \"taskId\": \"00000000-0000-4000-8000-0000000000f1\", \"todoTaskListId\": \"00000000-0000-4000-8000-0000000000l1\", \"title\": \"Sample task\", \"notes\": \"\", \"duration\": 600, \"iconId\": \"\\ud83d\\udcdd\", \"iconType\": \"UnicodeEmoji\", \"iconUrl\": null, \"backgroundColor\": \"#CCCCCC\", \"tagIds\": [], \"priority\": \"Medium\", \"isCompleted\": false, \"completedAt\": null, \"sortOrder\": 0}]",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/profiles/00000000-0000-4000-8000-000000000001/todo-task-lists",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "{\"lists\": [{\"todoTaskListId\": \"00000000-0000-4000-8000-0000000000l1\", \"profileId\": \"00000000-0000-4000-8000-000000000001\", \"title\": \"To-do\", \"description\": null, \"selectedGrouping\": \"Priority\", \"sortOrder\": 0, \"items\": [{\"taskId\": \"00000000-0000-4000-8000-0000000000f1\", \"title\": \"Sample task\", \"isCompleted\": false, \"priority\": \"Medium\"}]}]}",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/externalCalendar/profiles/00000000-0000-4000-8000-000000000001/linkedCalendars",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "[{\"calendarId\": \"00000000-0000-4000-8000-0000000000c1\", \"name\": \"Work calendar\", \"color\": \"#4285F4\", \"externalCalendarId\": \"primary\", \"externalCalendarProvider\": \"Google\", \"email\": \"user@example.invalid\", \"iconId\": \"\\ud83d\\udcc5\", \"iconUrl\": null, \"hidden\": false, \"iconType\": \"UnicodeEmoji\", \"isReadOnly\": true, \"connected\": true}]",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://api.tiimoapp.com/api/externalCalendar/profiles/00000000-0000-4000-8000-000000000001/externalCalendars/00000000-0000-4000-8000-0000000000c1/activities?fromDate=2026-08-14&toDate=2026-08-15",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "{\"2026-08-14\": [{\"activityId\": \"00000000-0000-4000-8000-0000000000a1\", \"title\": \"External meeting\", \"description\": \"\", \"type\": \"Play\", \"state\": null, \"sortPriority\": 100, \"pausedTime\": null, \"startTime\": \"2026-08-14T09:00:00\", \"endTime\": \"2026-08-14T09:30:00\", \"duration\": 1800, \"startTimeActual\": \"2026-08-14T09:00:00\", \"endTimeActual\": \"2026-08-14T09:30:00\", \"durationActual\": 1800, \"durationPaused\": 0, \"completedAt\": null, \"isAllDay\": false, \"iconId\": \"\\ud83e\\uddea\", \"iconUrl\": null, \"iconType\": \"UnicodeEmoji\", \"backgroundColor\": null, \"isRepeating\": true, \"recurrenceType\": \"weekdays\", \"repetition\": {\"type\": \"Weekly\", \"weeklyFrequency\": 1, \"weeklyDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"], \"monthlyDays\": [], \"firstDay\": \"2026-08-01T00:00:00\", \"lastDay\": null, \"interval\": 1, \"daily\": false, \"weekly\": true, \"monthly\": false, \"yearly\": false}, \"tagIds\": [], \"checklist\": null, \"origin\": \"ExternalCalendar\", \"calendarId\": \"00000000-0000-4000-8000-0000000000c1\", \"externalEventId\": \"ext-1\", \"blockRecurrenceUpdateExternalEvent\": false, \"taskEnrichmentId\": null, \"isReadOnly\": true, \"grouping\": {\"groupingType\": \"TimeOfDay\", \"groupingLabel\": \"Morning\"}, \"allowEarlyStart\": true, \"allowEarlyEnd\": true, \"startTimeUtc\": \"2026-08-14T09:00:00\", \"endTimeUtc\": \"2026-08-14T09:30:00\", \"startTimeLocal\": \"0001-01-01T00:00:00\", \"timeUtcOffset\": \"00:00:00\"}]}",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  },
+  {
+   "method": "GET",
+   "url": "https://auth.tiimoapp.com/connect/userinfo",
+   "request_headers": {
+    "Accept": "application/json"
+   },
+   "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+   },
+   "request_body": "",
+   "response_body": "{\"sub\": \"00000000-0000-4000-8000-000000000001\", \"email\": \"user@example.invalid\", \"email_verified\": true}",
+   "response_status": 200,
+   "response_content_type": "application/json; charset=utf-8",
+   "classification": "",
+   "is_noise": false
+  }
+ ]
+}

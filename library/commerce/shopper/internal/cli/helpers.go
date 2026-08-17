@@ -11,10 +11,10 @@ import (
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/platform"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
-	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -29,6 +29,24 @@ import (
 var As = errors.As
 
 const paginatedGetMaxPages = 100
+
+func formatCLIParamValue(v any) string {
+	switch tv := v.(type) {
+	case float64:
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case map[string]any, []any:
+		// Composite values (a decoded JSON object/array element bound to a
+		// query slot) must stay valid JSON on the wire; fmt's rendering would
+		// emit "map[...]"/"[a b c]" garbage. Mirrors formatMCPParamValue's
+		// composite branch so the CLI and MCP surfaces serialize identically.
+		if b, err := json.Marshal(tv); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", tv)
+	default:
+		return fmt.Sprintf("%v", v)
+	}
+}
 
 // noColor is set by the --no-color flag
 var noColor bool
@@ -49,7 +67,7 @@ func colorEnabled() bool {
 	if os.Getenv("TERM") == "dumb" {
 		return false
 	}
-	return isTerminal(os.Stdout)
+	return true
 }
 
 func isTerminal(w io.Writer) bool {
@@ -193,7 +211,7 @@ func detectPartialFailure(data []byte) *partialFailureReport {
 //	        return cmd.Help()
 //	    }
 //	    if dryRunOK(flags) {
-//	        return nil
+//	        return writeDryRun(cmd.OutOrStdout(), flags, "<command name>")
 //	    }
 //	    // ... real work ...
 //	}
@@ -203,22 +221,77 @@ func dryRunOK(flags *rootFlags) bool {
 	return flags != nil && flags.dryRun
 }
 
+type dryRunResult struct {
+	DryRun bool   `json:"dry_run"`
+	Action string `json:"action"`
+	Would  string `json:"would"`
+}
+
+// writeDryRun ends a --dry-run short-circuit by reporting the action that was
+// skipped. Returning silently leaves a --json caller with empty stdout, which
+// is indistinguishable from a broken command rather than a deliberate no-op.
+// Callers pass cmd.OutOrStdout() so the report follows any redirected writer.
+func writeDryRun(w io.Writer, flags *rootFlags, action string) error {
+	would := "run " + action + "; no changes made"
+	if flags != nil && flags.asJSON {
+		return json.NewEncoder(w).Encode(dryRunResult{DryRun: true, Action: action, Would: would})
+	}
+	_, err := fmt.Fprintf(w, "dry-run: would %s\n", would)
+	return err
+}
+
+// boundCtx applies the root --timeout flag to hand-written command work that
+// does not go through the generated internal/client.Client. Generated endpoint
+// commands already pass flags.timeout into client.New; sibling typed clients
+// used by novel commands need an explicit command-level context boundary.
+func boundCtx(parent context.Context, flags *rootFlags) (context.Context, context.CancelFunc) {
+	if flags == nil || flags.timeout <= 0 {
+		return parent, func() {}
+	}
+	return context.WithTimeout(parent, flags.timeout)
+}
+
+// hasChangedLocalFlags checks Flag.Changed because Cobra's derived local flag
+// set does not populate the internal bookkeeping used by FlagSet.NFlag.
+func hasChangedLocalFlags(cmd *cobra.Command) bool {
+	changed := false
+	cmd.LocalNonPersistentFlags().VisitAll(func(flag *pflag.Flag) {
+		if flag.Changed {
+			changed = true
+		}
+	})
+	return changed
+}
+
 // parentNoSubcommandRunE returns a RunE that handles parents invoked without a
-// subcommand. In machine output (--json/--agent) the parent emits a structured
-// error to stdout listing valid subcommands and exits 2; otherwise cobra's
-// default help text is printed. Without this, agents driving the CLI in
-// --agent mode received only human-readable help on stdout and exit 0, with no
-// signal that the invocation was incomplete.
+// subcommand. A leftover positional means the user typed a token where a
+// subcommand was expected (a typo, an underscore instead of a hyphen, or a
+// bogus name); cobra routes it here because non-root parents don't reject
+// unknown subcommands. That case is a usage error in every output mode, so it
+// never masquerades as exit-0 help. A genuine bare parent invocation (no
+// leftover args) still emits a structured "subcommand required" error and exits
+// 2 in machine output (--json/--agent) but prints cobra's help for humans.
 func parentNoSubcommandRunE(flags *rootFlags) func(*cobra.Command, []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		if flags != nil && flags.asJSON {
-			subs := make([]string, 0, len(cmd.Commands()))
-			for _, c := range cmd.Commands() {
-				if c.IsAvailableCommand() && c.Name() != "help" {
-					subs = append(subs, c.Name())
-				}
+		machine := flags != nil && flags.asJSON
+		subs := make([]string, 0, len(cmd.Commands()))
+		for _, c := range cmd.Commands() {
+			if c.IsAvailableCommand() && c.Name() != "help" {
+				subs = append(subs, c.Name())
 			}
-			sort.Strings(subs)
+		}
+		sort.Strings(subs)
+		if len(args) > 0 {
+			if machine {
+				_ = json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
+					"error":             "unknown subcommand",
+					"unknown":           args[0],
+					"valid_subcommands": subs,
+				})
+			}
+			return usageErr(fmt.Errorf("unknown subcommand %q for %q\nRun '%s --help' for available subcommands", args[0], cmd.CommandPath(), cmd.CommandPath()))
+		}
+		if machine {
 			_ = json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
 				"error":             "subcommand required",
 				"valid_subcommands": subs,
@@ -268,6 +341,33 @@ func syncErrorJSON(resource, parent string, err error) string {
 		payload.Method = apiErr.Method
 		payload.Path = apiErr.Path
 		payload.Body = apiErr.Body
+	}
+	out, _ := json.Marshal(payload)
+	return string(out)
+}
+
+// syncWarningJSON renders a sync_warning event as a single valid JSON line.
+// Marshaling (rather than fmt.Fprintf string interpolation) escapes the
+// message field, whose value is an upstream error body that may be
+// pretty-printed multi-line JSON — embedding it raw broke the NDJSON stream.
+func syncWarningJSON(resource, parent string, status int, reason, message string) string {
+	payload := struct {
+		Event    string `json:"event"`
+		Resource string `json:"resource"`
+		Parent   string `json:"parent,omitempty"`
+		// status/reason/message are always present (matching the prior raw
+		// fmt.Fprintf shape); only parent was conditional. No omitempty so
+		// consumers parsing the event don't see fields disappear on zero values.
+		Status  int    `json:"status"`
+		Reason  string `json:"reason"`
+		Message string `json:"message"`
+	}{
+		Event:    "sync_warning",
+		Resource: resource,
+		Parent:   parent,
+		Status:   status,
+		Reason:   reason,
+		Message:  message,
 	}
 	out, _ := json.Marshal(payload)
 	return string(out)
@@ -422,6 +522,30 @@ func looksLikeAccessDenial(body string) bool {
 	return false
 }
 
+// argumentMissingPatterns matches API error bodies that indicate the endpoint
+// requires a filter or identifier the vendor spec did not mark as required.
+// Each pattern keeps the missing/required/not-provided signal adjacent to an
+// argument noun so an unrelated 400 (e.g. "required field 'email' format is
+// invalid and the avatar is missing", "no results were provided") is not
+// demoted from a hard failure to a warning.
+var argumentMissingPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`\bargument(?:\s+is)?\s+missing\b`),
+	regexp.MustCompile(`\bmissing\s+(?:a\s+|an\s+|the\s+)?(?:required\s+)?(?:argument|parameter|param|field|filter|identifier|id)\b`),
+	regexp.MustCompile(`\brequired\s+(?:argument|parameter|param|filter|identifier|id)\b[^.\n]*\b(?:is\s+)?(?:missing|not\s+provided|not\s+supplied)\b`),
+	regexp.MustCompile(`\b(?:argument|parameter|param|filter)\s+(?:is\s+)?required\b`),
+	regexp.MustCompile(`\bno\s+(?:argument|parameter|param|filter|identifier|id)\b[^.\n]*\bprovided\b`),
+}
+
+func looksLikeArgumentMissing(body string) bool {
+	lower := strings.ToLower(body)
+	for _, p := range argumentMissingPatterns {
+		if p.MatchString(lower) {
+			return true
+		}
+	}
+	return false
+}
+
 // isSyncAccessWarning classifies err as an access-denial warning suitable for
 // sync's warn-and-continue path. It returns nil, false for any error that
 // should remain a hard sync failure: HTTP 401 (token-level auth failure
@@ -431,6 +555,7 @@ func looksLikeAccessDenial(body string) bool {
 // Recognized warning shapes:
 //   - HTTP 403 (per-resource ACL rejection)
 //   - HTTP 400 + access-denial body keyword (insufficient scope, etc.)
+//   - HTTP 400 + missing required argument body keyword
 //   - GraphQL response carrying only access-denial extension codes
 func isSyncAccessWarning(err error) (*accessWarning, bool) {
 	if err == nil {
@@ -445,6 +570,9 @@ func isSyncAccessWarning(err error) (*accessWarning, bool) {
 		case 400:
 			if looksLikeAccessDenial(apiErr.Body) {
 				return &accessWarning{Status: 400, Reason: "insufficient_access", Message: apiErr.Body}, true
+			}
+			if looksLikeArgumentMissing(apiErr.Body) {
+				return &accessWarning{Status: 400, Reason: "argument_missing", Message: apiErr.Body}, true
 			}
 		}
 	}
@@ -495,20 +623,17 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return authErr(err)
 	case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
-			"\n      Set your API key: export SHOPPER_TOKEN=<your-key>"+
-			"\n      See API docs: https://siteapi.shopper.com.br"+
+			"\n      Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\""+
 			"\n      Run 'shopper-pp-cli doctor' to check auth status."+
 			"\n      Response: "+cliutil.SanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
-		return authErr(fmt.Errorf("%w\nhint: check your token. Set it with: shopper-pp-cli auth set-token <token>"+
-			"\n      or: export SHOPPER_TOKEN=<your-token>"+
-			"\n      See API docs: https://siteapi.shopper.com.br"+
+		return authErr(fmt.Errorf("%w\nhint: check your token."+
+			"\n      Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\""+
 			"\n      Run 'shopper-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
 		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
-			"\n      Check that your API key has the required permissions."+
-			"\n      Set it with: export SHOPPER_TOKEN=<your-key>"+
-			"\n      See API docs: https://siteapi.shopper.com.br"+
+			"\n      Check that your credentials have the required permissions and match the API's expected auth scheme."+
+			"\n      Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\""+
 			"\n      Run 'shopper-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))
@@ -533,10 +658,62 @@ func newTabWriter(w io.Writer) *tabwriter.Writer {
 	return tabwriter.NewWriter(w, 2, 4, 2, ' ', 0)
 }
 
-// replacePathParam percent-encodes value so path-reserved characters in
-// user input do not collapse into extra path segments.
+// replacePathParam escapes path-param values before substituting them so
+// reserved characters within each segment remain safe in the request URL.
 func replacePathParam(path, name, value string) string {
-	return strings.ReplaceAll(path, "{"+name+"}", url.PathEscape(value))
+	return strings.ReplaceAll(path, "{"+name+"}", cliutil.EscapePathParam(value))
+}
+
+const responsePathItemsKey = "__printing_press_response_path_items"
+
+type responsePathPaginatedClient struct {
+	client interface {
+		GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
+	}
+	responsePath string
+}
+
+func (c responsePathPaginatedClient) IsDryRun() bool {
+	dryRunClient, ok := c.client.(interface{ IsDryRun() bool })
+	return ok && dryRunClient.IsDryRun()
+}
+
+func (c responsePathPaginatedClient) GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	data, err := c.client.GetWithHeaders(ctx, path, params, headers)
+	if err != nil || isDryRunResponseForClient(c.client, data) {
+		return data, err
+	}
+	selected, ok := responsePayloadAtPath(data, c.responsePath)
+	if !ok {
+		return nil, fmt.Errorf("response_path %q not found in response", c.responsePath)
+	}
+	if !isJSONArray(selected) {
+		return nil, fmt.Errorf("response_path %q must resolve to an array", c.responsePath)
+	}
+	var root map[string]json.RawMessage
+	if err := json.Unmarshal(data, &root); err != nil {
+		return nil, fmt.Errorf("response_path %q requires an object response envelope: %w", c.responsePath, err)
+	}
+	root[responsePathItemsKey] = selected
+	transformed, err := json.Marshal(root)
+	if err != nil {
+		return nil, fmt.Errorf("wrap response_path %q: %w", c.responsePath, err)
+	}
+	return transformed, nil
+}
+
+func paginatedGetWithResponsePath(ctx context.Context, c interface {
+	GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
+}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField, responsePath string) (json.RawMessage, error) {
+	if responsePath == "" {
+		return paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField)
+	}
+	wrapped := responsePathPaginatedClient{client: c, responsePath: responsePath}
+	data, err := paginatedGet(ctx, wrapped, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField)
+	if err != nil || fetchAll {
+		return data, err
+	}
+	return applyResponsePath(data, responsePath), nil
 }
 
 // paginatedGet fetches pages and concatenates array results. The headers
@@ -545,7 +722,7 @@ func replacePathParam(path, name, value string) string {
 // endpoint has no per-endpoint header overrides.
 func paginatedGet(ctx context.Context, c interface {
 	GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
-}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
+}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
 	// Cursor params are exempt from the "0"/"false" strip: offset-paginated
 	// APIs send offset=0 on the first page.
 	clean := map[string]string{}
@@ -557,18 +734,50 @@ func paginatedGet(ctx context.Context, c interface {
 			clean[k] = v
 		}
 	}
-
+	cursorLookupPath := nextCursorPath
+	if cursorLookupPath == "" && paginationType != "offset" && paginationType != "page" {
+		cursorLookupPath = cursorParam
+	}
 	if !fetchAll {
 		data, err := c.GetWithHeaders(ctx, path, clean, headers)
 		if err != nil {
 			return nil, err
 		}
-		emitTruncationWarning(data, nextCursorPath, hasMoreField, paginationType)
+		if isDryRunResponseForClient(c, data) {
+			return data, nil
+		}
+		emitTruncationWarning(ctx, data, cursorLookupPath, hasMoreField, paginationType)
 		return data, nil
+	}
+
+	pageSize := 0
+	if paginationType == "offset" || paginationType == "page" {
+		pageSize = defaultPageSize
+		hasPositiveLimit := false
+		if limitParam != "" {
+			if limit, err := strconv.Atoi(clean[limitParam]); err == nil && limit > 0 {
+				pageSize = limit
+				hasPositiveLimit = true
+			}
+		}
+		if pageSize <= 0 {
+			pageSize = 100
+		}
+		if limitParam != "" && !hasPositiveLimit {
+			clean[limitParam] = strconv.Itoa(pageSize)
+		}
 	}
 
 	// Fetch all pages
 	allItems := make([]json.RawMessage, 0)
+	var collectionEnvelope map[string]json.RawMessage
+	collectionField := ""
+	collectionShapeSet := false
+	seenCursorTokens := map[string]struct{}{}
+	if sentCursor := clean[cursorParam]; sentCursor != "" {
+		seenCursorTokens[sentCursor] = struct{}{}
+	}
+	foundCursorField := false
 	page := 0
 	for {
 		page++
@@ -582,25 +791,70 @@ func paginatedGet(ctx context.Context, c interface {
 		if err != nil {
 			return nil, err
 		}
+		if isDryRunResponseForClient(c, data) {
+			return data, nil
+		}
 
 		// Try to extract items array
 		var items []json.RawMessage
 		if json.Unmarshal(data, &items) == nil {
+			if collectionShapeSet && collectionField != "" {
+				return nil, fmt.Errorf("paginated response collection changed from %q to a bare array", collectionField)
+			}
+			collectionShapeSet = true
 			allItems = append(allItems, items...)
+			if next, ok := nextFullPageOffsetCursor(clean, cursorParam, paginationType, pageSize, len(items)); ok {
+				if page >= paginatedGetMaxPages {
+					emitPaginatedGetMaxPagesWarning(ctx)
+					break
+				}
+				clean[cursorParam] = next
+				continue
+			}
 		} else {
 			// Response is an object - look for array inside
 			var obj map[string]json.RawMessage
 			if json.Unmarshal(data, &obj) == nil {
-				if nested, ok := extractPaginatedItems(obj); ok {
+				itemCount := 0
+				field, preserve := paginatedCollectionEnvelopeField(obj, path)
+				nested, ok := extractPaginatedItems(obj, path)
+				if !ok && preserve {
+					ok = json.Unmarshal(obj[field], &nested) == nil
+				}
+				if ok {
+					if !collectionShapeSet {
+						collectionShapeSet = true
+						if preserve {
+							collectionField = field
+							collectionEnvelope = cloneRawObject(obj)
+						}
+					} else if (collectionField != "" && (!preserve || !strings.EqualFold(collectionField, field))) || (collectionField == "" && preserve) {
+						if collectionField != "" {
+							return nil, fmt.Errorf("paginated response collection changed from %q", collectionField)
+						}
+						return nil, fmt.Errorf("paginated response collection changed from a canonical array to %q", field)
+					}
 					allItems = append(allItems, nested...)
+					itemCount = len(nested)
 				}
 
 				// Check for next cursor
-				if nextCursorPath != "" {
-					if tokenRaw, ok := rawAtPath(obj, nextCursorPath); ok {
+				if cursorLookupPath != "" {
+					if tokenRaw, ok := rawAtPath(obj, cursorLookupPath); ok {
 						if token := paginationCursorToken(tokenRaw); token != "" {
+							foundCursorField = true
+							if _, seen := seenCursorTokens[token]; seen {
+								platform.MarkContextTruncated(ctx, platform.TruncationReason{Kind: "pagination_cursor_repeated", Configured: "unique_cursor", Observed: "repeated_cursor", MoreAvailable: true})
+								if humanFriendly {
+									fmt.Fprintf(os.Stderr, "warning: --all received the same pagination cursor twice; returning fetched pages only.\n")
+								} else {
+									fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_cursor_repeated","next_cursor_path":%q,"message":"--all received the same pagination cursor twice; returning fetched pages only"}`+"\n", cursorLookupPath)
+								}
+								break
+							}
+							seenCursorTokens[token] = struct{}{}
 							if page >= paginatedGetMaxPages {
-								emitPaginatedGetMaxPagesWarning()
+								emitPaginatedGetMaxPagesWarning(ctx)
 								break
 							}
 							clean[cursorParam] = token
@@ -611,21 +865,35 @@ func paginatedGet(ctx context.Context, c interface {
 
 				// Check has_more. Page and offset paginators can advance
 				// client-side; cursor-based APIs still need a body cursor.
+				hasExplicitNoMore := false
 				if hasMoreField != "" {
 					if moreRaw, ok := rawAtPath(obj, hasMoreField); ok {
 						var more bool
-						if json.Unmarshal(moreRaw, &more) == nil && more {
-							if next, ok := nextClientSidePaginationCursor(clean, cursorParam, paginationType, limitParam); ok {
-								if page >= paginatedGetMaxPages {
-									emitPaginatedGetMaxPagesWarning()
-									break
+						if json.Unmarshal(moreRaw, &more) == nil {
+							if more {
+								if next, ok := nextClientSidePaginationCursor(clean, cursorParam, paginationType, pageSize); ok {
+									if page >= paginatedGetMaxPages {
+										emitPaginatedGetMaxPagesWarning(ctx)
+										break
+									}
+									clean[cursorParam] = next
+									continue
 								}
-								clean[cursorParam] = next
-								continue
+								emitMissingPaginationCursorWarning(ctx, cursorLookupPath)
+								break
 							}
-							emitMissingPaginationCursorWarning(nextCursorPath)
+							hasExplicitNoMore = true
+						}
+					}
+				}
+				if !hasExplicitNoMore && nextCursorPath == "" && hasMoreField == "" {
+					if next, ok := nextFullPageOffsetCursor(clean, cursorParam, paginationType, pageSize, itemCount); ok {
+						if page >= paginatedGetMaxPages {
+							emitPaginatedGetMaxPagesWarning(ctx)
 							break
 						}
+						clean[cursorParam] = next
+						continue
 					}
 				}
 			}
@@ -637,19 +905,125 @@ func paginatedGet(ctx context.Context, c interface {
 		break
 	}
 
-	if fetchAll && page == 1 && nextCursorPath == "" && hasMoreField == "" {
-		emitMissingPaginationSignalWarning()
+	if fetchAll && page == 1 && nextCursorPath == "" && !foundCursorField && hasMoreField == "" && paginationType != "offset" && paginationType != "page" {
+		emitMissingPaginationSignalWarning(ctx)
 	}
 	if humanFriendly {
 		fmt.Fprintf(os.Stderr, "fetched %d items across %d pages\n", len(allItems), page)
 	} else {
 		fmt.Fprintf(os.Stderr, `{"event":"complete","total":%d,"pages":%d}`+"\n", len(allItems), page)
 	}
-	result, _ := json.Marshal(allItems)
+	var result []byte
+	if collectionField != "" {
+		collectionEnvelope[collectionField], _ = json.Marshal(allItems)
+		deleteRawPath(collectionEnvelope, cursorLookupPath)
+		deleteRawPath(collectionEnvelope, hasMoreField)
+		if paginationType == "offset" || paginationType == "page" {
+			deleteRawPath(collectionEnvelope, cursorParam)
+		}
+		result, _ = json.Marshal(collectionEnvelope)
+	} else {
+		result, _ = json.Marshal(allItems)
+	}
 	return json.RawMessage(result), nil
 }
 
-func nextClientSidePaginationCursor(params map[string]string, cursorParam, paginationType, limitParam string) (string, bool) {
+func cloneRawObject(obj map[string]json.RawMessage) map[string]json.RawMessage {
+	clone := make(map[string]json.RawMessage, len(obj))
+	for key, value := range obj {
+		clone[key] = append(json.RawMessage(nil), value...)
+	}
+	return clone
+}
+
+func paginatedCollectionEnvelopeField(obj map[string]json.RawMessage, requestPath string) (string, bool) {
+	for key, raw := range obj {
+		if canonicalPaginationCollectionKeys[key] && isJSONArray(raw) {
+			return "", false
+		}
+	}
+
+	pathWithoutQuery := strings.SplitN(requestPath, "?", 2)[0]
+	segments := strings.Split(strings.Trim(pathWithoutQuery, "/"), "/")
+	for i := len(segments) - 1; i >= 0; i-- {
+		segment := strings.TrimSuffix(strings.TrimSpace(segments[i]), ".json")
+		if segment == "" || (strings.HasPrefix(segment, "{") && strings.HasSuffix(segment, "}")) {
+			continue
+		}
+		for key, raw := range obj {
+			if strings.EqualFold(key, segment) && isJSONArray(raw) && !envelopeMetadataArrayKeys[key] {
+				return key, true
+			}
+		}
+	}
+
+	var candidate string
+	for key, raw := range obj {
+		if envelopeMetadataArrayKeys[key] || canonicalPaginationCollectionKeys[key] || !isJSONArray(raw) {
+			continue
+		}
+		if _, ok := extractPaginatedObjectArray(raw); !ok {
+			continue
+		}
+		if candidate != "" {
+			return "", false
+		}
+		candidate = key
+	}
+	return candidate, candidate != ""
+}
+
+func isJSONArray(raw json.RawMessage) bool {
+	trimmed := bytes.TrimSpace(raw)
+	if len(trimmed) == 0 || trimmed[0] != '[' {
+		return false
+	}
+	var items []json.RawMessage
+	return json.Unmarshal(raw, &items) == nil
+}
+
+var canonicalPaginationCollectionKeys = map[string]bool{
+	responsePathItemsKey: true,
+	"data":               true, "items": true, "results": true, "messages": true, "members": true, "values": true,
+}
+
+func deleteRawPath(obj map[string]json.RawMessage, path string) {
+	if path == "" {
+		return
+	}
+	parts := strings.Split(path, ".")
+	key := ""
+	for candidate := range obj {
+		if strings.EqualFold(candidate, parts[0]) {
+			key = candidate
+			break
+		}
+	}
+	if key == "" {
+		return
+	}
+	if len(parts) == 1 {
+		delete(obj, key)
+		return
+	}
+	var child map[string]json.RawMessage
+	if json.Unmarshal(obj[key], &child) != nil {
+		return
+	}
+	deleteRawPath(child, strings.Join(parts[1:], "."))
+	obj[key], _ = json.Marshal(child)
+}
+func nextFullPageOffsetCursor(params map[string]string, cursorParam, paginationType string, pageSize, itemCount int) (string, bool) {
+	if (paginationType != "offset" && paginationType != "page") || itemCount == 0 {
+		return "", false
+	}
+	if pageSize <= 0 || itemCount < pageSize {
+		return "", false
+	}
+	return nextClientSidePaginationCursor(params, cursorParam, paginationType, pageSize)
+}
+
+func nextClientSidePaginationCursor(params map[string]string, cursorParam, paginationType string, pageSize int) (string, bool) {
 	if cursorParam == "" {
 		return "", false
 	}
@@ -673,11 +1047,10 @@ func nextClientSidePaginationCursor(params map[string]string, cursorParam, pagin
 		if err != nil {
 			return "", false
 		}
-		limit, err := strconv.Atoi(params[limitParam])
-		if err != nil || limit <= 0 {
+		if pageSize <= 0 {
 			return "", false
 		}
-		return strconv.Itoa(n + limit), true
+		return strconv.Itoa(n + pageSize), true
 	default:
 		return "", false
 	}
@@ -686,7 +1059,7 @@ func nextClientSidePaginationCursor(params map[string]string, cursorParam, pagin
 // Silent page-1 truncation is the worst-possible mode for agents,
 // who otherwise compute totals against an incomplete set without
 // passing --all.
-func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField, paginationType string) {
+func emitTruncationWarning(ctx context.Context, data json.RawMessage, nextCursorPath, hasMoreField, paginationType string) {
 	if nextCursorPath == "" && hasMoreField == "" {
 		return
 	}
@@ -709,6 +1082,7 @@ func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField, p
 	if nextCursor == "" && !hasMore {
 		return
 	}
+	platform.MarkContextTruncated(ctx, platform.TruncationReason{Kind: "page_limit", Configured: 1, Observed: 1, MoreAvailable: true})
 	// --all advances when a next-cursor is configured, or when the endpoint
 	// uses client-side numeric page/offset advancement. Opaque cursor APIs
 	// still need a returned cursor to advance safely.
@@ -727,7 +1101,8 @@ func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField, p
 	}
 }
 
-func emitMissingPaginationSignalWarning() {
+func emitMissingPaginationSignalWarning(ctx context.Context) {
+	platform.MarkContextTruncated(ctx, platform.TruncationReason{Kind: "pagination_signal_missing", Configured: "all_pages", Observed: 1, MoreAvailable: true})
 	if humanFriendly {
 		fmt.Fprintf(os.Stderr, "warning: --all requested, but this endpoint does not declare a next cursor or has-more field; returning page 1 only.\n")
 	} else {
@@ -735,7 +1110,8 @@ func emitMissingPaginationSignalWarning() {
 	}
 }
 
-func emitPaginatedGetMaxPagesWarning() {
+func emitPaginatedGetMaxPagesWarning(ctx context.Context) {
+	platform.MarkContextTruncated(ctx, platform.TruncationReason{Kind: "max_pages", Configured: paginatedGetMaxPages, Observed: paginatedGetMaxPages, MoreAvailable: true})
 	if humanFriendly {
 		fmt.Fprintf(os.Stderr, "warning: --all reached the %d-page safety limit; returning fetched pages only.\n", paginatedGetMaxPages)
 	} else {
@@ -743,7 +1119,8 @@ func emitPaginatedGetMaxPagesWarning() {
 	}
 }
 
-func emitMissingPaginationCursorWarning(nextCursorPath string) {
+func emitMissingPaginationCursorWarning(ctx context.Context, nextCursorPath string) {
+	platform.MarkContextTruncated(ctx, platform.TruncationReason{Kind: "pagination_cursor_missing", Configured: nextCursorPath, Observed: "missing", MoreAvailable: true})
 	if humanFriendly {
 		fmt.Fprintf(os.Stderr, "warning: --all requested, but the response indicated more pages without a usable next cursor; returning fetched pages only.\n")
 	} else if nextCursorPath != "" {
@@ -767,21 +1144,44 @@ func paginationCursorToken(raw json.RawMessage) string {
 	return ""
 }
 
-func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool) {
-	for _, field := range []string{"data", "items", "results", "messages", "members", "values"} {
-		if arr, ok := obj[field]; ok {
-			var nested []json.RawMessage
-			if json.Unmarshal(arr, &nested) == nil {
-				return nested, true
+func extractPaginatedItems(obj map[string]json.RawMessage, requestPath string) ([]json.RawMessage, bool) {
+	return extractPaginatedItemsFromObject(obj, requestPath, true)
+}
+
+func extractPaginatedItemsFromObject(obj map[string]json.RawMessage, requestPath string, allowEmbedded bool) ([]json.RawMessage, bool) {
+	if !allowEmbedded {
+		if nested, ok := extractPaginatedItemsMatchingPath(obj, requestPath); ok {
+			return nested, true
+		}
+	}
+
+	if allowEmbedded {
+		for _, field := range []string{responsePathItemsKey, "data", "items", "results", "messages", "members", "values"} {
+			if arr, ok := obj[field]; ok {
+				var nested []json.RawMessage
+				if json.Unmarshal(arr, &nested) == nil {
+					return nested, true
+				}
+			}
+		}
+
+		if raw, ok := obj["_embedded"]; ok {
+			var embedded map[string]json.RawMessage
+			if json.Unmarshal(raw, &embedded) == nil {
+				if nested, ok := extractPaginatedItemsFromObject(embedded, requestPath, false); ok {
+					return nested, true
+				}
 			}
 		}
 	}
 
 	var onlyArray []json.RawMessage
 	arrayCount := 0
-	for _, raw := range obj {
-		var candidate []json.RawMessage
-		if json.Unmarshal(raw, &candidate) == nil {
+	for key, raw := range obj {
+		if envelopeMetadataArrayKeys[key] {
+			continue
+		}
+		if candidate, ok := extractPaginatedObjectArray(raw); ok {
 			onlyArray = candidate
 			arrayCount++
 		}
@@ -790,6 +1190,75 @@ func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, b
 		return onlyArray, true
 	}
 	return nil, false
+}
+
+func extractPaginatedItemsMatchingPath(obj map[string]json.RawMessage, requestPath string) ([]json.RawMessage, bool) {
+	pathWithoutQuery := strings.SplitN(requestPath, "?", 2)[0]
+	segments := strings.Split(strings.Trim(pathWithoutQuery, "/"), "/")
+	for i := len(segments) - 1; i >= 0; i-- {
+		segment := strings.TrimSuffix(strings.TrimSpace(segments[i]), ".json")
+		if segment == "" || (strings.HasPrefix(segment, "{") && strings.HasSuffix(segment, "}")) {
+			continue
+		}
+
+		var matched []json.RawMessage
+		matches := 0
+		for key, raw := range obj {
+			if !strings.EqualFold(key, segment) {
+				continue
+			}
+			var items []json.RawMessage
+			if json.Unmarshal(raw, &items) != nil {
+				continue
+			}
+			matched = items
+			matches++
+		}
+		if matches == 1 {
+			return matched, true
+		}
+		if matches > 1 {
+			return nil, false
+		}
+	}
+	return nil, false
+}
+
+// envelopeMetadataArrayKeys lists sidecar arrays that must not be mistaken for
+// a domain collection when projecting wrapped output or aggregating pages.
+var envelopeMetadataArrayKeys = map[string]bool{
+	"errors": true, "Errors": true,
+	"warnings": true, "Warnings": true,
+}
+
+// envelopeMetadataKeys lists pagination and collection-envelope metadata
+// siblings to ignore when recognizing a wrapped array. Projection helpers
+// preserve these keys while filtering or compacting the collection.
+// Keep this data-driven so the envelope helpers do not depend on one API's
+// response vocabulary.
+var envelopeMetadataKeys = map[string]bool{
+	"paging": true, "pagination": true,
+	"_links": true, "links": true,
+	"meta": true, "metadata": true,
+	"total": true, "totalCount": true, "total_count": true,
+	"hasMore": true, "has_more": true,
+	"offset":   true,
+	"nextPage": true, "next_page": true,
+	"cursor": true,
+}
+
+func extractPaginatedObjectArray(raw json.RawMessage) ([]json.RawMessage, bool) {
+	var items []json.RawMessage
+	// Empty fallback arrays are deliberately ignored: without an object item,
+	// there is no signal distinguishing a domain collection from metadata.
+	if err := json.Unmarshal(raw, &items); err != nil || len(items) == 0 {
+		return nil, false
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(items[0], &obj); err != nil {
+		return nil, false
+	}
+	return items, true
 }
 
 func rawAtPath(obj map[string]json.RawMessage, path string) (json.RawMessage, bool) {
@@ -814,6 +1283,49 @@ func rawAtPath(obj map[string]json.RawMessage, path string) (json.RawMessage, bo
 	return nil, false
 }
 
+func applyResponsePath(data json.RawMessage, responsePath string) json.RawMessage {
+	if pathData, ok := responsePayloadAtPath(data, responsePath); ok {
+		return pathData
+	}
+	return data
+}
+
+func responsePayloadAtPath(data json.RawMessage, responsePath string) (json.RawMessage, bool) {
+	if strings.TrimSpace(responsePath) == "" {
+		return data, false
+	}
+	var root map[string]json.RawMessage
+	if err := json.Unmarshal(data, &root); err != nil {
+		return nil, false
+	}
+	return rawAtPath(root, strings.TrimPrefix(responsePath, "$."))
+}
+
+func responsePayloadParentAtPath(data json.RawMessage, responsePath string) (map[string]json.RawMessage, bool) {
+	path := strings.TrimPrefix(strings.TrimSpace(responsePath), "$.")
+	if path == "" {
+		return nil, false
+	}
+	var current map[string]json.RawMessage
+	if err := json.Unmarshal(data, &current); err != nil {
+		return nil, false
+	}
+	parts := strings.Split(path, ".")
+	if len(parts) == 1 {
+		return current, true
+	}
+	for _, part := range parts[:len(parts)-1] {
+		raw, ok := current[part]
+		if !ok {
+			return nil, false
+		}
+		if err := json.Unmarshal(raw, &current); err != nil {
+			return nil, false
+		}
+	}
+	return current, true
+}
+
 // printJSONFiltered marshals a Go-typed value through the same output
 // pipeline endpoint-mirror commands use. Hand-written novel commands that
 // build a typed slice/struct call this so --select, --compact, --csv, and
@@ -826,16 +1338,188 @@ func printJSONFiltered(w io.Writer, v any, flags *rootFlags) error {
 	return printOutputWithFlags(w, json.RawMessage(raw), flags)
 }
 
+func platformStructuredOutputSelected(w io.Writer, flags *rootFlags) bool {
+	if flags == nil {
+		return false
+	}
+	return flags.asJSON || flags.agent || (!isTerminal(w) && !flags.csv && !flags.quiet && !flags.plain)
+}
+
+func emitPlatformOutputMetadata(w io.Writer, flags *rootFlags) error {
+	if flags == nil || flags.platformSession == nil || flags.platformMetadataEmitted {
+		return nil
+	}
+	if w == nil {
+		w = os.Stderr
+	}
+	event := map[string]any{
+		"event": "output_metadata",
+		"meta":  flags.platformSession.OutputMetadata(),
+	}
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(event); err != nil {
+		return err
+	}
+	flags.platformMetadataEmitted = true
+	return nil
+}
+
+func validatePlatformAnalytics(flags *rootFlags) error {
+	if flags == nil || flags.platformSession == nil || flags.platformAnalytics == nil {
+		return nil
+	}
+	declaration := *flags.platformAnalytics
+	declaration.ClientProfile = flags.platformSession.ProfileName
+	declaration.TenantIdentity = flags.platformSession.ObservedIdentity
+	if declaration.Window == nil {
+		declaration.Window = flags.platformSession.OutputMetadata().ResolvedWindow
+	}
+	return platform.ValidateAnalytics(declaration)
+}
+
+func declarePlatformAnalytics(flags *rootFlags, declaration platform.AnalyticsDeclaration) {
+	if flags == nil {
+		return
+	}
+	flags.platformAnalytics = &declaration
+}
+
+func resolvePlatformWindow(ctx context.Context, request platform.WindowRequest, policy platform.WindowPolicy) (platform.ResolvedWindow, error) {
+	window, err := platform.ResolveWindow(request, policy)
+	if err != nil {
+		return platform.ResolvedWindow{}, err
+	}
+	platform.SetContextResolvedWindow(ctx, window)
+	return window, nil
+}
+
+func wrapPlatformStructuredOutput(data json.RawMessage, flags *rootFlags, resultKey string, mergeOwnedEnvelope bool) (json.RawMessage, error) {
+	if flags == nil || flags.platformSession == nil {
+		return data, nil
+	}
+	if resultKey == "" {
+		resultKey = "data"
+	}
+	metadataRaw, err := json.Marshal(flags.platformSession.OutputMetadata())
+	if err != nil {
+		return nil, err
+	}
+	var platformMeta map[string]any
+	if err := json.Unmarshal(metadataRaw, &platformMeta); err != nil {
+		return nil, err
+	}
+	var envelope map[string]json.RawMessage
+	if mergeOwnedEnvelope && json.Unmarshal(data, &envelope) == nil && envelope["meta"] != nil && (envelope["data"] != nil || envelope["results"] != nil) {
+		var meta map[string]any
+		if err := json.Unmarshal(envelope["meta"], &meta); err != nil {
+			return nil, err
+		}
+		for key, value := range platformMeta {
+			meta[key] = value
+		}
+		mergedMeta, err := json.Marshal(meta)
+		if err != nil {
+			return nil, err
+		}
+		envelope["meta"] = mergedMeta
+		data, err = json.Marshal(envelope)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		data, err = json.Marshal(map[string]any{"meta": platformMeta, resultKey: data})
+		if err != nil {
+			return nil, err
+		}
+	}
+	flags.platformMetadataEmitted = true
+	return data, nil
+}
+
+// wrapAgentOutput gives --agent callers one parseable top-level envelope for
+// generated command families that build typed Go values instead of endpoint
+// response bytes. The raw value is preserved under results so --json without
+// --agent can stay backward-compatible while shell agents get stable metadata.
+func wrapAgentOutput(data json.RawMessage, meta map[string]any) (json.RawMessage, error) {
+	if meta == nil {
+		meta = map[string]any{}
+	}
+	if _, ok := meta["source"]; !ok {
+		meta["source"] = "local"
+	}
+	if source, _ := meta["source"].(string); source == "live" {
+		data = unwrapSingleKeyArray(data)
+	}
+	var results any
+	if json.Valid(data) {
+		results = data
+	} else {
+		results = string(data)
+	}
+	envelope := map[string]any{
+		"meta":    meta,
+		"results": results,
+	}
+	return json.Marshal(envelope)
+}
+
+// unwrapSingleKeyArray flattens single-key collection envelopes
+// ({"results":[...]}, {"data":[...]}, etc.) so the agent envelope
+// emits a stable .results[] across APIs. Known pagination metadata siblings
+// do not prevent a recognized collection wrapper from being flattened;
+// unrelated multi-key objects still pass through so non-collection responses
+// aren't reshaped.
+//
+// The wrapper-key set is intentionally narrower than
+// extractPaginatedItems (which also walks domain-specific keys like
+// "messages", "members", "values" used by social/messaging APIs).
+// This helper only flattens canonical collection envelopes for
+// --json output; the pagination walker has a broader remit.
+func unwrapSingleKeyArray(data json.RawMessage) json.RawMessage {
+	leading := bytes.TrimLeft(data, " \t\r\n")
+	if len(leading) == 0 || leading[0] != '{' {
+		return data
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return data
+	}
+	var collectionKey string
+	var collectionValue json.RawMessage
+	foundCollection := false
+	for key, val := range obj {
+		if envelopeMetadataKeys[key] {
+			continue
+		}
+		if foundCollection {
+			return data
+		}
+		foundCollection = true
+		collectionKey = key
+		collectionValue = val
+	}
+	if collectionKey != "results" && collectionKey != "data" && collectionKey != "items" && collectionKey != "nodes" && collectionKey != "entries" && collectionKey != "records" {
+		return data
+	}
+	trimmed := bytes.TrimLeft(collectionValue, " \t\r\n")
+	if len(trimmed) == 0 || trimmed[0] != '[' {
+		return data
+	}
+	return collectionValue
+}
+
 // filterFields keeps only the specified fields (comma-separated) from JSON objects/arrays.
 // Supports dotted paths like "events.shortName" to descend into nested structures.
 // Arrays are traversed element-wise: "events.shortName" keeps shortName on each event.
 func filterFields(data json.RawMessage, fields string) json.RawMessage {
 	var paths [][]string
+	var requestedPaths []string
 	for _, f := range strings.Split(fields, ",") {
 		f = strings.TrimSpace(f)
 		if f == "" {
 			continue
 		}
+		requestedPaths = append(requestedPaths, f)
 		parts := strings.Split(f, ".")
 		for i := range parts {
 			parts[i] = strings.ToLower(parts[i])
@@ -845,20 +1529,95 @@ func filterFields(data json.RawMessage, fields string) json.RawMessage {
 	if len(paths) == 0 {
 		return data
 	}
-	return filterFieldsRec(data, paths)
+	filtered, state := filterFieldsRec(data, paths, true)
+	valid := ""
+	for i, path := range paths {
+		_, pathState := filterFieldsRec(data, [][]string{path}, true)
+		pathIndeterminate := pathState.anchoredIndeterminate || (len(paths) == 1 && pathState.fallbackIndeterminate)
+		if pathState.matched || pathIndeterminate {
+			continue
+		}
+		if valid == "" {
+			valid = strings.Join(selectFieldKeys(data), ", ")
+			if valid == "" {
+				valid = "none"
+			}
+		}
+		fmt.Fprintf(os.Stderr, "warning: --select %q matched no fields; valid fields: %s\n", requestedPaths[i], valid)
+	}
+	if !state.matched && !state.anchoredIndeterminate && !state.fallbackIndeterminate {
+		return data
+	}
+	return filtered
+}
+
+func selectFieldKeys(data json.RawMessage) []string {
+	keys := map[string]bool{}
+	var collect func(json.RawMessage)
+	collect = func(value json.RawMessage) {
+		var obj map[string]json.RawMessage
+		if err := json.Unmarshal(value, &obj); err == nil && obj != nil {
+			for key := range obj {
+				keys[key] = true
+			}
+			return
+		}
+		var arr []json.RawMessage
+		if err := json.Unmarshal(value, &arr); err == nil {
+			for _, element := range arr {
+				collect(element)
+			}
+		}
+	}
+	collect(data)
+
+	result := make([]string, 0, len(keys))
+	for key := range keys {
+		result = append(result, key)
+	}
+	sort.Strings(result)
+	return result
+}
+
+type selectMatchState struct {
+	matched               bool
+	anchoredIndeterminate bool
+	fallbackIndeterminate bool
+}
+
+// maxListEnvelopeDepth bounds generic object descent so malformed or hostile
+// JSON cannot force unbounded recursion in selector or compact projection.
+const maxListEnvelopeDepth = 32
+
+func (s *selectMatchState) merge(other selectMatchState) {
+	s.matched = s.matched || other.matched
+	s.anchoredIndeterminate = s.anchoredIndeterminate || other.anchoredIndeterminate
+	s.fallbackIndeterminate = s.fallbackIndeterminate || other.fallbackIndeterminate
 }
 
 // filterFieldsRec applies path filters to a JSON value. Each path is a list of
-// lowercase segments; arrays descend element-wise.
-func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
+// lowercase segments; arrays descend element-wise. pathAnchored distinguishes
+// empty arrays reached through a known selector prefix from empty arrays found
+// only by the list-envelope fallback.
+func filterFieldsRec(data json.RawMessage, paths [][]string, pathAnchored bool) (json.RawMessage, selectMatchState) {
+	return filterFieldsRecAtDepth(data, paths, pathAnchored, 0)
+}
+
+func filterFieldsRecAtDepth(data json.RawMessage, paths [][]string, pathAnchored bool, envelopeDepth int) (json.RawMessage, selectMatchState) {
 	var arr []json.RawMessage
 	if err := json.Unmarshal(data, &arr); err == nil {
 		out := make([]json.RawMessage, len(arr))
+		state := selectMatchState{
+			anchoredIndeterminate: len(arr) == 0 && pathAnchored,
+			fallbackIndeterminate: len(arr) == 0 && !pathAnchored,
+		}
 		for i, el := range arr {
-			out[i] = filterFieldsRec(el, paths)
+			var childState selectMatchState
+			out[i], childState = filterFieldsRecAtDepth(el, paths, pathAnchored, envelopeDepth)
+			state.merge(childState)
 		}
 		result, _ := json.Marshal(out)
-		return result
+		return result, state
 	}
 
 	var obj map[string]json.RawMessage
@@ -877,19 +1636,23 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 			}
 		}
 		filtered := map[string]json.RawMessage{}
-		matchedAny := false
+		headMatched := false
+		state := selectMatchState{}
 		for k, v := range obj {
 			matched := matchSelectSegment(k, keepWhole, subPaths)
 			if matched == "" {
 				continue
 			}
-			matchedAny = true
+			headMatched = true
 			if keepWhole[matched] {
 				filtered[k] = v
+				state.matched = true
 				continue
 			}
 			if subs := subPaths[matched]; subs != nil {
-				filtered[k] = filterFieldsRec(v, subs)
+				var childState selectMatchState
+				filtered[k], childState = filterFieldsRecAtDepth(v, subs, true, envelopeDepth)
+				state.merge(childState)
 			}
 		}
 		// Envelope fallback: when no top-level keys matched but at least one
@@ -897,34 +1660,76 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 		// (`{"items":[...]}`, `{"data":[...]}`, `{"total_count":N,"items":[...]}`)
 		// and apply the selector inside the array(s). Non-array siblings pass
 		// through verbatim so envelope metadata (counts, null pagination
-		// cursors) stays visible. The foundArray guard preserves the prior
-		// empty-object result for flat objects where no key matches and no
-		// array exists. The `arr != nil` check rejects JSON null, which
-		// json.Unmarshal otherwise accepts into a []json.RawMessage as a
-		// nil slice and would coerce to `[]`.
-		if !matchedAny {
-			pending := map[string]json.RawMessage{}
-			foundArray := false
-			for k, v := range obj {
-				var arr []json.RawMessage
-				if json.Unmarshal(v, &arr) == nil && arr != nil {
-					foundArray = true
-					pending[k] = filterFieldsRec(v, paths)
-				} else {
-					pending[k] = v
-				}
-			}
-			if foundArray {
-				for k, v := range pending {
-					filtered[k] = v
-				}
+		// cursors) stays visible. The foundArray guard keeps flat objects
+		// without matching keys as an all-miss result for the caller to
+		// diagnose and preserve. The `arr != nil` check rejects JSON null,
+		// which json.Unmarshal otherwise accepts into a []json.RawMessage
+		// as a nil slice and would coerce to `[]`.
+		if !headMatched {
+			if pending, foundArray, nestedState := filterListEnvelopeFields(obj, paths, envelopeDepth); foundArray {
+				filtered = pending
+				state.merge(nestedState)
 			}
 		}
 		result, _ := json.Marshal(filtered)
-		return result
+		return result, state
 	}
 
-	return data
+	return data, selectMatchState{}
+}
+
+func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string, envelopeDepth int) (map[string]json.RawMessage, bool, selectMatchState) {
+	pending := map[string]json.RawMessage{}
+	foundArray := false
+	state := selectMatchState{}
+	for k, v := range obj {
+		if envelopeMetadataArrayKeys[k] || envelopeMetadataKeys[k] {
+			pending[k] = v
+			continue
+		}
+		trimmed := bytes.TrimLeft(v, " \t\r\n")
+		if len(trimmed) > 0 {
+			switch trimmed[0] {
+			case '[':
+				var arr []json.RawMessage
+				if json.Unmarshal(v, &arr) == nil && arr != nil {
+					foundArray = true
+					var childState selectMatchState
+					pending[k], childState = filterFieldsRecAtDepth(v, paths, false, envelopeDepth)
+					state.merge(childState)
+					continue
+				}
+			case '{':
+				var nestedObj map[string]json.RawMessage
+				if json.Unmarshal(v, &nestedObj) == nil && nestedObj != nil {
+					if nested, ok, nestedState := filterNestedListEnvelopeFields(v, paths, envelopeDepth); ok {
+						foundArray = true
+						pending[k] = nested
+						state.merge(nestedState)
+						continue
+					}
+				}
+			}
+		}
+		pending[k] = v
+	}
+	return pending, foundArray, state
+}
+
+func filterNestedListEnvelopeFields(data json.RawMessage, paths [][]string, envelopeDepth int) (json.RawMessage, bool, selectMatchState) {
+	if envelopeDepth >= maxListEnvelopeDepth {
+		return nil, false, selectMatchState{}
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return nil, false, selectMatchState{}
+	}
+	filtered, found, state := filterListEnvelopeFields(obj, paths, envelopeDepth+1)
+	if !found {
+		return nil, false, selectMatchState{}
+	}
+	result, _ := json.Marshal(filtered)
+	return result, true, state
 }
 
 // matchSelectSegment returns the matching lowercase segment, or "" if no match.
@@ -957,6 +1762,35 @@ func camelToKebab(s string) string {
 
 // printOutputWithFlags routes output through the right format based on flags.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
+	return printOutputWithFlagsMeta(w, data, flags, map[string]any{"source": "local"})
+}
+
+// isDryRunResponse detects the exact sentinel returned by client.dryRun.
+func isDryRunResponse(dryRun bool, data json.RawMessage) bool {
+	if !dryRun {
+		return false
+	}
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err != nil || len(envelope) != 1 {
+		return false
+	}
+	raw, ok := envelope["dry_run"]
+	if !ok {
+		return false
+	}
+	var v bool
+	return json.Unmarshal(raw, &v) == nil && v
+}
+
+func isDryRunResponseForClient(c any, data json.RawMessage) bool {
+	dryRunClient, ok := c.(interface{ IsDryRun() bool })
+	return ok && isDryRunResponse(dryRunClient.IsDryRun(), data)
+}
+
+func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlags, agentMeta map[string]any) error {
+	if err := validatePlatformAnalytics(flags); err != nil {
+		return err
+	}
 	// --select wins over --compact when both are set: an explicit field list
 	// is the user's authoritative request, so the high-gravity allow-list
 	// must not strip those fields out before --select can pick them. When
@@ -967,6 +1801,24 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	} else if flags.compact {
 		data = compactFields(data)
 	}
+	if flags.agent && flags.asJSON && !flags.csv && !flags.plain && !flags.quiet {
+		wrapped, err := wrapAgentOutput(data, agentMeta)
+		if err != nil {
+			return err
+		}
+		data = wrapped
+	}
+	if platformStructuredOutputSelected(w, flags) && !flags.csv && !flags.plain && !flags.quiet {
+		resultKey := "data"
+		if flags.agent {
+			resultKey = "results"
+		}
+		wrapped, err := wrapPlatformStructuredOutput(data, flags, resultKey, flags.agent)
+		if err != nil {
+			return err
+		}
+		data = wrapped
+	}
 	// --quiet: suppress all output, exit code communicates result
 	if flags.quiet {
 		return nil
@@ -974,6 +1826,10 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	// --csv: render as CSV
 	if flags.csv {
 		return printCSV(w, data)
+	}
+	// --plain: render arrays as tab-separated rows
+	if flags.plain {
+		return printPlain(w, data)
 	}
 	return printOutput(w, data, flags.asJSON)
 }
@@ -984,6 +1840,7 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 var compactVerboseListFields = map[string]bool{
 	"description": true, "body": true, "content": true,
 	"comments": true, "attachments": true, "html": true, "markdown": true,
+	"_links": true, "links": true,
 }
 
 // compactVerboseObjectFields are metadata fields stripped from single-object
@@ -1021,10 +1878,11 @@ func compactFields(data json.RawMessage) json.RawMessage {
 // Two-layer keep rule:
 //
 //  1. A static allow-list covers canonical scalars (id/name/price/status/...).
-//  2. A data-driven extension also keeps any scalar key present in at least
-//     80% of input rows. This catches hand-written novel commands whose
-//     output keys (object_name, match_key, snippet) aren't on the canonical
-//     allow-list, without forcing every printed CLI to expand the list.
+//  2. A data-driven extension also keeps any key present in at least 80% of
+//     input rows. This catches hand-written novel commands whose payload keys
+//     (object_name, match_key, snippet, series, metrics) aren't on the
+//     canonical allow-list, without forcing every printed CLI to expand the
+//     list.
 //
 // Verbose fields (description, body, content, etc.) are excluded from the
 // data-driven extension regardless of frequency, so the compact intent
@@ -1060,8 +1918,8 @@ func compactListFields(items []map[string]any) json.RawMessage {
 	if len(items) > 0 {
 		keyCounts := map[string]int{}
 		for _, item := range items {
-			for k, v := range item {
-				if compactVerboseListFields[k] || !isCompactScalar(v) {
+			for k := range item {
+				if compactVerboseListFields[k] {
 					continue
 				}
 				keyCounts[k]++
@@ -1101,10 +1959,9 @@ func compactListFields(items []map[string]any) json.RawMessage {
 }
 
 // isCompactScalar reports whether v is a small primitive (string, number,
-// bool, null) suitable for --compact projection. Objects and arrays are
-// rejected: they almost always represent nested structure that defeats the
-// "short identifying value" intent of --compact, and including them in the
-// data-driven keep set would bloat agent output.
+// bool, null) suitable for compact table decisions. Compact list projection
+// may still retain frequent nested payload fields; this helper is about
+// display density, not whether a field carries agent-useful payload.
 func isCompactScalar(v any) bool {
 	switch v.(type) {
 	case nil, bool, float64, string:
@@ -1120,6 +1977,10 @@ func isCompactScalar(v any) bool {
 // under `--agent`/`--compact` is a silent loss; agents who want to omit them
 // can pass `--select` to specify only the fields they need.
 func compactObjectFields(obj map[string]any) json.RawMessage {
+	if compacted, ok := compactListEnvelopeObjectAtDepth(obj, 0); ok {
+		result, _ := json.Marshal(compacted)
+		return result
+	}
 	compact := map[string]any{}
 	for k, v := range obj {
 		if !compactVerboseObjectFields[k] {
@@ -1130,11 +1991,74 @@ func compactObjectFields(obj map[string]any) json.RawMessage {
 	return result
 }
 
+func compactListEnvelopeObjectAtDepth(obj map[string]any, envelopeDepth int) (map[string]any, bool) {
+	out := map[string]any{}
+	foundArray := false
+	for k, v := range obj {
+		if envelopeDepth == 0 && compactVerboseObjectFields[k] {
+			continue
+		}
+		if envelopeMetadataArrayKeys[k] || envelopeMetadataKeys[k] {
+			out[k] = v
+			continue
+		}
+		if compacted, ok := compactObjectArrayValue(v); ok {
+			foundArray = true
+			out[k] = compacted
+			continue
+		}
+		if nested, ok := v.(map[string]any); ok {
+			if envelopeDepth < maxListEnvelopeDepth {
+				if compacted, ok := compactListEnvelopeObjectAtDepth(nested, envelopeDepth+1); ok {
+					foundArray = true
+					out[k] = compacted
+					continue
+				}
+			}
+		}
+		out[k] = v
+	}
+	if !foundArray {
+		return nil, false
+	}
+	return out, true
+}
+
+func compactObjectArrayValue(v any) (any, bool) {
+	rawItems, ok := v.([]any)
+	if !ok || len(rawItems) == 0 {
+		return nil, false
+	}
+	items := make([]map[string]any, 0, len(rawItems))
+	for _, raw := range rawItems {
+		item, ok := raw.(map[string]any)
+		if !ok {
+			return nil, false
+		}
+		items = append(items, item)
+	}
+	compactedRaw := compactListFields(items)
+	var compacted any
+	if err := json.Unmarshal(compactedRaw, &compacted); err != nil {
+		return nil, false
+	}
+	return compacted, true
+}
+
 // printCSV renders JSON arrays as CSV with header row.
 func printCSV(w io.Writer, data json.RawMessage) error {
 	var items []map[string]any
-	if err := json.Unmarshal(data, &items); err != nil || len(items) == 0 {
-		// Single object or empty - just print as JSON
+	if err := json.Unmarshal(data, &items); err != nil {
+		// Single object or invalid JSON - just print as JSON
+		fmt.Fprintln(w, string(data))
+		return nil
+	}
+	if len(items) == 0 {
+		// A valid empty array is an empty CSV stream, not a JSON document.
+		// Keep the single-object fallback above for non-array payloads.
+		if bytes.HasPrefix(bytes.TrimSpace(data), []byte("[")) {
+			return nil
+		}
 		fmt.Fprintln(w, string(data))
 		return nil
 	}
@@ -1175,6 +2099,56 @@ func printCSV(w io.Writer, data json.RawMessage) error {
 		fmt.Fprintln(w, strings.Join(vals, ","))
 	}
 	return nil
+}
+
+// printPlain renders JSON arrays as tab-separated text with a header row.
+func printPlain(w io.Writer, data json.RawMessage) error {
+	var items []map[string]any
+	if err := json.Unmarshal(data, &items); err != nil {
+		// Single object - just print as JSON
+		fmt.Fprintln(w, string(data))
+		return nil
+	}
+	if len(items) == 0 {
+		return nil
+	}
+	keySet := map[string]bool{}
+	for _, item := range items {
+		for k := range item {
+			keySet[k] = true
+		}
+	}
+	var keys []string
+	for k := range keySet {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	fmt.Fprintln(w, strings.Join(keys, "\t"))
+	for _, item := range items {
+		var vals []string
+		for _, k := range keys {
+			vals = append(vals, plainCellValue(item[k]))
+		}
+		fmt.Fprintln(w, strings.Join(vals, "\t"))
+	}
+	return nil
+}
+
+func plainCellValue(v any) string {
+	if v == nil {
+		return ""
+	}
+	var s string
+	if f, ok := v.(float64); ok {
+		s = strconv.FormatFloat(f, 'f', -1, 64)
+	} else {
+		s = fmt.Sprintf("%v", v)
+	}
+	s = strings.ReplaceAll(s, "\t", " ")
+	s = strings.ReplaceAll(s, "\r\n", " ")
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "\r", " ")
+	return s
 }
 
 // printOutput auto-detects arrays and renders as tables, or prints raw JSON for objects.
@@ -1279,16 +2253,21 @@ func suggestFlag(unknown string, cmd *cobra.Command) string {
 // wantsHumanTable returns true when output should be a human-friendly table.
 // Smart default: terminal=table, pipe=JSON.
 // - Human in terminal: isTerminal()=true → table
+// - --human-friendly: force human output, even when stdout is piped
 // - Claude Code/Codex bash tool: stdout piped → JSON
 // - --json/--csv/--compact/--agent: machine format → JSON
 func wantsHumanTable(w io.Writer, flags *rootFlags) bool {
-	if flags.asJSON || flags.csv || flags.compact || flags.quiet || flags.plain {
+	if wantsMachineOutput(flags) {
 		return false
 	}
-	if flags.selectFields != "" {
-		return false
+	if humanFriendly {
+		return true
 	}
 	return isTerminal(w)
+}
+
+func wantsMachineOutput(flags *rootFlags) bool {
+	return flags.asJSON || flags.csv || flags.compact || flags.quiet || flags.plain || flags.selectFields != ""
 }
 
 func printAutoTable(w io.Writer, items []map[string]any) error {
@@ -1330,7 +2309,7 @@ func printAutoTable(w io.Writer, items []map[string]any) error {
 	tw := newTabWriter(w)
 	upperHeaders := make([]string, len(headers))
 	for i, h := range headers {
-		upperHeaders[i] = bold(strings.ToUpper(h))
+		upperHeaders[i] = bold(strings.ToUpper(cliutil.ScrubTerminal(h)))
 	}
 
 	fmt.Fprintln(tw, strings.Join(upperHeaders, "\t"))
@@ -1492,8 +2471,9 @@ func printAutoCards(w io.Writer, items []map[string]any) error {
 	// Find the longest header for alignment (from fields we'll actually show)
 	maxLen := 0
 	for _, h := range headers {
-		if len(h) > maxLen {
-			maxLen = len(h)
+		displayHeader := cliutil.ScrubTerminal(h)
+		if len(displayHeader) > maxLen {
+			maxLen = len(displayHeader)
 		}
 	}
 
@@ -1504,15 +2484,16 @@ func printAutoCards(w io.Writer, items []map[string]any) error {
 
 		// Card header: use first priority field as the card title
 		titleVal := formatCellValue(item[headers[0]])
+		titleHeader := cliutil.ScrubTerminal(headers[0])
 		if len(headers) > 1 {
 			secondVal := formatCellValue(item[headers[1]])
 			if secondVal != "" {
-				fmt.Fprintf(w, "%s %s — %s\n", bold(strings.ToUpper(headers[0])), titleVal, secondVal)
+				fmt.Fprintf(w, "%s %s — %s\n", bold(strings.ToUpper(titleHeader)), titleVal, secondVal)
 			} else {
-				fmt.Fprintf(w, "%s %s\n", bold(strings.ToUpper(headers[0])), titleVal)
+				fmt.Fprintf(w, "%s %s\n", bold(strings.ToUpper(titleHeader)), titleVal)
 			}
 		} else {
-			fmt.Fprintf(w, "%s %s\n", bold(strings.ToUpper(headers[0])), titleVal)
+			fmt.Fprintf(w, "%s %s\n", bold(strings.ToUpper(titleHeader)), titleVal)
 		}
 
 		// Remaining fields indented — skip empty, zero, and false values
@@ -1522,10 +2503,11 @@ func printAutoCards(w io.Writer, items []map[string]any) error {
 				continue
 			}
 			// Multi-line values (nested arrays) start with \n
+			displayHeader := cliutil.ScrubTerminal(h)
 			if strings.HasPrefix(v, "\n") {
-				fmt.Fprintf(w, "  %s:%s\n", h, v)
+				fmt.Fprintf(w, "  %s:%s\n", displayHeader, v)
 			} else {
-				fmt.Fprintf(w, "  %-*s  %s\n", maxLen, h+":", v)
+				fmt.Fprintf(w, "  %-*s  %s\n", maxLen, displayHeader+":", v)
 			}
 		}
 	}
@@ -1535,6 +2517,7 @@ func printAutoCards(w io.Writer, items []map[string]any) error {
 func formatCellValue(v any) string {
 	switch val := v.(type) {
 	case string:
+		val = cliutil.ScrubTerminal(val)
 		// Format ISO dates as just the date portion
 		if len(val) >= 19 && val[4] == '-' && val[7] == '-' && val[10] == 'T' {
 			return val[:10]
@@ -1562,7 +2545,7 @@ func formatCellValue(v any) string {
 		parts := make([]string, 0, len(val))
 		for _, item := range val {
 			if s, ok := item.(string); ok {
-				parts = append(parts, s)
+				parts = append(parts, cliutil.ScrubTerminal(s))
 			} else {
 				b, _ := json.Marshal(item)
 				parts = append(parts, string(b))
@@ -1716,50 +2699,28 @@ func printProvenance(cmd *cobra.Command, count int, prov DataProvenance) {
 	fmt.Fprintf(cmd.ErrOrStderr(), "%s%d results (cached, synced %s)\n", prefix, count, age)
 }
 
-// unwrapSingleKeyArray flattens single-key collection envelopes
-// ({"results":[...]}, {"data":[...]}, etc.) so the agent envelope
-// emits a stable .results[] across APIs. Multi-key objects pass
-// through so cursor/pagination fields stay accessible; non-array
-// values pass through so non-collection responses aren't reshaped.
-//
-// The wrapper-key set is intentionally narrower than
-// extractPaginatedItems (which also walks domain-specific keys like
-// "messages", "members", "values" used by social/messaging APIs).
-// This helper only flattens canonical collection envelopes for
-// --json output; the pagination walker has a broader remit.
-func unwrapSingleKeyArray(data json.RawMessage) json.RawMessage {
-	leading := bytes.TrimLeft(data, " \t\r\n")
-	if len(leading) == 0 || leading[0] != '{' {
-		return data
+func nonJSONPayloadError(data json.RawMessage) error {
+	trimmed := bytes.TrimSpace(data)
+	if len(trimmed) > 0 && trimmed[0] == '<' {
+		return authErr(fmt.Errorf("not authenticated or session expired; API returned HTML instead of JSON. " + "Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\""))
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return data
+	if len(trimmed) == 0 {
+		return apiErr(fmt.Errorf("API returned an empty response body; expected JSON"))
 	}
-	if len(obj) != 1 {
-		return data
+	return apiErr(fmt.Errorf("API returned a non-JSON response; expected JSON"))
+}
+
+func assertLiveJSONBody(data json.RawMessage) error {
+	if json.Valid(data) {
+		return nil
 	}
-	for key, val := range obj {
-		if key != "results" && key != "data" && key != "items" && key != "nodes" && key != "entries" && key != "records" {
-			return data
-		}
-		trimmed := bytes.TrimLeft(val, " \t\r\n")
-		if len(trimmed) == 0 || trimmed[0] != '[' {
-			return data
-		}
-		return val
-	}
-	return data
+	return nonJSONPayloadError(data)
 }
 
 // wrapWithProvenance wraps response data in a provenance envelope:
-// {"results": ..., "meta": {...}}. When data is valid JSON, it embeds as
-// the parsed shape; when data is non-JSON (e.g., XML/RSS responses, plain
-// text), it embeds as a JSON string so json.Marshal doesn't choke on
-// "invalid character '<'" while still passing the raw payload through to
-// the consumer. Single-key array envelopes from the API (e.g.
-// {"results": [...]}, {"data": [...]}) are unwrapped first so the output
-// shape is the same regardless of the API's wrapper key.
+// {"results": ..., "meta": {...}}. Single-key array envelopes from the API
+// (e.g. {"results": [...]}, {"data": [...]}) are unwrapped first so the
+// output shape is the same regardless of the API's wrapper key.
 func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMessage, error) {
 	meta := map[string]any{"source": prov.Source}
 	if prov.SyncedAt != nil {
@@ -1778,7 +2739,7 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	if json.Valid(data) {
 		results = json.RawMessage(unwrapSingleKeyArray(data))
 	} else {
-		results = string(data)
+		return nil, nonJSONPayloadError(data)
 	}
 	envelope := map[string]any{
 		"results": results,
@@ -1788,7 +2749,15 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 }
 
 // defaultDBPath returns the canonical path for the local SQLite database.
+// The resolver already knows the app name on the happy path; name is only
+// used for the conservative fallback when the resolved data directory fails.
 func defaultDBPath(name string) string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", name, "data.db")
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		if home, homeErr := os.UserHomeDir(); homeErr == nil {
+			return filepath.Join(home, ".local", "share", name, "data.db")
+		}
+		return "data.db"
+	}
+	return filepath.Join(dir, "data.db")
 }

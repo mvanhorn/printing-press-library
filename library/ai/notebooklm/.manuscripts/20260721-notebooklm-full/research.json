@@ -1,0 +1,149 @@
+{
+  "api_name": "notebooklm",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Chrome session auth",
+      "command": "auth login",
+      "description": "Import Google session cookies from Chrome without manual DevTools copying.",
+      "rationale": "NotebookLM has no public API key; cookie auth is the only practical agent path.",
+      "example": "notebooklm-pp-cli auth login --chrome",
+      "why_it_matters": "Use once after logging into Google in Chrome to enable all live commands.",
+      "group": "Auth"
+    },
+    {
+      "name": "Offline notebook search",
+      "command": "search",
+      "description": "Search synced notebooks locally by title or id without another API round-trip.",
+      "rationale": "Requires local SQLite cache populated by sync.",
+      "example": "notebooklm-pp-cli sync --json \u0026\u0026 notebooklm-pp-cli search \"quarterly\" --json",
+      "why_it_matters": "Use when you need fast recall across many notebooks in scripts.",
+      "group": "Local cache"
+    },
+    {
+      "name": "Grounded chat with citations",
+      "command": "chat ask",
+      "description": "Ask questions against notebook sources via streamed batchexecute RPC.",
+      "rationale": "Mirrors notebooklm-py chat wire format in a static Go binary.",
+      "example": "notebooklm-pp-cli chat ask \"Research\" \"What are the main themes?\" --json",
+      "why_it_matters": "Use for agent loops that need cited answers from uploaded sources.",
+      "group": "Chat"
+    },
+    {
+      "name": "Studio quiz generation",
+      "command": "studio generate-quiz",
+      "description": "Kick off NotebookLM Studio quiz artifact generation and optionally wait for completion.",
+      "rationale": "Wraps undocumented Studio RPCs not exposed by curl.",
+      "example": "notebooklm-pp-cli studio generate-quiz \"Research\" --wait --json",
+      "why_it_matters": "Use to produce study materials from a notebook's sources.",
+      "group": "Studio"
+    },
+    {
+      "name": "Doctor health gate",
+      "command": "doctor",
+      "description": "Validate config, cookie presence, and session bootstrap tokens before live calls.",
+      "rationale": "Agents need a deterministic preflight when cookies expire silently.",
+      "example": "notebooklm-pp-cli doctor --json",
+      "why_it_matters": "Run after auth login or when list commands return empty results.",
+      "group": "Operations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Chrome session auth",
+      "command": "auth login",
+      "description": "Import Google session cookies from Chrome without manual DevTools copying.",
+      "rationale": "NotebookLM has no public API key; cookie auth is the only practical agent path.",
+      "example": "notebooklm-pp-cli auth login --chrome",
+      "why_it_matters": "Use once after logging into Google in Chrome to enable all live commands.",
+      "group": "Auth"
+    },
+    {
+      "name": "Offline notebook search",
+      "command": "search",
+      "description": "Search synced notebooks locally by title or id without another API round-trip.",
+      "rationale": "Requires local SQLite cache populated by sync.",
+      "example": "notebooklm-pp-cli sync --json \u0026\u0026 notebooklm-pp-cli search \"quarterly\" --json",
+      "why_it_matters": "Use when you need fast recall across many notebooks in scripts.",
+      "group": "Local cache"
+    },
+    {
+      "name": "Grounded chat with citations",
+      "command": "chat ask",
+      "description": "Ask questions against notebook sources via streamed batchexecute RPC.",
+      "rationale": "Mirrors notebooklm-py chat wire format in a static Go binary.",
+      "example": "notebooklm-pp-cli chat ask \"Research\" \"What are the main themes?\" --json",
+      "why_it_matters": "Use for agent loops that need cited answers from uploaded sources.",
+      "group": "Chat"
+    },
+    {
+      "name": "Studio quiz generation",
+      "command": "studio generate-quiz",
+      "description": "Kick off NotebookLM Studio quiz artifact generation and optionally wait for completion.",
+      "rationale": "Wraps undocumented Studio RPCs not exposed by curl.",
+      "example": "notebooklm-pp-cli studio generate-quiz \"Research\" --wait --json",
+      "why_it_matters": "Use to produce study materials from a notebook's sources.",
+      "group": "Studio"
+    },
+    {
+      "name": "Doctor health gate",
+      "command": "doctor",
+      "description": "Validate config, cookie presence, and session bootstrap tokens before live calls.",
+      "rationale": "Agents need a deterministic preflight when cookies expire silently.",
+      "example": "notebooklm-pp-cli doctor --json",
+      "why_it_matters": "Run after auth login or when list commands return empty results.",
+      "group": "Operations"
+    }
+  ],
+  "narrative": {
+    "quickstart": [
+      {
+        "command": "notebooklm-pp-cli auth login --chrome",
+        "comment": "Import Google session cookies from Chrome"
+      },
+      {
+        "command": "notebooklm-pp-cli doctor --json",
+        "comment": "Verify auth and session bootstrap"
+      },
+      {
+        "command": "notebooklm-pp-cli notebook list --json",
+        "comment": "List notebooks"
+      },
+      {
+        "command": "notebooklm-pp-cli sync --json",
+        "comment": "Cache notebooks locally for offline search"
+      },
+      {
+        "command": "notebooklm-pp-cli chat ask \"My Notebook\" \"Summarize the sources\" --json",
+        "comment": "Ask a grounded question with citations"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "notebook list returns empty or RPC errors",
+        "fix": "Re-run `notebooklm-pp-cli auth login --chrome` after logging into Google in Chrome, then `doctor --json`."
+      },
+      {
+        "symptom": "search returns no results",
+        "fix": "Run `notebooklm-pp-cli sync --json` first to populate the local cache."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Create notebook and add a URL source",
+        "command": "notebooklm-pp-cli notebook create \"Agent Research\" --json \u0026\u0026 notebooklm-pp-cli source add \"Agent Research\" https://en.wikipedia.org/wiki/NotebookLM --json",
+        "explanation": "Bootstrap a fresh notebook with a public web source."
+      },
+      {
+        "title": "Search cached notebooks",
+        "command": "notebooklm-pp-cli search \"research\" --json",
+        "explanation": "Find notebooks by title after running sync."
+      }
+    ]
+  }
+}

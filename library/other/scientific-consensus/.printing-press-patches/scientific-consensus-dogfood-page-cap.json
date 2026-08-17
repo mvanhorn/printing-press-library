@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "scientific-consensus-dogfood-page-cap",
+  "applied_at": "2026-06-21",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Lowered dogfood-mode page caps for sync (10->1) and workflow archive (100->1).",
+  "reason": "Six-entity OpenAlex sync at ~1-2s/page blew the dogfood 30s/command budget; capping to one page (~600 records) keeps the live matrix inside the timeout.",
+  "files": ["internal/cli/sync.go", "internal/cli/channel_workflow.go"],
+  "validated_outcome": "live dogfood matrix passes 93/93 with sync and workflow archive inside the timeout."
+}

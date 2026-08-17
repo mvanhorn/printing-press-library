@@ -350,17 +350,28 @@ func applyIssueSearchRefreshMetadata(freshness *issueSearchFreshness, selfRefres
 
 func refreshIssueSearchResources(c *client.Client, db *store.Store) error {
 	const syncAllPages = 0
-	if _, err := syncTeams(c, db, syncAllPages); err != nil {
-		return fmt.Errorf("sync teams: %w", err)
-	}
-	if _, err := syncWorkflowStates(c, db, syncAllPages); err != nil {
-		return fmt.Errorf("sync workflow states: %w", err)
-	}
-	if _, err := syncLabels(c, db, syncAllPages); err != nil {
-		return fmt.Errorf("sync labels: %w", err)
-	}
-	if _, err := syncIssues(c, db, syncAllPages); err != nil {
-		return fmt.Errorf("sync issues: %w", err)
+	// Each fetch records its own sync pass: cursor persistence lives in the
+	// sync command's orchestration loop, so a self-refresh that bypasses that
+	// loop must stamp sync_state itself or the staleness check keeps failing.
+	for _, step := range []struct {
+		table string
+		fetch func(*client.Client, *store.Store, int) (syncPass, error)
+	}{
+		{"teams", syncTeams},
+		{"workflow_states", syncWorkflowStates},
+		{"issue_labels", syncLabels},
+		{"issues", syncIssues},
+	} {
+		started := time.Now().UTC()
+		pass, err := step.fetch(c, db, syncAllPages)
+		if err != nil {
+			return fmt.Errorf("sync %s: %w", strings.ReplaceAll(step.table, "_", " "), err)
+		}
+		if pass.complete || pass.exhausted {
+			if cerr := db.RecordSyncPass(step.table, started, pass.count); cerr != nil {
+				return fmt.Errorf("record %s sync pass: %w", step.table, cerr)
+			}
+		}
 	}
 	return nil
 }

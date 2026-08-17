@@ -380,3 +380,19 @@ func TestFilterFlightsClientSide(t *testing.T) {
 		t.Fatalf("no-filter passthrough returned %d flights, want 3", len(passthrough))
 	}
 }
+
+// PATCH(review-2026-07-31): a 429 across the whole per-day fallback fan-out
+// must surface as the typed rate-limit error, not a generic all-days failure.
+func TestDatesViaHTMLAllRateLimitedReturnsErrRateLimited(t *testing.T) {
+	origFetch := fetchSearchPage
+	defer func() { fetchSearchPage = origFetch }()
+	fetchSearchPage = func(context.Context, string) (string, error) {
+		return "", fmt.Errorf("fallback search page: %w", ErrRateLimited)
+	}
+	from, _ := time.Parse("2006-01-02", "2026-09-14")
+	to, _ := time.Parse("2006-01-02", "2026-09-17")
+	_, _, err := datesViaHTML(context.Background(), DatesOptions{Origin: "SEA", Destination: "DEN"}, from, to, "EUR")
+	if !errors.Is(err, ErrRateLimited) {
+		t.Fatalf("err = %v, want ErrRateLimited", err)
+	}
+}

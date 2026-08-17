@@ -54,8 +54,22 @@ func Load(configPath string) (*Config, error) {
 	cfg.Path = path
 
 	if explicitConfigFile {
-		if err := readConfigFile(path, cfg, "config-kind path"); err != nil && !os.IsNotExist(err) {
-			return nil, err
+		// Keep non-secret settings from a readable config even when its permissions
+		// have drifted, but never trust credentials from that file. Canonicalizing
+		// first also makes a symlink inherit the target's permission verdict.
+		if real, evalErr := filepath.EvalSymlinks(path); evalErr == nil {
+			credentialsTrusted := cliutil.VerifyCredsPerms(real) == nil
+			parsed := *cfg
+			if err := readConfigFile(path, &parsed, "config-kind path"); err != nil {
+				if !os.IsNotExist(err) {
+					return nil, err
+				}
+			} else {
+				if !credentialsTrusted {
+					parsed.clearCredentialFields()
+				}
+				*cfg = parsed
+			}
 		}
 	} else {
 		legacyPath, err := LegacyConfigPath()
@@ -67,7 +81,8 @@ func Load(configPath string) (*Config, error) {
 			if !os.IsNotExist(err) {
 				return nil, err
 			}
-		} else {
+		} else if real, evalErr := filepath.EvalSymlinks(sourcePath); evalErr == nil {
+			credentialsTrusted := cliutil.VerifyCredsPerms(real) == nil
 			owner := "config-kind path"
 			if sourcePath == legacyPath {
 				owner = "legacy config path"
@@ -80,6 +95,9 @@ func Load(configPath string) (*Config, error) {
 					return nil, err
 				}
 			} else {
+				if !credentialsTrusted {
+					parsed.clearCredentialFields()
+				}
 				*cfg = parsed
 				if sourcePath == legacyPath {
 					cfg.legacySourcePath = legacyPath
@@ -91,16 +109,27 @@ func Load(configPath string) (*Config, error) {
 	if cfg.AgentcookieManagedByExternalStore() {
 		cfg.markAgentcookieManaged()
 	} else {
-		creds, ok, err := cliutil.LoadCredentials()
-		if err != nil {
-			return nil, err
-		}
-		if ok && creds.HasValues() {
-			cfg.clearCredentialFields()
-			cfg.applyCredentials(creds)
-			if cfg.hasCredentialFields() {
-				cfg.AuthSource = "config"
-				cfg.CredentialSource = "credentials file"
+		var creds *cliutil.Credentials
+		var ok bool
+		if !cfg.hasCompleteCredentialFields() {
+			if explicitConfigFile {
+				creds, ok, err = cliutil.LoadCredentialsForConfig(path)
+				if err != nil {
+					return nil, err
+				}
+			}
+			if !ok || creds == nil || !creds.HasValues() {
+				creds, ok, err = cliutil.LoadCredentials()
+				if err != nil {
+					return nil, err
+				}
+			}
+			if ok && creds.HasValues() {
+				cfg.applyCredentials(creds)
+				if cfg.hasCredentialFields() {
+					cfg.AuthSource = "config"
+					cfg.CredentialSource = "credentials file"
+				}
 			}
 		}
 	}
@@ -218,6 +247,15 @@ func (c *Config) AuthHeader() string {
 	return token
 }
 
+// Raw browser-session values count as credentials even when no header
+// representation exists; hand-coded flows may also preserve a working header.
+func (c *Config) CredentialConfigured() bool {
+	if c == nil {
+		return false
+	}
+	return c.AuthHeader() != ""
+}
+
 func applyAuthFormat(format string, replacements map[string]string) string {
 	if format == "" {
 		return ""
@@ -264,6 +302,19 @@ func (c *Config) hasCredentialFields() bool {
 	return false
 }
 
+func (c *Config) hasCompleteCredentialFields() bool {
+	if c.AuthHeaderVal != "" {
+		return true
+	}
+	if c.ScrapecreatorsApiKey == "" {
+		return false
+	}
+	if c.ScrapecreatorsApiKey == "" {
+		return false
+	}
+	return true
+}
+
 func (c *Config) clearCredentialFields() {
 	c.AuthHeaderVal = ""
 	c.AccessToken = ""
@@ -290,13 +341,27 @@ func (c *Config) applyCredentials(creds *cliutil.Credentials) {
 	if creds == nil {
 		return
 	}
-	c.AuthHeaderVal = creds.AuthHeaderVal
-	c.AccessToken = creds.AccessToken
-	c.RefreshToken = creds.RefreshToken
-	c.TokenExpiry = creds.TokenExpiry
-	c.ClientID = creds.ClientID
-	c.ClientSecret = creds.ClientSecret
-	c.ScrapecreatorsApiKey = creds.ScrapecreatorsApiKey
+	if c.AuthHeaderVal == "" {
+		c.AuthHeaderVal = creds.AuthHeaderVal
+	}
+	if c.AccessToken == "" {
+		c.AccessToken = creds.AccessToken
+	}
+	if c.RefreshToken == "" {
+		c.RefreshToken = creds.RefreshToken
+	}
+	if c.TokenExpiry.IsZero() {
+		c.TokenExpiry = creds.TokenExpiry
+	}
+	if c.ClientID == "" {
+		c.ClientID = creds.ClientID
+	}
+	if c.ClientSecret == "" {
+		c.ClientSecret = creds.ClientSecret
+	}
+	if c.ScrapecreatorsApiKey == "" {
+		c.ScrapecreatorsApiKey = creds.ScrapecreatorsApiKey
+	}
 }
 
 func (c *Config) saveCredentialsFirst() error {

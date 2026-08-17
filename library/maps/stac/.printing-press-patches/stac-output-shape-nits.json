@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "stac-output-shape-nits",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260624-152026-b6ccb73c",
+  "base_printing_press_version": "4.25.0",
+  "summary": "clouds emits [] not null for an empty histogram; compare reports total sample size.",
+  "reason": "Agent-facing JSON should keep a stable array shape: clouds returned \"buckets\": null when no histogram was available. compare's sample_size reported only scenes carrying eo:cloud_cover, understating the sample for non-optical collections; it now reports the total sampled while the mean keeps its cloud-data denominator.",
+  "files": ["internal/cli/clouds.go", "internal/cli/compare.go"],
+  "validated_outcome": "go build ./... , go vet ./... , go test ./internal/... pass; verify-skill matches shipped CLI source.",
+  "upstream_issue": ""
+}

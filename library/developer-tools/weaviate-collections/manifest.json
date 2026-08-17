@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "weaviate-collections-pp-mcp",
+  "display_name": "Weaviate Collections",
+  "version": "1.40.0-dev",
+  "description": "Full collection-config control for Weaviate Cloud, plus schema history, drift diffing, and lint that no other Weaviate tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/weaviate-collections-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/weaviate-collections-pp-mcp",
+      "args": [],
+      "env": {
+        "WEAVIATE_API_KEY": "${user_config.weaviate_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "weaviate_api_key": {
+      "type": "string",
+      "title": "WEAVIATE_API_KEY",
+      "description": "Sets WEAVIATE_API_KEY for the Weaviate Collections MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

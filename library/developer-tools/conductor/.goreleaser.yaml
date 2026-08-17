@@ -1,0 +1,51 @@
+version: 2
+project_name: conductor-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: conductor-pp-cli
+    main: ./cmd/conductor-pp-cli
+    binary: conductor-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/conductor/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: conductor-pp-mcp
+    main: ./cmd/conductor-pp-mcp
+    binary: conductor-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: conductor-pp-cli
+    repository:
+      owner: colegr
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Conductor Cloud API primitive, plus bounded session orchestration that handles asynchronous lifecycle races."
+    install: |
+      bin.install "conductor-pp-cli"
+      bin.install "conductor-pp-mcp"

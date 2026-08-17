@@ -283,6 +283,14 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
 			}
+			// PATCH(amend-2026-07-31): the AeroAPI probe above says nothing
+			// about the key-free Google Flights backend that serves the
+			// headline commands. Surface its operational constraint here so
+			// agents learn the pacing contract from doctor instead of from a
+			// mid-session HTTP 429: Google rate-limits fare probes per IP,
+			// blocks can outlast 15 minutes, and exit code 7 means rate
+			// limited. Bulk probes belong in one paced invocation.
+			report["google_flights"] = "no API key required; bulk fare probes are rate-limited per IP — use 'flights --trip A>B@DATE --trip ... --pace 3s' for batches; exit code 7 = rate limited (429), wait before retrying (soar/explore use different backends)"
 			// Cache health: only reported when this CLI has generated sync.
 			// Surfaces rows + last_synced_at per resource, schema version,
 			// and a fresh/stale/unknown verdict so agents can introspect
@@ -324,6 +332,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				{"credentials_location_warning", "Credentials Storage"},
 				{"api", "API"},
 				{"credentials", "Credentials"},
+				// PATCH(review-2026-08-01): the Google Flights pacing
+				// contract must reach human eyes too, not only --json.
+				{"google_flights", "Google Flights"},
 			}
 			for _, ck := range checkKeys {
 				v, ok := report[ck.key]

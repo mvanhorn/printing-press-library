@@ -98,5 +98,11 @@
       "command": "play-on",
       "description": "Resolve a device by friendly name against the live /me/player/devices list and the locally cached devices_seen table, then start playback. Cached entries let you reference devices that aren't currently online with a typed wake hint instead of a raw 404."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "giuseppebisemi",
+      "name": "Giuseppe Bisemi"
+    }
   ]
 }

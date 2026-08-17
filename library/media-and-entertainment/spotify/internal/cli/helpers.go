@@ -21,6 +21,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"text/tabwriter"
 	"time"
 	"unicode"
@@ -555,6 +556,15 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return err
 	}
 
+	// PATCH(amend-2026-08-08: quota circuit breaker) — a persisted quota
+	// block surfaces as QuotaBlockError (no "HTTP 429" substring); map it
+	// to the rate-limited exit code without appending retry hints — the
+	// message already carries the wall-clock reset time.
+	var quotaBlocked *cliutil.QuotaBlockError
+	if errors.As(err, &quotaBlocked) {
+		return rateLimitErr(err)
+	}
+
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "HTTP 409"):
@@ -918,6 +928,8 @@ var envelopeMetadataArrayKeys = map[string]bool{
 	"warnings": true, "Warnings": true,
 }
 
+const maxNestedListEnvelopeDepth = 32
+
 func extractPaginatedObjectArray(raw json.RawMessage) ([]json.RawMessage, bool) {
 	var items []json.RawMessage
 	// Empty fallback arrays are deliberately ignored: without an object item,
@@ -1009,6 +1021,19 @@ func printJSONFiltered(w io.Writer, v any, flags *rootFlags) error {
 	return printOutputWithFlags(w, json.RawMessage(raw), flags)
 }
 
+// printJSONFilteredMeta is printJSONFiltered for a caller that knows its own
+// provenance. A hand-written command that reports the outcome of a live API
+// call must use this: printJSONFiltered routes through printOutputWithFlags,
+// whose "local" default is an assumption for callers with nothing to report,
+// and stamping that on a live mutation tells an agent the opposite of the truth.
+func printJSONFilteredMeta(w io.Writer, v any, flags *rootFlags, agentMeta map[string]any) error {
+	raw, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return printOutputWithFlagsMeta(w, json.RawMessage(raw), flags, agentMeta)
+}
+
 // wrapAgentOutput gives --agent callers one parseable top-level envelope for
 // generated command families that build typed Go values instead of endpoint
 // response bytes. The raw value is preserved under results so --json without
@@ -1091,17 +1116,136 @@ func filterFields(data json.RawMessage, fields string) json.RawMessage {
 	if len(paths) == 0 {
 		return data
 	}
-	return filterFieldsRec(data, paths)
+	// PATCH(amend-2026-08-13: fail-fast on a --select that matches nothing) —
+	// a projection whose paths match no field anywhere used to fall through
+	// the envelope-passthrough branches and hand back the FULL payload with
+	// exit 0, so a typo (`results.tracks.items.name` instead of
+	// `tracks.items.name`) read as success while emitting the very payload
+	// --select existed to avoid. Track whether anything matched, and on a
+	// total miss replace the output with a small diagnostic and mark the run
+	// for exit 2 in Execute().
+	matches := 0
+	filtered := filterFieldsRec(data, paths, &matches)
+	if matches > 0 {
+		return filtered
+	}
+	recordSelectNoMatch(fields)
+	diag := map[string]any{
+		"error":            "--select matched no fields",
+		"select":           fields,
+		"available_fields": selectAvailableFields(data),
+		"hint":             "paths are relative to the payload, not to the JSON envelope: drop a leading \"results.\"/\"data.\" segment, or run without --select once to inspect the shape",
+	}
+	out, err := json.Marshal(diag)
+	if err != nil {
+		return filtered
+	}
+	return out
+}
+
+// selectNoMatch records the --select spec that matched nothing, so Execute()
+// can turn what used to be a silent full-payload response into a usage error
+// (exit 2). Guarded because the projection helpers are exercised by parallel
+// subtests; at runtime a single command owns the process.
+var selectNoMatch struct {
+	mu   sync.Mutex
+	spec string
+}
+
+func recordSelectNoMatch(spec string) {
+	selectNoMatch.mu.Lock()
+	defer selectNoMatch.mu.Unlock()
+	selectNoMatch.spec = spec
+}
+
+// selectNoMatchSpec returns the recorded miss, or "" when the run's --select
+// (if any) projected at least one field.
+func selectNoMatchSpec() string {
+	selectNoMatch.mu.Lock()
+	defer selectNoMatch.mu.Unlock()
+	return selectNoMatch.spec
+}
+
+// maxSelectAvailableFields caps the diagnostic's field list. The point is to
+// make the correct spelling obvious, not to dump the schema — and an uncapped
+// list on a deeply wrapped payload is just the token burn this patch exists to
+// stop, in a different costume.
+const maxSelectAvailableFields = 40
+
+// selectAvailableFields lists the field names a --select spec could have
+// matched: the top-level object keys, plus the keys one level inside a list
+// envelope (`{"items":[{...}]}`) or a single-key wrapper, since those are the
+// levels --select actually descends into. Descent stops after that one level.
+func selectAvailableFields(data json.RawMessage) []string {
+	names := selectFieldNamesAt(data)
+	if len(names) > maxSelectAvailableFields {
+		names = names[:maxSelectAvailableFields]
+	}
+	return names
+}
+
+// selectFieldNamesAt returns the object keys at this level, descending through
+// arrays to their first element, plus one qualified level inside a single-key
+// wrapper. It never recurses more than that one extra level.
+func selectFieldNamesAt(data json.RawMessage) []string {
+	obj, ok := selectObjectAt(data, 0)
+	if !ok {
+		return nil
+	}
+	names := make([]string, 0, len(obj))
+	for k := range obj {
+		names = append(names, k)
+	}
+	sort.Strings(names)
+	// A pure envelope (one key wrapping an array or object) tells the caller
+	// nothing useful on its own — descend once and report the inner names as
+	// dotted paths so the hint is directly usable.
+	if len(obj) == 1 {
+		for k, v := range obj {
+			inner, innerOK := selectObjectAt(v, 0)
+			if !innerOK {
+				break
+			}
+			qualified := make([]string, 0, len(inner))
+			for name := range inner {
+				qualified = append(qualified, k+"."+name)
+			}
+			sort.Strings(qualified)
+			names = append(names, qualified...)
+		}
+	}
+	return names
+}
+
+// selectObjectAt unwraps arrays (taking the first element as representative)
+// until it reaches a JSON object, bounded by the same depth ceiling the
+// projection itself uses.
+func selectObjectAt(data json.RawMessage, depth int) (map[string]json.RawMessage, bool) {
+	if depth > maxNestedListEnvelopeDepth {
+		return nil, false
+	}
+	var arr []json.RawMessage
+	if err := json.Unmarshal(data, &arr); err == nil {
+		if len(arr) == 0 {
+			return nil, false
+		}
+		return selectObjectAt(arr[0], depth+1)
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil || len(obj) == 0 {
+		return nil, false
+	}
+	return obj, true
 }
 
 // filterFieldsRec applies path filters to a JSON value. Each path is a list of
 // lowercase segments; arrays descend element-wise.
-func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
+func filterFieldsRec(data json.RawMessage, paths [][]string, matches *int) json.RawMessage {
 	var arr []json.RawMessage
 	if err := json.Unmarshal(data, &arr); err == nil {
 		out := make([]json.RawMessage, len(arr))
 		for i, el := range arr {
-			out[i] = filterFieldsRec(el, paths)
+			out[i] = filterFieldsRec(el, paths, matches)
 		}
 		result, _ := json.Marshal(out)
 		return result
@@ -1131,11 +1275,16 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 			}
 			matchedAny = true
 			if keepWhole[matched] {
+				// Only a leaf keep counts as a real match. An intermediate
+				// segment that matches but whose sub-paths match nothing
+				// (`--select tracks.bogus`) must still be reported as a miss,
+				// so the recursive call below does its own counting.
+				*matches++
 				filtered[k] = v
 				continue
 			}
 			if subs := subPaths[matched]; subs != nil {
-				filtered[k] = filterFieldsRec(v, subs)
+				filtered[k] = filterFieldsRec(v, subs, matches)
 			}
 		}
 		// Envelope fallback: when no top-level keys matched but at least one
@@ -1149,7 +1298,7 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 		// json.Unmarshal otherwise accepts into a []json.RawMessage as a
 		// nil slice and would coerce to `[]`.
 		if !matchedAny {
-			if pending, foundArray := filterListEnvelopeFields(obj, paths); foundArray {
+			if pending, foundArray := filterListEnvelopeFields(obj, paths, 0, matches); foundArray {
 				filtered = pending
 			}
 		}
@@ -1160,7 +1309,7 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 	return data
 }
 
-func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string) (map[string]json.RawMessage, bool) {
+func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string, depth int, matches *int) (map[string]json.RawMessage, bool) {
 	pending := map[string]json.RawMessage{}
 	foundArray := false
 	for k, v := range obj {
@@ -1171,27 +1320,28 @@ func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string) 
 		var arr []json.RawMessage
 		if json.Unmarshal(v, &arr) == nil && arr != nil {
 			foundArray = true
-			pending[k] = filterFieldsRec(v, paths)
+			pending[k] = filterFieldsRec(v, paths, matches)
 			continue
 		}
-		if k == "_embedded" {
-			if nested, ok := filterNestedListEnvelopeFields(v, paths); ok {
-				foundArray = true
-				pending[k] = nested
-				continue
-			}
+		if nested, ok := filterNestedListEnvelopeFields(v, paths, depth, matches); ok {
+			foundArray = true
+			pending[k] = nested
+			continue
 		}
 		pending[k] = v
 	}
 	return pending, foundArray
 }
 
-func filterNestedListEnvelopeFields(data json.RawMessage, paths [][]string) (json.RawMessage, bool) {
+func filterNestedListEnvelopeFields(data json.RawMessage, paths [][]string, depth int, matches *int) (json.RawMessage, bool) {
+	if depth >= maxNestedListEnvelopeDepth {
+		return nil, false
+	}
 	var obj map[string]json.RawMessage
 	if err := json.Unmarshal(data, &obj); err != nil {
 		return nil, false
 	}
-	filtered, found := filterListEnvelopeFields(obj, paths)
+	filtered, found := filterListEnvelopeFields(obj, paths, depth+1, matches)
 	if !found {
 		return nil, false
 	}
@@ -1228,6 +1378,45 @@ func camelToKebab(s string) string {
 }
 
 // printOutputWithFlags routes output through the right format based on flags.
+// agentEnvelopeApplies reports whether printOutputWithFlagsMeta will add the
+// agent provenance envelope. Callers that build their own envelope must consult
+// this rather than re-deriving the condition: a caller that wraps unconditionally
+// and then prints through this path emits two nested envelopes, and the outer one
+// carries whatever meta the printer was handed rather than the caller's real
+// provenance.
+func agentEnvelopeApplies(flags *rootFlags) bool {
+	return flags.agent && flags.asJSON && !flags.csv && !flags.plain && !flags.quiet
+}
+
+// provenanceMeta projects a DataProvenance into the agent envelope's meta map,
+// so a caller that already knows the true source does not fall back to the
+// printer's assumed one. It is the single meta builder: wrapWithProvenance
+// calls it too, so the agent-envelope meta and the provenance-envelope meta
+// cannot drift apart field by field (they already had, over `freshness`).
+// Every field of DataProvenance that is meant to reach the caller belongs
+// here and nowhere else.
+func provenanceMeta(prov DataProvenance) map[string]any {
+	meta := map[string]any{"source": prov.Source}
+	if prov.SyncedAt != nil {
+		meta["synced_at"] = prov.SyncedAt.UTC().Format(time.RFC3339)
+	}
+	if prov.Reason != "" {
+		meta["reason"] = prov.Reason
+	}
+	if prov.ResourceType != "" {
+		meta["resource_type"] = prov.ResourceType
+	}
+	if prov.Freshness != nil {
+		meta["freshness"] = prov.Freshness
+	}
+	return meta
+}
+
+// printOutputWithFlags is the provenance-less entry point: callers that have no
+// DataProvenance to report get "local", the conservative label for output the
+// printer cannot attribute to a live call. Callers that DO know their
+// provenance must use printOutputWithFlagsMeta with provenanceMeta instead —
+// this default is an assumption, not a fact about the data.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
 	return printOutputWithFlagsMeta(w, data, flags, map[string]any{"source": "local"})
 }
@@ -1243,7 +1432,7 @@ func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlag
 	} else if flags.compact {
 		data = compactFields(data)
 	}
-	if flags.agent && flags.asJSON && !flags.csv && !flags.plain && !flags.quiet {
+	if agentEnvelopeApplies(flags) {
 		wrapped, err := wrapAgentOutput(data, agentMeta)
 		if err != nil {
 			return err
@@ -1328,6 +1517,10 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		// Identity
 		"id": true, "name": true, "title": true, "identifier": true,
 		"code": true, "slug": true, "key": true,
+		// `which --agent` match items are {entry, score}: entry carries the
+		// command and description the score refers to. Dropping it leaves a
+		// list of bare scores, so it rides the identity allowlist.
+		"entry": true,
 		// Categorization
 		"status": true, "state": true, "type": true, "kind": true, "priority": true,
 		// Communication
@@ -1408,7 +1601,7 @@ func isCompactScalar(v any) bool {
 // under `--agent`/`--compact` is a silent loss; agents who want to omit them
 // can pass `--select` to specify only the fields they need.
 func compactObjectFields(obj map[string]any) json.RawMessage {
-	if compacted, ok := compactListEnvelopeObject(obj); ok {
+	if compacted, ok := compactListEnvelopeObject(obj, 0); ok {
 		result, _ := json.Marshal(compacted)
 		return result
 	}
@@ -1422,7 +1615,15 @@ func compactObjectFields(obj map[string]any) json.RawMessage {
 	return result
 }
 
-func compactListEnvelopeObject(obj map[string]any) (map[string]any, bool) {
+// compactListEnvelopeObject is the --compact counterpart of
+// filterListEnvelopeFields and must stay in lockstep with it: ANY
+// object-valued sibling is a descent candidate (`{"artists":{"items":[...]}}`,
+// `{"_embedded":{"items":[...]}}`), not just a hardcoded wrapper key, bounded
+// by maxNestedListEnvelopeDepth. The foundArray guard keeps the behavior
+// fail-closed: an object with no array anywhere in reach reports false and the
+// caller falls back to the plain blocklist strip, so descent can never turn
+// into a passthrough of an unrelated payload.
+func compactListEnvelopeObject(obj map[string]any, depth int) (map[string]any, bool) {
 	out := map[string]any{}
 	foundArray := false
 	for k, v := range obj {
@@ -1438,12 +1639,10 @@ func compactListEnvelopeObject(obj map[string]any) (map[string]any, bool) {
 			out[k] = compacted
 			continue
 		}
-		if nested, ok := v.(map[string]any); ok && k == "_embedded" {
-			if compacted, ok := compactListEnvelopeObject(nested); ok {
-				foundArray = true
-				out[k] = compacted
-				continue
-			}
+		if compacted, ok := compactNestedListEnvelopeObject(v, depth); ok {
+			foundArray = true
+			out[k] = compacted
+			continue
 		}
 		out[k] = v
 	}
@@ -1451,6 +1650,20 @@ func compactListEnvelopeObject(obj map[string]any) (map[string]any, bool) {
 		return nil, false
 	}
 	return out, true
+}
+
+// compactNestedListEnvelopeObject descends one level into an object-valued
+// sibling, mirroring filterNestedListEnvelopeFields. It shares the same depth
+// bound so a pathologically nested payload cannot drive unbounded recursion.
+func compactNestedListEnvelopeObject(v any, depth int) (map[string]any, bool) {
+	if depth >= maxNestedListEnvelopeDepth {
+		return nil, false
+	}
+	nested, ok := v.(map[string]any)
+	if !ok {
+		return nil, false
+	}
+	return compactListEnvelopeObject(nested, depth+1)
 }
 
 func compactObjectArrayValue(v any) (any, bool) {
@@ -2138,19 +2351,7 @@ func assertLiveJSONBody(data json.RawMessage) error {
 // (e.g. {"results": [...]}, {"data": [...]}) are unwrapped first so the
 // output shape is the same regardless of the API's wrapper key.
 func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMessage, error) {
-	meta := map[string]any{"source": prov.Source}
-	if prov.SyncedAt != nil {
-		meta["synced_at"] = prov.SyncedAt.UTC().Format(time.RFC3339)
-	}
-	if prov.Reason != "" {
-		meta["reason"] = prov.Reason
-	}
-	if prov.ResourceType != "" {
-		meta["resource_type"] = prov.ResourceType
-	}
-	if prov.Freshness != nil {
-		meta["freshness"] = prov.Freshness
-	}
+	meta := provenanceMeta(prov)
 	var results any
 	if json.Valid(data) {
 		results = json.RawMessage(unwrapSingleKeyArray(data))

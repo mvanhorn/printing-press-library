@@ -1,0 +1,15 @@
+{
+  "request": {
+    "sso_id": "REDACTED",
+    "listing_id": "68d468bb44492187e415d4a6"
+  },
+  "response": {
+    "data": {
+      "guest_needs_verification": false,
+      "metadata": {
+        "retry": true,
+        "risk_score": 0
+      }
+    }
+  }
+}

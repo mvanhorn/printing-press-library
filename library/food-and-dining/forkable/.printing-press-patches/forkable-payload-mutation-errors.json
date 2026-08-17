@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "forkable-payload-mutation-errors",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260717-100008-2c197495",
+  "base_printing_press_version": "4.28.0",
+  "summary": "mutateGraphQL must check payload-level errors (inside the single operation's own response object) in addition to top-level GraphQL errors, or a rejected mutation returns HTTP 200 with env.Errors empty and the CLI reports success.",
+  "reason": "Forkable's mutation responses carry rejection reasons inside the operation's own payload (e.g. {\"replacePiece\": {\"delivery\": null, \"errors\": [...]}}), not in the GraphQL envelope's top-level errors array. Every mutation built in this file already requests \"errors\" in its selection set, so the fix is a single choke-point check in mutateGraphQL via the new payloadMutationErrors helper, applying uniformly to all 6 call sites without touching confirmOrPreview/emitMutationResult or the PRINTING_PRESS_VERIFY short-circuit.",
+  "files": ["internal/cli/forkable_orders.go", "internal/cli/forkable_orders_test.go"],
+  "validated_outcome": "go test ./internal/cli/... -run TestPayloadMutationErrors covers errors:null, errors:[], string-array errors, object-array errors, an absent errors field, and non-object data; go build and the full test suite remain green.",
+  "upstream_issue": ""
+}

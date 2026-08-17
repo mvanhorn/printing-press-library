@@ -15,12 +15,13 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 	var flagUserId string
 	var flagNextMaxId string
+	var flagAll bool
 	var flagTrim bool
 
 	cmd := &cobra.Command{
 		Use:         "list-user",
 		Short:       "Fetches a paginated list of posts from a Truth Social user, returning text, id, created_at, url, content, account info",
-		Example:     "  scrape-creators-pp-cli truthsocial list-user --handle realDonaldTrump",
+		Example:     "  scrape-creators-pp-cli truthsocial list-user",
 		Annotations: map[string]string{"pp:endpoint": "truthsocial.list-user", "pp:method": "GET", "pp:path": "/v1/truthsocial/user/posts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path := "/v1/truthsocial/user/posts"
@@ -41,10 +42,11 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 			if flagTrim != false {
 				params["trim"] = formatCLIParamValue(flagTrim)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "truthsocial", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "truthsocial", path, params, nil, flagAll, "next_max_id", "cursor", "", 0, "next_max_id", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -52,7 +54,7 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -71,12 +73,16 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -86,7 +92,11 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagHandle, "handle", "", "Truth Social username")
@@ -94,5 +104,6 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagNextMaxId, "next-max-id", "", "Used to paginate to next page")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true for a trimmed down version of the response")
 
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 	return cmd
 }

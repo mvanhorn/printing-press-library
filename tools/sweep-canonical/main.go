@@ -214,6 +214,11 @@ func main() {
 	// for a focused attribution migration so unrelated docs-shape drift doesn't
 	// ride along in the diff.
 	attributionOnly := false
+	// -go-fallback-only: update only the canonical README/SKILL direct-Go
+	// fallback floor line. Use this when the live Go floor changes and the
+	// published install docs must move in lockstep without re-emitting whole
+	// install/prerequisites sections or attribution surfaces.
+	goFallbackOnly := false
 	for _, a := range os.Args[1:] {
 		switch a {
 		case "-readme-only", "--readme-only":
@@ -222,10 +227,18 @@ func main() {
 			backfill = true
 		case "-attribution-only", "--attribution-only":
 			attributionOnly = true
+		case "-go-fallback-only", "--go-fallback-only":
+			goFallbackOnly = true
 		}
 	}
 	if !readmeOnly && strings.EqualFold(os.Getenv("SWEEP_README_ONLY"), "1") {
 		readmeOnly = true
+	}
+	if !goFallbackOnly && strings.EqualFold(os.Getenv("SWEEP_GO_FALLBACK_ONLY"), "1") {
+		goFallbackOnly = true
+	}
+	if goFallbackOnly && (attributionOnly || backfill) {
+		log.Fatalf("-go-fallback-only cannot be combined with -attribution-only or -backfill-contributors")
 	}
 
 	ownerName := strings.TrimSpace(os.Getenv("SWEEP_OWNER_NAME"))
@@ -235,7 +248,7 @@ func main() {
 			ownerName = strings.TrimSpace(string(out))
 		}
 	}
-	if !readmeOnly && ownerName == "" {
+	if !readmeOnly && !goFallbackOnly && ownerName == "" {
 		log.Fatalf("could not resolve owner display name: set SWEEP_OWNER_NAME, or `git config user.name`. " +
 			"the value lands as `author:` in the published library/<cat>/<api>/SKILL.md frontmatter " +
 			"only when the existing author is missing or is the placeholder \"user\". " +
@@ -255,6 +268,9 @@ func main() {
 	}
 	if attributionOnly {
 		fmt.Println("Running in -attribution-only mode: only manifest/header/NOTICE/byline are patched; SKILL.md and README install/Hermes shape are left untouched.")
+	}
+	if goFallbackOnly {
+		fmt.Println("Running in -go-fallback-only mode: only README/SKILL direct-Go fallback version lines are patched.")
 	}
 
 	// Contributor backfill (opt-in): compute + surface the per-CLI table
@@ -278,7 +294,13 @@ func main() {
 
 	var processed, skipped, errored int
 	for _, dir := range cliDirs {
-		status, err := sweepCLI(dir, ownerName, readmeOnly, attributionOnly, contribByDir[dir])
+		var status sweepStatus
+		var err error
+		if goFallbackOnly {
+			status, err = sweepGoFallbackFloorCLI(dir, readmeOnly)
+		} else {
+			status, err = sweepCLI(dir, ownerName, readmeOnly, attributionOnly, contribByDir[dir])
+		}
 		switch {
 		case err != nil:
 			fmt.Printf("  ERROR %s: %v\n", dir, err)
@@ -331,7 +353,9 @@ type sweepStatus string
 
 const statusUnchanged sweepStatus = "unchanged"
 
-const minimumGoVersion = "Go 1.26.5 or newer"
+const minimumGoVersion = "Go 1.26.6 or newer"
+
+var goFallbackVersionRe = regexp.MustCompile(`Go 1\.26\.[0-9]+ or newer`)
 
 // sweepCLI applies the canonical shape to one library/<cat>/<api>/. It patches
 // SKILL.md (canonical docs shape) and README.md (install + alternate-install
@@ -490,6 +514,65 @@ func sweepCLI(cliDir, ownerName string, readmeOnly, attributionOnly bool, contri
 	}
 
 	return sweepStatus(fmt.Sprintf("%d files", len(edits))), nil
+}
+
+// sweepGoFallbackFloorCLI retargets only the canonical direct-Go fallback
+// version line in README.md and SKILL.md. It intentionally leaves the adjacent
+// go install block and surrounding install/prerequisites prose untouched, so a
+// Go floor bump can land without unrelated canonical-section churn.
+func sweepGoFallbackFloorCLI(cliDir string, readmeOnly bool) (sweepStatus, error) {
+	readmePath := filepath.Join(cliDir, "README.md")
+	skillPath := filepath.Join(cliDir, "SKILL.md")
+
+	var edits []fileEdit
+
+	readmeBefore, err := os.ReadFile(readmePath)
+	if err != nil && !os.IsNotExist(err) {
+		return statusUnchanged, fmt.Errorf("read README.md: %w", err)
+	}
+	if err == nil {
+		readmeAfter := patchReadmeGoFallbackFloor(string(readmeBefore))
+		if readmeAfter != string(readmeBefore) {
+			edits = append(edits, fileEdit{readmePath, readmeBefore, []byte(readmeAfter)})
+		}
+	}
+
+	if !readmeOnly {
+		skillBefore, err := os.ReadFile(skillPath)
+		if err != nil && !os.IsNotExist(err) {
+			return statusUnchanged, fmt.Errorf("read SKILL.md: %w", err)
+		}
+		if err == nil {
+			skillAfter := patchSkillGoFallbackFloor(string(skillBefore))
+			if skillAfter != string(skillBefore) {
+				edits = append(edits, fileEdit{skillPath, skillBefore, []byte(skillAfter)})
+			}
+		}
+	}
+
+	if len(edits) == 0 {
+		return statusUnchanged, nil
+	}
+	if err := writeFileEdits(edits); err != nil {
+		return statusUnchanged, err
+	}
+	return sweepStatus(fmt.Sprintf("%d files", len(edits))), nil
+}
+
+func writeFileEdits(edits []fileEdit) error {
+	var written []fileEdit
+	for _, e := range edits {
+		if err := os.WriteFile(e.path, e.after, 0o644); err != nil {
+			for _, w := range written {
+				if rerr := os.WriteFile(w.path, w.before, 0o644); rerr != nil {
+					fmt.Printf("    WARN restore %s failed: %v\n", w.path, rerr)
+				}
+			}
+			return fmt.Errorf("write %s: %w", e.path, err)
+		}
+		written = append(written, e)
+	}
+	return nil
 }
 
 type patchSkillCtx struct {
@@ -766,6 +849,55 @@ go install %s@latest
 If `+"`--version`"+` reports "command not found" after install, the runtime cannot see the binary directory on `+"`$PATH`"+`. Do not proceed with skill commands until verification succeeds.
 
 `, ctx.CLIName, ctx.APIName, ctx.CLIName, minimumGoVersion, module)
+}
+
+func patchSkillGoFallbackFloor(body string) string {
+	return patchGoFallbackFloorLines(body, isSkillGoFallbackLine)
+}
+
+func patchReadmeGoFallbackFloor(body string) string {
+	return patchGoFallbackFloorLines(body, isReadmeGoFallbackLine)
+}
+
+func patchGoFallbackFloorLines(body string, matchesFallbackLine func(string) bool) string {
+	lines := strings.SplitAfter(body, "\n")
+	changed := false
+	for i, line := range lines {
+		lineBody := strings.TrimSuffix(line, "\n")
+		newline := ""
+		if len(lineBody) != len(line) {
+			newline = "\n"
+		}
+		if strings.HasSuffix(lineBody, "\r") {
+			lineBody = strings.TrimSuffix(lineBody, "\r")
+			newline = "\r" + newline
+		}
+		if !matchesFallbackLine(lineBody) {
+			continue
+		}
+		updated := goFallbackVersionRe.ReplaceAllString(lineBody, minimumGoVersion)
+		if updated == lineBody {
+			continue
+		}
+		lines[i] = updated + newline
+		changed = true
+	}
+	if !changed {
+		return body
+	}
+	return strings.Join(lines, "")
+}
+
+func isSkillGoFallbackLine(line string) bool {
+	const prefix = "If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires "
+	return strings.HasPrefix(line, prefix) && goFallbackVersionRe.MatchString(line)
+}
+
+func isReadmeGoFallbackLine(line string) bool {
+	const prefix = "If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires "
+	return strings.HasPrefix(line, prefix) &&
+		goFallbackVersionRe.MatchString(line) &&
+		strings.HasSuffix(line, "):")
 }
 
 // removeCLIInstallationSection strips the existing `## CLI Installation`
@@ -1647,7 +1779,7 @@ func backfillContributors(cliDir string, creator person) backfillResult {
 	seenHandle := map[string]bool{}
 	seenUnresolved := map[string]bool{}
 
-	for line := range strings.SplitSeq(strings.TrimRight(string(out), "\n"), "\n") {
+	for _, line := range strings.Split(strings.TrimRight(string(out), "\n"), "\n") {
 		if line == "" {
 			continue
 		}

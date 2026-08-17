@@ -65,6 +65,41 @@ func TestBuildQuery_FreeText(t *testing.T) {
 	}
 }
 
+// --frase cerca la locuzione: le parole devono essere adiacenti e nell'ordine
+// dato. È la differenza fra trovare un ddl che parla di "aree idonee" e trovarne
+// uno che ha "aree" in un articolo e "idonee" in un altro.
+func TestBuildQuery_Frase(t *testing.T) {
+	arc := Archive{ID: "221", Slug: "ddl", FieldMap: map[string]string{"legisl": "LEGISL"}}
+	casi := []struct {
+		nome   string
+		params map[string]string
+		want   string
+	}{
+		{"due parole", map[string]string{"frase": "aree idonee"}, "(aree adj idonee)"},
+		{"tre parole", map[string]string{"frase": "obiezione di coscienza"}, "(obiezione adj di adj coscienza)"},
+		{"una parola sola: nessuna adiacenza", map[string]string{"frase": "rifiuti"}, "(rifiuti)"},
+		{"con un campo", map[string]string{"legisl": "18", "frase": "aree idonee"}, "(18.LEGISL) E (aree adj idonee)"},
+		{"testo resta in AND", map[string]string{"testo": "aree idonee"}, "(aree E idonee)"},
+	}
+	for _, c := range casi {
+		t.Run(c.nome, func(t *testing.T) {
+			if got := BuildQuery(arc, c.params, ""); got != c.want {
+				t.Errorf("BuildQuery(%v) = %q, want %q", c.params, got, c.want)
+			}
+		})
+	}
+}
+
+// Un valore che contiene già operatori o parentesi è un'espressione scritta da
+// chi chiama: va passata intatta, non spezzata in adiacenze.
+func TestAdjJoinWords_PassaEspressioni(t *testing.T) {
+	for _, in := range []string{"(aree idonee)", "aree E idonee", "aree NOT idonee"} {
+		if got := adjJoinWords(in); got != in {
+			t.Errorf("adjJoinWords(%q) = %q, atteso invariato", in, got)
+		}
+	}
+}
+
 func TestBuildQuery_ISISRaw(t *testing.T) {
 	arc := Archive{
 		ID:   "221",

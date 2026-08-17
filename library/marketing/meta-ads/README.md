@@ -7,6 +7,7 @@ Read-only insights CLI for Meta Marketing API focused on creative-fatigue detect
 Learn more at [Meta Ads](https://developers.facebook.com/docs/marketing-api).
 
 Created by [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
+Contributors: [@bobeglz](https://github.com/bobeglz) (bobeglz).
 
 ## Install
 
@@ -37,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install meta-ads --agent claude-code --a
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/marketing/meta-ads/cmd/meta-ads-pp-cli@latest

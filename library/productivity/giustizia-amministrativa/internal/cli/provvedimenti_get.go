@@ -8,7 +8,7 @@ import (
 )
 
 func newProvvedimentiGetCmd(flags *rootFlags) *cobra.Command {
-	var format, sede, nrg, file string
+	var format, sede, nrg, file, id string
 	var frontMatter bool
 	cmd := &cobra.Command{
 		Use:         "get [id]",
@@ -16,7 +16,6 @@ func newProvvedimentiGetCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  giustizia-amministrativa-pp-cli provvedimenti get IT:TARLAZ:2026:11307SENT --format md",
 		Annotations: map[string]string{"pp:endpoint": "provvedimenti.get", "pp:method": "GET", "pp:path": "/visualizzah2/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := ""
 			if len(args) > 0 {
 				id = args[0]
 			}
@@ -26,10 +25,13 @@ func newProvvedimentiGetCmd(flags *rootFlags) *cobra.Command {
 			return runGAGet(cmd, flags, id, format, sede, nrg, file, frontMatter)
 		},
 	}
+	// Same alias as the top-level `get`, so the two spellings of the same
+	// command don't disagree on how the ECLI is passed.
+	cmd.Flags().StringVar(&id, "id", "", "ECLI o idprovv del provvedimento; equivale all'argomento posizionale.")
 	cmd.Flags().StringVar(&format, "format", "md", "Formato di output: md, text, html, json.")
 	cmd.Flags().StringVar(&sede, "sede", "", "Schema sede (es. tar_rm) per il fetch diretto senza ricerca.")
 	cmd.Flags().StringVar(&nrg, "nrg", "", "NRG per il fetch diretto.")
 	cmd.Flags().StringVar(&file, "file", "", "nomeFile per il fetch diretto (es. 202611307_01.html).")
-	cmd.Flags().BoolVar(&frontMatter, "front-matter", false, "Anteponi un blocco YAML con i metadati (solo output md/text).")
+	cmd.Flags().BoolVar(&frontMatter, "front-matter", true, "Anteponi un blocco YAML con i metadati, url incluso (solo output md/text). --front-matter=false per il solo testo.")
 	return cmd
 }

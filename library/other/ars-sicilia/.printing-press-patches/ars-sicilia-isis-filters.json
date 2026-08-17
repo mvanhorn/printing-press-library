@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "id": "ars-sicilia-isis-filters",
-  "applied_at": "2026-06-28",
+  "applied_at": "2026-07-29",
   "base_run_id": "20260528-181840",
   "base_printing_press_version": "4.18.0",
-  "summary": "Filtro --data in formato ISIS AAMMGG con range, mappatura campo DATSED (resoconti/convocazioni/sommari) e --codcom numerico rimappato al nome ordinale sul campo COMMIS.",
-  "reason": "Il portale ISIS richiede date numeriche AAMMGG (non DD.MM.YYYY) e non indicizza CODCOM: senza queste conversioni --data e --codcom restituivano 0 risultati.",
-  "files": ["internal/cli/icaro_helpers.go", "internal/icaroclient/archives.go", "internal/cli/resoconti_cerca.go", "internal/cli/commissioni_convocazioni.go", "internal/cli/commissioni_sommari.go"],
-  "validated_outcome": "resoconti --data 2026-02-25 -> 3 risultati (era 0); --data range -> 7; commissioni --codcom 6 -> 50 (SESTA)."
+  "summary": "Filtro --data in formato ISIS AAMMGG con range, mappatura campo DATSED (resoconti/convocazioni/sommari) e --codcom numerico rimappato al nome ordinale sul campo COMMIS. Il flag --data è esposto anche su interrogazioni/interpellanze/mozioni/odg/risoluzioni cerca, dove qualifica DATPRE (data di presentazione).",
+  "reason": "Il portale ISIS richiede date numeriche AAMMGG (non DD.MM.YYYY) e non indicizza CODCOM: senza queste conversioni --data e --codcom restituivano 0 risultati. Sui cinque archivi degli atti ispettivi la mappatura DATPRE era già in FieldMap ma nessun flag la raggiungeva: filtrare per data richiedeva --isis-query, e una ricerca per data si risolveva a mano per testo libero.",
+  "files": ["internal/cli/icaro_helpers.go", "internal/icaroclient/archives.go", "internal/cli/resoconti_cerca.go", "internal/cli/commissioni_convocazioni.go", "internal/cli/commissioni_sommari.go", "internal/cli/mozioni_cerca.go", "internal/cli/interrogazioni_cerca.go", "internal/cli/interpellanze_cerca.go", "internal/cli/odg_cerca.go", "internal/cli/risoluzioni_cerca.go"],
+  "validated_outcome": "resoconti --data 2026-02-25 -> 3 risultati (era 0); --data range -> 7; commissioni --codcom 6 -> 50 (SESTA). mozioni cerca --legisl 17 --data 2020-02-01:2020-02-29 -> 15 mozioni (prima serviva --isis-query); la mozione caro-voli cercata invano per testo libero è la n. 307 del 28.01.2020, trovata con --firmatario Lupo --data 2019-06-01:2020-02-04: la stampa datava l'approvazione in aula (4 feb), l'archivio indicizza la presentazione."
 }

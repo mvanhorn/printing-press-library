@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "notion",
   "cli_name": "notion-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-08T18:21:21Z",
-  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
+  "version": "2026.8.2",
+  "released_at": "2026-08-17T08:12:07Z",
+  "source_commit": "55bd5bbc33b008abfde4d02b1b4f63be376004f7",
   "printing_press_version": "4.0.6",
   "run_id": "20260508-225745",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.5 across published modules",
-      "pr": 1467,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
-      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+      "title": "fix(cli): emit JSON help for notion agent mode",
+      "pr": 1740,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1740",
+      "commit": "55bd5bbc33b008abfde4d02b1b4f63be376004f7"
     }
   ]
 }

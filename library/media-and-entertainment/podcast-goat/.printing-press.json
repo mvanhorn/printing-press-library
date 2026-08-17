@@ -49,9 +49,14 @@
       "description": "For an episode resolvable on multiple sources, fetch all available adapters and diff segment count, token count, distinct speakers, label confidence."
     },
     {
-      "name": "Bilingual zh-Hans + en aligned transcript",
-      "command": "episode get --bilingual",
-      "description": "yt-dlp dual-language auto-subs, greedy nearest-neighbor alignment, emits one markdown file with paired Chinese + auto-translated English per turn."
+      "name": "Non-English transcript fetch",
+      "command": "episode get --lang",
+      "description": "Fetch YouTube auto-subs in any single language yt-dlp knows (e.g. --lang it) instead of the historical English-only path. One code per fetch; rolling-cue de-dup applies to space-tokenized languages."
+    },
+    {
+      "name": "Spend-free paid-source availability probe",
+      "command": "episode info --probe",
+      "description": "Asks spoken.md's search endpoint whether it actually has the episode, instead of showing only a static cost estimate. Works with the demo key; no transcript fetch, no spend."
     },
     {
       "name": "Per-service cookie freshness table",
@@ -78,6 +83,10 @@
     {
       "handle": "tmchow",
       "name": "Trevin Chow"
+    },
+    {
+      "handle": "giuseppebisemi",
+      "name": "Giuseppe Bisemi"
     }
   ]
 }

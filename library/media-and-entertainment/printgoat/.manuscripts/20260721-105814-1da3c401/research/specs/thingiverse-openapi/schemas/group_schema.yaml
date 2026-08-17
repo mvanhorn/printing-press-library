@@ -1,0 +1,129 @@
+type: object
+required:
+  - id
+properties:
+  id:
+    type: integer
+    format: int
+  name:
+    type: string
+  slug:
+    type: string
+  description:
+    type: string
+  public_url:
+    type: string
+  url:
+    type: string
+  image:
+    type: string
+  creator:
+    type: integer
+    format: int
+  is_member:
+    type: boolean
+  members:
+    type: object
+    properties:
+      count:
+        type: integer
+        format: int
+      url:
+        type: string
+  things:
+    type: object
+    properties:
+      count:
+        type: integer
+        format: int
+      url:
+        type: string
+  group_topics:
+    type: object
+    properties:
+      count:
+        type: integer
+        format: int
+      url:
+        type: string
+  featured:
+    type: array
+    items: 
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int
+        name:
+          type: string
+        thumbnail:
+          type: string
+        url:
+          type: string
+        public_url:
+          type: string
+        creator:
+          $ref: './user_summary_schema.yaml'
+        created_at: 
+          type: string
+          format: date-time
+        is_published:
+          type: integer
+          minimum: 0
+          maximum: 1
+        is_nsfw:
+          type: boolean
+          example: false
+          nullable: true
+        is_purchased:
+          type: integer
+          minimum: 0
+          maximum: 1
+        is_private:
+          type: integer
+          minimum: 0
+          maximum: 1
+        collect_count:
+          type: integer
+          format: int
+        comment_count:
+          type: integer
+          format: int
+        make_count:
+          type: integer
+          format: int
+        like_count:
+          type: integer
+          format: int
+        preview_image:
+          type: string
+        tags:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              tag:
+                type: string
+              things_url:
+                type: string
+              absolute_url:
+                type: string
+              url:
+                type: string
+              count:
+                type: integer
+                format: int
+  featured_images:
+    type: array
+    items:
+      type: object
+      properties:
+        url_image:
+          type: string
+        url_thing:
+          type: string
+  pinnedTopics:
+    type: integer
+    format: int

@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.8.1 - 2026-08-17
+
+- fix(catalog): align Go fallback docs with toolchain floor (#1735).
+
 ## 2026.7.3 - 2026-07-25
 
 - feat(facebook-marketplace): add direct buyer thread reader (#1591).

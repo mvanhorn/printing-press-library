@@ -169,6 +169,28 @@ func (c *Client) GetUserData(ctx context.Context) (*pb.PBUserDataResponse, error
 
 // AddItem adds an item to a shopping list.
 func (c *Client) AddItem(ctx context.Context, listID, itemName, quantity, details, category string) error {
+	return c.AddItemWithOptions(ctx, listID, itemName, ItemAddOptions{
+		Quantity: quantity,
+		Details:  details,
+		Category: category,
+	})
+}
+
+// ItemAddOptions contains the structured product metadata AnyList accepts on
+// a shopping-list item. ProductUpc is especially useful: AnyList can use it
+// to resolve the product name, package size, and thumbnail in its own catalog.
+type ItemAddOptions struct {
+	Quantity    string
+	Details     string
+	Category    string
+	ProductUpc  string
+	PackageSize string
+	Price       *pb.PBItemPrice
+}
+
+// AddItemWithOptions adds an item and any supplied product metadata to a
+// shopping list.
+func (c *Client) AddItemWithOptions(ctx context.Context, listID, itemName string, opts ItemAddOptions) error {
 	itemID := strings.ReplaceAll(uuid.NewString(), "-", "")
 	op := &pb.PBListOperation{
 		Metadata: &pb.PBOperationMetadata{
@@ -187,14 +209,23 @@ func (c *Client) AddItem(ctx context.Context, listID, itemName, quantity, detail
 			UserId:          c.cfg.UserID,
 		},
 	}
-	if quantity != "" {
-		op.ListItem.Quantity = quantity
+	if opts.Quantity != "" {
+		op.ListItem.Quantity = opts.Quantity
 	}
-	if details != "" {
-		op.ListItem.Details = details
+	if opts.Details != "" {
+		op.ListItem.Details = opts.Details
 	}
-	if category != "" {
-		op.ListItem.Category = category
+	if opts.Category != "" {
+		op.ListItem.Category = opts.Category
+	}
+	if opts.ProductUpc != "" {
+		op.ListItem.ProductUpc = opts.ProductUpc
+	}
+	if opts.PackageSize != "" {
+		op.ListItem.PackageSizePb = &pb.PBItemPackageSize{RawPackageSize: opts.PackageSize}
+	}
+	if opts.Price != nil {
+		op.ListItem.Prices = []*pb.PBItemPrice{opts.Price}
 	}
 	return c.sendListOperation(ctx, op)
 }
@@ -242,6 +273,7 @@ func (c *Client) UpdateItemFields(ctx context.Context, listID, itemID string, fi
 		"quantity":          "set-list-item-quantity",
 		"details":           "set-list-item-details",
 		"category_match_id": "set-list-item-category-match-id",
+		"product_upc":       "set-list-item-product-upc",
 	}
 	ops := &pb.PBListOperationList{}
 	for field, value := range fields {
@@ -264,6 +296,57 @@ func (c *Client) UpdateItemFields(ctx context.Context, listID, itemID string, fi
 		return nil
 	}
 	return c.sendListOperations(ctx, ops)
+}
+
+// ProductLookup resolves a UPC/EAN through AnyList's product catalog. The
+// response includes a ListItem carrying structured product metadata and, when
+// available, a product thumbnail URL.
+func (c *Client) ProductLookup(ctx context.Context, barcode string) (*pb.PBProductLookupResponse, error) {
+	barcode = strings.TrimSpace(barcode)
+	if barcode == "" {
+		return nil, fmt.Errorf("barcode must not be empty")
+	}
+	resp, err := c.productLookupRequest(ctx, barcode)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode == http.StatusUnauthorized {
+		resp.Body.Close()
+		if refreshErr := c.RefreshTokens(ctx); refreshErr != nil {
+			return nil, fmt.Errorf("unauthorized; token refresh failed: %w", refreshErr)
+		}
+		resp, err = c.productLookupRequest(ctx, barcode)
+		if err != nil {
+			return nil, err
+		}
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading product lookup response: %w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("product lookup failed (HTTP %d): %s", resp.StatusCode, strings.TrimSpace(string(body)))
+	}
+	out := &pb.PBProductLookupResponse{}
+	if err := proto.Unmarshal(body, out); err != nil {
+		return nil, fmt.Errorf("decoding product lookup response: %w", err)
+	}
+	return out, nil
+}
+
+func (c *Client) productLookupRequest(ctx context.Context, barcode string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet,
+		baseURL+"/data/product-lookup/"+url.PathEscape(barcode), nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating product lookup request: %w", err)
+	}
+	c.setAuthHeaders(req)
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("requesting product lookup: %w", err)
+	}
+	return resp, nil
 }
 
 // UpdateItem updates fields of an existing list item from a full item value.
@@ -441,11 +524,7 @@ func (c *Client) postForm(ctx context.Context, path string, data url.Values) (*h
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("X-AnyLeaf-API-Version", apiVersion)
-	if c.cfg.ClientIdentifier != "" {
-		req.Header.Set("X-AnyLeaf-Client-Identifier", c.cfg.ClientIdentifier)
-	}
+	c.setCommonHeaders(req)
 	return c.httpClient.Do(req)
 }
 
@@ -456,15 +535,23 @@ func (c *Client) postFormAuthed(ctx context.Context, path string, data url.Value
 	if err != nil {
 		return nil, err
 	}
+	c.setAuthHeaders(req)
+	return c.httpClient.Do(req)
+}
+
+func (c *Client) setCommonHeaders(req *http.Request) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("X-AnyLeaf-API-Version", apiVersion)
 	if c.cfg.ClientIdentifier != "" {
 		req.Header.Set("X-AnyLeaf-Client-Identifier", c.cfg.ClientIdentifier)
 	}
+}
+
+func (c *Client) setAuthHeaders(req *http.Request) {
+	c.setCommonHeaders(req)
 	if c.cfg.AccessToken != "" {
 		req.Header.Set("Authorization", "Bearer "+c.cfg.AccessToken)
 	}
-	return c.httpClient.Do(req)
 }
 
 // postRaw sends an authenticated POST with no form body (for user-data/get).

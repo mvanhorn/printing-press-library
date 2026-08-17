@@ -1,0 +1,137 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-13T18:12:12.607157Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "pinecone",
+  "display_name": "Pinecone",
+  "cli_name": "pinecone-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "spec.json",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:42357e0522575f114627a513e90281efa4afb655f58909bddc57d38d17127fe1",
+  "run_id": "20260813-214420-550eb813",
+  "category": "ai",
+  "description": "Every Pinecone API feature, plus local sync, snapshot history, and text-first search no other Pinecone tool has.",
+  "mcp_binary": "pinecone-pp-mcp",
+  "mcp_tool_count": 95,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "2026-04",
+  "auth_type": "api_key",
+  "auth_preference": "ApiKeyAuth",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "endpoint_template_vars": [
+    "assistant_host",
+    "index_host",
+    "schedule_id"
+  ],
+  "auth_key_url": "https://app.pinecone.io/",
+  "novel_features": [
+    {
+      "name": "Text query (embed→query pipe)",
+      "command": "text-query",
+      "description": "Search a dense index with a natural-language query — embeds the text via Pinecone Inference, then queries the index — without managing vectors yourself."
+    },
+    {
+      "name": "Index snapshot + diff",
+      "command": "snapshot",
+      "description": "Capture a point-in-time state of any index (per-namespace vector counts, dimension, metric, host) into local SQLite, then diff against prior snapshots to see exactly what changed."
+    },
+    {
+      "name": "Stale-chunk pruning",
+      "command": "prune",
+      "description": "Find vectors whose local metadata timestamps are older than a threshold and delete them in batches — dry-run by default, with --apply to commit."
+    },
+    {
+      "name": "Cross-index cascade search",
+      "command": "cascade",
+      "description": "Run one semantic query across multiple indexes and merge the ranked results (deduped by vector ID, best score wins) into a single agent-ready list."
+    },
+    {
+      "name": "Usage / growth projection",
+      "command": "usage",
+      "description": "Compute vector-count growth and per-namespace distribution shifts from snapshot history, with a projection to a future horizon."
+    },
+    {
+      "name": "Vector payload validation",
+      "command": "check-vectors",
+      "description": "Validate a vectors JSON file against the index schema — dimension, duplicate/empty IDs, sparse/dense shape — before you upsert and burn write units on a rejected batch."
+    },
+    {
+      "name": "Backup/restore coverage report",
+      "command": "coverage",
+      "description": "Join backups, backup schedules, and restore jobs into a per-index protection matrix showing which indexes are backed up, scheduled, and restorable."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Text query (embed→query pipe)",
+      "command": "text-query",
+      "description": "Search a dense index with a natural-language query — embeds the text via Pinecone Inference, then queries the index — without managing vectors yourself."
+    },
+    {
+      "name": "Index snapshot + diff",
+      "command": "snapshot",
+      "description": "Capture a point-in-time state of any index (per-namespace vector counts, dimension, metric, host) into local SQLite, then diff against prior snapshots to see exactly what changed."
+    },
+    {
+      "name": "Stale-chunk pruning",
+      "command": "prune",
+      "description": "Find vectors whose local metadata timestamps are older than a threshold and delete them in batches — dry-run by default, with --apply to commit."
+    },
+    {
+      "name": "Cross-index cascade search",
+      "command": "cascade",
+      "description": "Run one semantic query across multiple indexes and merge the ranked results (deduped by vector ID, best score wins) into a single agent-ready list."
+    },
+    {
+      "name": "Usage / growth projection",
+      "command": "usage",
+      "description": "Compute vector-count growth and per-namespace distribution shifts from snapshot history, with a projection to a future horizon."
+    },
+    {
+      "name": "Vector payload validation",
+      "command": "check-vectors",
+      "description": "Validate a vectors JSON file against the index schema — dimension, duplicate/empty IDs, sparse/dense shape — before you upsert and burn write units on a rejected batch."
+    },
+    {
+      "name": "Backup/restore coverage report",
+      "command": "coverage",
+      "description": "Join backups, backup schedules, and restore jobs into a per-index protection matrix showing which indexes are backed up, scheduled, and restorable."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 118,
+    "total": 118,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 97,
+      "grade": "A (1 of 23 dimensions unverified: live_api_verification)",
+      "total": 97
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

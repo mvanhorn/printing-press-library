@@ -1,15 +1,72 @@
 {
+  "schema_version": 2,
+  "generated_at": "2026-08-03T16:37:11.629547Z",
+  "printing_press_version": "4.29.0",
   "api_name": "slack",
+  "display_name": "Slack",
   "cli_name": "slack-pp-cli",
   "creator": {
     "handle": "mvanhorn",
     "name": "Matt Van Horn"
   },
+  "contributors": [
+    {
+      "handle": "ChrisGutierrezNet",
+      "name": "Chris G. | AI Automation"
+    }
+  ],
+  "owner": "mvanhorn",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
-  "printing_press_version": "1.2.1",
-  "generated_at": "2026-04-09T23:03:49Z",
-  "spec_source": "internal-yaml",
-  "run_id": "20260409-073625",
-  "description": "Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal"
+  "spec_format": "internal",
+  "spec_checksum": "sha256:caac8d78da8a029d07b4657be6b9a8fe0227ea492216d9bca42c62eee5e15b9e",
+  "run_id": "20260801-150754-271fdf29",
+  "category": "productivity",
+  "description": "Every Slack read your token can make, mirrored to local SQLite so your history outlives Slack's own retention wall.",
+  "mcp_binary": "slack-pp-mcp",
+  "mcp_tool_count": 91,
+  "mcp_public_tool_count": 29,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SLACK_BOT_TOKEN",
+    "SLACK_USER_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Archive Recall",
+      "command": "archive recall",
+      "description": "Find messages in your local archive, including ones Slack has already hidden behind the 90-day retention wall."
+    },
+    {
+      "name": "Archive Coverage",
+      "command": "archive coverage",
+      "description": "Show what date range your local mirror actually holds per channel, and where the gaps are."
+    },
+    {
+      "name": "Catch-up",
+      "command": "catchup",
+      "description": "See what happened while you were away: new volume per channel, messages that mention you, and threads still waiting on your reply."
+    },
+    {
+      "name": "Stale Thread Radar",
+      "command": "threads stale",
+      "description": "List threads across the archive where the last reply is not yours and nobody has answered since."
+    },
+    {
+      "name": "Channel Health",
+      "command": "health",
+      "description": "Compare your channels by messages per day, distinct posters, median first-reply latency, and days idle."
+    },
+    {
+      "name": "User Activity",
+      "command": "users activity",
+      "description": "Profile where one person posts, which threads they carry, and when they were last seen."
+    },
+    {
+      "name": "Identity Card",
+      "command": "users whois",
+      "description": "Turn an opaque Slack ID, handle, or email into one card with shared channels, timezone, DND state, and last-seen."
+    }
+  ]
 }

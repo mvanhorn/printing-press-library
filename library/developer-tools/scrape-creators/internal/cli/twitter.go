@@ -11,8 +11,7 @@ func newTwitterCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "twitter",
 		Short:       "Get Twitter profiles, tweets, followers and more",
-		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 

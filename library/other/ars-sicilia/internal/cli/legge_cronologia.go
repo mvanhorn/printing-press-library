@@ -8,6 +8,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -32,6 +33,7 @@ esiste in piu' anni della stessa legislatura.`,
 		Args:    cobra.MaximumNArgs(2),
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
+			"pp:happy-args": "legisl=18;numero=26;--anno=2025",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 2 {
@@ -90,7 +92,11 @@ func runLeggeCronologia(cmd *cobra.Command, flags *rootFlags, legisl, numero, an
 		return notFoundErr(fmt.Errorf("nessuna legge trovata per legisl=%d numero=%d (aggiungi --anno per disambiguare numeri ripetuti tra anni diversi)", legisl, numero))
 	}
 	law := recs[0]
+	warnAnnoNonPinnato(anno, numero, law.Fields["Data"])
 	report.Titolo = law.Title
+	// iterReport è condiviso con `ddl iter`: qui l'atto di cui si racconta la
+	// storia è la legge, quindi la radice porta la sua scheda.
+	report.URL = law.URL
 	report.Eventi = append(report.Eventi, iterEvent{
 		Fase:      "promulgazione",
 		Data:      law.Fields["Data"],
@@ -176,4 +182,32 @@ func runLeggeCronologia(cmd *cobra.Command, flags *rootFlags, legisl, numero, an
 		fmt.Fprintf(out, "  [%s] %s — %s\n", e.Fase, e.Data, strings.TrimSpace(e.Sede+" "+e.Titolo))
 	}
 	return nil
+}
+
+// warnAnnoNonPinnato avverte su stderr quando il chiamante non ha fissato
+// --anno: l'archivio tiene lo stesso numero di legge in anni diversi della
+// stessa legislatura (nella XVIII ci sono due L.R. 26, ottobre 2024 e giugno
+// 2025) e la ricerca ne restituisce una sola, la prima. Senza avviso si ottiene
+// una cronologia perfettamente coerente e riferita all'atto sbagliato, senza
+// alcun segnale che ne esistesse un altro. Non sondiamo l'archivio per contare
+// gli anni davvero presenti: costerebbe pagine di richieste e resterebbe
+// inaffidabile, perché l'archivio tiene una riga per articolo e una legge lunga
+// riempirebbe da sola la finestra. Dire quale legge si è presa è più economico
+// e altrettanto utile: chi legge la data riconosce subito l'atto sbagliato.
+func warnAnnoNonPinnato(anno, numero int, data string) {
+	if msg := annoNonPinnatoHint(anno, numero, data); msg != "" {
+		fmt.Fprintln(os.Stderr, msg)
+	}
+}
+
+// annoNonPinnatoHint torna il testo dell'avviso, o "" quando non c'è nulla da
+// dire. Separato da warnAnnoNonPinnato per poterlo verificare senza catturare
+// stderr, come truncatedHint.
+func annoNonPinnatoHint(anno, numero int, data string) string {
+	if anno != 0 || strings.TrimSpace(data) == "" {
+		return ""
+	}
+	return fmt.Sprintf(
+		"hint: --anno non indicato: uso la L.R. %d promulgata il %s. Lo stesso numero si ripete in anni diversi della stessa legislatura e l'archivio ne restituisce una sola: se non è questa, ripeti con --anno.",
+		numero, data)
 }

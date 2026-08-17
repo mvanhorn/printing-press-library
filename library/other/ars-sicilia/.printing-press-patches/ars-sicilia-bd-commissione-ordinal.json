@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-bd-commissione-ordinal",
+  "applied_at": "2026-07-30",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "resolveCommissioneIDs traduce l'ordinale a lettere (PRIMA..SESTA) nel numero romano con cui il <select> di /bd/ prefissa la denominazione, via il nuovo romanFromOrdinalName. Vale per tutti i comandi che filtrano su quel select: commissioni sommari, commissioni convocazioni, non solo commissione dossier. In searchBD il ramo commissione non restituisce piu' una lista vuota quando il filtro non risolve, ma UnresolvedFilterError con i nomi vicini, come gia' fa --oratore.",
+  "reason": "commissione dossier era stato corretto il 29 luglio traducendo l'identificatore prima di interrogare gli archivi, ma i comandi diretti restavano rotti: `commissioni sommari --legisl 18 --commissione SECONDA` restituiva [] perche' 'SECONDA' non e' un frammento di 'II - Bilancio', mentre --commissione Bilancio e --codcom 2 restituivano i record. Zero silenzioso, quindi indistinguibile da 'questa commissione non ha lavori': una gap analysis (docs/news-agent/2026-07-30_08-05.md) ne ha dedotto che i sommari piu' recenti fossero di giugno 2025, con 13 mesi di latenza inesistente, mentre erano dello stesso giorno. Il fix va nel resolver condiviso, non nei singoli comandi, perche' e' il resolver a conoscere la forma delle denominazioni.",
+  "files": [
+    "internal/icaroclient/bd.go"
+  ],
+  "validated_outcome": "leg 18: commissioni sommari --commissione SECONDA ora restituisce gli stessi record di --commissione Bilancio e --codcom 2 (prima: []); commissioni convocazioni --commissione SESTA -> 3 record; --commissione Fuffa -> exit 1 con i nomi vicini; commissione dossier SESTA invariato {30,30,16,30}. go build/vet/test verdi, gofmt pulito."
+}

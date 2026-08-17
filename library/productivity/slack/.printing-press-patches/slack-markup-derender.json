@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "slack-markup-derender",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "De-render Slack's wire markup at the presentation boundary of the archive-backed commands, so message bodies reach output as readable text instead of raw <@U\u2026>/<#C\u2026>/<!here>/<https://\u2026|label> spans and &amp;/&lt;/&gt; entities.",
+  "reason": "Slack has no rendered-text field: conversations.history returns bodies in Slack's own encoding, and every command that prints a message body was passing it through verbatim. In a real workspace that is not an edge case \u2014 the sampled mirror's most common message is literally \"<@U0EXAMPLE01> has joined the channel\", and quoted-reply blocks arrive as \"&gt; \u2026\". Users and agents reading `text`, `parent_text`, or `last_reply_text` saw opaque IDs where a name belonged, and a truncated preview could strand half a span (\"<@U0BK3A\") in the output. The fix is one shared renderer (slackanalytics.TextRenderer) that resolves user and channel IDs against the local mirror, degrades unresolvable IDs to a readable @ID/#ID form, keeps link targets visible because a terminal cannot carry a hyperlink, and decodes entities through cliutil.CleanText. It runs only on the way out: the store keeps Slack's encoding so ClassifyMention and full-text search keep working against the form Slack actually sent, and `sql`/`export` stay fidelity-preserving.",
+  "validated_outcome": "Verified against a live 991-message mirror, read-only. `archive recall` now emits \"@GitHub has joined the channel\" and \"Run: https://github.com/\u2026\" where it previously emitted \"<@U0EXAMPLE01> \u2026\" and \"<https://github.com/\u2026>\"; `catchup` and `threads stale` previews render \"@Codex can you read the plan above\" and \"> Begin now by inspecting\u2026\". A post-run store check confirms the 7 rows carrying raw <@ markup are unchanged. Table-driven tests cover every markup form, mirror-vs-inline-label precedence, unresolvable IDs, the zero-value renderer, multiple and adjacent spans in one body, unknown constructs (left visible rather than deleted), a byte-identical passthrough assertion for markup-free bodies including whitespace/multiline/unicode, and a regression guard asserting that rendered text no longer classifies as a mention \u2014 i.e. that callers classify before rendering.",
+  "files": [
+    "internal/slackanalytics/markup.go",
+    "internal/slackanalytics/markup_test.go",
+    "internal/cli/slack_local.go",
+    "internal/cli/archive_recall.go",
+    "internal/cli/catchup.go",
+    "internal/cli/threads_stale.go",
+    "README.md"
+  ],
+  "upstream": "Any API whose text fields carry a provider-specific markup dialect (Slack mrkdwn, Discord mentions, Jira wiki markup) hits this. The generator could accept a per-spec `text_rendering` declaration \u2014 a list of pattern \u2192 replacement rules plus the resource whose rows resolve embedded IDs \u2014 and emit the renderer plus its presentation-boundary wiring, instead of every such CLI hand-writing one. The narrower reusable half is a scaffold convention: novel commands that surface a provider text field should render at assignment time, never at scan time."
+}

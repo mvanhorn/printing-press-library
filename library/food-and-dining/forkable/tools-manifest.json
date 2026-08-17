@@ -1,0 +1,35 @@
+{
+  "api_name": "forkable",
+  "base_url": "https://forkable.com",
+  "description": "A CLI and MCP server for your Forkable office-lunch program, with a local database and history, spend, and preference queries the web app cannot answer, plus commands to set, confirm, and skip meal orders (dry-run by default; --confirm to apply).",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "forkable.com"
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json"
+    },
+    {
+      "name": "Origin",
+      "value": "https://forkable.com"
+    },
+    {
+      "name": "Referer",
+      "value": "https://forkable.com/mc/"
+    }
+  ],
+  "tools": [
+    {
+      "name": "csrf_token",
+      "description": "Fetch a CSRF token. Read-only. Used as the handshake before authenticated GraphQL queries and as the reachability/health probe.",
+      "method": "GET",
+      "path": "/api/v2/csrf_token",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

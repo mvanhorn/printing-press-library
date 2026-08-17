@@ -170,7 +170,7 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 
 Highlights (not in the official API docs):
   • archive   Archive a whole Substack publication into a local SQLite mirror you can read, search, and query offline — no other Substack tool builds a persistent corpus.
-  • read   Read a post's full text; free posts keyless, and paid posts you subscribe to via your own session cookie — with an honest 'preview only, you're not entitled' signal.
+  • read   Read one or more posts' full text in a single call; free posts keyless, and paid posts you subscribe to via your own session cookie — with an honest 'preview only, you're not entitled' signal.
   • digest   A time-windowed digest across every publication in your local corpus — what's new since you last synced, ranked, in one view.
   • author-compare   Compare two publications' cadence, topics, and free/paid mix from the local corpus.
   • sql   Run read-only SQL over your local Substack corpus for arbitrary analytics — post cadence, audience mix, longest posts — from data you've already archived.

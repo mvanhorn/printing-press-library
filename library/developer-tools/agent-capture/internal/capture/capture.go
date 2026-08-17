@@ -1,10 +1,12 @@
-// Package capture wraps ScreenCaptureKit via tfsoares/screencapturekit-go
-// for window/display enumeration, screenshots, and recording.
+// Package capture uses macOS' built-in screencapture(1) command for
+// screenshots and video recordings.
 //
-// The screencapturekit-go library uses a subprocess bridge pattern:
-// it compiles a Swift CLI binary and shells out to it from Go.
-// This avoids writing custom cgo+ObjC bridge code while providing
-// full ScreenCaptureKit access.
+// On modern macOS, screencapture's video implementation is backed by
+// ScreenCaptureKit inside the operating system, but this package does not link
+// a ScreenCaptureKit Go binding or the tfsoares/screencapturekit-go module.
+// Because recording is delegated to screencapture(1), agent-capture does not
+// control frame rate directly; recording duration is governed by the
+// screencapture -V option.
 package capture
 
 import (

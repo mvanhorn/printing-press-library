@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-08T14:28:24.564717Z",
+  "cli_dir": "\u003ccli-dir\u003e/scrape-creators-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated framework file (platform client profiles); Short is brief but precise for a name-only listing; needs generator-template fix if richer text is wanted"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learn-loop file; 'learnings list' is a framework command whose flags (--query/--warnings) are documented in Example; generator-template retro candidate"
+    }
+  ]
+}

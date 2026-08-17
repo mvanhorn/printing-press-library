@@ -1,0 +1,1581 @@
+name: forkable
+description: Discovered API spec for forkable
+version: 0.1.0
+base_url: https://forkable.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "query" from body: search input'
+config:
+    format: toml
+    path: ~/.config/forkable-pp-cli/config.toml
+resources:
+    csrf_token:
+        description: Operations on csrf_token
+        endpoints:
+            list_csrf_token:
+                method: GET
+                path: /api/v2/csrf_token
+                description: GET /api/v2/csrf_token
+                params:
+                    - name: token
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: CsrfToken
+                pagination: null
+    graphql:
+        description: Operations on graphql
+        endpoints:
+            create_graphql:
+                method: POST
+                path: /api/v2/graphql
+                description: POST /api/v2/graphql
+                params:
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: addTopRatedMealsImpression
+                          type: object
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: app
+                          type: object
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: config
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: markNotificationAsViewed
+                          type: object
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: me
+                          type: object
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: active
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: addressInfo
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: allManagedClubs
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: availableDelegations
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: chatMessageChainOptions
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: claimed
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: compactView
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: companies
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: createdAt
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: dislikes
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: email
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: email
+                            - name: firstName
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: foodPrefs
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: fullName
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: hasChangedMeal
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: hasOpenedDashboard
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: hasOptedIn
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: hasPersonalBuffetClubs
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: id
+                              type: integer
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: imageUrl
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: invitation
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isBuffetEnabled
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isFamilyUser
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isGuest
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isGuestLinkRequestsEnabled
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: lastMealOn
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: lastName
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: likes
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: mealClubAutoOrder
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: mealClubs
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: memberships
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: mfaEnabled
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: mfaQr
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: mustBeOnline
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: online
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: permissionSetsGrouped
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: permissions
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: preferredLocations
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: remainingLateOrdersMonthOf
+                              type: integer
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: restrictions
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: roles
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: settings
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: totalFailedCharges
+                              type: integer
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: validCreditCard
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: mealClubsAs
+                          type: array
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: accountantIds
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: active
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: allowLateMeals
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: allowanceMealLimit
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: allowanceType
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: assistantIds
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: clubCoversAllFees
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: copay
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: copayAllowance
+                              type: integer
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: deliveryAddress
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: deliveryDays
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: division
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: forBuffet
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: hasFutureGuestLinkRequests
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: hiddenPriceLimit
+                              type: integer
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: hideOverPriceLimit
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: hidePrices
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: id
+                              type: integer
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isGuestLinkRequestsEnabled
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isInternal
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isLateRemovalEnabled
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isResidential
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: market
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: organizerUserId
+                              type: integer
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: paymentEmail
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: email
+                            - name: sendDelayEmails
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: settings
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: userRoles
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: utensils
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: mealGenerationScores
+                          type: array
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: itemId
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: menuId
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: score
+                              type: number
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: menus
+                          type: array
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: disableSpecialInstructions
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: displayName
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isNewForUser
+                              type: boolean
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: optionSets
+                              type: array
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: ratingCount
+                              type: integer
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: sections
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: tagsByItemId
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: venue
+                              type: object
+                              required: false
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: myBuffetAddresses
+                          type: array
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: apartment
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: city
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: formattedAddress
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: lat
+                              type: number
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: lng
+                              type: number
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: mealClubId
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: notes
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: postalCode
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: region
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: street
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: streetName
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: streetNumber
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: myDeliveries
+                          type: array
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: address
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: afternoon
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: allowanceType
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: availableMenuIds
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: canRequestChanges
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: club
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: copayAmount
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: deliveryWindow
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: estimatedArrivalAt
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: forDeliveryAt
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isPreferred
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isReadOnly
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: mealClubId
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: myReportedIssues
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: orders
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: pastLateOrderDeadline
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: serviceWindow
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: state
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: userReceipt
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: weeklyAllowance
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: weeklyAllowanceAvailable
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: myInProgressDeliveryIds
+                          type: array
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: venueUsage
+                          type: object
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: "14025"
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: "15807"
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: "16266"
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: "16389"
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                body:
+                    - name: query
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Graphql
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+    mc:
+        description: Operations on mc
+        endpoints:
+            list_mc:
+                method: GET
+                path: /mc/
+                description: Fetch structured links from /mc/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    public:
+        description: Operations on graphql
+        endpoints:
+            create_graphql:
+                method: POST
+                path: /api/v2/public/graphql
+                description: POST /api/v2/public/graphql
+                params:
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: diets
+                          type: array
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: label
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: level
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: restrictedIngredients
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: shortLabel
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: ingredients
+                          type: array
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: category
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: ingredients
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                body:
+                    - name: query
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Graphql2
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+types:
+    App:
+        fields:
+            - name: config
+              type: object
+    CsrfToken:
+        fields:
+            - name: token
+              type: string
+    Data:
+        fields:
+            - name: addTopRatedMealsImpression
+              type: object
+              omit_empty: true
+            - name: app
+              type: ref:App
+              omit_empty: true
+            - name: markNotificationAsViewed
+              type: object
+              omit_empty: true
+            - name: me
+              type: ref:Me
+              omit_empty: true
+            - name: mealClubsAs
+              type: '[]ref:MealClubsA'
+              omit_empty: true
+            - name: mealGenerationScores
+              type: '[]ref:MealGenerationScore'
+              omit_empty: true
+            - name: menus
+              type: '[]ref:Menus'
+              omit_empty: true
+            - name: myBuffetAddresses
+              type: '[]ref:MyBuffetAddresse'
+              omit_empty: true
+            - name: myDeliveries
+              type: '[]ref:MyDelivery'
+              omit_empty: true
+            - name: myInProgressDeliveryIds
+              type: array
+              omit_empty: true
+            - name: venueUsage
+              type: ref:VenueUsage
+              omit_empty: true
+    Data2:
+        fields:
+            - name: diets
+              type: '[]ref:Diet'
+              omit_empty: true
+            - name: ingredients
+              type: '[]ref:Ingredient'
+              omit_empty: true
+    Diet:
+        fields:
+            - name: label
+              type: string
+            - name: level
+              type: integer
+            - name: name
+              type: string
+            - name: restrictedIngredients
+              type: array
+            - name: shortLabel
+              type: string
+    Graphql:
+        fields:
+            - name: data
+              type: ref:Data
+    Graphql2:
+        fields:
+            - name: data
+              type: ref:Data2
+    Ingredient:
+        fields:
+            - name: category
+              type: string
+            - name: ingredients
+              type: array
+    Me:
+        fields:
+            - name: active
+              type: bool
+              omit_empty: true
+            - name: addressInfo
+              type: object
+              omit_empty: true
+            - name: allManagedClubs
+              type: array
+              omit_empty: true
+            - name: availableDelegations
+              type: array
+              omit_empty: true
+            - name: chatMessageChainOptions
+              type: array
+              omit_empty: true
+            - name: claimed
+              type: bool
+              omit_empty: true
+            - name: compactView
+              type: bool
+              omit_empty: true
+            - name: companies
+              type: array
+              omit_empty: true
+            - name: createdAt
+              type: string
+              omit_empty: true
+              format: date-time
+            - name: dislikes
+              type: array
+              omit_empty: true
+            - name: email
+              type: string
+              omit_empty: true
+              format: email
+            - name: firstName
+              type: string
+              omit_empty: true
+            - name: foodPrefs
+              type: object
+              omit_empty: true
+            - name: fullName
+              type: string
+              omit_empty: true
+            - name: hasChangedMeal
+              type: bool
+              omit_empty: true
+            - name: hasOpenedDashboard
+              type: bool
+              omit_empty: true
+            - name: hasOptedIn
+              type: bool
+              omit_empty: true
+            - name: hasPersonalBuffetClubs
+              type: bool
+              omit_empty: true
+            - name: id
+              type: integer
+              omit_empty: true
+            - name: imageUrl
+              type: string
+              omit_empty: true
+            - name: invitation
+              type: object
+              omit_empty: true
+            - name: isBuffetEnabled
+              type: bool
+              omit_empty: true
+            - name: isFamilyUser
+              type: bool
+              omit_empty: true
+            - name: isGuest
+              type: bool
+              omit_empty: true
+            - name: isGuestLinkRequestsEnabled
+              type: bool
+              omit_empty: true
+            - name: lastMealOn
+              type: string
+              omit_empty: true
+            - name: lastName
+              type: string
+              omit_empty: true
+            - name: likes
+              type: array
+              omit_empty: true
+            - name: mealClubAutoOrder
+              type: bool
+              omit_empty: true
+            - name: mealClubs
+              type: array
+              omit_empty: true
+            - name: memberships
+              type: array
+              omit_empty: true
+            - name: mfaEnabled
+              type: bool
+              omit_empty: true
+            - name: mfaQr
+              type: string
+              omit_empty: true
+            - name: mustBeOnline
+              type: bool
+              omit_empty: true
+            - name: online
+              type: bool
+              omit_empty: true
+            - name: permissionSetsGrouped
+              type: array
+              omit_empty: true
+            - name: permissions
+              type: array
+              omit_empty: true
+            - name: preferredLocations
+              type: array
+              omit_empty: true
+            - name: remainingLateOrdersMonthOf
+              type: integer
+              omit_empty: true
+            - name: restrictions
+              type: array
+              omit_empty: true
+            - name: roles
+              type: object
+              omit_empty: true
+            - name: settings
+              type: object
+              omit_empty: true
+            - name: totalFailedCharges
+              type: integer
+              omit_empty: true
+            - name: validCreditCard
+              type: bool
+              omit_empty: true
+    MealClubsA:
+        fields:
+            - name: accountantIds
+              type: array
+              omit_empty: true
+            - name: active
+              type: bool
+              omit_empty: true
+            - name: allowLateMeals
+              type: bool
+              omit_empty: true
+            - name: allowanceMealLimit
+              type: bool
+              omit_empty: true
+            - name: allowanceType
+              type: string
+              omit_empty: true
+            - name: assistantIds
+              type: array
+              omit_empty: true
+            - name: clubCoversAllFees
+              type: bool
+              omit_empty: true
+            - name: copay
+              type: bool
+              omit_empty: true
+            - name: copayAllowance
+              type: integer
+              omit_empty: true
+            - name: deliveryAddress
+              type: object
+              omit_empty: true
+            - name: deliveryDays
+              type: object
+              omit_empty: true
+            - name: division
+              type: object
+              omit_empty: true
+            - name: forBuffet
+              type: bool
+              omit_empty: true
+            - name: hasFutureGuestLinkRequests
+              type: bool
+              omit_empty: true
+            - name: hiddenPriceLimit
+              type: integer
+              omit_empty: true
+            - name: hideOverPriceLimit
+              type: bool
+              omit_empty: true
+            - name: hidePrices
+              type: bool
+              omit_empty: true
+            - name: id
+              type: integer
+              omit_empty: true
+            - name: isGuestLinkRequestsEnabled
+              type: bool
+              omit_empty: true
+            - name: isInternal
+              type: bool
+              omit_empty: true
+            - name: isLateRemovalEnabled
+              type: bool
+              omit_empty: true
+            - name: isResidential
+              type: bool
+              omit_empty: true
+            - name: market
+              type: object
+              omit_empty: true
+            - name: name
+              type: string
+              omit_empty: true
+            - name: organizerUserId
+              type: integer
+              omit_empty: true
+            - name: paymentEmail
+              type: string
+              omit_empty: true
+              format: email
+            - name: sendDelayEmails
+              type: bool
+              omit_empty: true
+            - name: settings
+              type: object
+              omit_empty: true
+            - name: userRoles
+              type: array
+              omit_empty: true
+            - name: utensils
+              type: bool
+              omit_empty: true
+    MealGenerationScore:
+        fields:
+            - name: itemId
+              type: integer
+            - name: menuId
+              type: integer
+            - name: score
+              type: number
+    Menus:
+        fields:
+            - name: disableSpecialInstructions
+              type: bool
+              omit_empty: true
+            - name: displayName
+              type: string
+              omit_empty: true
+            - name: id
+              type: integer
+            - name: isNewForUser
+              type: bool
+              omit_empty: true
+            - name: name
+              type: string
+              omit_empty: true
+            - name: optionSets
+              type: array
+              omit_empty: true
+            - name: ratingCount
+              type: integer
+              omit_empty: true
+            - name: sections
+              type: array
+            - name: tagsByItemId
+              type: object
+              omit_empty: true
+            - name: venue
+              type: object
+              omit_empty: true
+    MyBuffetAddresse:
+        fields:
+            - name: apartment
+              type: string
+            - name: city
+              type: string
+            - name: formattedAddress
+              type: string
+            - name: lat
+              type: number
+            - name: lng
+              type: number
+            - name: mealClubId
+              type: integer
+            - name: notes
+              type: string
+            - name: postalCode
+              type: string
+            - name: region
+              type: string
+            - name: street
+              type: string
+            - name: streetName
+              type: string
+            - name: streetNumber
+              type: string
+    MyDelivery:
+        fields:
+            - name: address
+              type: object
+            - name: afternoon
+              type: bool
+            - name: allowanceType
+              type: string
+            - name: availableMenuIds
+              type: array
+            - name: canRequestChanges
+              type: bool
+            - name: club
+              type: object
+            - name: copayAmount
+              type: integer
+            - name: deliveryWindow
+              type: array
+            - name: estimatedArrivalAt
+              type: array
+            - name: forDeliveryAt
+              type: string
+              format: date-time
+            - name: id
+              type: integer
+            - name: isPreferred
+              type: bool
+            - name: isReadOnly
+              type: bool
+            - name: mealClubId
+              type: integer
+            - name: myReportedIssues
+              type: array
+            - name: orders
+              type: array
+            - name: pastLateOrderDeadline
+              type: bool
+            - name: serviceWindow
+              type: object
+            - name: state
+              type: string
+            - name: userReceipt
+              type: object
+            - name: weeklyAllowance
+              type: integer
+            - name: weeklyAllowanceAvailable
+              type: integer
+    VenueUsage:
+        fields:
+            - name: "14025"
+              type: object
+            - name: "15807"
+              type: object
+            - name: "16266"
+              type: object
+            - name: "16389"
+              type: object

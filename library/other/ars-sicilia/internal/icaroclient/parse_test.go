@@ -78,3 +78,47 @@ func TestParseDoc_TitleIsValueNotLabel(t *testing.T) {
 		t.Fatalf("Title = %q, want %q", doc.Title, want)
 	}
 }
+
+// Il DocID è la posizione nella short list della sessione, non l'identità del
+// documento: con un'altra query lo stesso icaDocId apre un altro atto, e fuori
+// sessione l'URL risponde 302. L'identificatore stabile è il `docno(N)` che la
+// pagina usa per il proprio permalink, e sta dentro uno <script>: va letto
+// dall'HTML grezzo, non dall'albero dei nodi.
+func TestParseDoc_DocNoDalPermalink(t *testing.T) {
+	arc := Archive{ID: "221", Slug: "ddl"}
+	body := `<html><body>
+		<h3 id="permalink">Link diretto al documento</h3>
+		<script>
+			document.getElementById("permalink").addEventListener("click", function() {
+				const url = "https://dati.ars.sicilia.it/icaro/default.jsp?icaDB=221&icaQuery=docno(9513)"
+			});
+		</script>
+	</body></html>`
+
+	doc, err := ParseDoc(body, arc, 1)
+	if err != nil {
+		t.Fatalf("ParseDoc error: %v", err)
+	}
+	if doc.DocNo != 9513 {
+		t.Fatalf("DocNo = %d, want 9513", doc.DocNo)
+	}
+	// Una pagina senza permalink non deve inventarsi uno zero: `omitempty` lo
+	// tiene fuori dall'output invece di far credere che il documento sia il #0.
+	senza, err := ParseDoc(`<html><body><p>niente</p></body></html>`, arc, 1)
+	if err != nil {
+		t.Fatalf("ParseDoc error: %v", err)
+	}
+	if senza.DocNo != 0 {
+		t.Fatalf("DocNo = %d, want 0 quando il permalink non c'è", senza.DocNo)
+	}
+}
+
+// Il permalink deve essere quello che il portale mette dietro il proprio
+// bottone: cambiando forma smette di riaprire il documento.
+func TestPermalinkURL(t *testing.T) {
+	got := PermalinkURL("https://dati.ars.sicilia.it", "221", 9513)
+	want := "https://dati.ars.sicilia.it/icaro/default.jsp?icaDB=221&icaQuery=docno%289513%29"
+	if got != want {
+		t.Fatalf("PermalinkURL = %q, want %q", got, want)
+	}
+}

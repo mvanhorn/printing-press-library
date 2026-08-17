@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "agent-capture",
   "cli_name": "agent-capture-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-08T18:21:21Z",
-  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
+  "version": "2026.8.3",
+  "released_at": "2026-08-17T08:05:15Z",
+  "source_commit": "ba10f29591fbda62d3286618c00607a9ef9a46e5",
   "printing_press_version": "0.4.0",
   "run_id": "20260405-115134",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.5 across published modules",
-      "pr": 1467,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
-      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+      "title": "fix(cli): repair agent-capture doctor probe and capture docs",
+      "pr": 1736,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1736",
+      "commit": "ba10f29591fbda62d3286618c00607a9ef9a46e5"
     }
   ]
 }

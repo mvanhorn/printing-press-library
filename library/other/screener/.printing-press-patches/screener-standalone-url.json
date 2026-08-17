@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "screener-standalone-url",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-101839-1498209c",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Screener.in serves standalone financials at /company/{symbol}/ (no /standalone/ suffix); the spec path was corrected and the market sector path param is not URL-escaped.",
+  "reason": "The site moved standalone views to the base company URL; escaping slashes in the sector path broke /market/IN08/IN0801/IN080101/.",
+  "files": ["research/screener-spec.yaml", "internal/cli/promoted_market.go"],
+  "validated_outcome": "profile-standalone INFY returns 200; market IN08/IN0801/IN080101 returns 25 companies."
+}

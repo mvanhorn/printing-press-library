@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.8.1 - 2026-08-17
+
+- fix(catalog): align Go fallback docs with toolchain floor (#1735).
+
 ## 2026.7.1 - 2026-07-08
 
 - fix(catalog): require Go 1.26.5 across published modules (#1467).

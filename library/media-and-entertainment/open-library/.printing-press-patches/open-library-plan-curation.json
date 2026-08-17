@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "open-library-plan-curation",
+  "applied_at": "2026-06-26",
+  "base_run_id": "20260626-061033",
+  "base_printing_press_version": "4.26.0",
+  "summary": "Curated the plan-generated skeleton into source-aware Open Library recipes with compact agent JSON, bounded requests, and explicit source/rate-limit caveats.",
+  "reason": "Issue #1191 needs an agent-usable Open Library metadata CLI, not placeholder environment-variable commands or a raw endpoint mirror. The first print keeps the command surface read-only and aligned with Open Library's anti-bulk usage guidance.",
+  "files": [
+    "cmd/open-library-pp-cli/main.go",
+    "internal/cli/root.go",
+    "internal/cli/types.go",
+    "internal/cli/client.go",
+    "internal/cli/commands.go",
+    "internal/cli/commands_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Unit tests cover book search request shape, contact-bearing User-Agent construction, author works lookup, subject slugging/details, and source-rate posture. Dogfood validation covers help/version, sources, doctor, and bounded live public API commands."
+}

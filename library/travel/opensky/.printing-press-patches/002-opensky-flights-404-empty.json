@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "opensky-flights-404-empty",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-162902",
+  "base_printing_press_version": "4.28.0",
+  "summary": "HTTP 404 with an empty JSON array body on /flights/* is treated as an empty result (exit 0, results:[]) instead of the template's resource-not-found error, via openSky404Empty() in helpers.go and a PATCH(opensky-flights-404-empty) block at both flights call sites.",
+  "reason": "OpenSky's documented behavior: the v1 API answers 404 with an empty array when a query window has zero flights. The template's generic 404 handling prints a misleading \"resource not found. Run the 'list' command\" hint that confuses users on a legitimately empty window (observed on /flights/arrival for every airport tested).",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/flights_get-departures.go",
+    "internal/cli/flights_get-aircraft-trajectory.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; live smoke: get-aircraft-trajectory --icao24 000001 (never-seen transponder) returns {\"results\":[]} with exit 0 instead of the 404 error.",
+  "upstream_issue": null
+}

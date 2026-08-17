@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-stats-real-distribution",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Con --sede-sweep, stats --by sede calcola la distribuzione sui totali dichiarati dal portale per ciascuna sede (nuovo campo SearchResult.TotalsBySede popolato dallo sweep) invece che contando le righe del campione, e dichiara la provenienza dei conteggi nel campo conteggi_da. Aggiunto docs/limiti-della-fonte.md.",
+  "reason": "Trovato da un avvocato che stava usando lo strumento per una ricerca vera. Lo sweep assegna una quota uguale a ciascuna sede, quindi contare le righe per sede misura la quota e non il paese: la distribuzione usciva piatta (7 per ogni sede con limit 200 su 31 sedi) e rispetto ai totali reali la classifica si invertiva -- lo sweep dava Bari 20 e Brescia 10, i totali dichiarati sono Bari 43 e Brescia 63. Sembra una distribuzione statistica ed e' un artefatto del campionamento: la forma peggiore per un numero che qualcuno potrebbe mettere in una memoria. I dati veri erano gia' in casa, perche' lo sweep interroga ogni sede e ne riceve il totale. Il documento sui limiti nasce da un'osservazione dell'utente: alcune cose non dipendono da noi (nessun ordinamento per pertinenza, nessun esito di primo grado, data di deposito assente dai risultati di ricerca) e vanno messe per iscritto, per non rincorrerle come se fossero difetti nostri.",
+  "files": [
+    "internal/gaclient/client.go",
+    "internal/cli/stats.go",
+    "docs/limiti-della-fonte.md"
+  ],
+  "validated_outcome": "stats --phrase 'accesso civico generalizzato' --sede-sweep --by sede: prima 7 per ogni sede (la quota), ora ROMA 1255, CONSIGLIO DI STATO 160, NAPOLI 118, BRESCIA 63, CATANIA 62, MILANO 62, con conteggi_da='totali dichiarati dal portale per sede'. Brescia 63 coincide con il totale verificato a mano. go build/vet/test verdi."
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "active-excludes-every-closed-state-type",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "\"Active\" means every workflow state Linear does not treat as closed, and Linear closes issues under three state types, not two: completed, canceled and duplicate.",
+  "reason": "WorkflowState.type has seven documented values and the schema carries no enum for them, so a generated filter that excludes only completed and canceled counts every duplicate-closed issue as open. The inflation is invisible: the rows look ordinary in a listing, and it propagates into every analytic that asks what is still open.",
+  "files": [
+    "internal/cli/issues.go",
+    "internal/cli/blocking.go",
+    "internal/cli/bottleneck.go",
+    "internal/cli/slipped.go",
+    "internal/cli/today.go"
+  ],
+  "validated_outcome": "An issue closed as a duplicate leaves 'issues list --state active' and is retrievable under '--state duplicate', on both the local and the live path."
+}

@@ -1,4 +1,11 @@
 // Copyright 2026 educrvz and contributors. Licensed under Apache-2.0. See LICENSE.
+// Hand-written novel command: charge & edit calendar.
+//
+// PATCH: shopper-charge-calendar-realshape. Combines /delivery/summary
+// (scheduled deliveryDate) and /delivery/v2/calendar (allowed reschedule window)
+// and computes charge=−7d, lock=−5d. The generated stub assumed /delivery/v2/calendar
+// returns a delivery array; live API returns a date-picker config instead.
+// pp:data-source live
 
 package cli
 
@@ -8,12 +15,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
-// chargeCalendarEntry is one row in the charge-calendar output: a delivery
-// cycle with its derived charge and edit-lock dates.
 type chargeCalendarEntry struct {
 	DeliveryDate string `json:"delivery_date"`
 	ChargeDate   string `json:"charge_date"`
@@ -23,7 +28,6 @@ type chargeCalendarEntry struct {
 	IsFresh      bool   `json:"is_fresh,omitempty"`
 }
 
-// chargeCalendarView is the full command output.
 type chargeCalendarView struct {
 	NextDelivery     *chargeCalendarEntry `json:"next_delivery"`
 	RescheduleWindow *rescheduleWindow    `json:"reschedule_window,omitempty"`
@@ -41,9 +45,8 @@ func newNovelChargeCalendarCmd(flags *rootFlags) *cobra.Command {
 	var flagLockingSoon bool
 
 	cmd := &cobra.Command{
-		Use:     "charge-calendar",
-		Short:   "Your next delivery's charge date, edit-lock deadline, and reschedule window in one view",
-		Example: "  shopper-pp-cli charge-calendar --weeks 8 --json",
+		Use:   "charge-calendar",
+		Short: "Your next delivery's charge date, edit-lock deadline, and reschedule window in one view",
 		Long: `Combines /delivery/summary (your scheduled delivery) and /delivery/v2/calendar
 (the allowed reschedule window) into one timeline and computes:
   - charge_date    = delivery_date - 7 days (Shopper charges ~7d ahead)
@@ -51,16 +54,14 @@ func newNovelChargeCalendarCmd(flags *rootFlags) *cobra.Command {
   - locks_in_days  = days until the edit window closes
   - status         = "editable" | "locking-soon" | "locks-today" | "locked"
 
-Use --locking-soon to only show the delivery when its edit window closes within 3 days.
---weeks N (or Nw) suppresses the delivery if it falls beyond the horizon.`,
+Only relevant for subscription stores (programada, fresh, pet).
+now and now-bebidas are ultra-fast and do not use a pre-scheduled delivery cycle.`,
+		Example: "  shopper-pp-cli charge-calendar --weeks 8 --json\n  shopper-pp-cli charge-calendar --store fresh",
 		Annotations: map[string]string{
 			"mcp:read-only":          "true",
 			"pp:no-error-path-probe": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
-				// fall through: charge-calendar is a no-required-input read command
-			}
 			if dryRunOK(flags) {
 				fmt.Fprintln(cmd.OutOrStdout(), `{"dry_run":true,"would":"fetch /delivery/summary + /delivery/v2/calendar and build charge timeline"}`)
 				return nil
@@ -90,7 +91,6 @@ Use --locking-soon to only show the delivery when its edit window closes within 
 			}
 			calendar, err := c.Get(cmd.Context(), "/delivery/v2/calendar", nil)
 			if err != nil {
-				// Calendar is enrichment; proceed with summary-only if it fails.
 				calendar = nil
 			}
 
@@ -127,12 +127,10 @@ func buildChargeCalendar(summary, calendar json.RawMessage, horizon time.Duratio
 
 	res := resultsEnvelope(summary)
 
-	// deliveryDate: ISO timestamp like "2026-06-23T03:00:00.000Z"
 	var deliveryDateStr string
 	if raw, ok := res["deliveryDate"]; ok {
 		_ = json.Unmarshal(raw, &deliveryDateStr)
 	}
-	// message.text (HTML) — strip tags for a clean note
 	if raw, ok := res["message"]; ok {
 		var msg map[string]any
 		if json.Unmarshal(raw, &msg) == nil {
@@ -142,10 +140,6 @@ func buildChargeCalendar(summary, calendar json.RawMessage, horizon time.Duratio
 		}
 	}
 
-	// Detect Fresh/perishable plan from specific plan-type fields only — never
-	// the whole JSON blob, since a product named "Leite Fresco" or "Suco Fresh"
-	// in the basket would otherwise misclassify the plan and surface the wrong
-	// 3-day edit-lock offset.
 	isFresh := false
 	for _, k := range []string{"planType", "plan_type", "deliveryType", "delivery_type", "plan", "modality", "type"} {
 		raw, ok := res[k]
@@ -201,7 +195,6 @@ func buildChargeCalendar(summary, calendar json.RawMessage, horizon time.Duratio
 		}
 	}
 
-	// Reschedule window from the calendar's allowed range.
 	if cal := resultsEnvelope(calendar); cal != nil {
 		if rawCal, ok := cal["calendar"]; ok {
 			var calObj map[string]json.RawMessage

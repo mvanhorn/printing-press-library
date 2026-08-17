@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "catalog-go-1266-vuln-floor",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Raise this module's Go toolchain floor to 1.26.6 so the five standard-library fixes shipped in that release are enforced when the CLI is built.",
+  "reason": "With go 1.26.5 in go.mod, publish-time govulncheck reported five reachable standard-library vulnerabilities, all fixed in go1.26.6: GO-2026-6218 (net/url resolvePath quadratic complexity, reached from cliutil.ProbeReachable), GO-2026-6090 (crypto/tls post-handshake message flood), GO-2026-6089 (net/http ReadHeaderTimeout on the h2c check, reached from the MCP server's StreamableHTTPServer.Start), GO-2026-5972 (encoding/asn1 recursion depth) and GO-2026-5026 (idna Punycode label handling). The docs floor stays at the catalog-wide 1.26.5 wording because the install sections of README.md and SKILL.md are generator-owned and verify-skill rejects any edit to them; the default GOTOOLCHAIN downloads 1.26.6 on demand, so a user on 1.26.5 still builds a fixed binary.",
+  "files": [
+    "go.mod"
+  ],
+  "validated_outcome": "`go run golang.org/x/vuln/cmd/govulncheck@v1.3.0 ./...` goes from 5 reachable standard-library vulnerabilities to `No vulnerabilities found`; `go build ./...` and `cli-printing-press verify-skill --dir .` both pass afterwards.",
+  "upstream_issue": null
+}

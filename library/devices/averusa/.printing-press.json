@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-12T07:53:23.518113Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "averusa",
+  "display_name": "AVer USA",
+  "cli_name": "averusa-pp-cli",
+  "creator": {
+    "handle": "Drummerms",
+    "name": "drummerms"
+  },
+  "owner": "drummerms",
+  "printer": "Drummerms",
+  "printer_name": "drummerms",
+  "spec_path": "averusa.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:10a11f56441ae90f644d9b57c7e15d6b60ae36a2ff2efba9e353faf2f07385b5",
+  "run_id": "20260811-213616-3ef4d308",
+  "category": "devices",
+  "description": "Every AVer USA manual, spec sheet, and white paper in a local, type-filtered catalog — with spec comparison and link audits no AVer site offers.",
+  "mcp_binary": "averusa-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Model spec comparison",
+      "command": "compare",
+      "description": "Side-by-side spec fields for two or more AVer models from their datasheets, ready for bid comparisons and RFP tables. Spec fields come from datasheet PDFs extracted by `harvest --with-specs`."
+    },
+    {
+      "name": "Single-model spec dump",
+      "command": "specs",
+      "description": "One model's full spec fields as clean text or JSON for spec-compliance tables and agent pipelines. Fields come from datasheet PDFs extracted by `harvest --with-specs`."
+    },
+    {
+      "name": "Doc link audit",
+      "command": "docs audit",
+      "description": "HEAD-checks every document URL in the catalog and flags 404s and soft-404 shells, caching last-checked status locally."
+    },
+    {
+      "name": "Offline job bag",
+      "command": "docs pack",
+      "description": "Batch-download every document for a model into one offline folder with stable \u003cmodel\u003e-\u003ctype\u003e names, with a --dry-run preview. Downloads need entityIds, which `harvest` resolves at sync time."
+    },
+    {
+      "name": "What's-new diff",
+      "command": "whats-new",
+      "description": "List documents and products added or updated since the last sync, filterable by age."
+    },
+    {
+      "name": "Doc coverage matrix",
+      "command": "coverage",
+      "description": "Per-model doc-type availability matrix for a category, flagging which models are missing manuals, spec sheets, or white papers."
+    },
+    {
+      "name": "Current vs discontinued",
+      "command": "products status",
+      "description": "Flag which models AVer lists as discontinued, filterable by category."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Model spec comparison",
+      "command": "compare",
+      "description": "Side-by-side spec fields for two or more AVer models from their datasheets, ready for bid comparisons and RFP tables. Spec fields come from datasheet PDFs extracted by `harvest --with-specs`."
+    },
+    {
+      "name": "Single-model spec dump",
+      "command": "specs",
+      "description": "One model's full spec fields as clean text or JSON for spec-compliance tables and agent pipelines. Fields come from datasheet PDFs extracted by `harvest --with-specs`."
+    },
+    {
+      "name": "Doc link audit",
+      "command": "docs audit",
+      "description": "HEAD-checks every document URL in the catalog and flags 404s and soft-404 shells, caching last-checked status locally."
+    },
+    {
+      "name": "Offline job bag",
+      "command": "docs pack",
+      "description": "Batch-download every document for a model into one offline folder with stable \u003cmodel\u003e-\u003ctype\u003e names, with a --dry-run preview. Downloads need entityIds, which `harvest` resolves at sync time."
+    },
+    {
+      "name": "What's-new diff",
+      "command": "whats-new",
+      "description": "List documents and products added or updated since the last sync, filterable by age."
+    },
+    {
+      "name": "Doc coverage matrix",
+      "command": "coverage",
+      "description": "Per-model doc-type availability matrix for a category, flagging which models are missing manuals, spec sheets, or white papers."
+    },
+    {
+      "name": "Current vs discontinued",
+      "command": "products status",
+      "description": "Flag which models AVer lists as discontinued, filterable by category."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 97.2972972972973,
+    "passed": 36,
+    "total": 37,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 89,
+      "grade": "A",
+      "total": 89
+    }
+  }
+}

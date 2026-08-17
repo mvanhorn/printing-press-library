@@ -78,14 +78,20 @@ func isNetworkError(err error) bool {
 		strings.Contains(msg, "TLS handshake timeout")
 }
 
-// openStoreForRead opens the local SQLite store for reading.
+// openStoreForRead opens the local SQLite store read-only for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
+//
+// Read paths open with store.OpenReadOnly: no MkdirAll, no migration loop, and
+// no write lock, so a read concurrent with a sync cannot block on the writer
+// and a read command never runs a schema migration as a side effect. ctx is
+// threaded into OpenReadOnlyContext so a cancelled command (SIGINT, deadline)
+// interrupts the driver-init SQLITE_BUSY retry rather than blocking on it.
 func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
 	dbPath := defaultDBPath(cliName)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
-	return store.OpenWithContext(ctx, dbPath)
+	return store.OpenReadOnlyContext(ctx, dbPath)
 }
 
 // localProvenance builds a DataProvenance for local data reads.
@@ -125,10 +131,22 @@ func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
 //     reads on per-endpoint-versioned APIs silently get the wrong response shape
 //     (cal-com retro #334 F1).
 func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
-	return resolveReadWithStrategy(ctx, c, flags, "auto", resourceType, isList, path, params, headers, hintWriter)
+	return resolveReadWithResponsePath(ctx, c, flags, resourceType, isList, path, params, headers, "", hintWriter)
+}
+
+func resolveReadWithResponsePath(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyAndResponsePath(ctx, c, flags, "auto", resourceType, isList, path, params, headers, responsePath, hintWriter)
 }
 
 func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyAndResponsePath(ctx, c, flags, strategy, resourceType, isList, path, params, headers, "", hintWriter)
+}
+
+func resolveReadWithStrategyAndResponsePath(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyResponsePathAndJSONGuard(ctx, c, flags, strategy, resourceType, isList, path, params, headers, responsePath, true, hintWriter)
+}
+
+func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, guardLiveJSON bool, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
 	if err := validateDataSourceStrategy(flags, strategy); err != nil {
 		return nil, DataProvenance{}, err
 	}
@@ -141,6 +159,15 @@ func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootF
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
+		if isDryRunResponse(c.IsDryRun(), data) {
+			return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data = applyResponsePath(data, responsePath)
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 	}
 	switch flags.dataSource {
@@ -153,11 +180,29 @@ func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootF
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
+		if isDryRunResponse(c.IsDryRun(), data) {
+			return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data = applyResponsePath(data, responsePath)
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
 		data, err := c.GetWithHeaders(ctx, path, params, headers)
 		if err == nil {
+			if isDryRunResponse(c.IsDryRun(), data) {
+				return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+			}
+			if guardLiveJSON {
+				if err := assertLiveJSONBody(data); err != nil {
+					return nil, DataProvenance{}, err
+				}
+			}
+			data = applyResponsePath(data, responsePath)
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
@@ -178,22 +223,40 @@ func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootF
 // or local store. When local, skips pagination and returns all synced data. The
 // headers argument carries per-endpoint required headers; pass nil when the
 // endpoint declares no overrides.
-func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
-	return resolvePaginatedReadWithStrategy(ctx, c, flags, "auto", resourceType, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField, hintWriter)
+func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolvePaginatedReadWithStrategy(ctx, c, flags, "auto", resourceType, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, "", hintWriter)
 }
 
-func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolvePaginatedReadWithStrategyAndJSONGuard(ctx, c, flags, strategy, resourceType, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, responsePath, true, hintWriter)
+}
+
+func resolvePaginatedReadWithStrategyAndJSONGuard(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField, responsePath string, guardLiveJSON bool, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
 	if err := validateDataSourceStrategy(flags, strategy); err != nil {
 		return nil, DataProvenance{}, err
+	}
+	if flags != nil && flags.dryRun {
+		fetchAll = false
 	}
 	if strategy == "local" {
 		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, "strategy_local")
 		return data, attachFreshness(prov, flags), err
 	}
 	if strategy == "live" {
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
+		if !guardLiveJSON && fetchAll {
+			return nil, DataProvenance{}, fmt.Errorf("--all is not supported for live HTML responses; omit --all to extract the current page")
+		}
+		data, err := paginatedGetWithResponsePath(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, responsePath)
 		if err != nil {
 			return nil, DataProvenance{}, err
+		}
+		if isDryRunResponse(c.IsDryRun(), data) {
+			return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 	}
@@ -203,15 +266,37 @@ func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, fla
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
+		if !guardLiveJSON && fetchAll {
+			return nil, DataProvenance{}, fmt.Errorf("--all is not supported for live HTML responses; omit --all to extract the current page")
+		}
+		data, err := paginatedGetWithResponsePath(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, responsePath)
 		if err != nil {
 			return nil, DataProvenance{}, err
+		}
+		if isDryRunResponse(c.IsDryRun(), data) {
+			return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
+		if !guardLiveJSON && fetchAll {
+			return nil, DataProvenance{}, fmt.Errorf("--all is not supported for live HTML responses; omit --all or use --data-source local")
+		}
+		data, err := paginatedGetWithResponsePath(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, responsePath)
 		if err == nil {
+			if isDryRunResponse(c.IsDryRun(), data) {
+				return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+			}
+			if guardLiveJSON {
+				if err := assertLiveJSONBody(data); err != nil {
+					return nil, DataProvenance{}, err
+				}
+			}
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
@@ -288,7 +373,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 		var envelope map[string]json.RawMessage
 		if json.Unmarshal(data, &envelope) == nil {
 			matchedListEnvelope := false
-			if extracted, ok := extractWriteThroughListItems(envelope); ok {
+			if extracted, ok := extractWriteThroughListItems(resourceType, envelope); ok {
 				matchedListEnvelope = true
 				items = extracted
 			}
@@ -348,8 +433,11 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 
 type writeThroughArrayDecoder func(json.RawMessage) ([]json.RawMessage, bool)
 
-func extractWriteThroughListItems(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+func extractWriteThroughListItems(resourceType string, envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
 	if items, ok := extractWriteThroughListWrapperItems(envelope, decodeWriteThroughNonEmptyArray); ok {
+		return items, true
+	}
+	if items, ok := extractWriteThroughResourceItems(resourceType, envelope); ok {
 		return items, true
 	}
 
@@ -368,6 +456,29 @@ func extractWriteThroughListItems(envelope map[string]json.RawMessage) ([]json.R
 	}
 
 	return extractWriteThroughSingleArraySibling(envelope, decodeWriteThroughNonEmptyArray)
+}
+
+func extractWriteThroughResourceItems(resourceType string, envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	var envelopeObject map[string]any
+	envelopeJSON, err := json.Marshal(envelope)
+	if err != nil || json.Unmarshal(envelopeJSON, &envelopeObject) != nil {
+		return nil, false
+	}
+	if store.ExtractResourceID(resourceType, envelopeObject) != "" {
+		return nil, false
+	}
+
+	for key, raw := range envelope {
+		if !strings.EqualFold(key, resourceType) {
+			continue
+		}
+		items, ok := decodeWriteThroughArray(raw)
+		if !ok || !writeThroughArrayItemsAreObjects(items) {
+			return nil, false
+		}
+		return items, true
+	}
+	return nil, false
 }
 
 func extractNestedWriteThroughListItems(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
@@ -458,7 +569,7 @@ func writeMutationResponseToStore(ctx context.Context, resourceType string, data
 
 func mutationResponseEntityItems(resourceType string, data json.RawMessage, responsePath string) []json.RawMessage {
 	if responsePath != "" {
-		if pathData, ok := mutationResponseAtPath(data, responsePath); ok {
+		if pathData, ok := responsePayloadAtPath(data, responsePath); ok {
 			data = pathData
 		}
 	}
@@ -522,14 +633,6 @@ func mutationResponsePayload(data json.RawMessage) json.RawMessage {
 	default:
 		return data
 	}
-}
-
-func mutationResponseAtPath(data json.RawMessage, responsePath string) (json.RawMessage, bool) {
-	var root map[string]json.RawMessage
-	if err := json.Unmarshal(data, &root); err != nil {
-		return nil, false
-	}
-	return rawAtPath(root, strings.TrimPrefix(responsePath, "$."))
 }
 
 func mutationResponseHasID(resourceType string, data json.RawMessage) bool {

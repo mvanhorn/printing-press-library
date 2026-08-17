@@ -5,6 +5,7 @@ package cliutil
 
 import (
 	"html"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -21,6 +22,34 @@ import (
 // deeper escaping problem upstream — fix there, not here.
 func CleanText(s string) string {
 	return html.UnescapeString(strings.TrimSpace(s))
+}
+
+// ScrubTerminal prevents untrusted scalar values from altering terminal output.
+// Tabs and newlines become spaces; other control characters are removed.
+func ScrubTerminal(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r == '\t' || r == '\n' {
+			return ' '
+		}
+		if r < 0x20 || (r >= 0x7f && r <= 0x9f) {
+			return -1
+		}
+		return r
+	}, s)
+}
+
+// EscapePathParam preserves slash separators in hierarchical IDs so reserved
+// characters within each segment remain safe in the request URL.
+func EscapePathParam(value string) string {
+	segments := strings.Split(value, "/")
+	for i, segment := range segments {
+		if segment == "." || segment == ".." {
+			segments[i] = strings.Repeat("%2E", len(segment))
+			continue
+		}
+		segments[i] = url.PathEscape(segment)
+	}
+	return strings.Join(segments, "/")
 }
 
 // ParseStoredTime parses timestamps read back from SQLite-backed generated

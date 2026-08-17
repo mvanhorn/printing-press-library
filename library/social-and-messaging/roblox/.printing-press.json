@@ -1,0 +1,103 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-18T21:59:40.348915512Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "roblox",
+  "display_name": "Roblox",
+  "cli_name": "roblox-pp-cli",
+  "creator": {
+    "handle": "krMaynard",
+    "name": "Kieran Maynard"
+  },
+  "owner": "krmaynard",
+  "printer": "krMaynard",
+  "printer_name": "Kieran Maynard",
+  "spec_path": "spec.json",
+  "spec_format": "internal",
+  "spec_source": "official",
+  "spec_checksum": "sha256:9ab08e9a8fd69c474759eea24dda0a14d5bfe2921326e4bf058589925fae7667",
+  "run_id": "20260718-204038",
+  "category": "social-and-messaging",
+  "description": "Investigate Roblox's fragmented public web data from one agent-friendly CLI.",
+  "mcp_binary": "roblox-pp-mcp",
+  "mcp_tool_count": 227,
+  "mcp_public_tool_count": 171,
+  "mcp_ready": "partial",
+  "api_version": "v1",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "ROBLOX_COOKIES"
+  ],
+  "endpoint_template_vars": [
+    "collectibleItemId",
+    "targetUserId"
+  ],
+  "novel_features": [
+    {
+      "name": "User investigation bundle",
+      "command": "investigate user",
+      "description": "Assemble a public Roblox user's identity, avatar, groups, badges, inventory visibility, and thumbnails in one result."
+    },
+    {
+      "name": "Group due diligence",
+      "command": "investigate group",
+      "description": "Resolve a Roblox group, its owner, roles, and other public context in one command."
+    },
+    {
+      "name": "Creator catalog footprint",
+      "command": "catalog creator-footprint",
+      "description": "Summarize a Roblox creator's public games, bundles, and catalog-facing identity in one result."
+    },
+    {
+      "name": "Game ecosystem map",
+      "command": "ecosystem game",
+      "description": "Build a game-centered view of public universe details, creator context, media, and related badges."
+    },
+    {
+      "name": "Relationship overlap",
+      "command": "network overlap",
+      "description": "Find shared public groups and relationship records between two locally synced Roblox users."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "User investigation bundle",
+      "command": "investigate user",
+      "description": "Assemble a public Roblox user's identity, avatar, groups, badges, inventory visibility, and thumbnails in one result."
+    },
+    {
+      "name": "Group due diligence",
+      "command": "investigate group",
+      "description": "Resolve a Roblox group, its owner, roles, and other public context in one command."
+    },
+    {
+      "name": "Creator catalog footprint",
+      "command": "catalog creator-footprint",
+      "description": "Summarize a Roblox creator's public games, bundles, and catalog-facing identity in one result."
+    },
+    {
+      "name": "Game ecosystem map",
+      "command": "ecosystem game",
+      "description": "Build a game-centered view of public universe details, creator context, media, and related badges."
+    },
+    {
+      "name": "Relationship overlap",
+      "command": "network overlap",
+      "description": "Find shared public groups and relationship records between two locally synced Roblox users."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 69,
+    "total": 69,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 92,
+      "grade": "A",
+      "total": 92
+    }
+  }
+}

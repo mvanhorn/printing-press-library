@@ -2,6 +2,22 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.8.4 - 2026-08-17
+
+- feat(linear): sync prunes upstream deletions and supports incremental crawls (#1693).
+
+## 2026.8.3 - 2026-08-17
+
+- feat(linear): user-definable state groups with a single resolver (#1692).
+
+## 2026.8.2 - 2026-08-17
+
+- fix(catalog): align Go fallback docs with toolchain floor (#1735).
+
+## 2026.8.1 - 2026-08-17
+
+- fix(linear): issues list --state active wrongly includes duplicate-closed issues (#1691).
+
 ## 2026.7.4 - 2026-07-14
 
 - fix(linear): support reliable agent issue reads (#1500).

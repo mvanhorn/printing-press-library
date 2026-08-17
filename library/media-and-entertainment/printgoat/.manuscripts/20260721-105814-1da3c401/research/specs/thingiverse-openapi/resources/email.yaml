@@ -1,0 +1,126 @@
+Root:
+  post:
+    tags:
+      - Email
+    summary: Queuing emails
+    security:
+      - BearerAuth: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email_type
+              - site
+              - user_id
+            properties:
+              client_id:
+                description: Set the client ID of app
+                type: string
+                example: 615fc4464de0c742cafb
+              email_type:
+                description: Set the type of email
+                type: string
+                enum: ["welcome", "forgot", "verification"]
+              site:
+                description: Set the parameter of site. Site parameter's value should be either 'tv' or 'mb'
+                type: string
+                example: tv
+              user_id:
+                description: Set the ID of the user who will receive the email
+                type: integer
+                minimum: 0
+                example: 2
+              forgot_email:
+                description: Set the forgotten email. In this case, set the email type as a forgot
+                type: string
+                example: test@gmail.com
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/email_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+EmailEnqueueSupport:
+  post:
+    tags:
+      - Email
+    summary: Queue email to Thingiverse support
+    security:
+      - BearerAuth: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - subject
+              - text
+            properties:
+              subject:
+                description: Email subject
+                type: string
+                example: Need help
+              text:
+                description: Email text
+                type: string
+                example: Please, help me to change my nickname.
+              html:
+                description: Email as HTML
+                type: string
+                example: <p>Please, help me to change my nickname.</p>
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '../responses/ok.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+EmailEnqueueDMCA:
+  post:
+    tags:
+      - Email
+    summary: Queue email to Thingiverse support (DMCA)
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: type
+        required: true
+        description: The type of message, in order to determine which address to send the message
+        schema:
+          type: string
+          enum: ["copyright", "ip"]
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - text
+            properties:
+              text:
+                description: Email text
+                type: string
+                example: <p>Hello</p>
+    responses:
+      '200':
+        $ref: '../responses/ok.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

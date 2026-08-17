@@ -44,6 +44,14 @@ func TestCleanText(t *testing.T) {
 	}
 }
 
+func TestScrubTerminal(t *testing.T) {
+	input := "keep\tcolumns\nlines\x00\x07\x1b[31m\x7f\u0085\u009b31m"
+	want := "keep columns lines[31m31m"
+	if got := ScrubTerminal(input); got != want {
+		t.Fatalf("ScrubTerminal(%q) = %q, want %q", input, got, want)
+	}
+}
+
 func TestParseStoredTime(t *testing.T) {
 	cases := []struct {
 		name string
@@ -646,7 +654,7 @@ func TestAdaptiveLimiter_NilSafeMethods(t *testing.T) {
 }
 
 func TestAdaptiveLimiter_RampsUpAfterSuccesses(t *testing.T) {
-	l := NewAdaptiveLimiter(2.0)
+	l := NewAdaptiveLimiterAuto(2.0)
 	startRate := l.Rate()
 	for i := 0; i < l.rampAfter; i++ {
 		l.OnSuccess()
@@ -708,6 +716,42 @@ func TestAdaptiveLimiter_WaitEnforcesPacing(t *testing.T) {
 	}
 }
 
+func TestAdaptiveLimiter_ObserveHeadersPacesToBudgetAndSuppressesRamp(t *testing.T) {
+	l := NewAdaptiveLimiterAuto(2.0)
+	// Full bucket: 100 requests left over a 20s window => ~5 rps sustainable.
+	l.ObserveHeaders(100, time.Now().Add(20*time.Second))
+	if got := l.Rate(); got < 4.9 || got > 5.1 {
+		t.Errorf("Rate() after ObserveHeaders = %v, want ~5", got)
+	}
+	// Once header-driven, the blind success ramp is suppressed: headers govern.
+	rateBefore := l.Rate()
+	for i := 0; i < l.rampAfter; i++ {
+		l.OnSuccess()
+	}
+	if got := l.Rate(); got != rateBefore {
+		t.Errorf("Rate() ramped while header-driven = %v, want unchanged %v", got, rateBefore)
+	}
+}
+
+// A header-carrying 429 must not double-brake: ObserveHeaders (called first on
+// the same response, with remaining exhausted) already paces the rate down, so
+// OnRateLimit must leave the high-water budgetRate intact for header-driven
+// limiters. See OnRateLimit's !headerDriven guard.
+func TestAdaptiveLimiter_OnRateLimitPreservesHeaderBudgetRate(t *testing.T) {
+	l := NewAdaptiveLimiterAuto(2.0)
+	l.ObserveHeaders(100, time.Now().Add(20*time.Second)) // full bucket sets budgetRate
+	budget := l.budgetRate
+	if budget <= 0 {
+		t.Fatalf("ObserveHeaders did not set budgetRate: %v", budget)
+	}
+	// Header-carrying 429: ObserveHeaders sees the drained bucket, then OnRateLimit fires.
+	l.ObserveHeaders(0, time.Now().Add(20*time.Second))
+	l.OnRateLimit()
+	if got := l.budgetRate; got != budget {
+		t.Errorf("OnRateLimit decayed header-driven budgetRate = %v, want unchanged %v", got, budget)
+	}
+}
+
 func TestRateLimitError_ErrorMessage(t *testing.T) {
 	cases := []struct {
 		name string
@@ -745,13 +789,17 @@ func TestRateLimitError_ErrorMessage(t *testing.T) {
 }
 
 func TestRateLimitError_ErrorsAs(t *testing.T) {
-	var err error = &RateLimitError{URL: "https://x", RetryAfter: time.Second}
+	cause := errors.New("underlying API error")
+	var err error = &RateLimitError{URL: "https://x", RetryAfter: time.Second, Cause: cause}
 	var target *RateLimitError
 	if !errors.As(err, &target) {
 		t.Fatal("errors.As should match *RateLimitError")
 	}
 	if target.URL != "https://x" {
 		t.Errorf("target.URL = %q, want %q", target.URL, "https://x")
+	}
+	if !errors.Is(err, cause) {
+		t.Fatal("errors.Is should reach the wrapped cause")
 	}
 }
 

@@ -15,13 +15,27 @@ func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {
 	var flagId string
 	var flagUrl string
 	var flagTrim bool
+	var flagCacheMaxAge string
 
 	cmd := &cobra.Command{
 		Use:         "list-adlibrary",
 		Short:       "Retrieves detailed information about a specific Facebook ad by its ID or URL.",
-		Example:     "  scrape-creators-pp-cli facebook list-adlibrary --id 1702938977100376",
+		Example:     "  scrape-creators-pp-cli facebook list-adlibrary",
 		Annotations: map[string]string{"pp:endpoint": "facebook.list-adlibrary", "pp:method": "GET", "pp:path": "/v1/facebook/adLibrary/ad", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cmd.Flags().Changed("cache-max-age") {
+				allowedCacheMaxAge := []string{"1d", "3d", "7d", "14d", "30d"}
+				validCacheMaxAge := false
+				for _, v := range allowedCacheMaxAge {
+					if flagCacheMaxAge == v {
+						validCacheMaxAge = true
+						break
+					}
+				}
+				if !validCacheMaxAge {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagCacheMaxAge, "cache-max-age", allowedCacheMaxAge)
+				}
+			}
 			path := "/v1/facebook/adLibrary/ad"
 			c, err := flags.newClient()
 			if err != nil {
@@ -37,10 +51,14 @@ func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {
 			if flagTrim != false {
 				params["trim"] = formatCLIParamValue(flagTrim)
 			}
+			if flagCacheMaxAge != "" {
+				params["cache_max_age"] = formatCLIParamValue(flagCacheMaxAge)
+			}
 			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "facebook", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -48,7 +66,7 @@ func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -67,12 +85,16 @@ func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -82,12 +104,17 @@ func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagId, "id", "", "Facebook Ad Id")
 	cmd.Flags().StringVar(&flagUrl, "url", "", "Facebook Ad URL")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true for a trimmed down version of the response")
+	cmd.Flags().StringVar(&flagCacheMaxAge, "cache-max-age", "", "If we have a response in the cache that is this many days old or newer, return the cached response (0 credits (one of: 1d, 3d, 7d, 14d, 30d)")
 
 	return cmd
 }

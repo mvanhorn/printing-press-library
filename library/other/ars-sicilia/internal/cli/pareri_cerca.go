@@ -17,6 +17,7 @@ func newPareriCercaCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "cerca",
+		Args:    rejectPositionalArgs,
 		Short:   "Cerca pareri richiesti dal Governo regionale.",
 		Example: "  ars-sicilia-pp-cli pareri cerca --legisl 18 --json",
 		Annotations: map[string]string{

@@ -94,3 +94,56 @@ func TestNewHTTPClientBuilds(t *testing.T) {
 		t.Fatalf("Timeout = %v, want 45s", hc.Timeout)
 	}
 }
+
+// TestNewHTTPClientForwardsCookieAcrossRedirect is the regression guard for the
+// multi-domain read fix. read canonicalises every article to
+// https://medium.com/p/<id>, which Medium 302-redirects to the post's canonical
+// host. For a custom-domain publication that host is a DIFFERENT registrable
+// domain (uxdesign.cc, uxplanet.org, …), and Go's stdlib strips the sensitive
+// Cookie header on that cross-domain hop — so the Tier-1 session never reached
+// the custom host and member posts came back as the anonymous preview.
+//
+// NewHTTPClient enables Surf's ForwardHeadersOnRedirect, which installs (via
+// .Std()) a CheckRedirect that re-copies the original request's headers onto
+// each redirect hop. Because stdlib runs CheckRedirect AFTER its sensitive-header
+// strip, this restores the Cookie. We assert that behaviour directly on the
+// returned client's CheckRedirect: the redirect request starts with no Cookie
+// (as stdlib would leave it) and must come out carrying the original cookie. If
+// someone drops the ForwardHeadersOnRedirect() call, the cookie is not copied
+// and this test fails. No network and no real cookie value is used.
+func TestNewHTTPClientForwardsCookieAcrossRedirect(t *testing.T) {
+	hc := NewHTTPClient(30 * time.Second)
+	if hc.CheckRedirect == nil {
+		t.Fatal("NewHTTPClient must install a CheckRedirect that forwards headers across redirects")
+	}
+
+	const wantCookie = "sid=synthetic-test-sid; uid=synthetic-test-uid"
+
+	// Original request to the medium.com short link, carrying the Tier-1 cookie
+	// exactly as AttachCookies would have set it.
+	orig, err := http.NewRequest(http.MethodGet, "https://medium.com/p/abc123", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	orig.Header.Set("Cookie", wantCookie)
+
+	// The upcoming redirect hop to a different registrable domain. Stdlib would
+	// have stripped the sensitive Cookie here, so it starts empty — the exact
+	// state CheckRedirect receives.
+	next, err := http.NewRequest(http.MethodGet, "https://uxdesign.cc/some-post-abc123", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := next.Header.Get("Cookie"); got != "" {
+		t.Fatalf("precondition: cross-domain redirect request should start with no Cookie, got %q", got)
+	}
+
+	if err := hc.CheckRedirect(next, []*http.Request{orig}); err != nil {
+		t.Fatalf("CheckRedirect returned error: %v", err)
+	}
+
+	if got := next.Header.Get("Cookie"); got != wantCookie {
+		t.Fatalf("Cookie not forwarded across the cross-domain redirect: got %q, want %q "+
+			"(the multi-domain read bug — custom-domain member posts return the anonymous preview)", got, wantCookie)
+	}
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "completion-is-an-activity-action",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-154828-17a1784d",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Completing an activity is POST /activityactions with an instanceDate, never a field on the activity.",
+  "reason": "Writing completedAt through the activity update endpoint returns HTTP 200 and silently discards it, so a naive implementation reports success while changing nothing. instanceDate makes completion per-occurrence.",
+  "files": ["internal/cli/tiimo_write.go"],
+  "validated_outcome": "done sets state=Completed with a completedAt stamp; done --undo clears both. Confirmed by re-reading server state, not the status code."
+}

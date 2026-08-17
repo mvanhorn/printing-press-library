@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	icaro "github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/internal/icaroclient"
@@ -25,6 +26,7 @@ func newNovelDdlIterCmd(flags *rootFlags) *cobra.Command {
 		Args:    cobra.MaximumNArgs(2),
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
+			"pp:happy-args": "legisl=18;numero=1153",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 2 {
@@ -51,22 +53,49 @@ func newNovelDdlIterCmd(flags *rootFlags) *cobra.Command {
 }
 
 type iterEvent struct {
-	Fase      string `json:"fase"`
-	Data      string `json:"data,omitempty"`
-	Sede      string `json:"sede,omitempty"`
-	Titolo    string `json:"titolo,omitempty"`
-	Oratori   string `json:"oratori,omitempty"`
+	Fase   string `json:"fase"`
+	Data   string `json:"data,omitempty"`
+	Sede   string `json:"sede,omitempty"`
+	Titolo string `json:"titolo,omitempty"`
+	// Seduta è il numero della seduta in cui l'evento è avvenuto, quando il
+	// portale lo dichiara. Prima veniva tagliato via insieme al resto della
+	// riga (vedi parseIterFromBody): senza, dall'iter non si può risalire alla
+	// seduta in cui un ddl è stato votato, che è la domanda più frequente su
+	// un atto — e la data dell'evento da sola si confonde con la data in cui
+	// la notizia è stata scritta, che è quasi sempre il giorno dopo.
+	Seduta  int    `json:"seduta,omitempty"`
+	Oratori string `json:"oratori,omitempty"`
+	// URL è la fonte PIÙ SPECIFICA che si conosce per questo evento: per un
+	// passaggio in Aula di cui si sa la seduta, la scheda del resoconto; per
+	// tutti gli altri, la scheda dell'atto da cui l'evento è stato letto.
+	// `legge cronologia` popola già questo campo per-evento; `ddl iter`
+	// ripeteva la stessa scheda su ogni riga perché è da lì che li parsa.
+	// Il numero di seduta è l'id della scheda del resoconto (verificato su
+	// leg. XVII e XVIII; una seduta inesistente risponde 404, non una pagina
+	// vuota), quindi l'URL si costruisce senza una richiesta in più.
 	URL       string `json:"url,omitempty"`
 	ArchiveID string `json:"archive_id,omitempty"`
 	DocID     int    `json:"doc_id,omitempty"`
+	// sedutaAula distingue la seduta d'Aula da quella di commissione: le due
+	// numerazioni sono indipendenti, quindi solo il marcatore del portale dice
+	// a quale serie appartiene il numero. Non esce nel JSON — serve al
+	// chiamante per decidere se esiste un resoconto da linkare, e chi legge
+	// l'output lo deduce dalla presenza dell'URL.
+	sedutaAula bool
 }
 
 type iterReport struct {
-	Legisl int         `json:"legisl"`
-	Numero int         `json:"numero"`
-	Titolo string      `json:"titolo,omitempty"`
-	Eventi []iterEvent `json:"eventi"`
-	Note   string      `json:"note,omitempty"`
+	Legisl int    `json:"legisl"`
+	Numero int    `json:"numero"`
+	Titolo string `json:"titolo,omitempty"`
+	// URL è la scheda dell'atto di cui si racconta la storia: il ddl per
+	// `ddl iter`, la legge per `legge cronologia`. Stava solo dentro ogni
+	// evento, ripetuta identica, e nella radice del report — dove uno la
+	// cerca — non c'era.
+	URL      string       `json:"url,omitempty"`
+	Stralcio *stralcioOut `json:"stralcio,omitempty"`
+	Eventi   []iterEvent  `json:"eventi"`
+	Note     string       `json:"note,omitempty"`
 }
 
 func runDdlIter(cmd *cobra.Command, flags *rootFlags, legisl, numero int) error {
@@ -99,6 +128,11 @@ func runDdlIter(cmd *cobra.Command, flags *rootFlags, legisl, numero int) error 
 		return emitIter(cmd, flags, report)
 	}
 	report.Titolo = recs[0].Title
+	report.URL = recs[0].URL
+	// Se il ddl è uno stralcio, dirlo prima della cronologia: l'iter di uno
+	// stralcio comincia a metà storia, e senza il rimando al ddl base si legge
+	// come un atto nato dal nulla.
+	report.Stralcio = stralcioDaTesti(numero, recs[0].Excerpt)
 	report.Eventi = append(report.Eventi, iterEvent{
 		Fase:      "presentazione",
 		Data:      recs[0].Fields["Data"],
@@ -114,10 +148,37 @@ func runDdlIter(cmd *cobra.Command, flags *rootFlags, legisl, numero int) error 
 	// con fallback sul corpo del documento solo se quel campo manca. Vedi
 	// docIterEvents.
 	if doc, derr := c.GetDoc(ctx, *arc, recs[0].DocID); derr == nil {
-		for _, ev := range docIterEvents(doc) {
+		// La scheda porta "Riferimenti", più affidabile dell'excerpt della
+		// short-list (che il portale a volte restituisce vuoto).
+		if s := stralcioDaTesti(numero, doc.Fields["Riferimenti"]); s != nil {
+			report.Stralcio = s
+		}
+		evs := docIterEvents(doc)
+		// L'Aula tiene una seduta per data, quindi due eventi che dichiarano
+		// la stessa data con numeri di seduta diversi non possono avere
+		// entrambi il numero giusto: vedi sedutePerDataIncoerenti.
+		incoerenti := sedutePerDataIncoerenti(evs)
+		avvisaSedutaIncoerente(cmd, legisl, incoerenti)
+		for _, ev := range evs {
 			ev.URL = recs[0].URL
 			ev.ArchiveID = arc.ID
 			ev.DocID = recs[0].DocID
+			// Solo l'Aula ha resoconti: i lavori di commissione producono
+			// sommari, che stanno su un altro archivio e non su questa rotta.
+			// La discriminante è il marcatore del portale (sedutaAula), NON la
+			// fase dell'evento: "Esitato per Aula (epa) Seduta n. 260 0400
+			// Commissione QUARTA" è un evento di fase aula che cita una seduta
+			// di commissione, e linkarne il resoconto porterebbe alla seduta
+			// d'Aula n. 260, che è un'altra cosa.
+			// Dove il resoconto esiste è la fonte giusta dell'evento e prende
+			// il posto della scheda del ddl, che resta nella radice del report.
+			if ev.sedutaAula && !incoerenti[ev.Data] {
+				if u := resocontoSchedaURL(legisl, ev.Seduta); u != "" {
+					ev.URL = u
+					ev.ArchiveID = ""
+					ev.DocID = 0
+				}
+			}
 			report.Eventi = append(report.Eventi, ev)
 		}
 	}
@@ -168,6 +229,11 @@ func emitIter(cmd *cobra.Command, flags *rootFlags, report iterReport) error {
 // reIterDate matches an Italian short date "<DD> <mese> <YYYY>" used to anchor
 // each iter step in the document status block.
 var reIterDate = regexp.MustCompile(`(\d{1,2})\s+([a-zàèéìòù]{3,})\s+(\d{4})`)
+
+// reRunVirgolette matches the portal's stray quote runs. Two or more, never
+// one: a single quote can be real punctuation, a run of fourteen is the
+// rendering quirk. See its use in parseIterFromBody.
+var reRunVirgolette = regexp.MustCompile(`"{2,}`)
 
 // reLrAnnotation matches the portal's raw law-registration annotation
 // ("Lr <giorno> <mese> alr <anno> nlr <numero> Titolo : ...") that appears as
@@ -223,6 +289,10 @@ func parseIterFromBody(body string) []iterEvent {
 	locs := reIterDate.FindAllStringIndex(region, -1)
 	subs := reIterDate.FindAllStringSubmatch(region, -1)
 	var events []iterEvent
+	// dopoLr tiene la data della promulgazione finché le date che seguono la
+	// precedono: sono quelle citate dentro il titolo della legge. Vuota fuori da
+	// quella finestra. Vedi il suo uso più sotto.
+	dopoLr := ""
 	for i, loc := range locs {
 		dd, mon, yyyy := subs[i][1], strings.ToLower(subs[i][2]), subs[i][3]
 		actEnd := len(region)
@@ -230,24 +300,190 @@ func parseIterFromBody(body string) []iterEvent {
 			actEnd = locs[i+1][0]
 		}
 		action := region[loc[1]:actEnd]
-		if s := strings.Index(action, "Seduta"); s >= 0 {
+		// Una data che segue una preposizione pendente appartiene alla frase, non
+		// è l'inizio dell'evento dopo: «Pubblicazione Gurs n. 10 del 24 febbraio
+		// 2026» veniva tagliata a «del», e la data della pubblicazione — la sola
+		// cosa che quell'evento aggiunge alla promulgazione — si perdeva, mentre
+		// l'evento che ne restava (azione vuota) cadeva subito dopo. Si riattacca
+		// la sola data, non tutto il testo fino alla successiva: l'evento i+1
+		// resta al suo posto con ciò che segue, e se non segue nulla sparisce
+		// come prima. Sui 18 iter di controllo le uniche azioni che finiscono
+		// con una preposizione pendente sono le 13 pubblicazioni in Gurs.
+		if i+1 < len(locs) && terminaConPreposizione(action) {
+			action += region[locs[i+1][0]:locs[i+1][1]]
+		}
+		// Le run di virgolette sono un artefatto di resa del portale, non
+		// contenuto: la fonte emette davvero `ddl"""""""""""""" 229`,
+		// `Seduta"""""""""""""" n. 35` e `Commissione QUARTA""""""""""""""`.
+		// Si tolgono qui, sull'azione già ritagliata, e non prima sulla regione:
+		// una di quelle run sta dentro il titolo di una legge citata
+		// («legge regionale 31"""""""""""""" gennaio 2024, n. 3», ddl 738), e
+		// toglierla prima farebbe affiorare una data che reIterDate leggerebbe
+		// come un evento in più, datato 2024, in mezzo all'iter del 2025.
+		action = reRunVirgolette.ReplaceAllString(action, "")
+		// Il numero di seduta si legge PRIMA di tagliare: è l'unico posto in
+		// cui il portale lo dichiara, e prima finiva nel pezzo scartato.
+		seduta, sedutaAula := sedutaDaAzione(action)
+		// Anche la commissione sta nel suffisso di seduta, e va letta prima del
+		// taglio per la stessa ragione: vedi sedeDaSuffissoSeduta.
+		sedeSuffisso := sedeDaSuffissoSeduta(action)
+		if s := indiceSeduta(action); s >= 0 {
 			action = action[:s]
 		}
 		action = strings.Join(strings.Fields(action), " ")
 		if action == "" {
 			continue
 		}
+		data := fmt.Sprintf("%s %s %s", dd, mon, yyyy)
 		if m := reLrAnnotation.FindStringSubmatch(action); m != nil {
 			action = fmt.Sprintf("Promulgata legge regionale n. %s/%s", m[2], m[1])
+			// Il titolo che segue "Titolo :" cita quasi sempre le norme
+			// modificate, con le loro date: quelle date non sono eventi
+			// dell'iter, ma reIterDate le aggancia lo stesso e il pezzo di
+			// titolo che le segue diventa un evento inesistente in cima alla
+			// cronologia — «23 giugno 2011 — ", n. 118. D.F.B. 2023. Mese di
+			// febbraio"» sul ddl 350, dodici anni prima dell'atto. Da qui in poi
+			// si scarta finché le date tornano indietro: la prima che non
+			// precede la promulgazione è di nuovo l'iter vero (la pubblicazione
+			// in Gurs), e chiude la finestra.
+			dopoLr = iterDateKey(data)
+		} else if dopoLr != "" {
+			if iterDateKey(data) < dopoLr {
+				continue
+			}
+			dopoLr = ""
 		}
 		events = append(events, iterEvent{
-			Fase:   classifyIterFase(action),
-			Data:   fmt.Sprintf("%s %s %s", dd, mon, yyyy),
-			Sede:   iterSede(action),
-			Titolo: action,
+			Fase:       classifyIterFase(action),
+			Data:       data,
+			Sede:       iterSedeRisolta(sedeSuffisso, action),
+			Titolo:     action,
+			Seduta:     seduta,
+			sedutaAula: sedutaAula,
 		})
 	}
 	return events
+}
+
+// rePreposizionePendente matches an action that breaks off on a preposition
+// introducing a date ("Pubblicazione Gurs n. 10 del"). Only that: an action
+// ending on a word means the step is complete, and the next date starts the
+// next step.
+var rePreposizionePendente = regexp.MustCompile(`(?i)\b(del|dal|nel)\s*$`)
+
+// terminaConPreposizione reports whether the date that follows this action
+// belongs to its sentence rather than opening the next event.
+func terminaConPreposizione(action string) bool {
+	return rePreposizionePendente.MatchString(action)
+}
+
+// reSeduta matches the portal's sitting reference inside an iter step, plus
+// the marker that follows it. The case-insensitive flag is deliberate: the
+// portal writes both "Seduta n. 64" and "seduta n. 114", and the old
+// fixed-case cut left the lowercase form inside the event title — same data,
+// two renderings, depending on chance. The quote run in the character class
+// is not decorative: the portal really does emit
+// `Seduta"""""""""""""" n. 35` on some rows.
+//
+// The trailing group is what tells an Aula sitting from a committee one:
+//
+//	Seduta n. 261 AULA                      -> Aula
+//	Seduta n. 260 0400 Commissione QUARTA   -> IV Committee
+//
+// The two numbering series are independent, so the marker cannot be guessed
+// from the event phase: "Esitato per Aula (epa) Seduta n. 260 0400 Commissione
+// QUARTA" classifies as an aula event but cites a COMMITTEE sitting, and
+// building a resoconto URL from it lands on the unrelated Aula sitting n. 260
+// — a link that resolves and shows the wrong document.
+var reSeduta = regexp.MustCompile(`(?i)\bseduta"*\s+n\.?\s*(\d+)\s*([a-z0-9]*)`)
+
+// indiceSeduta returns where the sitting metadata starts in an iter action, or
+// -1. Case-insensitive counterpart of the old strings.Index(action, "Seduta").
+func indiceSeduta(action string) int {
+	if loc := reSeduta.FindStringIndex(action); loc != nil {
+		return loc[0]
+	}
+	return -1
+}
+
+// sedutaDaAzione extracts the sitting number from an iter action and reports
+// whether it was an Aula sitting (as opposed to a committee one). Returns
+// (0, false) when the portal declared no sitting.
+func sedutaDaAzione(action string) (int, bool) {
+	m := reSeduta.FindStringSubmatch(action)
+	if m == nil {
+		return 0, false
+	}
+	n, err := strconv.Atoi(m[1])
+	if err != nil {
+		return 0, false
+	}
+	return n, strings.EqualFold(m[2], "AULA")
+}
+
+// resocontoSchedaURL builds the /bd/ sitting-record URL from legislature and
+// sitting number. The sitting number IS the scheda id: verified on leg. XVII
+// (n. 114 → 07/05/2019, n. 149/150 → 05-06/11/2019) and leg. XVIII (n. 267 →
+// 28/07/2026); a non-existent sitting returns 404 rather than an empty page,
+// so a constructed URL either resolves or fails visibly.
+func resocontoSchedaURL(legisl, seduta int) string {
+	if legisl <= 0 || seduta <= 0 {
+		return ""
+	}
+	return fmt.Sprintf("%s/bd/resoconti/scheda/%d/%d", icaro.DefaultBaseURL, legisl, seduta)
+}
+
+// sedutePerDataIncoerenti riporta le date in cui gli eventi d'Aula di questo
+// iter dichiarano numeri di seduta diversi, con i numeri in gioco.
+//
+// L'Aula tiene una sola seduta per data — l'archivio resoconti ne indicizza una
+// per giorno — quindi due numeri sulla stessa data non possono essere entrambi
+// giusti, e la fonte non dice quale lo sia. Succede davvero: l'iter del ddl 199
+// della XVII dà la votazione finale come «19 feb 2020 — Approvato
+// dall'Assemblea — Seduta n. 179», ma la 179 è del 26 febbraio; il voto sta nel
+// resoconto della 178, che è quella del 19 (verificato sul resoconto stesso,
+// «XVII LEGISLATURA 178a SEDUTA 19 febbraio 2020 … L'Assemblea approva»).
+//
+// Su quelle date il link al resoconto non si costruisce: un URL che risolve
+// mostrando il documento sbagliato è peggio dell'assenza del link, ed è la
+// stessa ragione per cui non si linka la seduta di commissione citata da un
+// evento di fase aula. La data resta nell'evento, ed è quella la chiave con cui
+// trovare la seduta vera.
+func sedutePerDataIncoerenti(evs []iterEvent) map[string]bool {
+	numeriPerData := map[string]map[int]bool{}
+	for _, ev := range evs {
+		if !ev.sedutaAula || ev.Seduta <= 0 {
+			continue
+		}
+		if numeriPerData[ev.Data] == nil {
+			numeriPerData[ev.Data] = map[int]bool{}
+		}
+		numeriPerData[ev.Data][ev.Seduta] = true
+	}
+	out := map[string]bool{}
+	for data, numeri := range numeriPerData {
+		if len(numeri) > 1 {
+			out[data] = true
+		}
+	}
+	return out
+}
+
+// avvisaSedutaIncoerente dice su stderr perché il link manca e come arrivare
+// comunque alla seduta: senza l'avviso l'assenza dell'URL su alcuni eventi e
+// non su altri sembra un bug della CLI invece di un dato incoerente a monte.
+func avvisaSedutaIncoerente(cmd *cobra.Command, legisl int, incoerenti map[string]bool) {
+	if len(incoerenti) == 0 {
+		return
+	}
+	date := make([]string, 0, len(incoerenti))
+	for d := range incoerenti {
+		date = append(date, d)
+	}
+	sort.Strings(date)
+	fmt.Fprintf(cmd.ErrOrStderr(),
+		"hint: la fonte dichiara numeri di seduta d'Aula diversi per la stessa data (%s), e l'Aula ne tiene una sola al giorno: almeno uno dei numeri è sbagliato. Su quegli eventi il link al resoconto è omesso invece di puntare al giorno sbagliato — trova la seduta vera con `resoconti cerca --legisl %d --data <data>`.\n",
+		strings.Join(date, ", "), legisl)
 }
 
 // docIterEvents reads a DDL's iter timeline. It prefers the page's labeled
@@ -480,22 +716,83 @@ func iterSede(action string) string {
 	return ""
 }
 
+// reSedeSuffisso reads the committee the portal writes AFTER the sitting
+// number, in the same suffix reSeduta matches: "Seduta n. 184 0400 Commissione
+// QUARTA". The four-digit code between the two is optional only in the sense
+// that some rows carry the AULA marker instead — where it appears, it is the
+// committee's own code (0100…0600, plus 1200 for the special committees).
+//
+// The name is taken to the end of the action and not as a single word: the
+// standing committees go by ordinal, but the special ones have real names that
+// a one-word capture would cut in half ("Commissione speciale per lo Statuto
+// della Regione", "Commissione riforma statuto" — leg. XVII, ddl 66). It stops
+// at an open parenthesis, which is where the portal appends a note about the
+// event and not about the committee ("Commissione PRIMA (Articolo 3
+// stralciato)"), and at a newline, because the Body fallback of docIterEvents
+// is not flattened and a capture must not run past its own row.
+var reSedeSuffisso = regexp.MustCompile(`(?i)\bseduta"*\s+n\.?\s*\d+\s*(?:\d{4})?\s*(commissione\b[^(\n]*)`)
+
+// sedeDaSuffissoSeduta returns the committee declared in the sitting suffix, or
+// "". It must run on the untruncated action: indiceSeduta cuts exactly the
+// stretch of text this reads, which is why the committee used to be lost even
+// when the source stated it. The verb alone names it only sometimes, and when
+// it does it is not the canonical form —
+//
+//	Esaminato in commissione Seduta n. 184 0400 Commissione QUARTA  -> "commissione"
+//	Parere espresso Commissione * Seduta n. 68 0500 Commissione QUINTA -> "Commissione *"
+//	Esitato per Aula (epa) Seduta n. 185 0100 Commissione PRIMA    -> ""
+//	Parere Commissione Bilancio Seduta n. 153 0200 Commissione SECONDA -> "Commissione Bilancio"
+//
+// — while the suffix always gives the ordinal, which is the form the rest of
+// the CLI accepts (`commissioni sommari --commissione SECONDA`). The informal
+// name of the last case is not lost: `titolo` keeps the action verbatim.
+func sedeDaSuffissoSeduta(action string) string {
+	if m := reSedeSuffisso.FindStringSubmatch(action); m != nil {
+		return strings.Join(strings.Fields(m[1]), " ")
+	}
+	return ""
+}
+
+// iterSedeRisolta prefers the committee read from the sitting suffix and falls
+// back to the one the verb names, with its raw code resolved.
+func iterSedeRisolta(sedeSuffisso, action string) string {
+	if sedeSuffisso != "" {
+		return sedeSuffisso
+	}
+	return risolviCodiceCommissione(iterSede(action))
+}
+
+// reSedeCodice matches a sede left as the portal's internal committee code
+// ("Rinviato Commissione 0400"), the one row shape where the suffix carries the
+// AULA marker instead of the committee name and the code is all there is.
+var reSedeCodice = regexp.MustCompile(`(?i)^commissione\s+(\d{3,4})$`)
+
+// risolviCodiceCommissione turns "Commissione 0400" into "Commissione QUARTA".
+// The iter codes are the ordinal times 100, so they need dividing and not
+// trimming: TrimSpace("0400") is "400", which commissioneOrdinale does not know.
+func risolviCodiceCommissione(sede string) string {
+	m := reSedeCodice.FindStringSubmatch(sede)
+	if m == nil {
+		return sede
+	}
+	n, err := strconv.Atoi(m[1])
+	if err != nil || n%100 != 0 {
+		return sede
+	}
+	if ord := commissioneOrdinale(itoa(n / 100)); ord != "" {
+		return "Commissione " + ord
+	}
+	return sede
+}
+
 // iterDateKey returns a sortable "YYYY-MM-DD" key for both the short-list date
-// form (DD.MM.YY) and the document status form ("DD mese YYYY").
+// form (DD.MM.YY) and the document status form ("DD mese YYYY"). Entrambe le
+// forme, e le altre due che il portale usa altrove, stanno in dataISO; qui
+// resta il ripiego sulla stringa grezza, che i chiamanti storici si aspettano.
 func iterDateKey(s string) string {
 	s = strings.TrimSpace(s)
-	if strings.Contains(s, ".") {
-		return parseICaroDate(s)
-	}
-	parts := strings.Fields(s)
-	if len(parts) == 3 {
-		if mm, ok := itaMonths[strings.ToLower(parts[1])[:min3(len(parts[1]))]]; ok {
-			dd := parts[0]
-			if len(dd) == 1 {
-				dd = "0" + dd
-			}
-			return parts[2] + "-" + mm + "-" + dd
-		}
+	if iso := dataISO(s); iso != "" {
+		return iso
 	}
 	return s
 }
@@ -509,28 +806,11 @@ func min3(n int) int {
 
 // parseICaroDate converts DD.MM.YYYY (or DD.MM.YY) into a sortable string
 // "YYYY-MM-DD"; returns the input as-is when the format isn't recognized.
+// Il riconoscimento sta tutto in dataISO, che copre anche le forme degli altri
+// due motori del portale; qui resta il ripiego sulla stringa grezza.
 func parseICaroDate(s string) string {
-	parts := strings.Split(strings.TrimSpace(s), ".")
-	if len(parts) != 3 {
-		return s
+	if iso := dataISO(s); iso != "" {
+		return iso
 	}
-	dd, mm, yy := parts[0], parts[1], parts[2]
-	if len(yy) == 2 {
-		// Crude century pivot — atti precedenti al 2000 sono rari nel sito.
-		if yy[0] >= '0' && yy[0] <= '4' {
-			yy = "20" + yy
-		} else {
-			yy = "19" + yy
-		}
-	}
-	if len(yy) != 4 || len(mm) > 2 || len(dd) > 2 {
-		return s
-	}
-	if len(mm) == 1 {
-		mm = "0" + mm
-	}
-	if len(dd) == 1 {
-		dd = "0" + dd
-	}
-	return yy + "-" + mm + "-" + dd
+	return strings.TrimSpace(s)
 }

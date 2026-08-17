@@ -1,0 +1,134 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+  name:
+    type: string
+  group_url:
+    type: string
+  pinned:
+    type: integer
+    minimum: 0
+    maximum: 1
+  public_url:
+    type: string
+  url:
+    type: string
+  added: 
+    type: string
+    format: date-time
+  modified: 
+    anyOf:
+      - type: string
+        maxLength: 0
+      - type: string
+        format: date-time  
+  tags:
+    type: array
+    items:
+      type: string
+  comments:
+    type: object
+    properties:
+      count:
+        type: integer
+        format: int
+      threaded_url:
+        type: string
+      url: 
+        type: string
+  comment_of_topic:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int
+      topic_name:
+        type: string
+      body:
+        type: string
+      body_html:
+        type: string
+      public_url:
+        type: string
+      url:
+        type: string
+      target_url:
+        type: string
+      target_type:
+        type: string
+      target_id:
+        type: integer
+        format: int
+      parent_id:
+        type: integer
+        format: int
+      parent_url:
+        type: string
+      has_children:
+        type: boolean
+      needs_moderation:
+        type: boolean
+      is_root_comment:
+        type: boolean
+      is_deleted:
+        type: boolean
+      added: 
+        type: string
+        format: date-time
+      modified: 
+        anyOf:
+          - type: string
+            maxLength: 0
+          - type: string
+            format: date-time  
+      attachments:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int
+            name:
+              type: string
+            download_url:
+              type: string
+      user:
+        $ref: '../user_summary_schema.yaml'          
+      things:
+        type: array
+        items: 
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int
+            name:
+              type: string
+            thumbnail:
+              type: string
+            url:
+              type: string
+            public_url:
+              type: string
+            creator:
+              $ref: '../user_summary_schema.yaml'
+            created_at: 
+              type: string
+              format: date-time
+            is_published:
+              type: boolean
+            is_nsfw:
+              type: boolean
+            is_purchased:
+              type: boolean
+            is_private:
+              type: boolean
+            collect_count:
+              type: integer
+              format: int
+            comment_count:
+              type: integer
+              format: int

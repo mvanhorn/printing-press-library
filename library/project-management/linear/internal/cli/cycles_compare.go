@@ -9,11 +9,13 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/groups"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
 
 	"github.com/spf13/cobra"
 )
 
+// pp:data-source computed
 // newCyclesCompareCmd implements the prior `cycles compare` transcendence
 // feature that shipped deferred under v1's ship-with-gaps verdict. Diffs two
 // cycles by number, name, or "current"/"previous" alias and reports
@@ -21,6 +23,7 @@ import (
 func newCyclesCompareCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var teamFilter string
+	var completedGroup string
 	cmd := &cobra.Command{
 		Use:   "compare <cycle-a> <cycle-b>",
 		Short: "Compare two cycles side-by-side: completion %, scope added/cut, carryover",
@@ -88,7 +91,15 @@ Outputs scope_count, completed_scope_count, completion_pct, plus diff metrics:
 				issuesB = filterIssuesByTeam(issuesB, teamID)
 			}
 
-			diff := diffCycleIssues(issuesA, issuesB)
+			// Completion is a declared group, so a workspace whose "shipped"
+			// column is not typed completed can say so once in groups.toml
+			// instead of being miscounted here.
+			completedSet, err := resolveStateSet(flags, teamKeyForGroups(db, teamFilter), completedGroup)
+			if err != nil {
+				return err
+			}
+
+			diff := diffCycleIssues(issuesA, issuesB, completedSet)
 			summary := map[string]any{
 				"cycle_a": map[string]any{
 					"id":             cyA.ID,
@@ -138,6 +149,7 @@ Outputs scope_count, completed_scope_count, completion_pct, plus diff metrics:
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	cmd.Flags().StringVar(&teamFilter, "team", "", "Filter both cycles to a team (key or UUID)")
+	cmd.Flags().StringVar(&completedGroup, "completed-group", "completed", completedGroupFlagUsage)
 	return cmd
 }
 
@@ -216,7 +228,7 @@ type cycleDiff struct {
 	BStates   map[string]int
 }
 
-func diffCycleIssues(a, b []json.RawMessage) cycleDiff {
+func diffCycleIssues(a, b []json.RawMessage, completed groups.Set) cycleDiff {
 	type slim struct {
 		ID    string `json:"id"`
 		State struct {
@@ -234,7 +246,7 @@ func diffCycleIssues(a, b []json.RawMessage) cycleDiff {
 				if s.State.Name != "" {
 					states[s.State.Name]++
 				}
-				if s.State.Type == "completed" {
+				if completed.Matches(s.State.Type, s.State.Name) {
 					closed++
 				}
 			}

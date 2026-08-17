@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "opensky",
+  "cli_name": "opensky-pp-cli",
+  "run_id": "20260807-162902",
+  "status": "skip",
+  "skip_reason": "Live happy_path for states and /flights/* requires a reachable OpenSky endpoint plus rate-limit headroom; the structural matrix covers the full command tree and the live happy paths are recorded in smoke-test.json. The upstream /flights/arrival and /routes endpoints were excluded from the spec entirely: every probe (multiple airports, 1h and 2h windows, raw curl) returned 404-with-empty-array or 400.",
+  "auth_context": {
+    "type": "none",
+    "api_key_available": false,
+    "browser_session_available": false,
+    "local_sqlite": true
+  }
+}

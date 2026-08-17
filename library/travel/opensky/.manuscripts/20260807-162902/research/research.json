@@ -1,0 +1,49 @@
+{
+  "api_name": "opensky",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": null,
+  "patterns": null,
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Bare-invocation time windows",
+      "command": "flights get-departures",
+      "description": "begin/end default to the last hour on every /flights/* command (OpenSky requires the window and anonymous access caps it at 1h), so live queries work with zero epoch math. Override with --begin/--end.",
+      "rationale": ""
+    },
+    {
+      "name": "Empty-window 404 handling",
+      "command": "flights get-aircraft-trajectory",
+      "description": "OpenSky answers HTTP 404 with an empty array when a window has no flights; the CLI treats that as an empty result (exit 0) instead of the generic resource-not-found error.",
+      "rationale": ""
+    },
+    {
+      "name": "No-auth live tracking",
+      "command": "states",
+      "description": "Live ADS-B state vectors over any bounding box with no API key; --icao24 filters to one transponder for a single-aircraft view.",
+      "rationale": ""
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bare-invocation time windows",
+      "command": "flights get-departures --airport KJFK",
+      "description": "begin/end default to the last hour on every /flights/* command (OpenSky requires the window and anonymous access caps it at 1h), so live queries work with zero epoch math. Override with --begin/--end.",
+      "rationale": ""
+    },
+    {
+      "name": "Empty-window 404 handling",
+      "command": "flights get-aircraft-trajectory --icao24 <hex>",
+      "description": "OpenSky answers HTTP 404 with an empty array when a window has no flights; the CLI treats that as an empty result (exit 0) instead of the generic resource-not-found error.",
+      "rationale": ""
+    },
+    {
+      "name": "No-auth live tracking",
+      "command": "states --lamin 40.5 --lomin -74.5 --lamax 41.5 --lomax -73.5",
+      "description": "Live ADS-B state vectors over any bounding box with no API key; --icao24 filters to one transponder for a single-aircraft view.",
+      "rationale": ""
+    }
+  ]
+}

@@ -4,6 +4,8 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
+	"strings"
 	"testing"
 )
 
@@ -130,5 +132,42 @@ func TestExtractString(t *testing.T) {
 	}
 	if got := extractString(json.RawMessage(`{"transcript":"hello world"}`), transcriptTextKeys); got != "hello world" {
 		t.Fatalf("snippet = %q", got)
+	}
+}
+
+func TestAllSourcesFailedErr(t *testing.T) {
+	// Partial failure: no error.
+	if err := allSourcesFailedErr("x", 3, []fetchFailure{{Source: "a", Error: "boom"}}); err != nil {
+		t.Fatalf("partial failure should not error, got %v", err)
+	}
+	// Zero attempted: no error.
+	if err := allSourcesFailedErr("x", 0, nil); err != nil {
+		t.Fatalf("zero attempted should not error, got %v", err)
+	}
+	// All failed, mixed causes: generic hard error, not auth-coded.
+	err := allSourcesFailedErr("x", 2, []fetchFailure{
+		{Source: "a", Error: "GET /a returned HTTP 500"},
+		{Source: "b", Error: "GET /b returned HTTP 401"},
+	})
+	if err == nil {
+		t.Fatal("all-failed should error")
+	}
+	var ce *cliError
+	if errors.As(err, &ce) && ce.code == 4 {
+		t.Fatalf("mixed-cause failure should not use the auth exit code: %v", err)
+	}
+	// All failed, uniformly auth-shaped: auth exit code plus the key hint.
+	err = allSourcesFailedErr("x", 2, []fetchFailure{
+		{Source: "a", Error: "GET /a returned HTTP 401"},
+		{Source: "b", Error: "GET /b returned HTTP 401"},
+	})
+	if err == nil {
+		t.Fatal("all-auth-failed should error")
+	}
+	if !errors.As(err, &ce) || ce.code != 4 {
+		t.Fatalf("uniform auth failure should use the auth exit code, got %v", err)
+	}
+	if !strings.Contains(err.Error(), "SCRAPECREATORS_API_KEY") {
+		t.Fatalf("auth failure should carry the key hint, got %v", err)
 	}
 }

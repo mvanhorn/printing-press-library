@@ -44,7 +44,7 @@ func newPlaylistsGetCmd(flags *rootFlags) *cobra.Command {
 			if flagAdditionalTypes != "" {
 				params["additional_types"] = formatCLIParamValue(flagAdditionalTypes)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "playlists", false, path, params, nil, "images", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "playlists", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

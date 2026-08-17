@@ -2,8 +2,26 @@ package client
 
 // GraphQL query constants for the Linear API.
 
-const IssuesQuery = `query($first: Int!, $after: String, $filter: IssueFilter) {
-  issues(first: $first, after: $after, filter: $filter) {
+// IssuesQuery is the workspace issue collection, used by `issues list` and by
+// the sync issues pass.
+//
+// $filter is an IssueFilter. Incremental sync narrows the crawl by passing
+// {updatedAt: {gt: <RFC3339>}} through it: IssueFilter.updatedAt is a
+// DateComparator carrying gt/gte/lt/lte/eq/neq/in/nin, verified live in
+// api-inventory.json.
+//
+// $includeArchived maps to the issues connection's includeArchived Boolean
+// argument, verified live in api-inventory.json. Declaring the variable is
+// safe for every existing caller: an unprovided variable makes the argument
+// absent rather than null, so the server default (exclude archived) still
+// applies to anyone who does not pass it.
+//
+// archivedAt (Issue.archivedAt: DateTime, verified live in api-inventory.json)
+// is selected unconditionally. It is null on a live issue, so it costs nothing
+// on the default path and is the only thing that makes an archived row
+// distinguishable once includeArchived is on.
+const IssuesQuery = `query($first: Int!, $after: String, $filter: IssueFilter, $includeArchived: Boolean) {
+  issues(first: $first, after: $after, filter: $filter, includeArchived: $includeArchived) {
     nodes {
       id
       identifier
@@ -14,6 +32,7 @@ const IssuesQuery = `query($first: Int!, $after: String, $filter: IssueFilter) {
       dueDate
       createdAt
       updatedAt
+      archivedAt
       state { id name type color }
       assignee { id name displayName email }
       team { id name key }

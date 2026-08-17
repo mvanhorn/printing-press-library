@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "mutating-commands-self-clean-under-dogfood",
+  "applied_at": "2026-08-15",
+  "base_run_id": "20260814-154828-17a1784d",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Under any harness that executes commands for real, every mutating command must operate on a fixture it creates and deletes, never on the caller's arguments or the user's records. Recognizing \"a harness is running me\" needs both the reserved fixture title and the harness environment; neither signal alone is sufficient, and each gap leaked into a real account.",
+  "reason": "Harnesses execute mutating commands against the live account with no cleanup contract, so a create writes real data on every run and a title-resolving one (todo rm, done) can destroy or alter records the user cares about. Two independent detection gaps each produced a real leak. Environment alone misses `verify --api-key`, which runs commands for real but deliberately does not set PRINTING_PRESS_VERIFY, because that variable means \"mock the wire\". Title alone misses the dogfood matrix, which does not only run the pp:happy-args this CLI controls: for a parent command that declares none it scrapes a runnable example out of the help prose, so the `todo` group's Long text ran `todo add \"book dentist\"` twice and left two real to-dos behind. A create accepts any title, so no inspection of the string can mark it as a probe.",
+  "files": [
+    "internal/cli/tiimo_dogfood_safety.go",
+    "internal/cli/tiimo_write.go",
+    "internal/cli/tiimo_todo.go",
+    "internal/cli/todo_add.go"
+  ],
+  "validated_outcome": "Measured per environment before the fix: PRINTING_PRESS_VERIFY=1 guarded, PRINTING_PRESS_DOGFOOD=1 self-tested, neither performed a REAL CREATE -- and live verify is the \"neither\" case. After the fix, live verify (75/77; both remaining failures are optional auth env vars misclassified as required) and full live dogfood (201/203) each ran with the account diffed wide before and after across Apr-Dec 2026: 14 activities and 3 to-dos, zero additions, zero deletions. Error-path probes still exit non-zero because a non-fixture title on a title-resolving op returns not-found without touching data.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4170"
+}

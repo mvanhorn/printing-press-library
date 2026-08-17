@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-help-gruppi-data-anno",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Help chiarito su due ambiguità di scopribilità emerse dalla review agentica: (1) cross-reference e Short distintivi fra i gruppi singolare/plurale commissione (dossier) vs commissioni (convocazioni/sommari) e legge (cronologia) vs leggi (cerca/get); (2) la regola --data vs --anno spiegata dove è meno ovvia: i 5 archivi di atti politici (solo --data, nessun --anno) e le leggi (solo --anno, nessun --data).",
+  "reason": "Un agente che enumera i comandi dal --help non riesce a capire perché un concetto sia diviso in due gruppi (commissione/commissioni, legge/leggi): la scissione è motivata ma non scopribile dai soli titoli. E la scelta fra --data e --anno per archivio è coerente ma non spiegata: un agente che cerca 'tutte le mozioni del 2020' non trova --anno su mozioni (ha solo --data) e un agente che cerca leggi per data non trova --data. Review dell'help, nessun cambio di comportamento.",
+  "files": [
+    "internal/cli/commissione.go",
+    "internal/cli/commissioni.go",
+    "internal/cli/legge.go",
+    "internal/cli/leggi.go",
+    "internal/cli/interrogazioni_cerca.go",
+    "internal/cli/interpellanze_cerca.go",
+    "internal/cli/mozioni_cerca.go",
+    "internal/cli/odg_cerca.go",
+    "internal/cli/risoluzioni_cerca.go",
+    "internal/cli/leggi_cerca.go"
+  ],
+  "validated_outcome": "`commissione --help` apre con il Long 'Raggruppa il dossier di una singola commissione... usa il gruppo commissioni'; `commissioni --help` apre con 'Archivi grezzi... usa il gruppo commissione (dossier)'; stesso incrocio per `legge`/`leggi`. Indice radice: 'commissione  Vista completa di una commissione (dossier...)' e 'commissioni  Lavori delle commissioni: convocazioni (229) e sommari (230)'. `mozioni cerca --help` mostra sul flag --data 'Non esiste --anno su questo archivio: per un anno intero usa --data AAAA-01-01:AAAA-12-31'; `leggi cerca --help` su --anno 'non esiste --data sulle leggi'. `go build` ok, `go test ./...` tutto verde."
+}

@@ -581,6 +581,48 @@ test("install command uses go.mod module path when it differs from registry path
   ]);
 });
 
+test("install command keeps public v0 names while using the vzero module path", async () => {
+  const v0Registry: Registry = {
+    schema_version: 2,
+    entries: [
+      {
+        name: "v0",
+        category: "ai",
+        api: "v0",
+        description: "Generate web apps with v0.",
+        path: "library/ai/v0",
+      },
+    ],
+  };
+  const goCalls: string[] = [];
+  const skillCalls: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => v0Registry,
+    resolveModulePath: async () => {
+      throw new Error("v0 uses an install-module override before fetching go.mod");
+    },
+    detectGo: async () => ({ installed: true }),
+    goInstall: async (modulePath) => {
+      goCalls.push(modulePath);
+      return ok();
+    },
+    goInstallDir: async () => goBinDir("/Users/example/go/bin"),
+    commandOnPath: async () => "/Users/example/go/bin/v0-pp-cli",
+    installSkill: async (skillName) => {
+      skillCalls.push(skillName);
+      return ok();
+    },
+    stdout: () => {},
+    stderr: () => {},
+  });
+
+  assert.equal(await command(["v0"]), 0);
+  assert.deepEqual(goCalls, [
+    "github.com/mvanhorn/printing-press-library/library/ai/v0/vzero/cmd/v0-pp-cli",
+  ]);
+  assert.deepEqual(skillCalls, ["pp-v0"]);
+});
+
 test("install command warns loudly when a stale binary earlier in PATH shadows the freshly built one", async () => {
   const stdout: string[] = [];
   const stderr: string[] = [];

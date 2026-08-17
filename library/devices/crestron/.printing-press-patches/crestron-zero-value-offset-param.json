@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "crestron-zero-value-offset-param",
+  "applied_at": "2026-08-02",
+  "base_run_id": "20260802-132209-30c5fe35",
+  "base_printing_press_version": "4.30.0",
+  "summary": "Always send the os (offset) query parameter, including its zero value, instead of omitting it when it equals zero.",
+  "reason": "The product-tile endpoint ProductSubcategoryItemTemplate.aspx requires os=0 to return the first page. The generator's default emission guards int params with a non-zero check, so the first page of every category came back with zero products and no error — a silent empty result rather than a failure. Sending the zero value unconditionally is what makes catalog product paging work from offset 0.",
+  "files": [
+    "internal/cli/catalog_products.go"
+  ],
+  "validated_outcome": "sync walks 69 categories and stores 2022 products; without this the first page of each category returned nothing."
+}

@@ -2,6 +2,8 @@
   "schema_version": 2,
   "id": "sync-deletion-reconciliation",
   "applied_at": "2026-06-24",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
   "summary": "Wire per-parent deletion reconciliation into dependent sync. After a --full sync fully enumerates a per_parent dependent partition (e.g. cycles/modules/labels/states/archived_*/intake_issues/projects_issues scoped by $.project), prune local rows the API no longer returns for that parent. store.go gains ReconcilePartition (mark-and-sweep over the typed table + CascadeJunctionsFor junction cascades); sync.go threads a prune flag (full && !no-prune), tracks per-partition completeness via partitionOutcome (complete=true only at the three natural-enumeration ends, never on error/cap/cursor exits), accumulates seenIDs before the completeness breaks, and calls ReconcilePartition under the prune && complete && per_parent guard, emitting reconcile / reconcile_error / reconcile_skipped events. A proven-complete sweep always emits a reconcile event (with deleted:0 when the cache was already consistent) so a clean run stays observable rather than silent. A new --no-prune flag opts out. modules_novel.go registers the module-issues junction cascade (for both 'modules' and 'archived_modules') so reconcile deletes flow through novel membership tables.",
   "reason": "A full resync that re-enumerates a parent's children should converge local state to the API: rows deleted upstream must disappear locally, not linger. Without reconciliation the local SQLite store accumulates orphaned children forever. Reconcile is gated to fully-enumerated per_parent partitions so a partial/errored enumeration can never trigger a destructive delete.",
   "files": [

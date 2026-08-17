@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "forkable-venue-recency-utc-anchor",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260717-100008-2c197495",
+  "base_printing_press_version": "4.28.0",
+  "summary": "venue-rotation's days_since_seen must anchor \"today\" as a UTC midnight built from now's own calendar date before subtracting a date-only time.Parse result (which time.Parse always returns as UTC midnight); comparing a UTC-midnight lastSeen directly against local time.Now() misreports the day count by one near local/UTC day boundaries, and a naive fix using now.Location() throughout is not DST-safe.",
+  "reason": "Extracted the calculation into a pure, unit-tested helper (daysSinceUTC in forkable_dates.go, alongside the file's existing sinceCutoffISO/dateOnOrAfter date helpers) so the timezone/DST behavior is pinned by tests rather than re-litigated inline in the Cobra RunE closure. Both operands of the subtraction are now UTC midnights, so the delta is an exact multiple of 24h regardless of DST transitions or the process's local timezone offset.",
+  "files": ["internal/cli/venue_rotation.go", "internal/cli/forkable_dates.go", "internal/cli/forkable_dates_test.go"],
+  "validated_outcome": "go test ./internal/cli/... -run TestDaysSinceUTC covers UTC, America/Los_Angeles, and Pacific/Kiritimati (UTC+14) observation points plus the US spring-forward DST boundary (2026-03-08), confirming the pre-fix formula would have reported 1 day for the late-evening-Los-Angeles case where the fix correctly reports 0.",
+  "upstream_issue": ""
+}

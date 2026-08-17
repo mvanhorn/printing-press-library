@@ -1,0 +1,12 @@
+type: object
+nullable: true
+properties:
+  id:
+    type: integer
+    format: int
+  notification:
+    type: string
+  notification_html:
+    type: string
+  type:
+    type: string

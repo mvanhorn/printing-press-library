@@ -49,6 +49,20 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("%s %s returned HTTP %d: %s", e.Method, e.Path, e.StatusCode, e.Body)
 }
 
+// PATCH(amend-2026-08-12: report the resolved path, not the raw template)
+// errorPath returns the path (plus query) actually requested, falling back to
+// the template when the URL cannot be parsed.
+func errorPath(targetURL, templatePath string) string {
+	u, err := url.Parse(targetURL)
+	if err != nil || u.Path == "" {
+		return templatePath
+	}
+	if u.RawQuery != "" {
+		return u.Path + "?" + u.RawQuery
+	}
+	return u.Path
+}
+
 func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
 	builder := surf.NewClient().
 		Builder().
@@ -322,6 +336,12 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 
 	const maxRetries = 3
 	var lastErr error
+	// PATCH(amend-2026-08-12: self-heal a stale Next.js buildId on 404) — the
+	// resolver caches the buildId for 4h on disk, but Skool rotates it on every
+	// deploy. Before this, a rotation inside the TTL window made every
+	// {buildId} data route answer 404 {"notFound":true} until the cache aged
+	// out, and InvalidateBuildID was never called from anywhere.
+	buildIDRetried := false
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		// Proactive rate limiting — wait before sending
@@ -397,10 +417,40 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		}
 
 		apiErr := &APIError{
-			Method:     method,
-			Path:       path,
+			Method: method,
+			// PATCH(amend-2026-08-12: report the resolved path, not the raw
+			// template) — reporting `path` printed a literal "{buildId}" in
+			// every error, which reads like a substitution bug and hides the
+			// URL that was actually requested.
+			Path:       errorPath(targetURL, path),
 			StatusCode: resp.StatusCode,
 			Body:       truncateBody(respBody),
+		}
+
+		// PATCH(amend-2026-08-12: self-heal a stale Next.js buildId on 404) —
+		// drop the cached buildId, re-resolve, rebuild the URL, and retry once.
+		if resp.StatusCode == http.StatusNotFound && !buildIDRetried && strings.Contains(path, "{buildId}") {
+			buildIDRetried = true
+			c.InvalidateBuildID()
+			if err := c.ensureBuildID(path); err != nil {
+				return nil, resp.StatusCode, apiErr
+			}
+			if c.Config != nil {
+				endpointVars = c.Config.TemplateVars
+			}
+			var rebuiltURL string
+			var rebuildErr error
+			if isAbsoluteURL(path) {
+				rebuiltURL, rebuildErr = buildURL("", path, endpointVars)
+			} else {
+				rebuiltURL, rebuildErr = buildURL(c.BaseURL, path, endpointVars)
+			}
+			if rebuildErr != nil || rebuiltURL == targetURL {
+				return nil, resp.StatusCode, apiErr
+			}
+			targetURL = rebuiltURL
+			lastErr = apiErr
+			continue
 		}
 
 		// Rate limited - adjust adaptive limiter and retry

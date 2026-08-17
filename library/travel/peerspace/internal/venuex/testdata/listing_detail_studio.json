@@ -1,0 +1,807 @@
+{
+  "minimum_duration": "5",
+  "description": "STUDIO PHOTO / VIDÉO – FOND NOIR IMMERSIF – 100 m² (ÉCLAIRAGE INCLUS)\n\nDécouvrez un espace de tournage de 100 m² entièrement dédié aux ambiances sombres et contrastées. Ce studio fond noir offre une maîtrise totale de la lumière, parfait pour les clips musicaux, shootings photo, publicités, interviews stylisées ou contenus artistiques exigeants.\n\nSitué à Bagnolet, à seulement quelques minutes de Paris, le studio est facilement accessible pour les équipes techniques et les productions.\n\n⸻\n\n🎬 Équipement lumière inclus\n\n• 1 projecteur vidéo COB 300\n• 1 Dome II\n(installés et prêts à l’utilisation)\n\n⸻\n\n🧰 Éléments & accessoires disponibles\n\n• Système de support pour fonds\n• Fond blanc\n• Fond vert\n\n⸻\n\n📐 Dimensions & atouts du lieu\n\n• Largeur : 9 mètres\n• Profondeur : 12 mètres\n• Hauteur sous plafond : 5 mètres\n• Environnement idéal pour jeux d’ombres, clair-obscur et mises en scène cinématographiques\n• Isolation lumineuse optimale pour un rendu professionnel\n\n⸻\n\n⚠️ Informations importantes\n\nLe studio correspond exclusivement au plateau de tournage tel que présenté dans cette annonce.\n\nAucune loge n’est incluse dans cette réservation.\n\nDes loges peuvent toutefois être ajoutées en option, selon vos besoins et disponibilités.\n\n⸻\n\n⏱ Durée minimale de réservation : 2 heures",
+  "space_review_count": 15,
+  "structured_amenities": [
+    {
+      "default": false,
+      "localizedName": "Public Transportation",
+      "name": "Public Transportation",
+      "icon": "public_transit",
+      "subheader": "Features",
+      "sort_order": 14
+    },
+    {
+      "default": false,
+      "localizedName": "Speakers",
+      "name": "Speakers",
+      "icon": "stereo",
+      "subheader": "Amenities",
+      "missing": true,
+      "sort_order": 3
+    },
+    {
+      "default": false,
+      "localizedName": "Projector",
+      "name": "Projector",
+      "icon": "projector",
+      "subheader": "Amenities",
+      "sort_order": 5
+    },
+    {
+      "default": false,
+      "localizedName": "AV Technician",
+      "name": "AV Technician",
+      "icon": "avtechnician",
+      "subheader": "Features",
+      "sort_order": 9
+    },
+    {
+      "default": false,
+      "localizedName": "Tablecloths",
+      "name": "Tablecloths",
+      "icon": "tablecloth",
+      "subheader": "Amenities",
+      "sort_order": 8
+    },
+    {
+      "default": false,
+      "localizedName": "Soundproof",
+      "name": "Soundproof",
+      "icon": "soundproof",
+      "subheader": "Features",
+      "missing": true,
+      "sort_order": 6
+    },
+    {
+      "default": false,
+      "localizedName": "Restrooms",
+      "name": "Restrooms",
+      "icon": "toilet",
+      "subheader": "Features",
+      "sort_order": 3
+    },
+    {
+      "default": false,
+      "localizedName": "Security",
+      "name": "Security",
+      "icon": "security",
+      "subheader": "Features",
+      "sort_order": 12
+    },
+    {
+      "default": false,
+      "localizedName": "Tables",
+      "name": "Tables",
+      "icon": "table",
+      "subheader": "Amenities",
+      "sort_order": 1
+    },
+    {
+      "default": false,
+      "localizedName": "Parking Space(s)",
+      "name": "Parking Space(s)",
+      "icon": "parking",
+      "subheader": "Features",
+      "sort_order": 13
+    },
+    {
+      "default": true,
+      "localizedName": "WiFi",
+      "name": "WiFi",
+      "icon": "wifi",
+      "subheader": "Amenities",
+      "sort_order": 7
+    },
+    {
+      "default": false,
+      "localizedName": "Chairs",
+      "name": "Chairs",
+      "icon": "chair",
+      "subheader": "Amenities",
+      "sort_order": 2
+    },
+    {
+      "default": false,
+      "localizedName": "Kitchen",
+      "name": "Kitchen",
+      "icon": "kitchen",
+      "subheader": "Features",
+      "missing": true,
+      "sort_order": 1
+    },
+    {
+      "default": false,
+      "localizedName": "Wheelchair Accessible",
+      "name": "Wheelchair Accessible",
+      "icon": "handicap_access",
+      "subheader": "Features",
+      "missing": true,
+      "sort_order": 10
+    }
+  ],
+  "space_review_stars": 4.8,
+  "is_power_host": true,
+  "_id": "68d468bb44492187e415d4a6",
+  "duration_type": "HOURLY_RATE",
+  "sqm": 100,
+  "host_responsiveness": {
+    "metric": "HOST_RESPONSIVENESS",
+    "host_id": "63bfddeed9d010001f77a563",
+    "minutes": 40,
+    "hours": 1,
+    "bucket": "within 1 hr",
+    "level": 1,
+    "level_label": "good"
+  },
+  "page_title": "STUDIO PHOTO FOND NOIR DE 100 m2 in Bagnolet",
+  "city_google": "93170 Bagnolet",
+  "timezone": "Central European Summer Time",
+  "day_rate_discount": {
+    "value": 0,
+    "obj_state": "DEACTIVATED",
+    "apply_as": "PERCENT_OFF"
+  },
+  "surveillance_info": {
+    "has_surveillance": false
+  },
+  "space_type_tag": "video_studio",
+  "availabilityPatterns": [],
+  "event_faq_details": {},
+  "number_guests": 50,
+  "cancellation_policy": {
+    "id": "std_90_d",
+    "name": "Standard 90 jours",
+    "description": [
+      "Les invités peuvent annuler leur réservation jusqu'à 90 jours avant le début de leur événement et recevoir un remboursement intégral (y compris tous les frais) du prix de leur réservation.",
+      "Les invités peuvent annuler leur réservation de 90 jours à 14 jours avant le début de leur événement et recevoir un remboursement de 50 % (frais non compris) du prix de leur réservation.",
+      "Les annulations effectuées moins de 14 jours avant le début de l'événement ne sont pas remboursables."
+    ],
+    "short_description": [
+      "Les annulations effectuées dans les 24 heures après la confirmation d'une réservation seront intégralement remboursées. Cela exclut les événements commençant dans les 48 heures.",
+      "Les annulations effectuées 90 jours à l'avance recevront un remboursement intégral.",
+      "Les annulations effectuées 90 à 14 jours à l'avance recevront un remboursement de 50 % (frais non compris).",
+      "Les annulations pour des événements commençant dans les 14 jours ne sont pas remboursables."
+    ],
+    "ts_active": 1554102000000,
+    "grace_period_applies": true
+  },
+  "ownerId": "63bfddeed9d010001f77a563",
+  "images": [
+    {
+      "description": "The image shows a dark, empty room with black walls and ceiling, illuminated by bright overhead lights.",
+      "tags": [
+        {
+          "name": "rehearsal_space",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.2899044500000001
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.15430358
+        },
+        {
+          "name": "black",
+          "type": "COLOR",
+          "relativeConfidence": 0.1775218249999999
+        },
+        {
+          "name": "horror",
+          "type": "THEME",
+          "relativeConfidence": 0.18715824999999997
+        },
+        {
+          "name": "grey",
+          "type": "COLOR",
+          "relativeConfidence": 0.20289027999999998
+        },
+        {
+          "name": "blue",
+          "type": "COLOR",
+          "relativeConfidence": 0.14228368000000002
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.14541205999999995
+        },
+        {
+          "name": "abandoned",
+          "type": "SPACE",
+          "relativeConfidence": 0.186791115
+        }
+      ],
+      "_id": "68d468bb44492187e415d4b4",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/ej0pcpbsxfivjpc6co6l",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "sort_order": 1,
+      "__v": 0,
+      "external_id": "ej0pcpbsxfivjpc6co6l",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/ej0pcpbsxfivjpc6co6l.jpg",
+      "date_modified": "2026-02-25T12:52:26.065Z",
+      "quality": 0.4482565,
+      "date_created": "2025-09-24T21:55:07.128Z",
+      "parentId": "68d468bb44492187e415d4a6",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/ej0pcpbsxfivjpc6co6l.jpg"
+    },
+    {
+      "description": "A large, empty room with black walls, a black floor, and overhead fluorescent lights illuminating the space.",
+      "tags": [
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.14672082000000009
+        },
+        {
+          "name": "rehearsal_space",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.26735705
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.15996855
+        },
+        {
+          "name": "black",
+          "type": "COLOR",
+          "relativeConfidence": 0.181716565
+        },
+        {
+          "name": "grey",
+          "type": "COLOR",
+          "relativeConfidence": 0.14552312999999995
+        },
+        {
+          "name": "silver",
+          "type": "COLOR",
+          "relativeConfidence": 0.175805675
+        },
+        {
+          "name": "green",
+          "type": "COLOR",
+          "relativeConfidence": 0.14091977999999994
+        },
+        {
+          "name": "blue",
+          "type": "COLOR",
+          "relativeConfidence": 0.1362466499999999
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.15245825000000002
+        }
+      ],
+      "_id": "68d468bb44492187e415d4b5",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/oxgigya9wq5xqukc3n4h",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "sort_order": 2,
+      "__v": 0,
+      "external_id": "oxgigya9wq5xqukc3n4h",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/oxgigya9wq5xqukc3n4h.jpg",
+      "date_modified": "2026-02-25T14:32:44.660Z",
+      "quality": 0.43178523,
+      "date_created": "2025-09-24T21:55:07.128Z",
+      "parentId": "68d468bb44492187e415d4a6",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/oxgigya9wq5xqukc3n4h.jpg"
+    },
+    {
+      "description": "The image shows an empty room with black walls and ceiling, illuminated by overhead fluorescent lights.",
+      "tags": [
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.14316877500000003
+        },
+        {
+          "name": "rehearsal_space",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.27143192000000005
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.154005375
+        },
+        {
+          "name": "black",
+          "type": "COLOR",
+          "relativeConfidence": 0.17880637
+        },
+        {
+          "name": "horror",
+          "type": "THEME",
+          "relativeConfidence": 0.1902322299999999
+        },
+        {
+          "name": "grey",
+          "type": "COLOR",
+          "relativeConfidence": 0.16295250000000006
+        },
+        {
+          "name": "silver",
+          "type": "COLOR",
+          "relativeConfidence": 0.16683811999999998
+        },
+        {
+          "name": "blue",
+          "type": "COLOR",
+          "relativeConfidence": 0.17287696499999994
+        },
+        {
+          "name": "costume",
+          "type": "THEME",
+          "relativeConfidence": 0.18575284999999997
+        },
+        {
+          "name": "green",
+          "type": "COLOR",
+          "relativeConfidence": 0.13238404999999998
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.15242588499999998
+        },
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.16193640499999995
+        }
+      ],
+      "_id": "68d468bb44492187e415d4b6",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/z0ly78rhgldaxjs0s7v6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "sort_order": 3,
+      "__v": 0,
+      "external_id": "z0ly78rhgldaxjs0s7v6",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/z0ly78rhgldaxjs0s7v6.jpg",
+      "date_modified": "2026-02-25T12:24:36.383Z",
+      "quality": 0.3915576,
+      "date_created": "2025-09-24T21:55:07.129Z",
+      "parentId": "68d468bb44492187e415d4a6",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/z0ly78rhgldaxjs0s7v6.jpg"
+    },
+    {
+      "description": "The image shows a large, empty black room with polished flooring and overhead lighting.",
+      "tags": [
+        {
+          "name": "grey",
+          "type": "COLOR",
+          "relativeConfidence": 0.17187033499999993
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.1382962000000001
+        },
+        {
+          "name": "black",
+          "type": "COLOR",
+          "relativeConfidence": 0.17489947500000003
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.15301640000000005
+        }
+      ],
+      "_id": "68d468bb44492187e415d4b7",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/nwyiwwely4g8gzjb054m",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "sort_order": 4,
+      "__v": 0,
+      "external_id": "nwyiwwely4g8gzjb054m",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/nwyiwwely4g8gzjb054m.jpg",
+      "date_modified": "2026-02-25T13:01:19.930Z",
+      "quality": 0.45371068,
+      "date_created": "2025-09-24T21:55:07.129Z",
+      "parentId": "68d468bb44492187e415d4a6",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/nwyiwwely4g8gzjb054m.jpg"
+    },
+    {
+      "description": "The image shows a bare, empty room with a black, polished floor and plain white walls.",
+      "tags": [
+        {
+          "name": "garage",
+          "type": "ROOM_TYPE"
+        },
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.14786776499999998
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.15586652499999998
+        },
+        {
+          "name": "black",
+          "type": "COLOR",
+          "relativeConfidence": 0.19063461000000004
+        },
+        {
+          "name": "grey",
+          "type": "COLOR",
+          "relativeConfidence": 0.158084675
+        },
+        {
+          "name": "blue",
+          "type": "COLOR",
+          "relativeConfidence": 0.139065875
+        },
+        {
+          "name": "green",
+          "type": "COLOR",
+          "relativeConfidence": 0.1233265
+        },
+        {
+          "name": "abandoned",
+          "type": "SPACE",
+          "relativeConfidence": 0.17817935499999993
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.14175274999999998
+        },
+        {
+          "name": "brown",
+          "type": "COLOR",
+          "relativeConfidence": 0.1606339
+        },
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.15605811999999997
+        }
+      ],
+      "_id": "68d468bb44492187e415d4b8",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/eufx8bche3tu0bx6s4qj",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "sort_order": 5,
+      "__v": 0,
+      "external_id": "eufx8bche3tu0bx6s4qj",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/eufx8bche3tu0bx6s4qj.jpg",
+      "date_modified": "2026-02-25T14:38:33.941Z",
+      "quality": 0.4250196,
+      "date_created": "2025-09-24T21:55:07.129Z",
+      "parentId": "68d468bb44492187e415d4a6",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/eufx8bche3tu0bx6s4qj.jpg"
+    },
+    {
+      "description": "The image shows a minimalist room featuring a green sofa, a clothing rack, a small coffee table, a potted plant, and two speaker towers against a plain wall.",
+      "tags": [
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.14405905000000008
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.16045310999999995
+        },
+        {
+          "name": "plants",
+          "type": "THEME",
+          "relativeConfidence": 0.22304747000000003
+        },
+        {
+          "name": "piano",
+          "type": "AMENITY",
+          "relativeConfidence": 0.17453184499999996
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.19206881500000006
+        },
+        {
+          "name": "green",
+          "type": "COLOR",
+          "relativeConfidence": 0.13067383
+        },
+        {
+          "name": "costume",
+          "type": "THEME",
+          "relativeConfidence": 0.17881492999999993
+        },
+        {
+          "name": "1970s",
+          "type": "THEME",
+          "relativeConfidence": 0.17056044999999997
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.148400125
+        },
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.17126635
+        }
+      ],
+      "_id": "68d468bb44492187e415d4b9",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/vvdjqykdfnxb4f1crixa",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "sort_order": 6,
+      "__v": 0,
+      "external_id": "vvdjqykdfnxb4f1crixa",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/vvdjqykdfnxb4f1crixa.jpg",
+      "date_modified": "2026-02-25T12:32:06.208Z",
+      "quality": 0.44119537,
+      "date_created": "2025-09-24T21:55:07.129Z",
+      "parentId": "68d468bb44492187e415d4a6",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/vvdjqykdfnxb4f1crixa.jpg"
+    }
+  ],
+  "has_add_ons": false,
+  "min_age": 0,
+  "sort_order": 0,
+  "is_instant_book_active": false,
+  "city": "Bagnolet",
+  "calendar_pricing": {
+    "prices": [],
+    "prices_by_group": []
+  },
+  "is_instant_book_enabled": false,
+  "longitude": "REDACTED",
+  "state": "",
+  "rules": "Règles du studio\n\t•\tInterdiction de fumer dans tout le bâtiment.\n\t•\tLaisser les lieux propres et rangés après votre passage.\n\t•\tManipuler le matériel avec soin et signaler immédiatement tout incident ou dégradation.\n\t•\tRespecter les horaires de réservation et prévenir en cas de retard.\n\t•\tNe pas bloquer les issues de secours et garder les couloirs dégagés.\n\t•\tToute musique ou bruit doit être maintenu à un niveau raisonnable pour respecter le voisinage.",
+  "ownerFirstName": "Wesly",
+  "title": "STUDIO PHOTO FOND NOIR DE 100 m2",
+  "ownerReviewStars": 4.836363636363636,
+  "concierge_disabled": false,
+  "cleaning_info": {
+    "description": "Nos studios sont nettoyés et désinfectés après chaque tournage, afin de garantir un espace propre, sain et accueillant pour tous nos invités. Vous pouvez profiter de votre séance en toute tranquillité.",
+    "cleaning_measures": [
+      "cdc_guidelines",
+      "spacing_bookings",
+      "disinfecting_surfaces"
+    ],
+    "signage": [],
+    "physical_distance": [],
+    "protective_gear": [
+      "hand_sanitizer"
+    ],
+    "has_enhanced_cleaning": false
+  },
+  "prices": [
+    {
+      "_id": "68d468bb44492187e415d4a9",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "value": 85,
+      "type": "HOURLY_RATE",
+      "currency": "EUR",
+      "__v": 0,
+      "date_modified": "2026-07-15T21:39:58.864+00:00",
+      "date_created": "2025-09-24T21:55:07.126Z",
+      "parentId": "68d468bb44492187e415d4a6"
+    }
+  ],
+  "zip_google": "93170",
+  "parentSpaceId": "68d458dba45ae0878156d4b6",
+  "ownerLastName": "D.",
+  "parking_info": {
+    "is_available": true,
+    "types": [
+      "01_free_on_premise"
+    ],
+    "description": "Nous disposons de deux places de stationnement sur parquet, dont une place dédiée à la livraison, qui est disponible pour vous permettre de décharger facilement votre matériel."
+  },
+  "status": "ACTIVATED",
+  "zip": "REDACTED",
+  "__v": 0,
+  "uses": [
+    {
+      "_id": "68d468bb44492187e415d4a8",
+      "name": "Event",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:55:07.125Z",
+      "date_modified": "2025-09-24T21:55:07.125Z",
+      "__v": 0
+    }
+  ],
+  "ownerACHAvailable": false,
+  "date_modified": "2026-07-16T17:07:49.064Z",
+  "latitude": "REDACTED",
+  "amenities": [
+    {
+      "_id": "68d46975b395f8b0acaaa26d",
+      "name": "WiFi",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:58:13.522Z",
+      "date_modified": "2025-09-24T21:58:13.522Z",
+      "__v": 0,
+      "localizedName": "WiFi"
+    },
+    {
+      "_id": "68d46975b395f8b0acaaa26e",
+      "name": "Chairs",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:58:13.522Z",
+      "date_modified": "2025-09-24T21:58:13.522Z",
+      "__v": 0,
+      "localizedName": "Chairs"
+    },
+    {
+      "_id": "68d46975b395f8b0acaaa26f",
+      "name": "Tablecloths",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:58:13.522Z",
+      "date_modified": "2025-09-24T21:58:13.522Z",
+      "__v": 0,
+      "localizedName": "Tablecloths"
+    },
+    {
+      "_id": "68d46975b395f8b0acaaa270",
+      "name": "Tables",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:58:13.522Z",
+      "date_modified": "2025-09-24T21:58:13.522Z",
+      "__v": 0,
+      "localizedName": "Tables"
+    },
+    {
+      "_id": "68d46975b395f8b0acaaa271",
+      "name": "Parking Space(s)",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:58:13.522Z",
+      "date_modified": "2025-09-24T21:58:13.522Z",
+      "__v": 0,
+      "localizedName": "Parking Space(s)"
+    },
+    {
+      "_id": "68d46975b395f8b0acaaa272",
+      "name": "Public Transportation",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:58:13.522Z",
+      "date_modified": "2025-09-24T21:58:13.522Z",
+      "__v": 0,
+      "localizedName": "Public Transportation"
+    },
+    {
+      "_id": "68d46975b395f8b0acaaa273",
+      "name": "AV Technician",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:58:13.522Z",
+      "date_modified": "2025-09-24T21:58:13.522Z",
+      "__v": 0,
+      "localizedName": "AV Technician"
+    },
+    {
+      "_id": "68d46975b395f8b0acaaa274",
+      "name": "Security",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:58:13.522Z",
+      "date_modified": "2025-09-24T21:58:13.522Z",
+      "__v": 0,
+      "localizedName": "Security"
+    },
+    {
+      "_id": "68d46975b395f8b0acaaa275",
+      "name": "Restrooms",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:58:13.522Z",
+      "date_modified": "2025-09-24T21:58:13.522Z",
+      "__v": 0,
+      "localizedName": "Restrooms"
+    },
+    {
+      "_id": "68d46975b395f8b0acaaa276",
+      "name": "Projector",
+      "parentId": "68d468bb44492187e415d4a6",
+      "ownerId": "63bfddeed9d010001f77a563",
+      "date_created": "2025-09-24T21:58:13.522Z",
+      "date_modified": "2025-09-24T21:58:13.522Z",
+      "__v": 0,
+      "localizedName": "Projector"
+    }
+  ],
+  "date_created": "2025-09-24T21:55:07.117Z",
+  "cleaning_fee": {
+    "apply_as": "FLAT_RATE",
+    "value": 30,
+    "obj_state": "ACTIVATED"
+  },
+  "sqft": 1076,
+  "use_type": "Event",
+  "canonical_loc_data": {
+    "locality": {
+      "long_name": "Bagnolet",
+      "short_name": "Bagnolet",
+      "types": [
+        "locality",
+        "political"
+      ]
+    },
+    "administrative_area_level_1": {
+      "long_name": "Île-de-France",
+      "short_name": "IDF",
+      "types": [
+        "administrative_area_level_1",
+        "political"
+      ]
+    },
+    "administrative_area_level_2": {
+      "long_name": "Seine-Saint-Denis",
+      "short_name": "Seine-Saint-Denis",
+      "types": [
+        "administrative_area_level_2",
+        "political"
+      ]
+    },
+    "neighborhood": {},
+    "country": {
+      "long_name": "France",
+      "short_name": "FR",
+      "types": [
+        "country",
+        "political"
+      ]
+    }
+  },
+  "attendee_pricing": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      2.428988,
+      48.864477
+    ]
+  },
+  "ownerAvatarId": "v6xy8pv8vdkxfb4dajnj",
+  "is_instant_book_eligible_host": true,
+  "country": "FR",
+  "listing_favorite_count": 18,
+  "ownerReviewCount": 55,
+  "awards": {},
+  "has_price_by_day": false,
+  "tz_offset": 2,
+  "metro": "PAR",
+  "ownerAvatarUrl": "https://img.peerspace.com/image/upload/c_crop,g_custom/v1673522470/v6xy8pv8vdkxfb4dajnj.jpg"
+}

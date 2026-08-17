@@ -8,6 +8,8 @@ Bypass paywalls and look up web archives via archive.today. Looks up existing sn
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `archive-is-pp-cli` binary and the `pp-archive-is` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -37,7 +39,7 @@ npx -y @mvanhorn/printing-press-library install archive-is --agent claude-code -
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-cli@latest
@@ -219,7 +221,7 @@ The six hand-built commands below are the hero features. They're optimized for o
 | `sync` | Sync recent archive metadata to local SQLite for offline search. |
 | `workflow archive` | Run the full sync workflow across all resources. |
 | `workflow status` | Show local archive status and sync state. |
-| `export --format jsonl` | Export synced data to JSONL. |
+| `export <resource> --format jsonl` | Export synced data to JSONL. |
 | `import <file>` | Import JSONL back into the API. |
 | `api` | Browse all API endpoints by interface name. |
 
@@ -340,7 +342,7 @@ archive-is-pp-cli sync --full
 archive-is-pp-cli workflow status
 
 # 13. Export your local archive index for backup
-archive-is-pp-cli export --format jsonl > archive-backup.jsonl
+archive-is-pp-cli export captures --format jsonl > archive-backup.jsonl
 
 # 14. Check archive-is-pp-cli's auth and API reachability
 archive-is-pp-cli doctor --json

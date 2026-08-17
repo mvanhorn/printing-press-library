@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "id": "ifood-canonical-reprint-guards",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-042201-817ea5ed",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Preserve iFood's browser-owned authentication, agent-ready private API workflows, concurrency-safe local learning, executable dogfood contracts, fixed dependency floors, and accurate MCP and public documentation across regenerations.",
+  "reason": "The browser session and anti-bot state must remain private while agents still need deterministic quotation, preview-first cart planning, and optional controlled private-API access. Regeneration must also retain atomic learning reinforcement, runnable validation examples, corrected auth metadata, and security-fixed dependencies so the published CLI stays safe and operational.",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "docs/browser-transport.md",
+    "docs/ifood-private-api.md",
+    "go.mod",
+    "go.sum",
+    "internal/cli/browser_commands.go",
+    "internal/cli/browser_commands_test.go",
+    "internal/cli/feedback.go",
+    "internal/cli/ifood_commands.go",
+    "internal/cli/ifood_commands_test.go",
+    "internal/cli/promoted_bm.go",
+    "internal/cli/testdata/ifood_addresses.json",
+    "internal/cli/testdata/ifood_browser_quote.json",
+    "internal/cli/testdata/ifood_catalog_delivery.json",
+    "internal/cli/testdata/ifood_request.curl",
+    "internal/store/learnings.go",
+    "internal/store/learnings_test.go",
+    "manifest.json"
+  ],
+  "validated_outcome": "Browser credentials remain unexported; quotation and cart planning stay deterministic and preview-first; private API and MCP contracts agree; concurrent teachers reinforce one learning row without uniqueness failures; executable examples, tests, vet, build, skill verification, and govulncheck pass with fixed dependency versions."
+}

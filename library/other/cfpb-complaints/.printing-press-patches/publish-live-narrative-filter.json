@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "publish-live-narrative-filter",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-c6f34c82",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Send CFPB's supported boolean value for narrative-only complaint searches.",
+  "reason": "The value 'yes' makes the current CFPB OpenSearch proxy return HTTP 424, while the documented boolean value 'true' returns the bounded cohort.",
+  "files": ["internal/cli/cfpb_novel_support.go"],
+  "validated_outcome": "The narrative packet command and full publish-live matrix complete successfully against CFPB."
+}

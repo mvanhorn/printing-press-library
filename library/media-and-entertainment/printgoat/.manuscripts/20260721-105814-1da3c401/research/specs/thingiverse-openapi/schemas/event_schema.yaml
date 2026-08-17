@@ -1,0 +1,45 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+  type:
+    type: integer
+    format: int
+  message:
+    type: string
+  time:
+    type: string
+    format: date-time
+  targets:
+    type: array
+    items:
+      type: object
+      properties:
+        thumbnail:
+          type: string
+        things_url:
+          type: string
+        default_image:
+          $ref: './image_summary_schema.yaml'
+          nullable: true
+  sources:
+    type: array
+    items:
+      oneOf:
+        - type: object
+          additionalProperties: true
+          properties:
+            thumbnail:
+              type: string
+            default_image:
+              $ref: './image_summary_schema.yaml'
+              nullable: true
+        
+  subscription:
+    type: object
+    nullable: true
+    properties:
+      users_url:
+        type: string
+        
