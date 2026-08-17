@@ -45,45 +45,7 @@ func newNovelFirmwareCheckCmd(flags *rootFlags) *cobra.Command {
 				}
 				return err
 			}
-			latest := map[string]firmwareRow{}
-			for _, summary := range summaries {
-				deviceType := firstNonEmpty(gstr(summary.Data, "device_type"), gstr(summary.Item, "device_type"))
-				if deviceType == "" {
-					continue
-				}
-				firmwareVersion, hasFirmware := summaryFirmwareVersion(summary)
-				_, hasBatteryStatus := gnum(summary.Data, "battery_status")
-				if !hasBatteryStatus {
-					_, hasBatteryStatus = gnum(summary.Item, "battery_status")
-				}
-				endTS, _ := gnum(summary.Data, "end_ts")
-				if endTS == 0 {
-					endTS, _ = gnum(summary.Item, "end_ts")
-				}
-				if !hasFirmware && !hasBatteryStatus {
-					continue
-				}
-				if row, ok := latest[deviceType]; ok && row.EndTS > endTS {
-					continue
-				}
-				var firmwarePtr *string
-				if hasFirmware {
-					firmwarePtr = &firmwareVersion
-				}
-				latest[deviceType] = firmwareRow{
-					DeviceType:      deviceType,
-					DeviceLabel:     deviceTypeLabel(deviceType),
-					FirmwareVersion: firmwarePtr,
-					EndTS:           endTS,
-				}
-			}
-			rows := make([]firmwareRow, 0, len(latest))
-			for _, row := range latest {
-				rows = append(rows, row)
-			}
-			sort.SliceStable(rows, func(i, j int) bool {
-				return rows[i].DeviceType < rows[j].DeviceType
-			})
+			rows := latestFirmwareRows(summaries)
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
@@ -115,4 +77,36 @@ func stringPtrValue(value *string) string {
 		return ""
 	}
 	return *value
+}
+
+func latestFirmwareRows(summaries []summaryResource) []firmwareRow {
+	latest := map[string]firmwareRow{}
+	for _, summary := range summaries {
+		deviceType := firstNonEmpty(gstr(summary.Data, "device_type"), gstr(summary.Item, "device_type"))
+		firmwareVersion, hasFirmware := summaryFirmwareVersion(summary)
+		if deviceType == "" || !hasFirmware {
+			continue
+		}
+		endTS, _ := gnum(summary.Data, "end_ts")
+		if endTS == 0 {
+			endTS, _ = gnum(summary.Item, "end_ts")
+		}
+		if row, ok := latest[deviceType]; ok && row.EndTS > endTS {
+			continue
+		}
+		latest[deviceType] = firmwareRow{
+			DeviceType:      deviceType,
+			DeviceLabel:     deviceTypeLabel(deviceType),
+			FirmwareVersion: &firmwareVersion,
+			EndTS:           endTS,
+		}
+	}
+	rows := make([]firmwareRow, 0, len(latest))
+	for _, row := range latest {
+		rows = append(rows, row)
+	}
+	sort.SliceStable(rows, func(i, j int) bool {
+		return rows[i].DeviceType < rows[j].DeviceType
+	})
+	return rows
 }

@@ -167,3 +167,26 @@ func TestWearBatteryStatusPreservesZero(t *testing.T) {
 		t.Fatalf("wear JSON = %s, want explicit zero battery_status", data)
 	}
 }
+
+func TestLatestFirmwareRowsIgnoresNewerBatteryOnlySummary(t *testing.T) {
+	rows := latestFirmwareRows([]summaryResource{
+		{Data: map[string]any{"device_type": "1", "fw_version": "2.47.0", "end_ts": float64(10)}},
+		{Data: map[string]any{"device_type": "1", "battery_status": float64(80), "end_ts": float64(20)}},
+	})
+	if len(rows) != 1 || rows[0].FirmwareVersion == nil || *rows[0].FirmwareVersion != "2.47.0" {
+		t.Fatalf("latestFirmwareRows() = %#v, want retained firmware 2.47.0", rows)
+	}
+}
+
+func TestLatestBatteryRowsRetainsIndependentLatestFields(t *testing.T) {
+	rows := latestBatteryRows([]summaryResource{
+		{Data: map[string]any{"device_type": "1", "voltage": float64(3.1), "end_ts": float64(10)}},
+		{Data: map[string]any{"device_type": "1", "battery_status": float64(75), "end_ts": float64(20)}},
+	})
+	if len(rows) != 1 || rows[0].BatteryStatus == nil || *rows[0].BatteryStatus != 75 {
+		t.Fatalf("latestBatteryRows() status = %#v, want 75", rows)
+	}
+	if rows[0].Voltage == nil || *rows[0].Voltage != 3.1 {
+		t.Fatalf("latestBatteryRows() voltage = %#v, want retained 3.1", rows)
+	}
+}

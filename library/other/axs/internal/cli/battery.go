@@ -45,53 +45,7 @@ func newNovelBatteryCmd(flags *rootFlags) *cobra.Command {
 				}
 				return err
 			}
-			latest := map[string]batteryRow{}
-			for _, summary := range summaries {
-				deviceType := firstNonEmpty(gstr(summary.Data, "device_type"), gstr(summary.Item, "device_type"))
-				if deviceType == "" {
-					continue
-				}
-				status, hasStatus := gnum(summary.Data, "battery_status")
-				if !hasStatus {
-					status, hasStatus = gnum(summary.Item, "battery_status")
-				}
-				voltage, hasVoltage := gnum(summary.Data, "voltage")
-				if !hasVoltage {
-					voltage, hasVoltage = gnum(summary.Item, "voltage")
-				}
-				if !hasStatus && !hasVoltage {
-					continue
-				}
-				var statusPtr *float64
-				if hasStatus {
-					statusPtr = &status
-				}
-				var voltagePtr *float64
-				if hasVoltage {
-					voltagePtr = &voltage
-				}
-				endTS, _ := gnum(summary.Data, "end_ts")
-				if endTS == 0 {
-					endTS, _ = gnum(summary.Item, "end_ts")
-				}
-				if row, ok := latest[deviceType]; ok && row.EndTS > endTS {
-					continue
-				}
-				latest[deviceType] = batteryRow{
-					DeviceType:    deviceType,
-					DeviceLabel:   deviceTypeLabel(deviceType),
-					BatteryStatus: statusPtr,
-					Voltage:       voltagePtr,
-					EndTS:         endTS,
-				}
-			}
-			rows := make([]batteryRow, 0, len(latest))
-			for _, row := range latest {
-				rows = append(rows, row)
-			}
-			sort.SliceStable(rows, func(i, j int) bool {
-				return rows[i].DeviceType < rows[j].DeviceType
-			})
+			rows := latestBatteryRows(summaries)
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
@@ -108,4 +62,57 @@ func newNovelBatteryCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
+}
+
+type batteryAccumulator struct {
+	row       batteryRow
+	statusTS  float64
+	voltageTS float64
+}
+
+func latestBatteryRows(summaries []summaryResource) []batteryRow {
+	latest := map[string]*batteryAccumulator{}
+	for _, summary := range summaries {
+		deviceType := firstNonEmpty(gstr(summary.Data, "device_type"), gstr(summary.Item, "device_type"))
+		if deviceType == "" {
+			continue
+		}
+		status, hasStatus := gnum(summary.Data, "battery_status")
+		if !hasStatus {
+			status, hasStatus = gnum(summary.Item, "battery_status")
+		}
+		voltage, hasVoltage := gnum(summary.Data, "voltage")
+		if !hasVoltage {
+			voltage, hasVoltage = gnum(summary.Item, "voltage")
+		}
+		if !hasStatus && !hasVoltage {
+			continue
+		}
+		endTS, _ := gnum(summary.Data, "end_ts")
+		if endTS == 0 {
+			endTS, _ = gnum(summary.Item, "end_ts")
+		}
+		acc := latest[deviceType]
+		if acc == nil {
+			acc = &batteryAccumulator{row: batteryRow{DeviceType: deviceType, DeviceLabel: deviceTypeLabel(deviceType)}}
+			latest[deviceType] = acc
+		}
+		if hasStatus && (acc.row.BatteryStatus == nil || endTS >= acc.statusTS) {
+			acc.row.BatteryStatus = &status
+			acc.statusTS = endTS
+		}
+		if hasVoltage && (acc.row.Voltage == nil || endTS >= acc.voltageTS) {
+			acc.row.Voltage = &voltage
+			acc.voltageTS = endTS
+		}
+		acc.row.EndTS = max(acc.statusTS, acc.voltageTS)
+	}
+	rows := make([]batteryRow, 0, len(latest))
+	for _, acc := range latest {
+		rows = append(rows, acc.row)
+	}
+	sort.SliceStable(rows, func(i, j int) bool {
+		return rows[i].DeviceType < rows[j].DeviceType
+	})
+	return rows
 }
