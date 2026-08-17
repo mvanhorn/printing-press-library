@@ -793,6 +793,10 @@ def signal_library_go_floor(change: FileChange) -> list[Finding]:
 
 
 _MODULE_DIRECTIVE = re.compile(r"^\s*module\s+(\S+)", re.MULTILINE)
+_INVALID_EXPLICIT_MAJOR_SUFFIX_RENAMES = {
+    "v0": "vzero",
+    "v1": "vone",
+}
 
 
 def _extract_module_path(content: str | None) -> str | None:
@@ -805,6 +809,27 @@ def _extract_module_path(content: str | None) -> str | None:
 def _find_line(content: str | None, needle: str) -> int | None:
     """Thin alias of _find_line_in kept so R6 callsites don't change."""
     return _find_line_in(content, needle)
+
+
+def _is_invalid_explicit_major_suffix_repair(base_module: str, head_module: str) -> bool:
+    """Allow the narrow Go SIV repair for published CLIs named v0/v1.
+
+    Go treats a trailing /vN module path segment as a semantic-import-versioning
+    major suffix. Explicit /v0 and /v1 suffixes are invalid, so a published CLI
+    with that public slug must move its internal module directory while keeping
+    the public name stable.
+    """
+    if not head_module.startswith(CANONICAL_MODULE_PREFIX):
+        return False
+    try:
+        base_parent, base_leaf = base_module.rsplit("/", 1)
+        head_parent, head_leaf = head_module.rsplit("/", 1)
+    except ValueError:
+        return False
+    return (
+        head_parent == base_parent
+        and _INVALID_EXPLICIT_MAJOR_SUFFIX_RENAMES.get(base_leaf) == head_leaf
+    )
 
 
 def signal_module_path_drift(change: FileChange) -> list[Finding]:
@@ -847,6 +872,8 @@ def signal_module_path_drift(change: FileChange) -> list[Finding]:
     # Existing CLI: ANY module-directive change blocks (drift outside the
     # canonical prefix OR within-canonical rename).
     if head_module != base_module:
+        if _is_invalid_explicit_major_suffix_repair(base_module, head_module):
+            return []
         outside_canonical = not head_module.startswith(CANONICAL_MODULE_PREFIX)
         if outside_canonical:
             message = (

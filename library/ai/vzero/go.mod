@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/ai/vzero
 
-go 1.26.5
+go 1.26.6
 
 require (
 	github.com/mark3labs/mcp-go v0.47.0
