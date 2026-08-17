@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ridewithgps-export-detects-iterator-errors",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260616-213832-c533c1eb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Local-mirror export enumeration must surface iterator failures instead of returning a partial target list.",
+  "reason": "SQLite can report errors only after row iteration finishes; ignoring rows.Err() could silently produce an incomplete export while appearing successful.",
+  "files": [
+    "internal/cli/export.go"
+  ],
+  "validated_outcome": "Iterator failures now stop export with a contextual error; Go tests, vet, and build pass."
+}

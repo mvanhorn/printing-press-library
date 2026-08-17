@@ -143,6 +143,11 @@ to export the whole library without listing ids.`,
 						targetIDs = append(targetIDs, id)
 					}
 				}
+				if err := rows.Err(); err != nil {
+					_ = rows.Close()
+					_ = db.Close()
+					return fmt.Errorf("iterating %s: %w", assetType, err)
+				}
 				_ = rows.Close()
 				_ = db.Close()
 				if len(targetIDs) == 0 {
