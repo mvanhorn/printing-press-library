@@ -62,7 +62,7 @@ func TestPruneStaleOccurrences(t *testing.T) {
 	}
 
 	seen := map[string]bool{keepInWindow: true}
-	removed, err := pruneStaleOccurrences(st, from, to, seen)
+	removed, err := pruneStaleOccurrences(st, from, to, seen, true)
 	if err != nil {
 		t.Fatalf("prune: %v", err)
 	}
@@ -115,7 +115,7 @@ func TestPruneRefusesWithoutEvidence(t *testing.T) {
 	// An empty seen-set means the run recorded nothing; treating that as
 	// "everything is stale" would erase the mirror.
 	removed, err := pruneStaleOccurrences(st, time.Date(2026, 8, 1, 0, 0, 0, 0, time.Local),
-		time.Date(2026, 8, 31, 0, 0, 0, 0, time.Local), map[string]bool{})
+		time.Date(2026, 8, 31, 0, 0, 0, 0, time.Local), map[string]bool{}, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,7 +215,7 @@ func TestHiddenCalendarRowsSurvivePruning(t *testing.T) {
 		t.Error("retained rows belonging to a different calendar")
 	}
 
-	removed, err := pruneStaleOccurrences(st, from, to, seen)
+	removed, err := pruneStaleOccurrences(st, from, to, seen, true)
 	if err != nil {
 		t.Fatalf("prune: %v", err)
 	}
@@ -238,5 +238,34 @@ func TestHiddenCalendarRowsSurvivePruning(t *testing.T) {
 	}
 	if !surv[hiddenA] || !surv[hiddenB] {
 		t.Error("hiding a calendar destroyed its mirrored events")
+	}
+}
+
+// Deleting the last activity in a window legitimately yields zero keys. When
+// the caller has verified the window was fully enumerated, that empty set is
+// evidence of deletion and must prune -- otherwise the final removed
+// occurrence stays visible in every mirror-backed command forever.
+func TestVerifiedEmptyWindowPrunes(t *testing.T) {
+	ctx := context.Background()
+	st, err := store.OpenWithContext(ctx, filepath.Join(t.TempDir(), "m.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	mkOccurrence(t, st, "act-1", "2026-08-12", "deleted upstream")
+	mkOccurrence(t, st, "act-2", "2026-09-30", "outside the window")
+
+	removed, err := pruneStaleOccurrences(st,
+		time.Date(2026, 8, 1, 0, 0, 0, 0, time.Local),
+		time.Date(2026, 8, 31, 0, 0, 0, 0, time.Local),
+		map[string]bool{}, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if removed != 1 {
+		t.Fatalf("verified empty window should prune the in-window row, removed %d", removed)
+	}
+	if got := countRows(t, st, `SELECT COUNT(*) FROM activities`); got != 1 {
+		t.Fatalf("out-of-window row must survive, rows=%d", got)
 	}
 }

@@ -351,7 +351,7 @@ clears recorded sync state so freshness checks re-evaluate from scratch.`,
 			// is a COMPLETE account of the window. Every precondition below is
 			// a way that assumption can break:
 			if pruneOK, why := canPruneOccurrences(results, selected, flagMaxPages, strings.TrimSpace(flagProfile) != ""); pruneOK {
-				removed, pErr := pruneStaleOccurrences(st, from, to, seenOccurrences)
+				removed, pErr := pruneStaleOccurrences(st, from, to, seenOccurrences, true)
 				switch {
 				case pErr != nil:
 					// Never fail the sync over cleanup: the records are
@@ -858,10 +858,19 @@ func canPruneOccurrences(results []syncResourceResult, selected func(string) boo
 // The store's ReconcilePartition cannot be reused here: it compares
 // BareResourceID(id), which strips the occurrence suffix, so all occurrences of
 // one activity collapse to a single identity and none are ever distinguishable.
-func pruneStaleOccurrences(st *store.Store, from, to time.Time, seen map[string]bool) (int, error) {
-	if len(seen) == 0 {
-		// A run that recorded nothing proves nothing; deleting the window on
-		// that basis would erase the mirror.
+// windowVerified must be true only when the caller has established, via
+// canPruneOccurrences, that the run is a complete account of the window. It is
+// what makes an EMPTY seen set meaningful: deleting the last activity in a
+// window legitimately produces zero keys, and without this the mirror would
+// keep showing that deleted occurrence forever -- the exact staleness pruning
+// exists to fix.
+//
+// The distinction matters because an empty response is also the shape a silent
+// upstream failure takes (an auth scope change, an endpoint returning {}, a
+// date-format regression). Absent proof the window was really enumerated, an
+// empty seen set is treated as no evidence rather than as "delete everything".
+func pruneStaleOccurrences(st *store.Store, from, to time.Time, seen map[string]bool, windowVerified bool) (int, error) {
+	if len(seen) == 0 && !windowVerified {
 		return 0, nil
 	}
 	lo := from.Format(tiimoDateLayout)
