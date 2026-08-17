@@ -9,6 +9,8 @@ package cli
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -234,7 +236,11 @@ func exportAsset(ctx context.Context, c *client.Client, assetType, id, format st
 			ef.Error = err.Error()
 			return ef
 		}
-		data = []byte(raw)
+		data, err = decodeNativeExport(raw)
+		if err != nil {
+			ef.Error = fmt.Sprintf("decoding native export: %v", err)
+			return ef
+		}
 	} else {
 		raw, err := c.Get(ctx, fmt.Sprintf("/api/v1/%s/%s.json", assetType, id), nil)
 		if err != nil {
@@ -273,4 +279,27 @@ func exportAsset(ctx context.Context, c *client.Client, assetType, id, format st
 	}
 	ef.Bytes = len(data)
 	return ef
+}
+
+func decodeNativeExport(raw json.RawMessage) ([]byte, error) {
+	var envelope struct {
+		PPBinary bool   `json:"_pp_binary"`
+		Encoding string `json:"encoding"`
+		Bytes    int    `json:"bytes"`
+		Data     string `json:"data"`
+	}
+	if err := json.Unmarshal(raw, &envelope); err != nil || !envelope.PPBinary {
+		return []byte(raw), nil
+	}
+	if envelope.Encoding != "base64" {
+		return nil, fmt.Errorf("unsupported binary response encoding %q", envelope.Encoding)
+	}
+	data, err := base64.StdEncoding.DecodeString(envelope.Data)
+	if err != nil {
+		return nil, fmt.Errorf("invalid base64 payload: %w", err)
+	}
+	if len(data) != envelope.Bytes {
+		return nil, fmt.Errorf("binary response size mismatch: got %d bytes, expected %d", len(data), envelope.Bytes)
+	}
+	return data, nil
 }

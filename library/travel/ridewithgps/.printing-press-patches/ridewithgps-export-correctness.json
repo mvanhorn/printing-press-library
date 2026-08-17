@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ridewithgps-export-correctness",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260616-213832-c533c1eb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Exports must surface local-mirror iterator failures and decode binary response envelopes before writing native files.",
+  "reason": "SQLite can report errors only after row iteration, and the shared client wraps binary HTTP bodies in base64 JSON; ignoring either contract can silently produce incomplete or invalid exports.",
+  "files": [
+    "internal/cli/export.go"
+  ],
+  "validated_outcome": "Iterator failures stop export, and native FIT bytes round-trip through the client envelope; focused tests plus Go test, vet, and build pass."
+}
