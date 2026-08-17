@@ -276,19 +276,19 @@ func newPlaygroundsDataGetCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newPlaygroundsDataPutCmd(flags *rootFlags) *cobra.Command {
-	var spaceID, input, expected string
+	var spaceID, input string
 	var preview bool
 	fixtureAppUUID, fixtureSpaceID := playgroundsFixtureIDs()
 	cmd := &cobra.Command{
-		Use: "put <app-uuid>", Short: "Push reviewed Playgrounds JSON to an explicitly approved target",
-		Example:     "  screencloud-pp-cli playgrounds data put " + fixtureAppUUID + " --space-id " + fixtureSpaceID + " --input ./reviewed-data.json --expected-last-modified 0 --dry-run",
-		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "<app-uuid>=" + fixtureAppUUID + ";--space-id=" + fixtureSpaceID + ";--input=./fixtures/playgrounds-data.json;--expected-last-modified=0"},
+		Use: "put <app-uuid>", Short: "Plan a Playgrounds data push; live writes fail closed without an atomic precondition",
+		Example:     "  screencloud-pp-cli playgrounds data put " + fixtureAppUUID + " --space-id " + fixtureSpaceID + " --input ./reviewed-data.json --dry-run",
+		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "<app-uuid>=" + fixtureAppUUID + ";--space-id=" + fixtureSpaceID + ";--input=./fixtures/playgrounds-data.json"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			appUUID := "<app-uuid>"
 			if len(args) > 0 {
 				appUUID = previewUUID(args[0], preview)
 			}
-			plan := map[string]any{"operation": "PUT", "target": "/data/" + appUUID, "input_file": filepath.Clean(input), "expected_last_modified": expected, "concurrency_guard": "uncached GET /data immediately before PUT", "sent": false}
+			plan := map[string]any{"operation": "PUT", "target": "/data/" + appUUID, "input_file": filepath.Clean(input), "live_write_supported": false, "concurrency_guard": "atomic mutation-time precondition not established by the observed ScreenCloud contract", "sent": false}
 			if flags.dryRun {
 				return printValue(cmd, flags, plan)
 			}
@@ -301,54 +301,14 @@ func newPlaygroundsDataPutCmd(flags *rootFlags) *cobra.Command {
 			if strings.TrimSpace(input) == "" {
 				return usageErr(fmt.Errorf("--input is required"))
 			}
-			if strings.TrimSpace(expected) == "" {
-				return usageErr(fmt.Errorf("--expected-last-modified is required"))
-			}
 			if !flags.yes {
 				return usageErr(fmt.Errorf("refusing Playgrounds write without --yes; review it first with --dry-run"))
 			}
-			raw, err := os.ReadFile(filepath.Clean(input)) // #nosec G304 -- explicitly selected input file.
-			if err != nil {
-				return fmt.Errorf("reading --input: %w", err)
-			}
-			var data any
-			if err := json.Unmarshal(raw, &data); err != nil {
-				return usageErr(fmt.Errorf("--input must be valid JSON: %w", err))
-			}
-			token, _, err := mintScopedJWT(cmd.Context(), flags, "management", spaceID, "")
-			if err != nil {
-				return err
-			}
-			c, err := newPlaygroundsClient(flags)
-			if err != nil {
-				return err
-			}
-			path := "/data/" + url.PathEscape(appUUID)
-			remoteRaw, err := c.GetWithHeadersNoCache(cmd.Context(), path, nil, bearerHeader(token))
-			if err != nil {
-				return classifyAPIError(err, flags)
-			}
-			remote, err := decodeObject(remoteRaw)
-			if err != nil {
-				return fmt.Errorf("decoding current Playgrounds data metadata: %w", err)
-			}
-			actual := strings.TrimSpace(firstString(remote, "lastModified"))
-			if actual == "" {
-				return apiErr(fmt.Errorf("Playgrounds data response omitted lastModified; refusing an unguarded write"))
-			}
-			if actual != strings.TrimSpace(expected) {
-				return apiErr(fmt.Errorf("Playgrounds data changed since the reviewed pull (expected lastModified %q, current %q); pull and review again", expected, actual))
-			}
-			response, _, err := c.PutWithHeaders(cmd.Context(), path, map[string]any{"data": data}, bearerHeader(token))
-			if err != nil {
-				return classifyAPIError(err, flags)
-			}
-			return printMutationReceipt(cmd, flags, appUUID, "data", response)
+			return apiErr(fmt.Errorf("live Playgrounds data writes are disabled because the observed ScreenCloud contract provides no atomic mutation-time concurrency precondition; no request was sent"))
 		},
 	}
 	cmd.Flags().StringVar(&spaceID, "space-id", "", "Space UUID used to mint the management token")
 	cmd.Flags().StringVar(&input, "input", "", "Reviewed JSON file")
-	cmd.Flags().StringVar(&expected, "expected-last-modified", "", "Exact lastModified value from the last pull")
 	cmd.Flags().BoolVar(&preview, "preview", false, "Write the <app-uuid>-preview workspace")
 	return cmd
 }

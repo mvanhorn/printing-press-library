@@ -1255,8 +1255,6 @@
         "<redacted-uuid>",
         "--input",
         "./fixtures/playgrounds-data.json",
-        "--expected-last-modified",
-        "0",
         "--dry-run"
       ],
       "status": "pass"
@@ -1273,8 +1271,6 @@
         "<redacted-uuid>",
         "--input",
         "./fixtures/playgrounds-data.json",
-        "--expected-last-modified",
-        "0",
         "--dry-run",
         "--json"
       ],
@@ -2437,5 +2433,5 @@
       "status": "pass"
     }
   ],
-  "ran_at": "2026-08-17T19:11:55.176208Z"
+  "ran_at": "2026-08-17T19:22:32.930771Z"
 }

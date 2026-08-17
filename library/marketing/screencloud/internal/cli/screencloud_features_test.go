@@ -67,7 +67,7 @@ func TestMutationDryRunsDoNotReadPayloads(t *testing.T) {
 	cases := [][]string{
 		{"app-instances", "create", "--input", "/definitely/missing/input.json", "--dry-run", "--json", "--no-learn"},
 		{"playgrounds", "files", "put", "app-1", "--space-id", "space-1", "--dir", "/definitely/missing/dir", "--expected-last-modified", "123", "--dry-run", "--json", "--no-learn"},
-		{"playgrounds", "data", "put", "app-1", "--space-id", "space-1", "--input", "/definitely/missing/data.json", "--expected-last-modified", "123", "--dry-run", "--json", "--no-learn"},
+		{"playgrounds", "data", "put", "app-1", "--space-id", "space-1", "--input", "/definitely/missing/data.json", "--dry-run", "--json", "--no-learn"},
 	}
 	for _, args := range cases {
 		stdout, stderr, err := runRootArgs(t, args...)
@@ -676,80 +676,26 @@ func TestAnalysisRejectsMirrorFromDifferentOrganization(t *testing.T) {
 	}
 }
 
-func TestDataPutUsesOptimisticConcurrencyGuard(t *testing.T) {
+func TestDataPutFailsClosedWithoutAtomicConcurrency(t *testing.T) {
 	input := filepath.Join(t.TempDir(), "data.json")
 	if err := os.WriteFile(input, []byte(`{"message":"reviewed"}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
+	requests := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		if r.URL.Path == "/graphql" {
-			fmt.Fprint(w, `{"data":{"createSignedAppManagementJwt":{"signedAppManagementToken":"management-jwt"}}}`)
-			return
-		}
-		if r.URL.Path == "/data/app-1" && r.Method == http.MethodGet {
-			fmt.Fprint(w, `{"data":{"message":"current"},"lastModified":"1"}`)
-			return
-		}
-		if r.URL.Path != "/data/app-1" || r.Method != http.MethodPut {
-			http.NotFound(w, r)
-			return
-		}
-		var body map[string]any
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			t.Errorf("decode PUT: %v", err)
-		}
-		if _, ok := body["lastModified"]; ok || len(body) != 1 || body["data"] == nil {
-			t.Errorf("unexpected data PUT body: %#v", body)
-		}
-		fmt.Fprint(w, `{"data":{},"lastModified":"2"}`)
+		requests++
+		http.Error(w, "unexpected request", http.StatusInternalServerError)
 	}))
 	defer server.Close()
 	t.Setenv("SCREENCLOUD_BASE_URL", server.URL)
 	t.Setenv("SCREENCLOUD_PLAYGROUNDS_URL", server.URL)
 	t.Setenv("SCREENCLOUD_API_KEY", "key")
-	stdout, stderr, err := runRootArgs(t, "--no-learn", "--json", "--yes", "playgrounds", "data", "put", "app-1", "--space-id", "space-1", "--input", input, "--expected-last-modified", "1")
-	if err != nil {
-		t.Fatalf("data put failed: %v stderr=%s", err, stderr)
+	_, _, err := runRootArgs(t, "--no-learn", "--json", "--yes", "playgrounds", "data", "put", "app-1", "--space-id", "space-1", "--input", input)
+	if err == nil || !strings.Contains(err.Error(), "no atomic mutation-time concurrency precondition") {
+		t.Fatalf("unguarded data write was not rejected: %v", err)
 	}
-	if !strings.Contains(stdout, `"completion_confirmed": true`) {
-		t.Fatalf("write receipt was not confirmed: %s", stdout)
-	}
-	if !strings.Contains(stdout, `"stage": "standalone_data_uploaded"`) || !strings.Contains(stdout, `"reconcile_compatible": false`) {
-		t.Fatalf("standalone write receipt implied create-workflow completion: %s", stdout)
-	}
-}
-
-func TestDataPutRefusesStaleExpectedLastModified(t *testing.T) {
-	input := filepath.Join(t.TempDir(), "data.json")
-	if err := os.WriteFile(input, []byte(`{"message":"reviewed"}`), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	putCalled := false
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		switch {
-		case r.URL.Path == "/graphql":
-			fmt.Fprint(w, `{"data":{"createSignedAppManagementJwt":{"signedAppManagementToken":"management-jwt"}}}`)
-		case r.URL.Path == "/data/app-1" && r.Method == http.MethodGet:
-			fmt.Fprint(w, `{"data":{"message":"newer"},"lastModified":"2"}`)
-		case r.URL.Path == "/data/app-1" && r.Method == http.MethodPut:
-			putCalled = true
-			fmt.Fprint(w, `{"data":{},"lastModified":"3"}`)
-		default:
-			http.NotFound(w, r)
-		}
-	}))
-	defer server.Close()
-	t.Setenv("SCREENCLOUD_BASE_URL", server.URL)
-	t.Setenv("SCREENCLOUD_PLAYGROUNDS_URL", server.URL)
-	t.Setenv("SCREENCLOUD_API_KEY", "key")
-	_, _, err := runRootArgs(t, "--no-learn", "--json", "--yes", "playgrounds", "data", "put", "app-1", "--space-id", "space-1", "--input", input, "--expected-last-modified", "1")
-	if err == nil || !strings.Contains(err.Error(), "changed since the reviewed pull") {
-		t.Fatalf("stale data write was not rejected: %v", err)
-	}
-	if putCalled {
-		t.Fatal("data PUT was sent after the lastModified comparison failed")
+	if requests != 0 {
+		t.Fatalf("data write attempted %d network request(s)", requests)
 	}
 }
 
