@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/spf13/cobra"
 )
@@ -352,19 +353,37 @@ func foldICSLine(line string) string {
 	if len(line) <= limit {
 		return line + "\r\n"
 	}
-	var b strings.Builder
-	b.WriteString(line[:limit])
-	b.WriteString("\r\n")
-	rest := line[limit:]
-	for len(rest) > limit-1 {
-		b.WriteString(" ")
-		b.WriteString(rest[:limit-1])
-		b.WriteString("\r\n")
-		rest = rest[limit-1:]
+	// The limit is counted in BYTES, but a split may only land on a rune
+	// boundary: RFC 5545 folds an octet sequence, and cutting mid-rune yields
+	// invalid UTF-8 that clients reject or render as mojibake. That is the
+	// normal case here, not an exotic one -- Tiimo activities carry
+	// `iconType: UnicodeEmoji`, so a 4-byte rune in a SUMMARY is routine.
+	//
+	// takeRunes fills up to max bytes without ever cutting a rune, and always
+	// returns at least one rune so a single rune wider than the budget still
+	// makes progress instead of looping forever.
+	takeRunes := func(s string, max int) (head, tail string) {
+		n := 0
+		for i, r := range s {
+			w := utf8.RuneLen(r)
+			if n+w > max {
+				if i == 0 {
+					return s[:w], s[w:]
+				}
+				return s[:i], s[i:]
+			}
+			n += w
+		}
+		return s, ""
 	}
-	if rest != "" {
+	var b strings.Builder
+	head, rest := takeRunes(line, limit)
+	b.WriteString(head)
+	b.WriteString("\r\n")
+	for rest != "" {
+		head, rest = takeRunes(rest, limit-1)
 		b.WriteString(" ")
-		b.WriteString(rest)
+		b.WriteString(head)
 		b.WriteString("\r\n")
 	}
 	return b.String()

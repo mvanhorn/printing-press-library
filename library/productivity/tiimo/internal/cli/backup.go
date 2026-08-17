@@ -94,9 +94,20 @@ retrieve anything the mirror has never seen.`,
 				// failure mode for this particular command.
 				items, err := st.List(res, 100000)
 				if err != nil {
-					// A resource that was never synced simply has no table
-					// rows; that is an empty section, not a failure.
-					continue
+					// Do NOT treat this as an empty section. The earlier
+					// reasoning here -- "a resource that was never synced has
+					// no rows" -- confused two different things: List reads the
+					// generic resources table, which always exists once the
+					// store has migrated, so a never-synced resource returns an
+					// empty slice and a nil error. A non-nil error is therefore
+					// always a real failure (database locked or corrupt, schema
+					// drift, cancelled context), and continuing here would write
+					// an exit-zero snapshot that silently omits planner data.
+					//
+					// A backup that quietly loses a resource is worse than no
+					// backup, because it is trusted later, when the original is
+					// gone.
+					return fmt.Errorf("reading %s for snapshot: %w", res, err)
 				}
 				rows := make([]json.RawMessage, 0, len(items))
 				rows = append(rows, items...)

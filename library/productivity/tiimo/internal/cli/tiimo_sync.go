@@ -286,11 +286,17 @@ clears recorded sync state so freshness checks re-evaluate from scratch.`,
 				profiles = filtered
 			}
 
+			// Every activity-occurrence key written anywhere in this run, across
+			// every profile. Pruning needs the union: activity rows carry no
+			// profile column, so a per-profile sweep would treat the other
+			// profiles' occurrences as stale and delete them.
+			seenOccurrences := map[string]bool{}
+
 			for _, p := range profiles {
 				pid := cliutil.EscapePathParam(p.ProfileID)
 
 				if selected("activities") {
-					n, aErr := syncActivities(ctx, c, st, pid, from, to, flagMaxPages, paramsFor("activities", nil))
+					n, aErr := syncActivities(ctx, c, st, pid, from, to, flagMaxPages, paramsFor("activities", nil), seenOccurrences)
 					record("activities", n, aErr)
 				}
 				if selected("todo_tasks") {
@@ -328,9 +334,38 @@ clears recorded sync state so freshness checks re-evaluate from scratch.`,
 					// the ONLY ones that carry real clock times -- native Tiimo
 					// activities are bucket-scheduled at midnight. Omitting
 					// them made `today` silently miss every real meeting.
-					n, eErr := syncCalendarEvents(ctx, c, st, pid, from, to)
+					n, eErr := syncCalendarEvents(ctx, c, st, pid, from, to, seenOccurrences)
 					record("calendar_events", n, eErr)
 				}
+			}
+
+			// Deletion mirroring. Upserting alone leaves a row behind forever
+			// when an activity is deleted, moved to another day, or dropped
+			// from a recurrence -- and every offline read (agenda, feed,
+			// backup, capacity, overlaps, drift) then reports a plan the user
+			// no longer has. There is no other way out of it: --full re-fetches
+			// but never deletes, so before this the only cure was removing the
+			// database file.
+			//
+			// Pruning deletes user-visible data, so it runs only when this run
+			// is a COMPLETE account of the window. Every precondition below is
+			// a way that assumption can break:
+			if pruneOK, why := canPruneOccurrences(results, selected, flagMaxPages); pruneOK {
+				removed, pErr := pruneStaleOccurrences(st, from, to, seenOccurrences)
+				switch {
+				case pErr != nil:
+					// Never fail the sync over cleanup: the records are
+					// written and correct, the mirror merely still holds
+					// something stale. Say so rather than exiting non-zero.
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not remove stale occurrences: %v\n", pErr)
+				case removed > 0:
+					fmt.Fprintf(cmd.ErrOrStderr(), "removed %d stale activity occurrence(s) no longer present upstream\n", removed)
+				}
+			} else if why != "" {
+				// Silence here would read as "nothing was stale". Name the
+				// reason instead, so a user looking at a row they deleted in
+				// the app knows why it is still on their agenda.
+				fmt.Fprintf(cmd.ErrOrStderr(), "note: kept existing rows without pruning (%s)\n", why)
 			}
 
 			total := 0
@@ -436,14 +471,14 @@ func canonicalID(raw json.RawMessage, idFields ...string) (json.RawMessage, erro
 
 // occurrenceID keys an activity row by activity id plus the date it falls on,
 // so each occurrence of a repeating activity is stored separately.
-func occurrenceID(raw json.RawMessage, date string) (json.RawMessage, error) {
+func occurrenceID(raw json.RawMessage, date string) (json.RawMessage, string, error) {
 	var obj map[string]any
 	if err := json.Unmarshal(raw, &obj); err != nil {
-		return nil, fmt.Errorf("parsing activity: %w", err)
+		return nil, "", fmt.Errorf("parsing activity: %w", err)
 	}
 	activityID := store.ResourceIDString(obj["activityId"])
 	if activityID == "" || activityID == "<nil>" {
-		return nil, fmt.Errorf("activity record has no activityId")
+		return nil, "", fmt.Errorf("activity record has no activityId")
 	}
 	day := strings.TrimSpace(date)
 	if day == "" {
@@ -454,18 +489,35 @@ func occurrenceID(raw json.RawMessage, date string) (json.RawMessage, error) {
 		}
 	}
 	if day == "" {
-		return nil, fmt.Errorf("activity %s has no resolvable occurrence date", activityID)
+		return nil, "", fmt.Errorf("activity %s has no resolvable occurrence date", activityID)
 	}
 	// NUL is the store's own composite-key delimiter (see resourceStorageID
 	// and BareResourceID). Using it means framework helpers strip the
 	// occurrence suffix correctly; an ad-hoc separator like "@" is invisible
 	// to them and leaks the composite into API calls as a bogus activity id.
-	obj["id"] = activityID + string([]byte{0}) + day
+	key := activityID + string([]byte{0}) + day
+	obj["id"] = key
 	out, err := json.Marshal(obj)
 	if err != nil {
-		return nil, fmt.Errorf("re-encoding activity: %w", err)
+		return nil, "", fmt.Errorf("re-encoding activity: %w", err)
 	}
-	return out, nil
+	return out, key, nil
+}
+
+// occurrenceDate recovers the day an occurrence key belongs to.
+//
+// The date is recoverable ONLY from the key: the activities table has a `date`
+// column, but nothing populates it -- the day comes from the response map key
+// rather than any field of the activity JSON, so the column is NULL on every
+// row. Pruning therefore parses the key here, in Go. It cannot be done in SQL
+// at all, because the delimiter is NUL and SQLite's string functions stop at
+// the first one.
+func occurrenceDate(key string) (string, bool) {
+	i := strings.IndexByte(key, 0)
+	if i < 0 || i+1 >= len(key) {
+		return "", false
+	}
+	return key[i+1:], true
 }
 
 // syncActivities walks the window in chunks and flattens the date-keyed
@@ -473,7 +525,7 @@ func occurrenceID(raw json.RawMessage, date string) (json.RawMessage, error) {
 //
 // The endpoint returns {"2026-08-14": [ ... ], "2026-08-15": [ ... ]} rather
 // than a flat array, which is why the generic list path cannot handle it.
-func syncActivities(ctx context.Context, c apiGetter, st *store.Store, pid string, from, to time.Time, maxPages int, extra map[string]string) (int, error) {
+func syncActivities(ctx context.Context, c apiGetter, st *store.Store, pid string, from, to time.Time, maxPages int, extra map[string]string, seen map[string]bool) (int, error) {
 	total := 0
 	failures := 0
 	pages := 0
@@ -514,9 +566,12 @@ func syncActivities(ctx context.Context, c apiGetter, st *store.Store, pid strin
 				// exactly the per-occurrence history that drift, adherence and
 				// stalls exist to read. The activity_id column still holds the
 				// real id, so grouping by activity is unaffected.
-				keyed, err := occurrenceID(raw, date)
+				keyed, key, err := occurrenceID(raw, date)
 				if err == nil {
 					err = st.UpsertActivities(keyed)
+				}
+				if err == nil && seen != nil {
+					seen[key] = true
 				}
 				if err != nil {
 					// Count and surface rather than swallow: a window that
@@ -546,7 +601,7 @@ func syncActivities(ctx context.Context, c apiGetter, st *store.Store, pid strin
 // These share the activity shape and the date-keyed response, so they land in
 // the same table and are distinguished by isReadOnly / origin. A calendar the
 // user has hidden or disconnected is skipped rather than fetched.
-func syncCalendarEvents(ctx context.Context, c apiGetter, st *store.Store, pid string, from, to time.Time) (int, error) {
+func syncCalendarEvents(ctx context.Context, c apiGetter, st *store.Store, pid string, from, to time.Time, seen map[string]bool) (int, error) {
 	data, err := c.Get(ctx, "/api/externalCalendar/profiles/"+pid+"/linkedCalendars", nil)
 	if err != nil {
 		return 0, fmt.Errorf("listing linked calendars: %w", err)
@@ -598,12 +653,15 @@ func syncCalendarEvents(ctx context.Context, c apiGetter, st *store.Store, pid s
 			}
 			for date, items := range byDate {
 				for _, raw := range items {
-					keyed, err := occurrenceID(raw, date)
+					keyed, key, err := occurrenceID(raw, date)
 					if err != nil {
 						continue
 					}
 					if err := st.UpsertActivities(keyed); err != nil {
 						continue
+					}
+					if seen != nil {
+						seen[key] = true
 					}
 					total++
 				}
@@ -698,4 +756,163 @@ func syncFlatList(ctx context.Context, c apiGetter, st *store.Store, path string
 // exercised without a live client.
 type apiGetter interface {
 	Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error)
+}
+
+// canPruneOccurrences reports whether this run may delete rows, and if not,
+// why. Pruning is mark-and-sweep: anything the run did not see is treated as
+// gone upstream. That inference is only sound when the run actually looked
+// everywhere, so each guard below closes a specific way it could be wrong.
+func canPruneOccurrences(results []syncResourceResult, selected func(string) bool, maxPages int) (bool, string) {
+	if maxPages > 0 {
+		// --max-pages stops the window walk early, so unvisited days would
+		// look empty and every occurrence in them would look stale.
+		return false, "--max-pages truncated the window walk"
+	}
+	// Externally-imported calendar events are written into the SAME activities
+	// table by a different endpoint behind a different selector. Pruning after
+	// an activities-only sync would therefore delete every imported event,
+	// because none of them were enumerated.
+	if !selected("activities") {
+		return false, "activities were not part of this sync"
+	}
+	if !selected("calendar_events") {
+		return false, "calendar events share the activities table and were not part of this sync"
+	}
+	for _, res := range []string{"activities", "calendar_events"} {
+		seenResource := false
+		for _, r := range results {
+			if r.Resource != res {
+				continue
+			}
+			seenResource = true
+			if r.Status != "ok" {
+				// A profile that errored contributed no keys, so its
+				// occurrences are missing from the seen-set through failure
+				// rather than through deletion.
+				return false, fmt.Sprintf("%s did not sync cleanly", res)
+			}
+		}
+		if !seenResource {
+			return false, fmt.Sprintf("%s produced no result to verify", res)
+		}
+	}
+	return true, ""
+}
+
+// pruneStaleOccurrences deletes activity-occurrence rows inside [from,to] that
+// this run did not see, and returns how many were removed.
+//
+// Two constraints shape the implementation, both inherited from the storage
+// key rather than chosen:
+//
+//   - Victim selection happens in GO, never in SQL. Occurrence keys embed a NUL
+//     delimiter, and SQLite's string functions stop at the first NUL, so an
+//     `IN` test or substr() over these keys silently mismatches. The store's own
+//     reconciler carries the same warning.
+//   - Deletes are issued BY ROWID, an integer, for the same reason: binding a
+//     NUL-bearing key as a WHERE parameter is exactly the comparison that
+//     cannot be trusted.
+//
+// The store's ReconcilePartition cannot be reused here: it compares
+// BareResourceID(id), which strips the occurrence suffix, so all occurrences of
+// one activity collapse to a single identity and none are ever distinguishable.
+func pruneStaleOccurrences(st *store.Store, from, to time.Time, seen map[string]bool) (int, error) {
+	if len(seen) == 0 {
+		// A run that recorded nothing proves nothing; deleting the window on
+		// that basis would erase the mirror.
+		return 0, nil
+	}
+	lo := from.Format(tiimoDateLayout)
+	hi := to.Format(tiimoDateLayout)
+
+	tx, err := st.DB().Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback() //nolint:errcheck // rolled back unless Commit succeeds
+
+	// Pass 1: decide victims from the typed table, where occurrence keys live.
+	victims := map[string]bool{}
+	var victimRowIDs []int64
+	rows, err := tx.Query(`SELECT rowid, id FROM activities`)
+	if err != nil {
+		return 0, fmt.Errorf("scanning activities: %w", err)
+	}
+	for rows.Next() {
+		var rowid int64
+		var id string
+		if err := rows.Scan(&rowid, &id); err != nil {
+			_ = rows.Close()
+			return 0, err
+		}
+		if seen[id] {
+			continue
+		}
+		day, ok := occurrenceDate(id)
+		if !ok {
+			// Not occurrence-keyed, so this run's window says nothing about
+			// it. Leave it alone.
+			continue
+		}
+		// ISO-8601 dates order correctly as strings, so no parsing is needed
+		// to bound the window.
+		if day < lo || day > hi {
+			continue
+		}
+		victims[id] = true
+		victimRowIDs = append(victimRowIDs, rowid)
+	}
+	_ = rows.Close()
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+	if len(victims) == 0 {
+		return 0, nil
+	}
+
+	// Typed rows first: their AFTER DELETE trigger maintains activities_fts.
+	for _, rowid := range victimRowIDs {
+		if _, err := tx.Exec(`DELETE FROM activities WHERE rowid = ?`, rowid); err != nil {
+			return 0, fmt.Errorf("deleting stale activity: %w", err)
+		}
+	}
+
+	// The generic mirror and its index have no triggers, so both are swept
+	// explicitly. `backup` and `export` read the generic table, so skipping it
+	// would leave the stale rows visible in exactly the outputs that matter.
+	for _, spec := range []struct{ query, table string }{
+		{`SELECT rowid, id FROM resources WHERE resource_type = 'activities'`, "resources"},
+		{`SELECT rowid, id FROM resources_fts WHERE resource_type = 'activities'`, "resources_fts"},
+	} {
+		r, err := tx.Query(spec.query)
+		if err != nil {
+			return 0, fmt.Errorf("scanning %s: %w", spec.table, err)
+		}
+		var doomed []int64
+		for r.Next() {
+			var rowid int64
+			var id string
+			if err := r.Scan(&rowid, &id); err != nil {
+				_ = r.Close()
+				return 0, err
+			}
+			if victims[id] {
+				doomed = append(doomed, rowid)
+			}
+		}
+		_ = r.Close()
+		if err := r.Err(); err != nil {
+			return 0, err
+		}
+		for _, rowid := range doomed {
+			if _, err := tx.Exec(fmt.Sprintf(`DELETE FROM %s WHERE rowid = ?`, spec.table), rowid); err != nil {
+				return 0, fmt.Errorf("deleting from %s: %w", spec.table, err)
+			}
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	return len(victims), nil
 }
