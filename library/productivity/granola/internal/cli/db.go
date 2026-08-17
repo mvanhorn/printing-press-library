@@ -41,27 +41,19 @@ type dbTable struct {
 type dbSchemaOutput struct {
 	Path   string    `json:"path"`
 	Tables []dbTable `json:"tables"`
-	// WALPending is set only for external --db targets, which are opened
-	// immutable: true means a non-empty -wal sits next to the file, so the
-	// schema shown may lag what a WAL-aware reader would see.
-	WALPending bool `json:"wal_pending,omitempty"`
 }
 
 func newDBSchemaCmd(flags *rootFlags) *cobra.Command {
-	var dbPath string
 	cmd := &cobra.Command{
 		Use:   "schema",
 		Short: "Print the local store's path, tables, and columns",
 		Long: `Print the store's path and its tables and columns.
 
-Two contracts, decided by ownership. The CLI's own store is read
+The target is the CLI's own store, always. Inspection is read-only and
 WAL-aware: the schema shown is current, including changes not yet
-checkpointed. An external file passed via --db is opened immutable and
-never touched — no locks, no side files, writes rejected by the driver —
-and its contract is snapshot semantics: the schema as of the file's last
-checkpoint. When a non-empty WAL sits next to an external target, the
-lag is disclosed as wal_pending in JSON and a note in human output;
-checkpoint the file from its owning application to fold the WAL in.`,
+checkpointed, and nothing is written. To inspect a store from elsewhere
+— another machine, a backup — put the file at the CLI's own store path
+and read it there.`,
 		Example: `  # Every table and column, human-readable
   granola-pp-cli db schema
 
@@ -77,33 +69,19 @@ checkpoint the file from its owning application to fold the WAL in.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			external := dbPath != ""
-			if dbPath == "" {
-				dbPath = defaultDBPath("granola-pp-cli")
-			}
+			dbPath := defaultDBPath("granola-pp-cli")
 			if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 				return notFoundErr(fmt.Errorf("no local store at %s — run sync first", dbPath))
 			}
-			// Ownership decides the open, not WAL presence, so no branch
-			// depends on a check-then-open race. The CLI's own store gets
-			// the WAL-aware read-only open: every granola command already
-			// opens that file and maintains its -shm, so inspection doing
-			// the same is ordinary operation, and the schema read is
-			// current through the WAL. An external --db file the process
-			// does not own is never touched: immutable=1 creates no side
-			// files, rejects writes at the driver level, and its one blind
-			// spot — schema still sitting in an un-checkpointed WAL — is
-			// disclosed in the output as wal_pending instead of resolved
-			// silently.
-			var s *store.Store
-			var err error
-			var walPending bool
-			if external {
-				s, err = store.OpenImmutable(dbPath)
-				walPending = store.WALPending(dbPath)
-			} else {
-				s, err = store.OpenReadOnly(dbPath)
-			}
+			// The target is always the CLI's own store, so the WAL-aware
+			// read-only open is the whole story: every granola command
+			// already opens this file and maintains its -shm, so
+			// inspection doing the same is ordinary operation, and the
+			// schema read is current through the WAL. Scoping the command
+			// to the owned store is what keeps that true — an arbitrary
+			// file would force a choice between creating side files in
+			// someone else's directory and reading a stale snapshot.
+			s, err := store.OpenReadOnly(dbPath)
 			if err != nil {
 				return err
 			}
@@ -127,7 +105,7 @@ checkpoint the file from its owning application to fold the WAL in.`,
 				return err
 			}
 
-			out := dbSchemaOutput{Path: dbPath, WALPending: walPending}
+			out := dbSchemaOutput{Path: dbPath}
 			for _, n := range names {
 				cols, err := tableColumns(cmd, s, n)
 				if err != nil {
@@ -141,9 +119,6 @@ checkpoint the file from its owning application to fold the WAL in.`,
 			}
 			w := cmd.OutOrStdout()
 			fmt.Fprintf(w, "Store: %s\n", out.Path)
-			if out.WALPending {
-				fmt.Fprintln(w, "note: a non-empty WAL sits next to this file; the schema shown may lag until the owner checkpoints it")
-			}
 			for _, t := range out.Tables {
 				fmt.Fprintf(w, "\n%s\n", t.Name)
 				for _, c := range t.Columns {
@@ -157,7 +132,6 @@ checkpoint the file from its owning application to fold the WAL in.`,
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/granola-pp-cli/data.db)")
 	return cmd
 }
 

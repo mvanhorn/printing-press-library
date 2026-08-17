@@ -107,37 +107,6 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 	return &Store{db: db, path: dbPath}, nil
 }
 
-// OpenImmutable opens dbPath as a frozen read-only snapshot (immutable=1):
-// no writes, no migrations, and no -wal/-shm side files ever created. The
-// documented trade is WAL blindness — committed state still sitting in an
-// un-checkpointed -wal next to the file is not visible through this open.
-// Zero filesystem mutation and WAL currency cannot be had together on a
-// live WAL database (reading through a WAL requires the -shm index; even
-// `sqlite3 file.db .schema` materializes one), so this constructor takes
-// the no-mutation side of the trade and leaves the choice to the caller:
-// use it for files the process does not own, use OpenReadOnly for the
-// CLI's own store, and disclose WALPending to the user instead of
-// resolving it silently.
-//
-// PATCH(granola-db-schema-discoverability)
-func OpenImmutable(dbPath string) (*Store, error) {
-	db, err := sql.Open("sqlite", "file:"+dbPath+"?mode=ro&immutable=1&_pragma=temp_store(MEMORY)")
-	if err != nil {
-		return nil, fmt.Errorf("opening database (immutable): %w", err)
-	}
-	db.SetMaxOpenConns(1)
-	return &Store{db: db, path: dbPath}, nil
-}
-
-// WALPending reports whether a non-empty -wal sits next to dbPath — state
-// an immutable open cannot see. Callers surface this to the user; nothing
-// here branches on it, so there is no check-then-open race to exploit:
-// the answer is informational, not load-bearing.
-func WALPending(dbPath string) bool {
-	fi, err := os.Stat(dbPath + "-wal")
-	return err == nil && fi.Size() > 0
-}
-
 // OpenWithContext opens or creates the SQLite store at dbPath. The
 // context is honored by the migration path: cancellation interrupts the
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller

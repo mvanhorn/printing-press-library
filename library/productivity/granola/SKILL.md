@@ -199,10 +199,7 @@ The local store is plain SQLite at `~/.local/share/granola-pp-cli/data.db`, and 
 
 ```bash
 # Path, tables, and columns — the contract your SQL runs against.
-# On the CLI's own store the schema is WAL-current; an external file
-# passed with --db is opened immutable (never touched) and reports
-# snapshot semantics: the schema as of that file's last checkpoint,
-# with wal_pending set when a non-empty WAL means it may lag.
+# Reads the CLI's own store, WAL-current and without writing to it.
 granola-pp-cli db schema
 
 # Machine-readable, for scripts

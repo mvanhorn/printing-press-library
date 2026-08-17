@@ -14,13 +14,18 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/store"
 )
 
-// TestDBSchemaListsRealColumns pins the contract the command exists for:
-// the schema it prints is the schema scripts will hit with sqlite3. The
-// two columns asserted here are the two that past sessions guessed wrong
-// (meetings.row_source misread as "source", folders.title as "name").
-func TestDBSchemaListsRealColumns(t *testing.T) {
-	t.Parallel()
-	dbPath := filepath.Join(t.TempDir(), "data.db")
+// ownedStore plants a schema-bearing store at the CLI's own path under an
+// isolated HOME and returns that path. The command takes no target flag —
+// it always reads the owned store — so redirecting HOME is how a test
+// points it at a fixture.
+func ownedStore(t *testing.T) string {
+	t.Helper()
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	dbPath := filepath.Join(home, ".local", "share", "granola-pp-cli", "data.db")
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+		t.Fatalf("create store dir: %v", err)
+	}
 	s, err := store.OpenWithContext(context.Background(), dbPath)
 	if err != nil {
 		t.Fatalf("open store: %v", err)
@@ -29,41 +34,40 @@ func TestDBSchemaListsRealColumns(t *testing.T) {
 		t.Fatalf("ensure schema: %v", err)
 	}
 	s.Close()
+	return dbPath
+}
+
+// TestDBSchemaListsRealColumns pins the contract the command exists for:
+// the schema it prints is the schema scripts will hit with sqlite3. The
+// two columns asserted here are the two that past sessions guessed wrong
+// (meetings.row_source misread as "source", folders.title as "name").
+func TestDBSchemaListsRealColumns(t *testing.T) {
+	dbPath := ownedStore(t)
 
 	before, err := os.ReadFile(dbPath)
 	if err != nil {
 		t.Fatalf("read fixture: %v", err)
-	}
-	// The WAL-mode fixture writer may leave journals of its own; remove
-	// them so the assertion below blames only files the command created.
-	// An external --db target is opened immutable, which must create
-	// nothing at all.
-	for _, suffix := range []string{"-wal", "-shm"} {
-		_ = os.Remove(dbPath + suffix)
 	}
 
 	flags := &rootFlags{asJSON: true}
 	cmd := newDBSchemaCmd(flags)
 	var out bytes.Buffer
 	cmd.SetOut(&out)
-	cmd.SetArgs([]string{"--db", dbPath})
+	cmd.SetArgs(nil)
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("db schema: %v", err)
 	}
 
 	// Read-only contract: inspection must not rewrite a single byte of the
-	// target file, and must not leave WAL/SHM journals behind.
+	// store. The WAL-aware open may maintain journals next to it — that is
+	// ordinary operation on the CLI's own store — but the file itself is
+	// never modified.
 	after, err := os.ReadFile(dbPath)
 	if err != nil {
 		t.Fatalf("re-read fixture: %v", err)
 	}
 	if !bytes.Equal(before, after) {
 		t.Error("db schema mutated the store file; inspection must be read-only")
-	}
-	for _, suffix := range []string{"-wal", "-shm"} {
-		if _, statErr := os.Stat(dbPath + suffix); statErr == nil {
-			t.Errorf("db schema created %s on an external --db target; the immutable open must create nothing", suffix)
-		}
 	}
 
 	var got dbSchemaOutput
@@ -97,12 +101,12 @@ func TestDBSchemaListsRealColumns(t *testing.T) {
 // TestDBSchemaMissingStoreExitsNotFound covers the no-store path: a clear
 // pointer at sync, not a bare os.Stat error.
 func TestDBSchemaMissingStoreExitsNotFound(t *testing.T) {
-	t.Parallel()
+	t.Setenv("HOME", t.TempDir())
 	flags := &rootFlags{asJSON: true}
 	cmd := newDBSchemaCmd(flags)
 	cmd.SetOut(&bytes.Buffer{})
 	cmd.SetErr(&bytes.Buffer{})
-	cmd.SetArgs([]string{"--db", filepath.Join(t.TempDir(), "absent.db")})
+	cmd.SetArgs(nil)
 	err := cmd.Execute()
 	if err == nil {
 		t.Fatal("expected an error for a missing store")
