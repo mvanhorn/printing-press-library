@@ -276,19 +276,19 @@ func newPlaygroundsDataGetCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newPlaygroundsDataPutCmd(flags *rootFlags) *cobra.Command {
-	var spaceID, input string
+	var spaceID, input, expected string
 	var preview bool
 	fixtureAppUUID, fixtureSpaceID := playgroundsFixtureIDs()
 	cmd := &cobra.Command{
 		Use: "put <app-uuid>", Short: "Push reviewed Playgrounds JSON to an explicitly approved target",
-		Example:     "  screencloud-pp-cli playgrounds data put " + fixtureAppUUID + " --space-id " + fixtureSpaceID + " --input ./reviewed-data.json --dry-run",
-		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "<app-uuid>=" + fixtureAppUUID + ";--space-id=" + fixtureSpaceID + ";--input=./fixtures/playgrounds-data.json"},
+		Example:     "  screencloud-pp-cli playgrounds data put " + fixtureAppUUID + " --space-id " + fixtureSpaceID + " --input ./reviewed-data.json --expected-last-modified 0 --dry-run",
+		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "<app-uuid>=" + fixtureAppUUID + ";--space-id=" + fixtureSpaceID + ";--input=./fixtures/playgrounds-data.json;--expected-last-modified=0"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			appUUID := "<app-uuid>"
 			if len(args) > 0 {
 				appUUID = previewUUID(args[0], preview)
 			}
-			plan := map[string]any{"operation": "PUT", "target": "/data/" + appUUID, "input_file": filepath.Clean(input), "concurrency_guard": "not established by the observed data contract", "sent": false}
+			plan := map[string]any{"operation": "PUT", "target": "/data/" + appUUID, "input_file": filepath.Clean(input), "expected_last_modified": expected, "sent": false}
 			if flags.dryRun {
 				return printValue(cmd, flags, plan)
 			}
@@ -300,6 +300,9 @@ func newPlaygroundsDataPutCmd(flags *rootFlags) *cobra.Command {
 			}
 			if strings.TrimSpace(input) == "" {
 				return usageErr(fmt.Errorf("--input is required"))
+			}
+			if strings.TrimSpace(expected) == "" {
+				return usageErr(fmt.Errorf("--expected-last-modified is required"))
 			}
 			if !flags.yes {
 				return usageErr(fmt.Errorf("refusing Playgrounds write without --yes; review it first with --dry-run"))
@@ -320,7 +323,7 @@ func newPlaygroundsDataPutCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			response, _, err := c.PutWithHeaders(cmd.Context(), "/data/"+url.PathEscape(appUUID), map[string]any{"data": data}, bearerHeader(token))
+			response, _, err := c.PutWithHeaders(cmd.Context(), "/data/"+url.PathEscape(appUUID), map[string]any{"data": data, "lastModified": expected}, bearerHeader(token))
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -329,6 +332,7 @@ func newPlaygroundsDataPutCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&spaceID, "space-id", "", "Space UUID used to mint the management token")
 	cmd.Flags().StringVar(&input, "input", "", "Reviewed JSON file")
+	cmd.Flags().StringVar(&expected, "expected-last-modified", "", "Exact lastModified value from the last pull")
 	cmd.Flags().BoolVar(&preview, "preview", false, "Write the <app-uuid>-preview workspace")
 	return cmd
 }

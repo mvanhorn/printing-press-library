@@ -16,6 +16,34 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/marketing/screencloud/internal/store"
 )
 
+const testOrganizationID = "11111111-1111-4111-8111-111111111111"
+
+func useMockCurrentOrganization(t *testing.T, organizationID string) {
+	t.Helper()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"data":{"currentOrgId":%q}}`, organizationID)
+	}))
+	t.Cleanup(server.Close)
+	t.Setenv("SCREENCLOUD_BASE_URL", server.URL)
+	t.Setenv("SCREENCLOUD_API_KEY", "key")
+}
+
+func saveTestOrganizationState(t *testing.T, s *store.Store, organizationID string) {
+	t.Helper()
+	if err := s.SaveSyncState(syncOrganizationStateKey, organizationID, 0); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func requestGraphQLQuery(r *http.Request) string {
+	var body struct {
+		Query string `json:"query"`
+	}
+	_ = json.NewDecoder(r.Body).Decode(&body)
+	return body.Query
+}
+
 func TestManifestCommandSurfaceResolves(t *testing.T) {
 	paths := []string{
 		"graphql request", "graphql parse", "graphql atlas", "regions endpoint", "org current", "apps list", "spaces list",
@@ -39,7 +67,7 @@ func TestMutationDryRunsDoNotReadPayloads(t *testing.T) {
 	cases := [][]string{
 		{"app-instances", "create", "--input", "/definitely/missing/input.json", "--dry-run", "--json", "--no-learn"},
 		{"playgrounds", "files", "put", "app-1", "--space-id", "space-1", "--dir", "/definitely/missing/dir", "--expected-last-modified", "123", "--dry-run", "--json", "--no-learn"},
-		{"playgrounds", "data", "put", "app-1", "--space-id", "space-1", "--input", "/definitely/missing/data.json", "--dry-run", "--json", "--no-learn"},
+		{"playgrounds", "data", "put", "app-1", "--space-id", "space-1", "--input", "/definitely/missing/data.json", "--expected-last-modified", "123", "--dry-run", "--json", "--no-learn"},
 	}
 	for _, args := range cases {
 		stdout, stderr, err := runRootArgs(t, args...)
@@ -78,6 +106,7 @@ func TestLocalPlaygroundsAnalysisFeatures(t *testing.T) {
 	seed("channels", "channel-a", map[string]any{"id": "channel-a", "name": "Lobby", "content": map[string]any{"appUuid": "app-1"}})
 	seed("app_versions", "version-a", map[string]any{"id": "version-a", "appId": "", "version": "1", "isLatest": true})
 	seed("playgrounds_metadata", "app-1", map[string]any{"id": "app-1", "app_uuid": "app-1", "refreshed_at": time.Now().UTC().Format(time.RFC3339), "production_available": true, "production_last_modified": time.Now().Add(-48 * time.Hour).UnixMilli(), "preview_last_modified": time.Now().Add(-10 * 24 * time.Hour).UnixMilli()})
+	saveTestOrganizationState(t, s, testOrganizationID)
 	if err := s.SaveSyncState("channels", "complete", 1); err != nil {
 		t.Fatal(err)
 	}
@@ -96,6 +125,7 @@ func TestLocalPlaygroundsAnalysisFeatures(t *testing.T) {
 	if err := s.Close(); err != nil {
 		t.Fatal(err)
 	}
+	useMockCurrentOrganization(t, testOrganizationID)
 
 	working := filepath.Join(home, "working")
 	if err := os.MkdirAll(working, 0o700); err != nil {
@@ -356,6 +386,10 @@ func TestGraphQLMutationDetectionSkipsCommentsAndStrings(t *testing.T) {
 func TestSyncMarksMaxPageBoundaryIncomplete(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(requestGraphQLQuery(r), "CurrentOrganization") {
+			fmt.Fprintf(w, `{"data":{"currentOrgId":%q}}`, testOrganizationID)
+			return
+		}
 		fmt.Fprint(w, `{"data":{"allApps":{"totalCount":2,"nodes":[{"id":"app-1","name":"One","slug":"one","isInstalled":true}]}}}`)
 	}))
 	defer server.Close()
@@ -396,7 +430,9 @@ func TestConfigDriftNoMatchIsIncomplete(t *testing.T) {
 	if err := s.SaveSyncState("app_instances", "complete", 1); err != nil {
 		t.Fatal(err)
 	}
+	saveTestOrganizationState(t, s, testOrganizationID)
 	_ = s.Close()
+	useMockCurrentOrganization(t, testOrganizationID)
 	stdout, _, err := runRootArgs(t, "--home", home, "--no-learn", "--json", "playgrounds", "config-drift", "--app-uuid", "missing")
 	if err != nil {
 		t.Fatal(err)
@@ -438,7 +474,9 @@ func TestReadinessWithoutExpectedPlaygroundsAppIsIncomplete(t *testing.T) {
 	if err := s.SaveSyncState("spaces", "complete", 0); err != nil {
 		t.Fatal(err)
 	}
+	saveTestOrganizationState(t, s, testOrganizationID)
 	_ = s.Close()
+	useMockCurrentOrganization(t, testOrganizationID)
 	stdout, _, err := runRootArgs(t, "--home", home, "--no-learn", "--json", "playgrounds", "readiness")
 	if err != nil {
 		t.Fatal(err)
@@ -506,6 +544,10 @@ func TestCapabilityMatchingIsExactAndCommandPathsAreUnambiguous(t *testing.T) {
 func TestCompleteSyncPrunesRowsMissingFromRemoteTraversal(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(requestGraphQLQuery(r), "CurrentOrganization") {
+			fmt.Fprintf(w, `{"data":{"currentOrgId":%q}}`, testOrganizationID)
+			return
+		}
 		fmt.Fprint(w, `{"data":{"allApps":{"totalCount":1,"nodes":[{"id":"current","name":"Current","slug":"current","isInstalled":true}]}}}`)
 	}))
 	defer server.Close()
@@ -543,7 +585,86 @@ func TestCompleteSyncPrunesRowsMissingFromRemoteTraversal(t *testing.T) {
 	}
 }
 
-func TestDataPutUsesObservedDataOnlyContract(t *testing.T) {
+func TestOrganizationChangeInvalidatesUnrefreshedMirrorResources(t *testing.T) {
+	const newOrganizationID = "22222222-2222-4222-8222-222222222222"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(requestGraphQLQuery(r), "CurrentOrganization") {
+			fmt.Fprintf(w, `{"data":{"currentOrgId":%q}}`, newOrganizationID)
+			return
+		}
+		fmt.Fprint(w, `{"data":{"allApps":{"totalCount":1,"nodes":[{"id":"new-app","name":"New","slug":"new","isInstalled":true}]}}}`)
+	}))
+	defer server.Close()
+	home := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(home, "data"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	dbPath := filepath.Join(home, "data", "data.db")
+	s, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	saveTestOrganizationState(t, s, testOrganizationID)
+	if err := s.SaveSyncState("apps", "complete", 1); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.SaveSyncState("spaces", "complete", 1); err != nil {
+		t.Fatal(err)
+	}
+	_ = s.Close()
+	t.Setenv("SCREENCLOUD_BASE_URL", server.URL)
+	t.Setenv("SCREENCLOUD_API_KEY", "key")
+	if _, _, err := runRootArgs(t, "--home", home, "--no-learn", "--json", "sync", "--resources", "apps", "--first", "10", "--max-pages", "1"); err != nil {
+		t.Fatal(err)
+	}
+	s, err = store.OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	organizationID, _, _, err := s.GetSyncState(syncOrganizationStateKey)
+	if err != nil || organizationID != newOrganizationID {
+		t.Fatalf("organization marker=%q err=%v", organizationID, err)
+	}
+	appsState, _, _, err := s.GetSyncState("apps")
+	if err != nil || appsState != "complete" {
+		t.Fatalf("selected resource was not refreshed: state=%q err=%v", appsState, err)
+	}
+	spacesState, _, _, err := s.GetSyncState("spaces")
+	if err != nil || spacesState != "" {
+		t.Fatalf("unselected old-organization resource remained trusted: state=%q err=%v", spacesState, err)
+	}
+}
+
+func TestAnalysisRejectsMirrorFromDifferentOrganization(t *testing.T) {
+	home := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(home, "data"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	s, err := store.Open(filepath.Join(home, "data", "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Upsert("app_instances", "stale-instance", json.RawMessage(`{"id":"stale-instance","appUuid":"app-1","config":{"theme":"old-org"}}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.SaveSyncState("app_instances", "complete", 1); err != nil {
+		t.Fatal(err)
+	}
+	saveTestOrganizationState(t, s, testOrganizationID)
+	_ = s.Close()
+	useMockCurrentOrganization(t, "22222222-2222-4222-8222-222222222222")
+	stdout, _, err := runRootArgs(t, "--home", home, "--no-learn", "--json", "playgrounds", "config-drift", "--app-uuid", "app-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(stdout, `"complete": false`) || !strings.Contains(stdout, "different or unverifiable organization") || strings.Contains(stdout, "old-org") {
+		t.Fatalf("cross-organization mirror was trusted or leaked: %s", stdout)
+	}
+}
+
+func TestDataPutUsesOptimisticConcurrencyGuard(t *testing.T) {
 	input := filepath.Join(t.TempDir(), "data.json")
 	if err := os.WriteFile(input, []byte(`{"message":"reviewed"}`), 0o600); err != nil {
 		t.Fatal(err)
@@ -562,7 +683,7 @@ func TestDataPutUsesObservedDataOnlyContract(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			t.Errorf("decode PUT: %v", err)
 		}
-		if _, ok := body["lastModified"]; ok || len(body) != 1 || body["data"] == nil {
+		if body["lastModified"] != "1" || len(body) != 2 || body["data"] == nil {
 			t.Errorf("unexpected data PUT body: %#v", body)
 		}
 		fmt.Fprint(w, `{"data":{},"lastModified":"2"}`)
@@ -571,7 +692,7 @@ func TestDataPutUsesObservedDataOnlyContract(t *testing.T) {
 	t.Setenv("SCREENCLOUD_BASE_URL", server.URL)
 	t.Setenv("SCREENCLOUD_PLAYGROUNDS_URL", server.URL)
 	t.Setenv("SCREENCLOUD_API_KEY", "key")
-	stdout, stderr, err := runRootArgs(t, "--no-learn", "--json", "--yes", "playgrounds", "data", "put", "app-1", "--space-id", "space-1", "--input", input)
+	stdout, stderr, err := runRootArgs(t, "--no-learn", "--json", "--yes", "playgrounds", "data", "put", "app-1", "--space-id", "space-1", "--input", input, "--expected-last-modified", "1")
 	if err != nil {
 		t.Fatalf("data put failed: %v stderr=%s", err, stderr)
 	}
@@ -632,7 +753,9 @@ func TestPreviewMetadataNeedsUsableTimestamp(t *testing.T) {
 	if err := s.SaveSyncState("app_instances", "complete", 1); err != nil {
 		t.Fatal(err)
 	}
+	saveTestOrganizationState(t, s, testOrganizationID)
 	_ = s.Close()
+	useMockCurrentOrganization(t, testOrganizationID)
 	stdout, _, err := runRootArgs(t, "--home", home, "--no-learn", "--json", "playgrounds", "preview-drift")
 	if err != nil {
 		t.Fatal(err)
@@ -658,9 +781,16 @@ func TestSyncFailsClosedWhenConnectionEvidenceIsMissing(t *testing.T) {
 	if err := s.SaveSyncState("apps", "complete", 1); err != nil {
 		t.Fatal(err)
 	}
+	saveTestOrganizationState(t, s, testOrganizationID)
 	_ = s.Close()
 	stateAtRequest := make(chan string, 1)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		query := requestGraphQLQuery(r)
+		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(query, "CurrentOrganization") {
+			fmt.Fprintf(w, `{"data":{"currentOrgId":%q}}`, testOrganizationID)
+			return
+		}
 		mirror, openErr := store.OpenReadOnly(dbPath)
 		if openErr == nil {
 			cursor, _, _, stateErr := mirror.GetSyncState("apps")
@@ -669,7 +799,6 @@ func TestSyncFailsClosedWhenConnectionEvidenceIsMissing(t *testing.T) {
 				stateAtRequest <- cursor
 			}
 		}
-		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprint(w, `{"data":{}}`)
 	}))
 	defer server.Close()
@@ -704,6 +833,10 @@ func TestSyncFailsClosedWhenConnectionEvidenceIsMissing(t *testing.T) {
 func TestSyncRejectsShortPageThatContradictsTotalCount(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(requestGraphQLQuery(r), "CurrentOrganization") {
+			fmt.Fprintf(w, `{"data":{"currentOrgId":%q}}`, testOrganizationID)
+			return
+		}
 		fmt.Fprint(w, `{"data":{"allApps":{"totalCount":2,"nodes":[{"id":"only-one","name":"One","slug":"one","isInstalled":true}]}}}`)
 	}))
 	defer server.Close()
@@ -721,6 +854,10 @@ func TestSyncRejectsShortPageThatContradictsTotalCount(t *testing.T) {
 func TestSyncRejectsDuplicateIDsBeforeReconciliation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(requestGraphQLQuery(r), "CurrentOrganization") {
+			fmt.Fprintf(w, `{"data":{"currentOrgId":%q}}`, testOrganizationID)
+			return
+		}
 		fmt.Fprint(w, `{"data":{"allApps":{"totalCount":2,"nodes":[{"id":"duplicate","name":"One","slug":"one","isInstalled":true},{"id":"duplicate","name":"One again","slug":"one","isInstalled":true}]}}}`)
 	}))
 	defer server.Close()
@@ -801,7 +938,11 @@ func TestPreviewRefreshIncludesDataOnlyPreviewWorkspace(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		switch r.URL.Path {
 		case "/graphql":
-			fmt.Fprint(w, `{"data":{"createSignedAppManagementJwt":{"signedAppManagementToken":"management-jwt"}}}`)
+			if strings.Contains(requestGraphQLQuery(r), "CurrentOrganization") {
+				fmt.Fprintf(w, `{"data":{"currentOrgId":%q}}`, testOrganizationID)
+			} else {
+				fmt.Fprint(w, `{"data":{"createSignedAppManagementJwt":{"signedAppManagementToken":"management-jwt"}}}`)
+			}
 		case "/files/app-1":
 			fmt.Fprint(w, `{"files":{},"lastModified":"2026-07-31T12:00:00Z"}`)
 		case "/data/app-1":

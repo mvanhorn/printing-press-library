@@ -40,6 +40,11 @@ func newNovelPlaygroundsImpactCmd(flags *rootFlags) *cobra.Command {
 				return printValue(cmd, flags, out)
 			}
 			defer s.Close()
+			organizationMatch, organizationErr := mirrorMatchesCurrentOrganization(cmd.Context(), flags, s)
+			if organizationErr != nil || !organizationMatch {
+				out["hint"] = "Run screencloud-pp-cli sync with the current credential; local evidence belongs to a different or unverifiable organization."
+				return printValue(cmd, flags, out)
+			}
 			objectsByType := map[string][]map[string]any{}
 			oldest := time.Time{}
 			missingResources := []string{}

@@ -31,6 +31,11 @@ func newNovelPlaygroundsConfigDriftCmd(flags *rootFlags) *cobra.Command {
 				return printValue(cmd, flags, out)
 			}
 			defer s.Close()
+			organizationMatch, organizationErr := mirrorMatchesCurrentOrganization(cmd.Context(), flags, s)
+			if organizationErr != nil || !organizationMatch {
+				out["hint"] = "Run screencloud-pp-cli sync with the current credential; local evidence belongs to a different or unverifiable organization."
+				return printValue(cmd, flags, out)
+			}
 			instances, err := listLocalObjects(s, "app_instances")
 			if err != nil {
 				return err

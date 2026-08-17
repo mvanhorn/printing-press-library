@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -17,7 +18,61 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/marketing/screencloud/internal/store"
 )
 
-const analysisEvidenceMaxAge = 24 * time.Hour
+const (
+	analysisEvidenceMaxAge   = 24 * time.Hour
+	syncOrganizationStateKey = "__screencloud_organization__"
+)
+
+func currentOrganizationID(ctx context.Context, flags *rootFlags) (string, error) {
+	data, _, err := runGraphQL(ctx, flags, `query CurrentOrganization { currentOrgId }`, nil)
+	if err != nil {
+		return "", err
+	}
+	var object map[string]any
+	if err := json.Unmarshal(data, &object); err != nil {
+		return "", fmt.Errorf("decoding current organization: %w", err)
+	}
+	organizationID := strings.TrimSpace(firstString(object, "currentOrgId"))
+	if organizationID == "" {
+		return "", apiErr(fmt.Errorf("current organization response omitted currentOrgId"))
+	}
+	return organizationID, nil
+}
+
+func bindStoreToCurrentOrganization(ctx context.Context, flags *rootFlags, s *store.Store) (string, error) {
+	current, err := currentOrganizationID(ctx, flags)
+	if err != nil {
+		return "", err
+	}
+	stored, _, _, err := s.GetSyncState(syncOrganizationStateKey)
+	if err != nil {
+		return "", err
+	}
+	if stored != current {
+		if err := s.ClearSyncCursors(); err != nil {
+			return "", fmt.Errorf("invalidating metadata from a different organization: %w", err)
+		}
+	}
+	if err := s.SaveSyncState(syncOrganizationStateKey, current, 0); err != nil {
+		return "", fmt.Errorf("persisting synchronized organization identity: %w", err)
+	}
+	return current, nil
+}
+
+func mirrorMatchesCurrentOrganization(ctx context.Context, flags *rootFlags, s *store.Store) (bool, error) {
+	stored, _, _, err := s.GetSyncState(syncOrganizationStateKey)
+	if err != nil {
+		return false, err
+	}
+	if strings.TrimSpace(stored) == "" {
+		return false, nil
+	}
+	current, err := currentOrganizationID(ctx, flags)
+	if err != nil {
+		return false, err
+	}
+	return stored == current, nil
+}
 
 func freshCompleteSyncState(s *store.Store, resourceType string) (time.Time, bool, error) {
 	cursor, lastSynced, _, err := s.GetSyncState(resourceType)

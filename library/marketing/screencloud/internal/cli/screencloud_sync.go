@@ -10,9 +10,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/marketing/screencloud/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/marketing/screencloud/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type syncResource struct {
@@ -99,6 +99,10 @@ func newScreenCloudSyncCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer s.Close()
+			organizationID, err := bindStoreToCurrentOrganization(cmd.Context(), flags, s)
+			if err != nil {
+				return fmt.Errorf("binding local mirror to the current organization: %w", err)
+			}
 			counts := map[string]int{}
 			failures := map[string]string{}
 			states := map[string]string{}
@@ -241,7 +245,7 @@ func newScreenCloudSyncCmd(flags *rootFlags) *cobra.Command {
 					complete = false
 				}
 			}
-			out := map[string]any{"database": s.Path(), "counts": counts, "pruned": pruned, "failures": failures, "resource_states": states, "graphql_query_cost_by_resource": queryCosts, "private_playgrounds_content": "excluded", "complete": complete}
+			out := map[string]any{"database": s.Path(), "organization_id": organizationID, "counts": counts, "pruned": pruned, "failures": failures, "resource_states": states, "graphql_query_cost_by_resource": queryCosts, "private_playgrounds_content": "excluded", "complete": complete}
 			if err := printValue(cmd, flags, out); err != nil {
 				return err
 			}

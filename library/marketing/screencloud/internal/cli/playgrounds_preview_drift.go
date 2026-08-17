@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/marketing/screencloud/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newNovelPlaygroundsPreviewDriftCmd(flags *rootFlags) *cobra.Command {
@@ -51,6 +51,11 @@ func newNovelPlaygroundsPreviewDriftCmd(flags *rootFlags) *cobra.Command {
 				return printValue(cmd, flags, out)
 			}
 			defer s.Close()
+			organizationMatch, organizationErr := mirrorMatchesCurrentOrganization(cmd.Context(), flags, s)
+			if organizationErr != nil || !organizationMatch {
+				out["hint"] = "Run screencloud-pp-cli sync or refresh with the current credential; local evidence belongs to a different or unverifiable organization."
+				return printValue(cmd, flags, out)
+			}
 			objects, err := listLocalObjects(s, "playgrounds_metadata")
 			if err != nil {
 				return err
@@ -226,6 +231,9 @@ func refreshPlaygroundsTimestampMetadata(cmd *cobra.Command, flags *rootFlags, a
 		return err
 	}
 	defer s.Close()
+	if _, err := bindStoreToCurrentOrganization(cmd.Context(), flags, s); err != nil {
+		return err
+	}
 	if err := s.Upsert("playgrounds_metadata", appUUID, raw); err != nil {
 		return err
 	}
