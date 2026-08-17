@@ -1,0 +1,59 @@
+{
+  "host_sso_id": "REDACTED",
+  "guest_sso_id": "REDACTED",
+  "sales_tax_disable": true,
+  "type": "REQUEST",
+  "payment_option": "PAY_IN_FULL",
+  "enforce_minimum_hours": true,
+  "guest_fee_test_group": "full",
+  "items": [
+    {
+      "type": "BOOKING",
+      "info": {
+        "host_id": "63bfddeed9d010001f77a563",
+        "guest_id": "66915212d22cc89e3402c745",
+        "schedule": [
+          {
+            "start": {
+              "date": {
+                "y": 2026,
+                "m": 9,
+                "d": 15
+              },
+              "time": {
+                "time_index": 22,
+                "time": "5:00 pm",
+                "h": 17,
+                "m": 0,
+                "overnight": false,
+                "available": true
+              }
+            },
+            "end": {
+              "date": {
+                "y": 2026,
+                "m": 9,
+                "d": 15
+              },
+              "time": {
+                "h": 22,
+                "m": 0,
+                "available": true,
+                "time_index": 32,
+                "time": "10:00 pm",
+                "overnight": false
+              }
+            }
+          }
+        ],
+        "rate": 85,
+        "duration_type": "HOURLY_RATE",
+        "listing_id": "68d468bb44492187e415d4a6",
+        "space_id": "68d458dba45ae0878156d4b6",
+        "prepare_only": true,
+        "ga_client_id": "",
+        "number_of_guests": 1
+      }
+    }
+  ]
+}

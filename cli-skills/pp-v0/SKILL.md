@@ -13,7 +13,7 @@ metadata:
     install:
       - kind: go
         bins: [v0-pp-cli]
-        module: github.com/mvanhorn/printing-press-library/library/ai/v0/cmd/v0-pp-cli
+        module: github.com/mvanhorn/printing-press-library/library/ai/v0/vzero/cmd/v0-pp-cli
 ---
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/ai/v0/SKILL.md,
@@ -34,10 +34,10 @@ This skill drives the `v0-pp-cli` binary. **You must verify the CLI is installed
 2. Verify: `v0-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/ai/v0/cmd/v0-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/ai/v0/vzero/cmd/v0-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
@@ -561,7 +561,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/ai/v0/cmd/v0-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/ai/v0/vzero/cmd/v0-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

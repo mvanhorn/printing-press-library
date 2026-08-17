@@ -111,6 +111,9 @@ func runCerca(cmd *cobra.Command, flags *rootFlags, archiveSlug string, p cercaP
 		if invalido := new(icaro.InvalidParamError); errors.As(err, &invalido) {
 			return usageErr(err)
 		}
+		if h := restringiHint(err, arc.Slug, searchParams); h != "" {
+			fmt.Fprintln(os.Stderr, "hint: "+h)
+		}
 		return fmt.Errorf("ricerca %s: %w", arc.Slug, err)
 	}
 	if p.AggregaLeggi {
@@ -313,9 +316,9 @@ func titoloMatcha(titolo string, termini []string) bool {
 // mandare a cercare più in basso un atto che è già sotto gli occhi.
 //
 // Il rimedio suggerito dipende dall'archivio: `--frase` esiste solo sul flusso
-// Icaro, e sui tre serviti da /bd/ (resoconti, sommari, convocazioni) viene
-// rifiutato con un errore. Consigliarlo lì manderebbe in un vicolo cieco chi
-// segue l'avviso alla lettera, che è esattamente chi l'avviso deve aiutare.
+// Icaro, e sui tre serviti da /bd/ (resoconti, sommari, convocazioni) non è
+// nemmeno un flag. Consigliarlo lì manderebbe in un vicolo cieco chi segue
+// l'avviso alla lettera, che è esattamente chi l'avviso deve aiutare.
 func pertinenzaHint(recs []icaro.Record, termini []string, slug string) string {
 	if len(termini) == 0 || len(recs) == 0 {
 		return ""
@@ -491,6 +494,11 @@ func emitEnvelope(w io.Writer, payload any, troncato bool, hint string, flags *r
 	if err != nil {
 		return err
 	}
+	// La busta ha un percorso di uscita suo (writeJSON, non
+	// printOutputWithFlags), quindi l'iniezione di data_iso va rifatta qui:
+	// senza, le stesse righe avevano data_iso senza --envelope e non l'avevano
+	// con --envelope.
+	raw = iniettaDataISO(raw)
 	if flags.selectFields != "" {
 		warnUnknownSelectFields(raw, flags.selectFields)
 		raw = filterFields(raw, flags.selectFields)
@@ -610,6 +618,70 @@ func bdSchedaFallback(ctx context.Context, c *icaro.Client, arc icaro.Archive, p
 	return out, nil
 }
 
+// restringiHint suggerisce di stringere la ricerca quando il backend /bd/ non
+// consegna la risposta. Il portale tronca a metà le pagine grandi e consegna
+// intere quelle piccole — misurato il 2026-08-12 su `sommari`: la ricerca di una
+// singola seduta (24 KB) è arrivata 8 volte su 8, quella senza filtri (44 KB)
+// zero volte su 8. Quindi «riprova» da solo è un consiglio scadente: quello che
+// cambia davvero l'esito è chiedere meno righe. Il suggerimento esce solo se
+// c'è ancora un filtro da mettere: dirlo a chi ha già ristretto tutto sarebbe
+// dare la colpa all'utente di un guasto che non è suo.
+//
+// Per lo stesso motivo tace su UnresolvedFilterError: lì la ricerca non è caduta
+// per la dimensione della risposta ma perché il valore chiesto non esiste in
+// anagrafica, e restringere per numero o anno non farebbe comparire un oratore
+// che non c'è. L'hint uscirebbe sopra il messaggio d'errore vero, che è quello
+// che spiega cosa correggere.
+func restringiHint(err error, slug string, params map[string]string) string {
+	if !icaro.IsBDArchive(slug) {
+		return ""
+	}
+	if irrisolto := new(icaro.UnresolvedFilterError); errors.As(err, &irrisolto) {
+		return ""
+	}
+	var mancanti []string
+	for _, f := range bdFiltriStretti[slug] {
+		if strings.TrimSpace(params[f.chiave]) == "" && strings.TrimSpace(params[f.chiaveAlt]) == "" {
+			mancanti = append(mancanti, f.flag)
+		}
+	}
+	if len(mancanti) == 0 {
+		return ""
+	}
+	return "il portale tronca le risposte grandi e consegna intere quelle piccole: una ricerca più stretta ha molte più probabilità di riuscire. Aggiungi " +
+		strings.Join(mancanti, " o ") + " e riprova."
+}
+
+// bdFiltriStretti elenca, per archivio /bd/, i filtri che riducono davvero il
+// numero di righe, dal più selettivo al meno. Sono i campi del form del portale:
+// convocazioni non ha un numero di seduta (il suo form non lo espone), quindi
+// per quell'archivio si può solo suggerire l'anno e la commissione.
+var bdFiltriStretti = map[string][]struct{ chiave, chiaveAlt, flag string }{
+	"sommari":      {{"numero", "", "--numero"}, {"anno", "data", "--anno"}, {"commissione", "codcom", "--commissione"}},
+	"resoconti":    {{"numero", "", "--numero"}, {"anno", "data", "--anno"}},
+	"convocazioni": {{"anno", "data", "--anno"}, {"commissione", "codcom", "--commissione"}},
+}
+
+// getMissingErr traduce in errore l'esito di un `get` che non ha prodotto il
+// documento. Sono due fatti diversi e finivano nella stessa frase: «il record
+// non c'è» e «il backend non ha risposto». Il secondo travestito da primo è la
+// bugia peggiore che questa CLI possa dire — chi legge, giornalista o agente,
+// conclude che la seduta non è mai esistita, mentre il portale semplicemente
+// tronca le risposte a intermittenza e il tentativo dopo la restituisce.
+// bdErr nil significa che il backend ha risposto e non aveva il record.
+func getMissingErr(slug string, legisl, numero int, bdErr error) error {
+	if bdErr == nil {
+		return fmt.Errorf("nessun documento trovato per legisl=%d numero=%d in %s", legisl, numero, slug)
+	}
+	// Il 429 ha già il suo codice di uscita e la sua ricetta (attendere): non va
+	// confuso con un backend che cade, che invece si ritenta subito.
+	if rlErr := new(icaro.HTTPRateLimitError); errors.As(bdErr, &rlErr) {
+		return rateLimitErr(fmt.Errorf("backend /bd/ (%s): %w", slug, bdErr))
+	}
+	return fmt.Errorf("il backend /bd/ non ha risposto per legisl=%d numero=%d in %s: %w; "+
+		"non vuol dire che il documento non esista — riprova", legisl, numero, slug, bdErr)
+}
+
 // rejectPositionalArgs rifiuta gli argomenti posizionali sui comandi di ricerca,
 // che prendono ogni criterio da un flag. Senza, cobra li accetta e li scarta in
 // silenzio: `commissioni sommari cerca --commissione X` restituisce lo stesso
@@ -695,7 +767,8 @@ func runGetExtra(cmd *cobra.Command, flags *rootFlags, archiveSlug string, legis
 		// scheda con l'URL del PDF: è il testo integrale, che Icaro non dà
 		// nemmeno quando il record ce l'ha.
 		if icaro.IsBDArchive(arc.Slug) {
-			if out, err := bdSchedaFallback(ctx, c, *arc, params, legisl, numero); err == nil && out != nil {
+			out, bdErr := bdSchedaFallback(ctx, c, *arc, params, legisl, numero)
+			if bdErr == nil && out != nil {
 				// Anche su stderr, non solo nel campo `nota`: la ricetta
 				// documentata è `resoconti get ... --select pdf_url`, e --select
 				// il campo lo filtra via. L'avviso servirebbe a niente proprio
@@ -705,8 +778,9 @@ func runGetExtra(cmd *cobra.Command, flags *rootFlags, archiveSlug string, legis
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
+			return getMissingErr(arc.Slug, legisl, numero, bdErr)
 		}
-		return fmt.Errorf("nessun documento trovato per legisl=%d numero=%d in %s", legisl, numero, arc.Slug)
+		return getMissingErr(arc.Slug, legisl, numero, nil)
 	}
 	doc, err := c.GetDoc(ctx, *arc, recs[0].DocID)
 	if err != nil {
@@ -1017,7 +1091,14 @@ func writeRecordsCSV(out io.Writer, arc icaro.Archive, recs []icaro.Record, firm
 	}
 	hdr := []string{"doc_id", "title", "excerpt", "url"}
 	for _, c := range cols {
-		hdr = append(hdr, strings.ToLower(strings.TrimSuffix(c, ".")))
+		nome := strings.ToLower(strings.TrimSuffix(c, "."))
+		hdr = append(hdr, nome)
+		// Il CSV è la forma con cui questi dati finiscono in duckdb o in un
+		// foglio, ed è lì che le quattro grafie di data della fonte costano di
+		// più: la colonna normalizzata viaggia accanto all'originale.
+		if nome == "data" {
+			hdr = append(hdr, "data_iso")
+		}
 	}
 	if firmatari != nil {
 		hdr = append(hdr, "firmatari")
@@ -1041,6 +1122,9 @@ func writeRecordsCSV(out io.Writer, arc icaro.Archive, recs []icaro.Record, firm
 				continue
 			}
 			row = append(row, r.Fields[c])
+			if strings.ToLower(strings.TrimSuffix(c, ".")) == "data" {
+				row = append(row, dataISO(r.Fields[c]))
+			}
 		}
 		if firmatari != nil {
 			row = append(row, firmatariLine(firmatari[r.DocID]))

@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "ticketmaster",
   "cli_name": "ticketmaster-pp-cli",
-  "version": "2026.8.1",
-  "released_at": "2026-08-10T03:11:45Z",
-  "source_commit": "d7e2595312340e5875b4d37a0bba088252b73725",
+  "version": "2026.8.2",
+  "released_at": "2026-08-17T07:57:07Z",
+  "source_commit": "40363ac0936c4f406625f8399d8ad9b57673170e",
   "printing_press_version": "4.28.0",
   "run_id": "20260712-180417-tm-reprint428",
   "changes": [
     {
-      "title": "feat(ticketmaster): add real presale planning",
-      "pr": 1582,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1582",
-      "commit": "d7e2595312340e5875b4d37a0bba088252b73725"
+      "title": "fix(catalog): align Go fallback docs with toolchain floor",
+      "pr": 1735,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1735",
+      "commit": "40363ac0936c4f406625f8399d8ad9b57673170e"
     }
   ]
 }

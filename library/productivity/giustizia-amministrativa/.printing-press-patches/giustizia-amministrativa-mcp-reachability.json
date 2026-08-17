@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-mcp-reachability",
+  "applied_at": "2026-08-08",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Quattro correzioni della stessa famiglia: una capacita' esiste ma l'agente non la raggiunge. `get` accetta --id come alias del posizionale (il mirror Cobra non puo' dichiarare posizionali a schema); `context` non dichiara piu' tool_count: 2 su tredici tool registrati e nomina i comandi mirror col nome MCP (watch_run, corpus_build, appeal_chain) invece che con la grafia CLI; la descrizione di `sql` porta i resource_type reali ('provvedimenti' e 'watches') invece dell'esempio del generatore ('items', $.name); `import` e' nascosto dall'MCP con mcp:hidden. Una reprint deve ri-portare tutte e quattro.",
+  "reason": "Un mirror Cobra emette uno schema fatto di flag piu' un campo generico `args`: un argomento posizionale e' invisibile, e l'agente che legge la descrizione cerca `id` — il nome che usa il tool tipizzato — ottenendo `unknown flag`. Il boilerplate del generatore mente su questa superficie in tre punti (tool_count conta solo gli endpoint tipizzati, l'elenco delle capacita' mirror usa la grafia CLI che non e' un nome di tool valido, l'esempio SQL cita un resource_type che questo store non scrive mai): tutti e tre producono lo stesso esito, l'agente conclude che una capacita' manca mentre e' registrata. `import` fa una POST per record mentre lo spec dichiara due soli endpoint GET e auth: none, quindi e' un tool che puo' solo fallire — nascosto con l'annotazione, non spostato in frameworkCommands, dove classify.go argomenta che import/export devono restare (l'argomento vale dove l'API si puo' scrivere).",
+  "files": [
+    "internal/cli/get.go",
+    "internal/cli/provvedimenti_get.go",
+    "internal/cli/import.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test verdi; verificato via JSON-RPC stdio contro il binario ricompilato: `get` con {id: ECLI} e con {args: ECLI} restituiscono lo stesso testo integrale, tools/list scende a 13 tool senza `import`, `context` espone typed_endpoint_tools e i campi tool/cli_command."
+}

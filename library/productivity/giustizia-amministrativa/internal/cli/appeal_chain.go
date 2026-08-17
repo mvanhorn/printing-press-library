@@ -42,6 +42,9 @@ func newNovelAppealChainCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			for _, w := range res.Warnings {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Attenzione: %s\n", w)
+			}
 			type chain struct {
 				Ecli     string            `json:"ecli"`
 				Tipo     string            `json:"tipo"`

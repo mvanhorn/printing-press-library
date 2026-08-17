@@ -60,7 +60,7 @@ func newOdgCercaCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagLegisl, "legisl", 0, "Legislatura.")
 	cmd.Flags().StringVar(&flagFirmatario, "firmatario", "", "Firmatario.")
 	cmd.Flags().StringVar(&flagRubrica, "rubrica", "", "Rubrica.")
-	cmd.Flags().StringVar(&flagData, "data", "", "Data di presentazione (YYYY-MM-DD; range con YYYY-MM-DD:YYYY-MM-DD).")
+	cmd.Flags().StringVar(&flagData, "data", "", "Data di presentazione (YYYY-MM-DD; range con YYYY-MM-DD:YYYY-MM-DD). Non esiste --anno su questo archivio: per un anno intero usa --data AAAA-01-01:AAAA-12-31.")
 	cmd.Flags().IntVar(&flagNumero, "numero", 0, "Numero dell'atto (campo NUMORD). Piu' preciso di --testo: cercare il numero come testo libero aggancia ogni documento che lo cita, e l'atto voluto puo' finire oltre il --limit.")
 	cmd.Flags().StringVar(&flagTesto, "testo", "", "Ricerca testuale.")
 	cmd.Flags().StringVar(&flagFrase, "frase", "", "Cerca le parole come locuzione, adiacenti e nell'ordine dato (ISIS adj). Piu' preciso di --testo, che combina le parole in AND sull'intero documento: --testo \"aree idonee\" aggancia anche chi ha le due parole in articoli diversi.")

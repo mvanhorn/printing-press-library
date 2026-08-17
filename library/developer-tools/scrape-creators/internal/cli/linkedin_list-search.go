@@ -27,7 +27,19 @@ func newLinkedinListSearchCmd(flags *rootFlags) *cobra.Command {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
@@ -55,10 +67,11 @@ func newLinkedinListSearchCmd(flags *rootFlags) *cobra.Command {
 				"query":       formatCLIParamValue(flagQuery),
 				"date_posted": formatCLIParamValue(flagDatePosted),
 				"cursor":      formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -66,7 +79,7 @@ func newLinkedinListSearchCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -85,12 +98,16 @@ func newLinkedinListSearchCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -100,12 +117,16 @@ func newLinkedinListSearchCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Keyword or phrase to search for in public LinkedIn posts")
 	cmd.Flags().StringVar(&flagDatePosted, "date-posted", "", "Date posted filter based on Google-indexed results (one of: last-hour, last-day, last-week, last-month, last-year)")
-	cmd.Flags().StringVar(&flagCursor, "cursor", "", "The cursor returned from the previous response")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "The cursor returned from the previous response. The maximum cursor is 11; cursor 12 or greater returns a 400 response.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

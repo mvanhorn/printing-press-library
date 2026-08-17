@@ -11,8 +11,8 @@ package icaroclient
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -387,7 +387,7 @@ func (c *Client) searchBD(ctx context.Context, arc Archive, opts SearchOptions) 
 				// Un risultato vuoto direbbe "non è mai intervenuto", che è
 				// un'altra affermazione: qui il nome non esiste in anagrafica.
 				return nil, &UnresolvedFilterError{Filtro: "--oratore", Valore: orat, Legisl: legisl,
-					Rimedio: "Prova con il solo cognome, o con una porzione del nome.",
+					Rimedio:     "Prova con il solo cognome, o con una porzione del nome.",
 					Disponibili: suggestOptionNames(opts, orat, legisl)}
 			}
 			form[spec.speakerField] = ids
@@ -761,37 +761,23 @@ func romanToArabic(s string) string {
 }
 
 // post esegue una POST x-www-form-urlencoded usando il jar/limiter del Client.
+// Come la GET, viene ritentata se il portale tronca la risposta: è una ricerca,
+// quindi rigiocarla non ha effetti collaterali.
 func (c *Client) post(ctx context.Context, rawURL string, form url.Values) (string, error) {
-	c.limiter.Wait()
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, rawURL, strings.NewReader(form.Encode()))
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	if c.UserAgent != "" {
-		req.Header.Set("User-Agent", c.UserAgent)
-	}
-	req.Header.Set("Origin", c.BaseURL)
-	req.Header.Set("Referer", rawURL)
-	req.Header.Set("Accept-Language", "it-IT,it;q=0.9")
-	resp, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == 429 {
-		c.limiter.OnRateLimit()
-		return "", &HTTPRateLimitError{URL: rawURL}
-	}
-	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		return "", fmt.Errorf("unexpected status %d for %s", resp.StatusCode, rawURL)
-	}
-	raw, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	c.limiter.OnSuccess()
-	return string(raw), nil
+	return c.read(ctx, rawURL, func() (*http.Request, error) {
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, rawURL, strings.NewReader(form.Encode()))
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		if c.UserAgent != "" {
+			req.Header.Set("User-Agent", c.UserAgent)
+		}
+		req.Header.Set("Origin", c.BaseURL)
+		req.Header.Set("Referer", rawURL)
+		req.Header.Set("Accept-Language", "it-IT,it;q=0.9")
+		return req, nil
+	})
 }
 
 // SpeakerCount è il numero di sedute d'Aula in cui un oratore è intervenuto.
@@ -957,18 +943,23 @@ func (c *Client) CommissioniDisponibili(ctx context.Context, legisl string) ([]s
 // legislatura data e, per ciascuno, conta le sedute (una POST per oratore). anno
 // opzionale restringe l'anno. progress, se non nil, è chiamato ad ogni oratore.
 // Richiede legisl (senza, gli oratori sarebbero ~1000 = troppe richieste).
-func (c *Client) SpeakerSessionCounts(ctx context.Context, legisl, anno string, progress func(done, total int)) ([]SpeakerCount, error) {
+//
+// Il secondo valore elenca gli oratori che il backend non ha misurato: sono 91
+// richieste in fila per la legislatura XVIII, e su un portale che ne tronca una
+// ogni tanto pretenderle tutte significa non avere mai la classifica. Chi chiama
+// deve dichiarare quei nomi, non nasconderli in una classifica che sembra piena.
+func (c *Client) SpeakerSessionCounts(ctx context.Context, legisl, anno string, progress func(done, total int)) ([]SpeakerCount, []string, error) {
 	if strings.TrimSpace(legisl) == "" {
-		return nil, fmt.Errorf("legislatura richiesta per la classifica oratori")
+		return nil, nil, fmt.Errorf("legislatura richiesta per la classifica oratori")
 	}
 	spec, ok := bdArchives["resoconti"]
 	if !ok {
-		return nil, fmt.Errorf("archivio resoconti non configurato per /bd/")
+		return nil, nil, fmt.Errorf("archivio resoconti non configurato per /bd/")
 	}
 	bdURL := c.BaseURL + "/bd/" + spec.path
 	sessionHTML, err := c.get(ctx, bdURL)
 	if err != nil {
-		return nil, fmt.Errorf("bd session (resoconti): %w", err)
+		return nil, nil, fmt.Errorf("bd session (resoconti): %w", err)
 	}
 	var sel []bdOption
 	for _, s := range parseSelectOptions(sessionHTML, spec.speakerField) {
@@ -977,9 +968,10 @@ func (c *Client) SpeakerSessionCounts(ctx context.Context, legisl, anno string, 
 		}
 	}
 	out := make([]SpeakerCount, 0, len(sel))
+	var persi []string
 	for i, s := range sel {
 		if ctx.Err() != nil {
-			return out, ctx.Err()
+			return out, persi, ctx.Err()
 		}
 		form := url.Values{}
 		form.Set("$Ilegislatura", legisl)
@@ -991,7 +983,24 @@ func (c *Client) SpeakerSessionCounts(ctx context.Context, legisl, anno string, 
 		form.Set("page", "1")
 		body, err := c.post(ctx, bdURL, form)
 		if err != nil {
-			return out, err
+			// Il 429 fa eccezione: non è una richiesta persa fra le altre, è il
+			// backend che chiede tregua. Proseguire gliene sparerebbe altre
+			// novanta e perderebbe l'errore su cui il chiamante regola il codice
+			// di uscita dedicato.
+			if rl := new(HTTPRateLimitError); errors.As(err, &rl) {
+				return out, persi, fmt.Errorf("classifica oratori: %w", err)
+			}
+			// Una richiesta persa non deve portarsi via le novanta riuscite.
+			// Con un oratore per richiesta e un backend che tronca a
+			// intermittenza, arrendersi al primo errore significava non vedere
+			// mai la classifica: si annota chi manca e si prosegue. Chi legge
+			// deve saperlo — una classifica parziale spacciata per completa
+			// sarebbe la stessa bugia del not-found sui documenti.
+			persi = append(persi, s.Name)
+			if progress != nil {
+				progress(i+1, len(sel))
+			}
+			continue
 		}
 		n := 0
 		if m := reBDCount.FindStringSubmatch(body); m != nil {
@@ -1002,6 +1011,12 @@ func (c *Client) SpeakerSessionCounts(ctx context.Context, legisl, anno string, 
 			progress(i+1, len(sel))
 		}
 	}
+	// Zero misurati non è una classifica parziale, è un comando fallito: dirlo
+	// come errore invece di restituire una lista vuota, che si leggerebbe come
+	// «nessuno è mai intervenuto».
+	if len(out) == 0 && len(persi) > 0 {
+		return nil, persi, fmt.Errorf("classifica oratori: nessuno dei %d oratori misurato, il backend /bd/ non ha risposto", len(persi))
+	}
 	sort.SliceStable(out, func(i, j int) bool { return out[i].Count > out[j].Count })
-	return out, nil
+	return out, persi, nil
 }

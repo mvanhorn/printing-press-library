@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-08-11T21:08:11.643836Z",
+  "cli_dir": "\u003ccli-dir\u003e/printgoat",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Accurate and brief for the default-on learn-loop learnings list command; already carries mcp:read-only and concrete --agent/--query/--warnings examples. teach.go is a DO-NOT-EDIT generated file, so a richer Short needs a generator-template change (retro candidate), not a printed-tree hand-edit."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-11T20:58:31.872369Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:list:teach.go:692"
+  }
+}

@@ -1,20 +1,28 @@
 {
+  "schema_version": 2,
+  "generated_at": "2026-08-08T16:46:30.125268553Z",
+  "printing_press_version": "4.30.1",
   "api_name": "giustizia-amministrativa",
-  "api_version": "0.1.0",
-  "auth_type": "none",
-  "category": "productivity",
+  "display_name": "Giustizia Amministrativa",
   "cli_name": "giustizia-amministrativa-pp-cli",
   "creator": {
     "handle": "aborruso",
     "name": "aborruso"
   },
+  "owner": "aborruso",
+  "printer": "aborruso",
+  "printer_name": "aborruso",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:1d0b8a43df4f78f8e0876b2ecdd74c81ddfa30e5ac7ce0b0d367a9589bb42854",
+  "run_id": "20260621-094103",
+  "category": "productivity",
   "description": "La giurisprudenza amministrativa italiana (TAR, Consiglio di Stato) da terminale: ricerca, testo integrale in Markdown, store locale e ricerca offline.",
-  "display_name": "Giustizia Amministrativa",
-  "generated_at": "2026-06-21T10:22:41.954445245Z",
   "mcp_binary": "giustizia-amministrativa-pp-mcp",
+  "mcp_tool_count": 2,
   "mcp_public_tool_count": 2,
   "mcp_ready": "full",
-  "mcp_tool_count": 2,
+  "api_version": "0.1.0",
+  "auth_type": "none",
   "novel_features": [
     {
       "name": "Testo integrale in Markdown",
@@ -51,13 +59,5 @@
       "command": "stats",
       "description": "Distribuzione di un tema per sede, sezione, tipo e anno."
     }
-  ],
-  "owner": "aborruso",
-  "printer": "aborruso",
-  "printer_name": "aborruso",
-  "printing_press_version": "4.24.0",
-  "run_id": "20260621-094103",
-  "schema_version": 1,
-  "spec_checksum": "sha256:1d0b8a43df4f78f8e0876b2ecdd74c81ddfa30e5ac7ce0b0d367a9589bb42854",
-  "spec_format": "internal"
+  ]
 }

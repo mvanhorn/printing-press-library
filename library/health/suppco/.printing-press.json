@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-19T07:18:04.298719Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "suppco",
+  "display_name": "Suppco",
+  "cli_name": "suppco-pp-cli",
+  "creator": {
+    "handle": "itsmefelix-",
+    "name": "Felix Banuchi"
+  },
+  "owner": "itsmefelix-",
+  "printer": "itsmefelix-",
+  "printer_name": "Felix Banuchi",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:1bd2c2c07f2a8683a2ed2fb6550a31e352799af561efee1e7d3a5c9ac392d682",
+  "run_id": "20260719-071804",
+  "category": "health",
+  "description": "Read-only SuppCo stack facts with a deterministic, provenance-bearing regimen snapshot export.",
+  "mcp_binary": "suppco-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SUPPCO_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Provenance-bearing regimen snapshot",
+      "command": "regimen snapshot",
+      "description": "Combines the current stack and one dated provider schedule into deterministic JSON while preserving nutrient relationships and separate observation times."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Provenance-bearing regimen snapshot",
+      "command": "regimen snapshot",
+      "description": "Combines the current stack and one dated provider schedule into deterministic JSON while preserving nutrient relationships and separate observation times."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 7,
+    "total": 7,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 73,
+      "grade": "B",
+      "total": 73
+    }
+  },
+  "owner_name": "Felix Banuchi"
+}

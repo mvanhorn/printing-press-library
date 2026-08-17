@@ -19,5 +19,6 @@ func newNovelCreatorCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newNovelCreatorCompareCmd(flags))
 	cmd.AddCommand(newNovelCreatorFindCmd(flags))
 	cmd.AddCommand(newNovelCreatorTrackCmd(flags))
+	cmd.AddCommand(newNovelCreatorTaggedCmd(flags))
 	return cmd
 }

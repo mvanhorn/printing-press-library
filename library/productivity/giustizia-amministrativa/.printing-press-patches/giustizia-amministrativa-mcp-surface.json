@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-mcp-surface",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Ridotta e allineata la superficie MCP. toolOptionsForFlags filtra i flag persistenti della radice attraverso un'allowlist (agentUsefulRootFlags: data-source, max-age, no-cache, select, compact) invece di dichiararli tutti: tools/list passa da 44.539 a 27.728 byte, -38%. Dichiarati nello schema di provvedimenti_cerca i parametri di dominio che funzionavano ma restavano invisibili: sede-sweep, anno-from, anno-to, all, any, not.",
+  "reason": "Ogni comando rispecchiato ereditava ~22 flag persistenti della radice e li dichiarava come parametri MCP: no-color, quiet, plain, human-friendly, yes, no-input, dry-run, rate-limit, timeout, profile, deliver... Su corpus_build erano 21 su 42, e su stats/massime/appeal_chain/watch_run la proporzione era la stessa. Sono parametri privi di significato in un protocollo senza terminale, senza prompt e senza shell, e il chiamante ne paga il contesto a ogni conversazione anche quando tutto funziona. Il contrasto interno dimostrava che si poteva fare meglio: provvedimenti_cerca, scritto a mano, esponeva 8 parametri tutti di dominio in 1.360 byte. Sui parametri non dichiarati il problema era opposto e piu' serio: sede-sweep funzionava ma non compariva nello schema, e non e' una comodita' -- senza di esso una query senza sede restituisce solo il TAR Lazio dichiarando un totale nazionale, quindi nasconderlo significa nascondere l'unico modo di porre correttamente la domanda. Entrambi i rilievi vengono da un osservatore esterno su una sessione reale.",
+  "files": [
+    "internal/mcp/cobratree/typemap.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "tools/list: 44.539 -> 27.728 byte (-38%), 14 tool. Nessun parametro di idraulica residuo nei due tool piu' grandi (corpus_build 26 param, stats 21: tutti criteri di ricerca o opzioni di dominio). I parametri appena dichiarati funzionano dallo schema: sede-sweep con limit 8 restituisce 8 sedi distinte, anno-from=2018/anno-to=2020 copre 2018-2020, e la guardia sede+sede-sweep resta attiva. I flag non piu' dichiarati continuano a raggiungere la CLI se inviati (cliArgsFromMCP li inoltra), semplicemente non sono pubblicizzati. go build/vet/test verdi."
+}

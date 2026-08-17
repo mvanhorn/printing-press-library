@@ -25,7 +25,7 @@ This skill drives the `spotify-pp-cli` binary. **You must verify the CLI is inst
 2. Verify: `spotify-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/cmd/spotify-pp-cli@latest
@@ -162,11 +162,44 @@ Need help? See our <a href="https://developer.spotify.com/documentation/web-api/
 
 - `spotify-pp-cli tracks get` — Get Spotify catalog information for a single track identified by its unique Spotify ID.
 - `spotify-pp-cli tracks get-several` — Get Spotify catalog information for multiple tracks based on their Spotify IDs.
+- `spotify-pp-cli tracks resolve` — Resolve artist + title to exactly one track URI; reads a whole tracklist from stdin.
+- `spotify-pp-cli tracks where` — Show every place a track appears in your library (playlists, saved, play history, top).
 
 **users** — Manage users
 
 - `spotify-pp-cli users <user_id>` — Get public profile information about a Spotify user.
 
+
+### Turning a tracklist into a playlist
+
+`/search` answers with a ranked page, and its ranking is relevance, not title exactness — a live cut, a remaster, or a cover routinely outranks the studio recording you asked for. `tracks resolve` owns that re-ranking (exact title beats normalized-exact beats prefix; the requested artist always beats another artist) and emits one URI per input line, so a setlist becomes a playlist in three commands instead of one search per song plus hand-written `jq`:
+
+```bash
+# 1. Resolve the tracklist to URIs (one title per line on stdin).
+pbpaste | spotify-pp-cli tracks resolve --artist Northlane --agent > resolved.json
+
+# 2. Check what didn't resolve before creating anything.
+jq -r '.results.results[] | select(.uri == null) | .query_title' resolved.json
+
+# 3. Create the playlist and add the URIs.
+PLAYLIST=$(spotify-pp-cli me create-playlist --name "Northlane / Milan" --agent \
+  --select id | jq -r '.results.id')
+spotify-pp-cli playlists items add-to-playlist "$PLAYLIST" --agent \
+  --uris "$(jq -c '[.results.results[].uri | select(. != null)]' resolved.json)"
+```
+
+`match_kind` on each row says how the match was made (`exact`, `normalized`, `prefix`, `substring`, or `*_other_artist` when only a different artist's recording matched), so an agent can decide which rows need a human look. Add `--fail-on-miss` to exit 2 when any title fails to resolve.
+
+### Reading playlist contents: `.item`, not `.track`
+
+`playlists items get-playlists` calls Spotify's `/playlists/{id}/items` endpoint, whose rows carry the track under **`item`**. Spotify's own documentation and most examples describe the older `/playlists/{id}/tracks` endpoint, whose rows use `track` — so a `jq '.results.items[].track'` copied from the docs silently returns `null` here. Use `.item`:
+
+```bash
+spotify-pp-cli playlists items get-playlists <playlist_id> --agent \
+  | jq -r '.results.items[].item.name'
+```
+
+The `playlists tracks ...` subtree targets the legacy `/tracks` endpoint, which Spotify now answers with HTTP 403 for current app credentials. Prefer the `playlists items ...` subtree.
 
 ### Finding the right command
 
@@ -194,11 +227,21 @@ Run `spotify-pp-cli doctor` to verify setup.
 
 Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
 
-- **Pipeable** — JSON on stdout, errors on stderr
+- **Pipeable** — JSON on stdout, errors on stderr. One deliberate exception: a `--select` that matches nothing writes its `available_fields` diagnostic into the normal envelope on stdout, since that list is data worth parsing, and prints a one-line explanation on stderr alongside it.
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Projection also descends through nested object envelopes (an object wrapping a single bounded collection) until it reaches the collection, so fields inside wrapped payloads are reachable without naming the envelope key. Critical for keeping context small on verbose APIs:
 
   ```bash
   spotify-pp-cli audio-analysis mock-value --agent --select id,name,status
+  ```
+
+  A `--select` that matches nothing is an error, not an empty result: the CLI exits 2 and returns a diagnostic naming the fields that were available, instead of falling back to the full payload. Paths are relative to the data, **not** to the `{meta, results}` envelope — write `--select tracks.items.name`, not `--select results.tracks.items.name`:
+
+  ```bash
+  spotify-pp-cli spotify-web-search --q "track:4D artist:Northlane" --type track \
+    --json --select results.tracks.items.name
+  # exit 2
+  # {"results":{"error":"--select matched no fields","select":"results.tracks.items.name",
+  #             "available_fields":["tracks","tracks.href","tracks.items", ...]}}
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available

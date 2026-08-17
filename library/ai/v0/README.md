@@ -4,6 +4,9 @@
 
 The v0 API v2 CLI with offline search, streaming capture, and credit-spend analytics — no other tool tracks where your v0 credits go.
 
+Created by [@SomSamantray](https://github.com/SomSamantray) (Som Samantray).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `v0-pp-cli` binary and the `pp-v0` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -33,10 +36,10 @@ npx -y @mvanhorn/printing-press-library install v0 --agent claude-code --agent c
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/ai/v0/cmd/v0-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/ai/v0/vzero/cmd/v0-pp-cli@latest
 ```
 
 This installs the CLI only — no skill.
@@ -98,7 +101,7 @@ If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), i
 
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/ai/v0/cmd/v0-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/ai/v0/vzero/cmd/v0-pp-mcp@latest
 ```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):

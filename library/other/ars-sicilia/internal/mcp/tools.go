@@ -24,7 +24,7 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("biblioteca_cerca",
-			mcplib.WithDescription("Cerca nel catalogo bibliografico per autore, titolo, soggetto o ISBN. Optional: autore, titolo, soggetto (plus 3 more). Returns array of VoceCatalogo."),
+			mcplib.WithDescription("Cerca nel catalogo bibliografico per autore, titolo, soggetto o ISBN. Optional: autore, titolo, soggetto (plus 4 more). Returns array of VoceCatalogo."),
 			mcplib.WithString("autore", mcplib.Description("Autore (cognome nome).")),
 			mcplib.WithString("titolo", mcplib.Description("Titolo.")),
 			mcplib.WithString("soggetto", mcplib.Description("Soggetto/materia.")),
@@ -52,17 +52,19 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("commissioni_convocazioni",
-			mcplib.WithDescription("Convocazioni delle Commissioni. Optional: legisl, codcom, commissione (plus 2 more). Returns array of Convocazione."),
+			mcplib.WithDescription("Convocazioni delle Commissioni. Optional: legisl, anno, codcom (plus 4 more). Returns array of Convocazione."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
+			mcplib.WithNumber("anno", mcplib.Description("Anno della convocazione.")),
 			mcplib.WithString("codcom", mcplib.Description("Codice numerico commissione.")),
 			mcplib.WithString("commissione", mcplib.Description("Nome commissione.")),
 			mcplib.WithString("data", mcplib.Description("Data seduta (YYYY-MM-DD).")),
+			mcplib.WithString("testo", mcplib.Description("Ricerca testuale sull'ordine del giorno della convocazione.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeCLIHandler([]string{"commissioni", "convocazioni"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "codcom", WireName: "codcom", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"commissioni", "convocazioni"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "codcom", WireName: "codcom", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("commissioni_sommari",
@@ -71,21 +73,22 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("codcom", mcplib.Description("Codice commissione.")),
 			mcplib.WithString("commissione", mcplib.Description("Nome commissione.")),
 			mcplib.WithString("data", mcplib.Description("Data seduta.")),
-			mcplib.WithString("presidente", mcplib.Description("Presidente seduta.")),
-			mcplib.WithString("argomento", mcplib.Description("Argomento.")),
-			mcplib.WithString("testo", mcplib.Description("Ricerca testuale.")),
+			mcplib.WithNumber("numero", mcplib.Description("Numero della seduta di commissione: il filtro più stretto, e quello che evita la troncatura del backend.")),
+			mcplib.WithString("argomento", mcplib.Description("Argomento (stesso campo di testo).")),
+			mcplib.WithString("testo", mcplib.Description("Ricerca testuale sul contenuto della seduta.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeCLIHandler([]string{"commissioni", "sommari"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "codcom", WireName: "codcom", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "presidente", WireName: "presidente", Location: "query"}, {PublicName: "argomento", WireName: "argomento", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"commissioni", "sommari"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "codcom", WireName: "codcom", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}, {PublicName: "argomento", WireName: "argomento", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("ddl_cerca",
-			mcplib.WithDescription("Cerca disegni di legge per legislatura, anno, firmatario, materia o testo. Optional: legisl, anno, firmatario (plus 4 more). Returns array of DDL."),
+			mcplib.WithDescription("Cerca disegni di legge per legislatura, anno, firmatario, materia o testo. Optional: legisl, anno, firmatario (plus 5 more). Returns array of DDL."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura (es. 18 per XVIII).")),
-			mcplib.WithNumber("anno", mcplib.Description("Anno di presentazione.")),
+			mcplib.WithNumber("anno", mcplib.Description("Anno di presentazione. Non usare insieme a data: qualificano lo stesso campo e insieme danno errore.")),
+			mcplib.WithString("data", mcplib.Description("Data di presentazione (YYYY-MM-DD; intervallo con YYYY-MM-DD:YYYY-MM-DD). Alternativa ad anno, che ne e' il range annuale.")),
 			mcplib.WithString("firmatario", mcplib.Description("Nome o cognome del firmatario.")),
 			mcplib.WithString("materia", mcplib.Description("Materia/settore.")),
 			mcplib.WithString("testo", mcplib.Description("Ricerca testuale libera.")),
@@ -96,7 +99,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeCLIHandler([]string{"ddl", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "materia", WireName: "materia", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "iter", WireName: "iter", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"ddl", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "materia", WireName: "materia", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "iter", WireName: "iter", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("ddl_get",
@@ -111,7 +114,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("interpellanze_cerca",
-			mcplib.WithDescription("Cerca interpellanze. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto."),
+			mcplib.WithDescription("Cerca interpellanze. Optional: legisl, firmatario, rubrica (plus 4 more). Returns array of Atto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("firmatario", mcplib.Description("Firmatario.")),
 			mcplib.WithString("rubrica", mcplib.Description("Rubrica/materia.")),
@@ -138,7 +141,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("interrogazioni_cerca",
-			mcplib.WithDescription("Cerca interrogazioni per legislatura, firmatario o rubrica. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto."),
+			mcplib.WithDescription("Cerca interrogazioni per legislatura, firmatario o rubrica. Optional: legisl, firmatario, rubrica (plus 4 more). Returns array of Atto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("firmatario", mcplib.Description("Firmatario.")),
 			mcplib.WithString("rubrica", mcplib.Description("Rubrica/materia.")),
@@ -165,7 +168,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("leggi_cerca",
-			mcplib.WithDescription("Cerca leggi regionali per legislatura, anno, numero o testo. Optional: legisl, anno, numero (plus 2 more). Returns array of Legge."),
+			mcplib.WithDescription("Cerca leggi regionali per legislatura, anno, numero o testo. Optional: legisl, anno, numero (plus 4 more). Returns array of Legge."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura (es. 18 per XVIII).")),
 			mcplib.WithNumber("anno", mcplib.Description("Anno della legge.")),
 			mcplib.WithNumber("numero", mcplib.Description("Numero della legge.")),
@@ -192,7 +195,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("mozioni_cerca",
-			mcplib.WithDescription("Cerca mozioni. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto."),
+			mcplib.WithDescription("Cerca mozioni. Optional: legisl, firmatario, rubrica (plus 4 more). Returns array of Atto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("firmatario", mcplib.Description("Firmatario.")),
 			mcplib.WithString("rubrica", mcplib.Description("Rubrica/materia.")),
@@ -219,7 +222,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("odg_cerca",
-			mcplib.WithDescription("Cerca ordini del giorno. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto."),
+			mcplib.WithDescription("Cerca ordini del giorno. Optional: legisl, firmatario, rubrica (plus 4 more). Returns array of Atto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("firmatario", mcplib.Description("Firmatario.")),
 			mcplib.WithString("rubrica", mcplib.Description("Rubrica.")),
@@ -246,7 +249,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("pareri_cerca",
-			mcplib.WithDescription("Cerca pareri richiesti dal Governo. Optional: legisl, commissione, oggetto (plus 1 more). Returns array of Parere."),
+			mcplib.WithDescription("Cerca pareri richiesti dal Governo. Optional: legisl, commissione, oggetto (plus 2 more). Returns array of Parere."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("commissione", mcplib.Description("Commissione competente.")),
 			mcplib.WithString("oggetto", mcplib.Description("Oggetto del parere.")),
@@ -271,20 +274,19 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("resoconti_cerca",
-			mcplib.WithDescription("Cerca resoconti per data, oratore o argomento. Optional: legisl, anno, data (plus 5 more). Returns array of Resoconto."),
+			mcplib.WithDescription("Cerca resoconti per data, numero, oratore o testo. Optional: legisl, anno, data (plus 4 more). Returns array of Resoconto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithNumber("anno", mcplib.Description("Anno della seduta.")),
 			mcplib.WithString("data", mcplib.Description("Data seduta (YYYY-MM-DD).")),
 			mcplib.WithNumber("numero", mcplib.Description("Numero seduta.")),
 			mcplib.WithString("oratore", mcplib.Description("Oratore.")),
-			mcplib.WithString("argomento", mcplib.Description("Argomento.")),
-			mcplib.WithString("testo", mcplib.Description("Ricerca testuale.")),
+			mcplib.WithString("testo", mcplib.Description("Ricerca testuale sul contenuto della seduta.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeCLIHandler([]string{"resoconti", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}, {PublicName: "oratore", WireName: "oratore", Location: "query"}, {PublicName: "argomento", WireName: "argomento", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"resoconti", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}, {PublicName: "oratore", WireName: "oratore", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("resoconti_get",
@@ -299,7 +301,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("risoluzioni_cerca",
-			mcplib.WithDescription("Cerca risoluzioni. Optional: legisl, firmatario, commissione (plus 2 more). Returns array of Atto."),
+			mcplib.WithDescription("Cerca risoluzioni. Optional: legisl, firmatario, commissione (plus 4 more). Returns array of Atto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("firmatario", mcplib.Description("Firmatario.")),
 			mcplib.WithString("commissione", mcplib.Description("Commissione.")),
@@ -713,6 +715,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Drift iter DDL", "command": "ddl drift", "description": "Confronta lo stato dell'iter dei DDL nella sync corrente con la precedente e segnala i disegni di legge che si sono", "rationale": "Richiede storico dei sync in SQLite locale; il portale offre solo lo snapshot corrente, non sa dire 'cosa è cambiato'.", "via": "mcp-command-mirror"},
 			{"name": "Query ISIS grezza", "command": "leggi cerca", "description": "Flag --isis-query disponibile su tutti i comandi cerca", "rationale": "Il linguaggio ISIS è documentato e potente ma nascosto dietro la UI; flag CLI puliti coprono l'80% dei casi", "via": "mcp-command-mirror"},
 			{"name": "Stato sync archivi", "command": "sync stale", "description": "Mostra per ognuno dei 12 archivi ARS: timestamp ultima sync, n.", "rationale": "Necessario per chi mantiene SQLite locale e deve decidere quando rilanciare sync", "via": "mcp-command-mirror"},
+			{"name": "Anagrafica dei gruppi parlamentari", "command": "gruppi elenco", "description": "Elenco dei gruppi di una legislatura e composizione di ciascuno: cariche, collegio di elezione, email, scheda; con --deputato, in quale gruppo sta un parlamentare", "rationale": "L'anagrafica non sta nel motore documentale, dove il gruppo compare solo come stringa accanto a una firma: sta sul sito istituzionale www.ars.sicilia.it, seconda sorgente della CLI", "via": "mcp-command-mirror"},
 			{"name": "Cronologia inversa di una legge", "command": "legge cronologia", "description": "Partendo da una legge regionale promulgata (archivio 201), risale al DDL originario", "rationale": "Inverso cronologico di ddl iter — input è la legge finale", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
@@ -724,6 +727,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Drift iter DDL", "insight": "Richiede storico dei sync in SQLite locale; il portale offre solo lo snapshot corrente, non sa dire 'cosa è cambiato'."},
 			{"topic": "Query ISIS grezza", "insight": "Il linguaggio ISIS è documentato e potente ma nascosto dietro la UI; flag CLI puliti coprono l'80% dei casi, questo flag sblocca il 20% restante senza riscrivere il client."},
 			{"topic": "Stato sync archivi", "insight": "Necessario per chi mantiene SQLite locale e deve decidere quando rilanciare sync; informazione esiste solo nel meta locale."},
+			{"topic": "Anagrafica dei gruppi parlamentari", "insight": "Due siti, non uno: gli atti stanno su dati.ars.sicilia.it, le anagrafiche su www.ars.sicilia.it, che non ha API — si legge HTML e i selettori sono certificati da fixture. I nomi dei gruppi sono gli stessi che compaiono accanto alle firme sugli atti, quindi l'elenco è il vocabolario per fare la join."},
 			{"topic": "Cronologia inversa di una legge", "insight": "Inverso cronologico di ddl iter — input è la legge finale, output è la storia parlamentare che ha portato alla promulgazione."},
 		},
 	}

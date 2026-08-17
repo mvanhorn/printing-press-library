@@ -8,7 +8,8 @@ import "testing"
 func TestWorkspaceFlagOverridesSlug(t *testing.T) {
 	t.Setenv("PLANE_SLUG", "envslug")
 	t.Setenv("PLANE_BASE_URL", "https://example.test/api/v1/workspaces/{slug}")
-	f := &rootFlags{workspace: "flagslug", dryRun: true}
+	setNovelWorkspace(t, "flagslug")
+	f := &rootFlags{dryRun: true}
 	c, err := f.newClient()
 	if err != nil {
 		t.Fatal(err)

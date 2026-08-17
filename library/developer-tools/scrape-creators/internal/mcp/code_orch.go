@@ -3,14 +3,15 @@
 
 // Package mcp — code-orchestration thin surface.
 //
-// Two tools cover the entire API: <api>_search to discover endpoints, and
-// <api>_execute to invoke one. This collapses a large API (50+ endpoints)
+// Three tools cover the entire API: <api>_search to discover endpoints,
+// <api>_get to inspect one GET endpoint, and <api>_execute to invoke one.
+// This collapses a large API (50+ endpoints)
 // to ~1K tokens of tool definitions while preserving full coverage — the
 // agent writes the composition logic in its own sandbox.
 //
 // Pattern source: Anthropic 2026-04-22 "Building agents that reach
 // production systems with MCP" — Cloudflare's MCP server covers ~2,500
-// endpoints in roughly 1K tokens via the same search+execute shape.
+// endpoints in roughly 1K tokens via the same search, get, and execute shape.
 
 package mcp
 
@@ -24,20 +25,35 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/mcp/bound"
 )
 
-// RegisterCodeOrchestrationTools registers the two agent-facing tools that
-// cover the whole API surface. Called from RegisterTools in place of the
-// per-endpoint registrations when MCP.Orchestration is "code".
+// RegisterCodeOrchestrationTools registers the agent-facing tools that cover
+// the whole API surface. Called from RegisterTools in place of the per-endpoint
+// registrations when MCP.Orchestration is "code".
 func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("scrape-creators_search",
 			mcplib.WithDescription("Search the scrape-creators API for endpoints matching a natural-language query. Returns a ranked list of {endpoint_id, method, path, summary} entries. Call this first to find the endpoint to execute."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Natural-language description of what you want to do.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max endpoints to return (default 10).")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(false),
 		),
 		handleCodeOrchSearch,
+	)
+
+	s.AddTool(
+		mcplib.NewTool("scrape-creators_get",
+			mcplib.WithDescription("Get metadata for one GET endpoint by its endpoint_id (from scrape-creators_search). This registry-only lookup never calls the API."),
+			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("GET endpoint identifier returned by scrape-creators_search (e.g., \"users.list\").")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(false),
+		),
+		handleCodeOrchGet,
 	)
 
 	s.AddTool(
@@ -51,7 +67,7 @@ func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 }
 
 // codeOrchEndpoint captures the small slice of endpoint metadata the
-// search+execute pair needs at runtime. `keywords` is a precomputed
+// registry tools need at runtime. `keywords` is a precomputed
 // lowercase stream of description + path tokens used for naive ranking;
 // anything more sophisticated belongs on the agent side.
 type codeOrchEndpoint struct {
@@ -70,6 +86,9 @@ type codeOrchEndpoint struct {
 	// string instead of dumping them into the JSON body. Derived from the
 	// same mcpParamBindings location data the per-endpoint tools use.
 	QueryParams []codeOrchParamBinding
+	// Keep declared headers out of query/body routing so execution sends them
+	// through the request-header map.
+	HeaderParams []codeOrchParamBinding
 	// HeaderOverrides carries per-endpoint request headers (e.g. an
 	// Accept override for binary-only response endpoints). Without
 	// threading these through, the code-orchestration execute path
@@ -81,12 +100,14 @@ type codeOrchEndpoint struct {
 	// params object; a strict-mapping API rejects an object at the body
 	// root with HTTP 422 "Invalid json".
 	BodyIsArray bool
+	Mutating    bool
 	keywords    []string
 }
 
 type codeOrchParamBinding struct {
 	PublicName string
 	WireName   string
+	Default    string
 }
 
 // codeOrchEndpoints is the generator-populated registry covering every
@@ -101,6 +122,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("account", "list", "Returns the number of API credits remaining on your Scrape Creators account.", "/v1/account/credit-balance"),
 	},
 	{
@@ -111,6 +134,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "endpoint", WireName: "endpoint"}, {PublicName: "statusCode", WireName: "statusCode"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("account", "list-getapiusage", "Returns a paginated list of your API requests, including the endpoint called, status code, credits used, and timestamp.", "/v1/account/get-api-usage"),
 	},
 	{
@@ -121,6 +146,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("account", "list-getdailyusagecount", "Returns aggregated daily usage statistics for the last 30 days", "/v1/account/get-daily-usage-count"),
 	},
 	{
@@ -131,6 +158,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "start_time", WireName: "start_time"}, {PublicName: "end_time", WireName: "end_time"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("account", "list-getmostusedroutes", "Returns your top 20 most called API endpoints ranked by call count, along with total credits consumed per endpoint.", "/v1/account/get-most-used-routes"),
 	},
 	{
@@ -141,7 +170,57 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("amazon", "list", "Scrapes a creator's Amazon Shop page by URL, returning their storefront profile and product collections.", "/v1/amazon/shop"),
+	},
+	{
+		ID:             "apple-music.list",
+		Method:         "GET",
+		Path:           "/v1/apple-music/album",
+		Summary:        "Retrieves public Apple Music album details, including title, artist, artwork, release info, tracks",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("apple-music", "list", "Retrieves public Apple Music album details, including title, artist, artwork, release info, tracks", "/v1/apple-music/album"),
+	},
+	{
+		ID:             "apple-music.list-applemusic",
+		Method:         "GET",
+		Path:           "/v1/apple-music/artist",
+		Summary:        "Retrieves public Apple Music artist details, including artwork, editorial notes, top songs, albums, music videos",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("apple-music", "list-applemusic", "Retrieves public Apple Music artist details, including artwork, editorial notes, top songs, albums, music videos", "/v1/apple-music/artist"),
+	},
+	{
+		ID:             "apple-music.list-applemusic-2",
+		Method:         "GET",
+		Path:           "/v1/apple-music/search",
+		Summary:        "Searches Apple Music and returns public result sections for artists, albums, songs, playlists, stations",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "type", WireName: "type"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("apple-music", "list-applemusic-2", "Searches Apple Music and returns public result sections for artists, albums, songs, playlists, stations", "/v1/apple-music/search"),
+	},
+	{
+		ID:             "apple-music.list-applemusic-3",
+		Method:         "GET",
+		Path:           "/v1/apple-music/track",
+		Summary:        "Retrieves public Apple Music song details by id or URL. Album track URLs with an i= song id are supported.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("apple-music", "list-applemusic-3", "Retrieves public Apple Music song details by id or URL. Album track URLs with an i= song id are supported.", "/v1/apple-music/track"),
 	},
 	{
 		ID:             "bluesky.list",
@@ -151,6 +230,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("bluesky", "list", "Fetches a single Bluesky post by URL, returning the post's record text, author info, embed content, replyCount", "/v1/bluesky/post"),
 	},
 	{
@@ -161,6 +242,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("bluesky", "list-profile", "Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount", "/v1/bluesky/profile"),
 	},
 	{
@@ -171,6 +254,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "user_id", WireName: "user_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("bluesky", "list-user", "Fetches a paginated feed of posts from a Bluesky user, returning each post's uri, record text, author info", "/v1/bluesky/user/posts"),
 	},
 	{
@@ -181,7 +266,33 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("detect-age-gender", "list", "Uses AI to analyze a creator's profile photo and estimate their age and gender.", "/v1/detect-age-gender"),
+	},
+	{
+		ID:             "facebook.create",
+		Method:         "POST",
+		Path:           "/v1/facebook/adLibrary/company/ads",
+		Summary:        "Fetches all ads currently running for a specific company from the Meta Ad Library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("facebook", "create", "Fetches all ads currently running for a specific company from the Meta Ad Library.", "/v1/facebook/adLibrary/company/ads"),
+	},
+	{
+		ID:             "facebook.create-adlibrary",
+		Method:         "POST",
+		Path:           "/v1/facebook/adLibrary/search/ads",
+		Summary:        "Searches the Meta Ad Library by keyword and returns matching ads.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("facebook", "create-adlibrary", "Searches the Meta Ad Library by keyword and returns matching ads.", "/v1/facebook/adLibrary/search/ads"),
 	},
 	{
 		ID:             "facebook.list",
@@ -191,6 +302,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "time", WireName: "time"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list", "Get the events of a city. Check out this [link](https://www.facebook.", "/v1/facebook/events"),
 	},
 	{
@@ -200,7 +313,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves detailed information about a specific Facebook ad by its ID or URL.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-adlibrary", "Retrieves detailed information about a specific Facebook ad by its ID or URL.", "/v1/facebook/adLibrary/ad"),
 	},
 	{
@@ -210,7 +325,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves a transcript for a single Facebook Ad Library video ad by ID or URL.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-adlibrary-2", "Retrieves a transcript for a single Facebook Ad Library video ad by ID or URL.", "/v1/facebook/adLibrary/ad/transcript"),
 	},
 	{
@@ -221,6 +338,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "pageId", WireName: "pageId"}, {PublicName: "companyName", WireName: "companyName"}, {PublicName: "country", WireName: "country"}, {PublicName: "status", WireName: "status"}, {PublicName: "media_type", WireName: "media_type"}, {PublicName: "language", WireName: "language"}, {PublicName: "sort_by", WireName: "sort_by"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-adlibrary-3", "Fetches all ads currently running for a specific company from the Meta Ad Library.", "/v1/facebook/adLibrary/company/ads"),
 	},
 	{
@@ -231,6 +350,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "sort_by", WireName: "sort_by"}, {PublicName: "search_type", WireName: "search_type"}, {PublicName: "ad_type", WireName: "ad_type"}, {PublicName: "country", WireName: "country"}, {PublicName: "status", WireName: "status"}, {PublicName: "media_type", WireName: "media_type"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-adlibrary-4", "Searches the Meta Ad Library by keyword and returns matching ads.", "/v1/facebook/adLibrary/search/ads"),
 	},
 	{
@@ -241,6 +362,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-adlibrary-5", "Searches for companies by name in the Meta Ad Library and returns their page IDs for use with other ad library", "/v1/facebook/adLibrary/search/companies"),
 	},
 	{
@@ -251,6 +374,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-event", "Get a specific event by its URL or id", "/v1/facebook/event/details"),
 	},
 	{
@@ -261,17 +386,33 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-events", "Search for events by name.", "/v1/facebook/events/search"),
 	},
 	{
 		ID:             "facebook.list-group",
+		Method:         "GET",
+		Path:           "/v1/facebook/group",
+		Summary:        "Fetches the public information shown on a Facebook group's About page, including its description, privacy and visibility",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "group_id", WireName: "group_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("facebook", "list-group", "Fetches the public information shown on a Facebook group's About page, including its description, privacy and visibility", "/v1/facebook/group"),
+	},
+	{
+		ID:             "facebook.list-group-2",
 		Method:         "GET",
 		Path:           "/v1/facebook/group/posts",
 		Summary:        "Fetches posts from a public Facebook group, limited to 3 posts per page due to API limitations.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "group_id", WireName: "group_id"}, {PublicName: "sort_by", WireName: "sort_by"}},
-		keywords:       codeOrchKeywords("facebook", "list-group", "Fetches posts from a public Facebook group, limited to 3 posts per page due to API limitations.", "/v1/facebook/group/posts"),
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("facebook", "list-group-2", "Fetches posts from a public Facebook group, limited to 3 posts per page due to API limitations.", "/v1/facebook/group/posts"),
 	},
 	{
 		ID:             "facebook.list-marketplace",
@@ -281,6 +422,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-marketplace", "Fetches details for a Facebook Marketplace item by item id or Marketplace item URL, including title, description, price", "/v1/facebook/marketplace/item"),
 	},
 	{
@@ -291,6 +434,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "lat", WireName: "lat"}, {PublicName: "lng", WireName: "lng"}, {PublicName: "radius_km", WireName: "radius_km"}, {PublicName: "min_price", WireName: "min_price"}, {PublicName: "max_price", WireName: "max_price"}, {PublicName: "count", WireName: "count"}, {PublicName: "sort_by", WireName: "sort_by"}, {PublicName: "delivery_method", WireName: "delivery_method"}, {PublicName: "condition", WireName: "condition"}, {PublicName: "date_listed", WireName: "date_listed"}, {PublicName: "availability", WireName: "availability"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-marketplace-2", "Searches Facebook Marketplace listings by keyword and lat/lng. Supports pagination with the returned cursor.", "/v1/facebook/marketplace/search"),
 	},
 	{
@@ -301,6 +446,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-marketplace-3", "Searches Facebook Marketplace locations/cities and returns coordinates you can use with the Marketplace Search endpoint.", "/v1/facebook/marketplace/location/search"),
 	},
 	{
@@ -310,7 +457,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves a single public Facebook post or reel by URL.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-post", "Retrieves a single public Facebook post or reel by URL.", "/v1/facebook/post"),
 	},
 	{
@@ -321,6 +470,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "feedback_id", WireName: "feedback_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-post-2", "Fetches comments from a Facebook post or reel with cursor-based pagination.", "/v1/facebook/post/comments"),
 	},
 	{
@@ -330,7 +481,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Extracts the transcript text from a Facebook video post or reel.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-post-3", "Extracts the transcript text from a Facebook video post or reel.", "/v1/facebook/post/transcript"),
 	},
 	{
@@ -341,6 +494,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "feedback_id", WireName: "feedback_id"}, {PublicName: "expansion_token", WireName: "expansion_token"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-post-4", "Get the replies to a comment.", "/v1/facebook/post/comment/replies"),
 	},
 	{
@@ -350,7 +505,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange, rating",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "get_business_hours", WireName: "get_business_hours"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "get_business_hours", WireName: "get_business_hours"}, {PublicName: "include_gated_profile", WireName: "include_gated_profile"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-profile", "Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange, rating", "/v1/facebook/profile"),
 	},
 	{
@@ -361,6 +518,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-profile-2", "Get the events of a public Facebook page", "/v1/facebook/profile/events"),
 	},
 	{
@@ -371,6 +530,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "next_page_id", WireName: "next_page_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-profile-3", "Fetches photos from a public Facebook page with pagination support.", "/v1/facebook/profile/photos"),
 	},
 	{
@@ -381,6 +542,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "pageId", WireName: "pageId"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-profile-4", "Returns publicly visible Facebook profile posts, limited to 3 posts per page due to API limitations.", "/v1/facebook/profile/posts"),
 	},
 	{
@@ -391,6 +554,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "next_page_id", WireName: "next_page_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("facebook", "list-profile-5", "Fetches up to 10 reels per request from a public Facebook page.", "/v1/facebook/profile/reels"),
 	},
 	{
@@ -401,6 +566,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("github", "list", "Retrieves public metadata for one GitHub repository, including owner, description, language, stars, forks, topics", "/v1/github/repository"),
 	},
 	{
@@ -411,6 +578,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "language", WireName: "language"}, {PublicName: "since", WireName: "since"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("github", "list-trending", "Scrapes GitHub's public Trending developers page.", "/v1/github/trending/developers"),
 	},
 	{
@@ -421,6 +590,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "language", WireName: "language"}, {PublicName: "since", WireName: "since"}, {PublicName: "spoken_language_code", WireName: "spoken_language_code"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("github", "list-trending-2", "Scrapes GitHub's public Trending repositories page.", "/v1/github/trending/repositories"),
 	},
 	{
@@ -431,6 +602,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("github", "list-user", "Retrieves public GitHub user details including name, bio, avatar, company, location, blog, follower counts", "/v1/github/user"),
 	},
 	{
@@ -441,6 +614,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}, {PublicName: "year", WireName: "year"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("github", "list-user-2", "Retrieves GitHub profile contribution activity for a user from the public profile activity timeline.", "/v1/github/user/activity"),
 	},
 	{
@@ -451,6 +626,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}, {PublicName: "year", WireName: "year"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("github", "list-user-3", "Retrieves the public GitHub contribution graph for a user and year", "/v1/github/user/contributions"),
 	},
 	{
@@ -461,6 +638,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("github", "list-user-4", "Retrieves public GitHub followers for a user. Each follower includes login, avatar, user URL, type, and GitHub IDs.", "/v1/github/user/followers"),
 	},
 	{
@@ -471,6 +650,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("github", "list-user-5", "Retrieves public accounts followed by a GitHub user.", "/v1/github/user/following"),
 	},
 	{
@@ -481,6 +662,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "since", WireName: "since"}, {PublicName: "until", WireName: "until"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("github", "list-user-6", "Searches public GitHub pull requests authored by a user using GitHub's public search index.", "/v1/github/user/pull-requests"),
 	},
 	{
@@ -491,6 +674,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}, {PublicName: "type", WireName: "type"}, {PublicName: "sort", WireName: "sort"}, {PublicName: "direction", WireName: "direction"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("github", "list-user-7", "Retrieves a user's public repositories with repo metadata like description, language, stars, forks, topics, license", "/v1/github/user/repositories"),
 	},
 	{
@@ -500,7 +685,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves detailed information about a specific Google ad including advertiserId, creativeId, format, firstShown",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("google", "list", "Retrieves detailed information about a specific Google ad including advertiserId, creativeId, format, firstShown", "/v1/google/ad"),
 	},
 	{
@@ -511,6 +698,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "region", WireName: "region"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("google", "list-adlibrary", "Searches the Google Ad Transparency Library for advertisers by name.", "/v1/google/adLibrary/advertisers/search"),
 	},
 	{
@@ -521,6 +710,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "domain", WireName: "domain"}, {PublicName: "advertiser_id", WireName: "advertiser_id"}, {PublicName: "topic", WireName: "topic"}, {PublicName: "region", WireName: "region"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}, {PublicName: "platform", WireName: "platform"}, {PublicName: "format", WireName: "format"}, {PublicName: "get_ad_details", WireName: "get_ad_details"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("google", "list-company", "Fetches public ads for a company from the Google Ad Transparency Library by domain or advertiser_id.", "/v1/google/company/ads"),
 	},
 	{
@@ -531,6 +722,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "region", WireName: "region"}, {PublicName: "date_posted", WireName: "date_posted"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("google", "list-search", "Performs a Google search and returns organic results with url, title, and description for each result.", "/v1/google/search"),
 	},
 	{
@@ -540,7 +733,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Fetches a lightweight Instagram profile summary by user ID, returning username, full name, biography",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "userId", WireName: "userId"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "userId", WireName: "userId"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("instagram", "list", "Fetches a lightweight Instagram profile summary by user ID, returning username, full name, biography", "/v1/instagram/basic-profile"),
 	},
 	{
@@ -551,6 +746,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "audio_id", WireName: "audio_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("instagram", "list-audio", "Fetches the reels Instagram exposes for an audio page like instagram.com/reels/audio/{audio_id}/.", "/v1/instagram/audio/reels"),
 	},
 	{
@@ -560,7 +757,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Generates an AI-powered speech-to-text transcription for an Instagram video post or reel.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("instagram", "list-media", "Generates an AI-powered speech-to-text transcription for an Instagram video post or reel.", "/v2/instagram/media/transcript"),
 	},
 	{
@@ -570,7 +769,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Fetches detailed metadata for a single Instagram post or reel by shortcode or URL.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "region", WireName: "region"}, {PublicName: "trim", WireName: "trim"}, {PublicName: "download_media", WireName: "download_media"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "region", WireName: "region"}, {PublicName: "trim", WireName: "trim"}, {PublicName: "download_media", WireName: "download_media"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("instagram", "list-post", "Fetches detailed metadata for a single Instagram post or reel by shortcode or URL.", "/v1/instagram/post"),
 	},
 	{
@@ -580,8 +781,22 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves comments on a public Instagram post or reel.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "include_replies", WireName: "include_replies"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("instagram", "list-post-2", "Retrieves comments on a public Instagram post or reel.", "/v2/instagram/post/comments"),
+	},
+	{
+		ID:             "instagram.list-post-3",
+		Method:         "GET",
+		Path:           "/v1/instagram/post/comment/replies",
+		Summary:        "Retrieves the public replies to a specific Instagram comment.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "comment_id", WireName: "comment_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("instagram", "list-post-3", "Retrieves the public replies to a specific Instagram comment.", "/v1/instagram/post/comment/replies"),
 	},
 	{
 		ID:             "instagram.list-profile",
@@ -590,7 +805,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves comprehensive public Instagram profile information including biography, bio links",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "trim", WireName: "trim"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "trim", WireName: "trim"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("instagram", "list-profile", "Retrieves comprehensive public Instagram profile information including biography, bio links", "/v1/instagram/profile"),
 	},
 	{
@@ -601,37 +818,69 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("instagram", "list-reels", "Fetches trending reels from Instagram's public instagram.com/reels page.", "/v1/instagram/reels/trending"),
 	},
 	{
 		ID:             "instagram.list-reels-2",
 		Method:         "GET",
 		Path:           "/v2/instagram/reels/search",
-		Summary:        "Searches for Instagram reels matching a keyword or phrase via Google Search, bypassing Instagram's login-gated search.",
+		Summary:        "Use this when you only want Google-indexed Instagram reels matching a keyword or phrase",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "date_posted", WireName: "date_posted"}},
-		keywords:       codeOrchKeywords("instagram", "list-reels-2", "Searches for Instagram reels matching a keyword or phrase via Google Search, bypassing Instagram's login-gated search.", "/v2/instagram/reels/search"),
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("instagram", "list-reels-2", "Use this when you only want Google-indexed Instagram reels matching a keyword or phrase", "/v2/instagram/reels/search"),
 	},
 	{
 		ID:             "instagram.list-search",
 		Method:         "GET",
-		Path:           "/v1/instagram/search/hashtag",
-		Summary:        "Finds public Instagram posts for a hashtag using Google Search, then returns post details such as caption",
+		Path:           "/v1/instagram/search",
+		Summary:        "Use this for Instagram-native account, hashtag, or place lookup.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "hashtag", WireName: "hashtag"}, {PublicName: "date_posted", WireName: "date_posted"}, {PublicName: "media_type", WireName: "media_type"}},
-		keywords:       codeOrchKeywords("instagram", "list-search", "Finds public Instagram posts for a hashtag using Google Search, then returns post details such as caption", "/v1/instagram/search/hashtag"),
+		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("instagram", "list-search", "Use this for Instagram-native account, hashtag, or place lookup.", "/v1/instagram/search"),
 	},
 	{
 		ID:             "instagram.list-search-2",
 		Method:         "GET",
-		Path:           "/v1/instagram/search/profiles",
-		Summary:        "Searches Google for public Instagram results matching a keyword or phrase, then returns matching public profiles.",
+		Path:           "/v1/instagram/search/hashtag",
+		Summary:        "Use this when you know the exact hashtag and want Google-indexed public Instagram posts or reels, optional date filters",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "hashtag", WireName: "hashtag"}, {PublicName: "date_posted", WireName: "date_posted"}, {PublicName: "media_type", WireName: "media_type"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("instagram", "list-search-2", "Use this when you know the exact hashtag and want Google-indexed public Instagram posts or reels, optional date filters", "/v1/instagram/search/hashtag"),
+	},
+	{
+		ID:             "instagram.list-search-3",
+		Method:         "GET",
+		Path:           "/v1/instagram/search/popular",
+		Summary:        "Use this to explore an Instagram topic and the posts Instagram curates for it.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}},
-		keywords:       codeOrchKeywords("instagram", "list-search-2", "Searches Google for public Instagram results matching a keyword or phrase, then returns matching public profiles.", "/v1/instagram/search/profiles"),
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("instagram", "list-search-3", "Use this to explore an Instagram topic and the posts Instagram curates for it.", "/v1/instagram/search/popular"),
+	},
+	{
+		ID:             "instagram.list-search-4",
+		Method:         "GET",
+		Path:           "/v1/instagram/search/profiles",
+		Summary:        "Use this for broad creator discovery from keywords found in Google-indexed Instagram profile pages, bios",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("instagram", "list-search-4", "Use this for broad creator discovery from keywords found in Google-indexed Instagram profile pages, bios", "/v1/instagram/search/profiles"),
 	},
 	{
 		ID:             "instagram.list-user",
@@ -641,6 +890,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("instagram", "list-user", "Returns the raw HTML embed snippet for an Instagram user's profile widget.", "/v1/instagram/user/embed"),
 	},
 	{
@@ -651,6 +902,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "user_id", WireName: "user_id"}, {PublicName: "handle", WireName: "handle"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("instagram", "list-user-2", "Lists all story highlight albums for an Instagram user.", "/v1/instagram/user/highlights"),
 	},
 	{
@@ -661,27 +914,45 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "user_id", WireName: "user_id"}, {PublicName: "handle", WireName: "handle"}, {PublicName: "max_id", WireName: "max_id"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("instagram", "list-user-3", "Returns a paginated list of a user's public Instagram reels (short-form videos).", "/v1/instagram/user/reels"),
 	},
 	{
 		ID:             "instagram.list-user-4",
+		Method:         "GET",
+		Path:           "/v1/instagram/user/tagged-posts",
+		Summary:        "Returns up to 10 public posts per page from an Instagram user's Tagged tab.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "user_id", WireName: "user_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("instagram", "list-user-4", "Returns up to 10 public posts per page from an Instagram user's Tagged tab.", "/v1/instagram/user/tagged-posts"),
+	},
+	{
+		ID:             "instagram.list-user-5",
 		Method:         "GET",
 		Path:           "/v2/instagram/user/posts",
 		Summary:        "Returns a paginated feed of a user's public Instagram posts, including reels, photos, videos, and carousels.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "next_max_id", WireName: "next_max_id"}, {PublicName: "trim", WireName: "trim"}},
-		keywords:       codeOrchKeywords("instagram", "list-user-4", "Returns a paginated feed of a user's public Instagram posts, including reels, photos, videos, and carousels.", "/v2/instagram/user/posts"),
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("instagram", "list-user-5", "Returns a paginated feed of a user's public Instagram posts, including reels, photos, videos, and carousels.", "/v2/instagram/user/posts"),
 	},
 	{
-		ID:             "instagram.list-user-5",
+		ID:             "instagram.list-user-6",
 		Method:         "GET",
 		Path:           "/v1/instagram/user/highlight/detail",
 		Summary:        "Fetches the full contents of a specific Instagram story highlight album by its ID.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}},
-		keywords:       codeOrchKeywords("instagram", "list-user-5", "Fetches the full contents of a specific Instagram story highlight album by its ID.", "/v1/instagram/user/highlight/detail"),
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("instagram", "list-user-6", "Fetches the full contents of a specific Instagram story highlight album by its ID.", "/v1/instagram/user/highlight/detail"),
 	},
 	{
 		ID:             "kick.list",
@@ -691,6 +962,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("kick", "list", "Fetches detailed data for a Kick clip by URL, including video, metadata, and channel info.", "/v1/kick/clip"),
 	},
 	{
@@ -700,7 +973,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Scrapes a Komi page by URL, extracting the creator's profile, social links, and featured content.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("komi", "list", "Scrapes a Komi page by URL, extracting the creator's profile, social links, and featured content.", "/v1/komi"),
 	},
 	{
@@ -711,6 +986,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("kwai", "list", "Fetches public Kwai post details including caption, media URLs, cover images, counts, author info, and music metadata.", "/v1/kwai/post"),
 	},
 	{
@@ -721,6 +998,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("kwai", "list-profile", "Fetches public Kwai profile data including username, bio, avatar, verification status, gender, and public counts.", "/v1/kwai/profile"),
 	},
 	{
@@ -731,6 +1010,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}, {PublicName: "count", WireName: "count"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("kwai", "list-user", "Fetches a paginated list of public Kwai posts for a user, including captions, media URLs, covers, counts, author info", "/v1/kwai/user/posts"),
 	},
 	{
@@ -740,7 +1021,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Scrapes a Linkbio (lnk.bio) page by URL, extracting the creator's profile and all their links.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linkbio", "list", "Scrapes a Linkbio (lnk.bio) page by URL, extracting the creator's profile and all their links.", "/v1/linkbio"),
 	},
 	{
@@ -751,6 +1034,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linkedin", "list", "Retrieves detailed information about a specific LinkedIn ad by URL.", "/v1/linkedin/ad"),
 	},
 	{
@@ -761,6 +1046,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "company", WireName: "company"}, {PublicName: "keyword", WireName: "keyword"}, {PublicName: "companyId", WireName: "companyId"}, {PublicName: "countries", WireName: "countries"}, {PublicName: "startDate", WireName: "startDate"}, {PublicName: "endDate", WireName: "endDate"}, {PublicName: "paginationToken", WireName: "paginationToken"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linkedin", "list-ads", "Searches the LinkedIn Ad Library by company name, keyword, or companyId with optional country and date filters.", "/v1/linkedin/ads/search"),
 	},
 	{
@@ -771,6 +1058,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linkedin", "list-company", "Fetches a LinkedIn company page with details including name, description, logo, cover image, slogan, location", "/v1/linkedin/company"),
 	},
 	{
@@ -781,6 +1070,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linkedin", "list-company-2", "Retrieves paginated posts from a LinkedIn company page, including each post's URL, ID, publication date", "/v1/linkedin/company/posts"),
 	},
 	{
@@ -791,6 +1082,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linkedin", "list-post", "Fetches a single LinkedIn post or article, returning the title, headline, full description text", "/v1/linkedin/post"),
 	},
 	{
@@ -801,6 +1094,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linkedin", "list-post-2", "Fetches the transcript from a LinkedIn post video when LinkedIn exposes one publicly.", "/v1/linkedin/post/transcript"),
 	},
 	{
@@ -811,6 +1106,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linkedin", "list-profile", "Retrieves a person's public LinkedIn profile data, including their name, photo, location, follower count (followers)", "/v1/linkedin/profile"),
 	},
 	{
@@ -821,6 +1118,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "date_posted", WireName: "date_posted"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linkedin", "list-search", "Finds public LinkedIn posts, feed updates, and Pulse articles by keyword using Google Search", "/v1/linkedin/search/posts"),
 	},
 	{
@@ -830,7 +1129,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves a Linkme profile by URL, including identity, social links, and contact details.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linkme", "list", "Retrieves a Linkme profile by URL, including identity, social links, and contact details.", "/v1/linkme"),
 	},
 	{
@@ -840,7 +1141,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Scrapes a Linktree page by URL, extracting the creator's profile and all their links.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("linktree", "list", "Scrapes a Linktree page by URL, extracting the creator's profile and all their links.", "/v1/linktree"),
 	},
 	{
@@ -850,7 +1153,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Scrapes a Pillar page by URL, extracting the creator's profile, social links, and products.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("pillar", "list", "Scrapes a Pillar page by URL, extracting the creator's profile, social links, and products.", "/v1/pillar"),
 	},
 	{
@@ -861,6 +1166,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("pinterest", "list", "Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images", "/v1/pinterest/board"),
 	},
 	{
@@ -870,7 +1177,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Fetches detailed information about a single Pinterest pin by URL, returning title, description, link, dominantColor",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("pinterest", "list-pin", "Fetches detailed information about a single Pinterest pin by URL, returning title, description, link, dominantColor", "/v1/pinterest/pin"),
 	},
 	{
@@ -881,6 +1190,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("pinterest", "list-search", "Searches Pinterest for pins matching a query, returning results with id, url, title, description, images, link, domain", "/v1/pinterest/search"),
 	},
 	{
@@ -891,7 +1202,21 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("pinterest", "list-user", "Fetches a paginated list of boards for a Pinterest user, returning each board's name, url, description, pin_count", "/v1/pinterest/user/boards"),
+	},
+	{
+		ID:             "reddit.create",
+		Method:         "POST",
+		Path:           "/v1/reddit/post/comments",
+		Summary:        "Retrieves comments and post details from a Reddit post by URL.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("reddit", "create", "Retrieves comments and post details from a Reddit post by URL.", "/v1/reddit/post/comments"),
 	},
 	{
 		ID:             "reddit.list",
@@ -901,6 +1226,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "sort", WireName: "sort"}, {PublicName: "timeframe", WireName: "timeframe"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reddit", "list", "Searches across all of Reddit for posts matching a query.", "/v1/reddit/search"),
 	},
 	{
@@ -911,6 +1238,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reddit", "list-post", "Retrieves comments and post details from a Reddit post by URL.", "/v1/reddit/post/comments"),
 	},
 	{
@@ -920,7 +1249,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Gets the transcript from a Reddit video post or direct v.redd.it URL when Reddit exposes a VTT caption file.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "language", WireName: "language"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "language", WireName: "language"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reddit", "list-post-2", "Gets the transcript from a Reddit video post or direct v.redd.it URL when Reddit exposes a VTT caption file.", "/v1/reddit/post/transcript"),
 	},
 	{
@@ -930,7 +1261,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Fetches posts from a subreddit with sorting and filtering options.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "subreddit", WireName: "subreddit"}, {PublicName: "timeframe", WireName: "timeframe"}, {PublicName: "sort", WireName: "sort"}, {PublicName: "trim", WireName: "trim"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "subreddit", WireName: "subreddit"}, {PublicName: "timeframe", WireName: "timeframe"}, {PublicName: "sort", WireName: "sort"}, {PublicName: "trim", WireName: "trim"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reddit", "list-subreddit", "Fetches posts from a subreddit with sorting and filtering options.", "/v1/reddit/subreddit"),
 	},
 	{
@@ -940,7 +1273,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves metadata about a subreddit by name or URL. The subreddit name must be case-sensitive.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "subreddit", WireName: "subreddit"}, {PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "subreddit", WireName: "subreddit"}, {PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reddit", "list-subreddit-2", "Retrieves metadata about a subreddit by name or URL. The subreddit name must be case-sensitive.", "/v1/reddit/subreddit/details"),
 	},
 	{
@@ -951,6 +1286,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "subreddit", WireName: "subreddit"}, {PublicName: "query", WireName: "query"}, {PublicName: "sort", WireName: "sort"}, {PublicName: "timeframe", WireName: "timeframe"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reddit", "list-subreddit-3", "Searches within a specific subreddit for posts, comments, and media matching a query.", "/v1/reddit/subreddit/search"),
 	},
 	{
@@ -961,6 +1298,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("rumble", "list", "Searches Rumble videos by keyword.", "/v1/rumble/search"),
 	},
 	{
@@ -971,6 +1310,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("rumble", "list-channel", "Gets videos from a Rumble channel by handle or URL.", "/v1/rumble/channel/videos"),
 	},
 	{
@@ -981,6 +1322,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("rumble", "list-video", "Gets Rumble video details by URL.", "/v1/rumble/video"),
 	},
 	{
@@ -991,6 +1334,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("rumble", "list-video-2", "Gets all top level comments for a Rumble video by URL.", "/v1/rumble/video/comments"),
 	},
 	{
@@ -1001,6 +1346,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("rumble", "list-video-3", "Gets a Rumble video's transcript when captions are available.", "/v1/rumble/video/transcript"),
 	},
 	{
@@ -1011,7 +1358,33 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("snapchat", "list", "Retrieves a Snapchat user's public profile by handle, including identity, stories, and spotlight content.", "/v1/snapchat/profile"),
+	},
+	{
+		ID:             "snapchat.list-spotlight",
+		Method:         "GET",
+		Path:           "/v1/snapchat/spotlight",
+		Summary:        "Fetches public data for a Snapchat Spotlight video by URL.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("snapchat", "list-spotlight", "Fetches public data for a Snapchat Spotlight video by URL.", "/v1/snapchat/spotlight"),
+	},
+	{
+		ID:             "snapchat.list-spotlight-2",
+		Method:         "GET",
+		Path:           "/v1/snapchat/spotlight/comments",
+		Summary:        "Fetches public comments from Snapchat's Spotlight comments API by URL.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("snapchat", "list-spotlight-2", "Fetches public comments from Snapchat's Spotlight comments API by URL.", "/v1/snapchat/spotlight/comments"),
 	},
 	{
 		ID:             "soundcloud.list",
@@ -1021,6 +1394,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("soundcloud", "list", "Fetches detailed information about a SoundCloud artist by its handle or URL.", "/v1/soundcloud/artist"),
 	},
 	{
@@ -1031,6 +1406,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("soundcloud", "list-artist", "Fetches tracks/songs for a SoundCloud artist by handle or URL.", "/v1/soundcloud/artist/tracks"),
 	},
 	{
@@ -1041,6 +1418,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("soundcloud", "list-track", "Fetches detailed information about a SoundCloud track/song by URL.", "/v1/soundcloud/track"),
 	},
 	{
@@ -1051,6 +1430,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("spotify", "list", "Retrieves detailed information about a Spotify album by its id or URL, including album metadata, artists, release date", "/v1/spotify/album"),
 	},
 	{
@@ -1061,6 +1442,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("spotify", "list-artist", "Retrieves detailed information about a Spotify artist by their handle, including name, followers count, genres", "/v1/spotify/artist"),
 	},
 	{
@@ -1071,6 +1454,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("spotify", "list-podcast", "Retrieves detailed information about a Spotify podcast by its id or URL.", "/v1/spotify/podcast"),
 	},
 	{
@@ -1081,6 +1466,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("spotify", "list-podcast-2", "Returns episodes for a Spotify podcast. Pass the cursor returned by a response to get the next page.", "/v1/spotify/podcast/episodes"),
 	},
 	{
@@ -1091,6 +1478,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("spotify", "list-search", "Search Spotify for tracks, artists, albums, episodes, podcasts, and audiobooks.", "/v1/spotify/search"),
 	},
 	{
@@ -1101,6 +1490,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("spotify", "list-track", "Retrieves detailed information about a Spotify track by its id or URL, including track metadata, artists, album info", "/v1/spotify/track"),
 	},
 	{
@@ -1110,7 +1501,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Fetches a single Threads post by URL, returning the post's caption, like_count, view_counts, reshare_count",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("threads", "list", "Fetches a single Threads post by URL, returning the post's caption, like_count, view_counts, reshare_count", "/v1/threads/post"),
 	},
 	{
@@ -1120,7 +1513,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves a Threads user's public profile including username, full_name, biography, profile_pic_url, follower_count",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("threads", "list-profile", "Retrieves a Threads user's public profile including username, full_name, biography, profile_pic_url, follower_count", "/v1/threads/profile"),
 	},
 	{
@@ -1131,6 +1526,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("threads", "list-search", "Searches Threads for posts matching a keyword, returning up to 10 results with caption text, like_count, reshare_count", "/v1/threads/search"),
 	},
 	{
@@ -1141,6 +1538,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("threads", "list-search-2", "Searches for Threads users by username, returning matching profiles with username, full_name, profile_pic_url", "/v1/threads/search/users"),
 	},
 	{
@@ -1151,6 +1550,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("threads", "list-user", "Fetches the most recent posts from a Threads user, returning id, caption text, code, like_count, reshare_count", "/v1/threads/user/posts"),
 	},
 	{
@@ -1161,27 +1562,45 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "region", WireName: "region"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list", "Fetches TikTok's trending/For You feed for a given region — useful for discovering viral content and what's currently", "/v1/tiktok/get-trending-feed"),
 	},
 	{
 		ID:             "tiktok.list-adlibrary",
 		Method:         "GET",
 		Path:           "/v1/tiktok/ad-library/ad",
-		Summary:        "Fetches one TikTok Creative Center Top Ad by material/ad ID or URL.",
+		Summary:        "Fetches one TikTok ad by ID or URL. It first checks Creative Center Top Ads (ads.tiktok.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "ad_id", WireName: "ad_id"}},
-		keywords:       codeOrchKeywords("tiktok", "list-adlibrary", "Fetches one TikTok Creative Center Top Ad by material/ad ID or URL.", "/v1/tiktok/ad-library/ad"),
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("tiktok", "list-adlibrary", "Fetches one TikTok ad by ID or URL. It first checks Creative Center Top Ads (ads.tiktok.", "/v1/tiktok/ad-library/ad"),
 	},
 	{
 		ID:             "tiktok.list-adlibrary-2",
 		Method:         "GET",
 		Path:           "/v1/tiktok/ad-library/search",
-		Summary:        "Searches TikTok Creative Center Top Ads, the ad library page at ads.tiktok.",
+		Summary:        "Searches TikTok's public Ads Library by advertiser name or keyword.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "region", WireName: "region"}, {PublicName: "period", WireName: "period"}, {PublicName: "query", WireName: "query"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "industry", WireName: "industry"}, {PublicName: "objective", WireName: "objective"}, {PublicName: "duration", WireName: "duration"}, {PublicName: "likes", WireName: "likes"}, {PublicName: "ad_format", WireName: "ad_format"}, {PublicName: "ad_language", WireName: "ad_language"}, {PublicName: "limit", WireName: "limit"}},
-		keywords:       codeOrchKeywords("tiktok", "list-adlibrary-2", "Searches TikTok Creative Center Top Ads, the ad library page at ads.tiktok.", "/v1/tiktok/ad-library/search"),
+		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("tiktok", "list-adlibrary-2", "Searches TikTok's public Ads Library by advertiser name or keyword.", "/v1/tiktok/ad-library/search"),
+	},
+	{
+		ID:             "tiktok.list-collection",
+		Method:         "GET",
+		Path:           "/v1/tiktok/collection/videos",
+		Summary:        "Fetches the videos saved in a public TikTok collection, which TikTok also calls a playlist. Pass the collection URL.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("tiktok", "list-collection", "Fetches the videos saved in a public TikTok collection, which TikTok also calls a playlist. Pass the collection URL.", "/v1/tiktok/collection/videos"),
 	},
 	{
 		ID:             "tiktok.list-creators",
@@ -1191,17 +1610,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "sortBy", WireName: "sortBy"}, {PublicName: "followerCount", WireName: "followerCount"}, {PublicName: "creatorCountry", WireName: "creatorCountry"}, {PublicName: "audienceCountry", WireName: "audienceCountry"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-creators", "Discovers trending and popular TikTok creators, filterable by follower count range, creator country", "/v1/tiktok/creators/popular"),
-	},
-	{
-		ID:             "tiktok.list-hashtags",
-		Method:         "GET",
-		Path:           "/v1/tiktok/hashtags/popular",
-		Summary:        "Discovers trending and popular TikTok hashtags, filterable by time period (7/30/120 days) and country.",
-		Positional:     []string{},
-		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "period", WireName: "period"}, {PublicName: "countryCode", WireName: "countryCode"}, {PublicName: "newOnBoard", WireName: "newOnBoard"}, {PublicName: "industry", WireName: "industry"}},
-		keywords:       codeOrchKeywords("tiktok", "list-hashtags", "Discovers trending and popular TikTok hashtags, filterable by time period (7/30/120 days) and country.", "/v1/tiktok/hashtags/popular"),
 	},
 	{
 		ID:             "tiktok.list-live",
@@ -1211,6 +1622,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "room_id", WireName: "room_id"}, {PublicName: "user_id", WireName: "user_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-live", "Gets curated room-level info for a TikTok live using TokAPI's live info endpoint.", "/v1/tiktok/live"),
 	},
 	{
@@ -1221,6 +1634,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "region", WireName: "region"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-product", "Fetches full details for a specific US TikTok Shop product by its URL, including stock levels and affiliate videos.", "/v1/tiktok/product"),
 	},
 	{
@@ -1230,7 +1645,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Fetches public profile data for a TikTok user by their handle or user_id — useful for looking up a creator's identity",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "user_id", WireName: "user_id"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "user_id", WireName: "user_id"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-profile", "Fetches public profile data for a TikTok user by their handle or user_id — useful for looking up a creator's identity", "/v1/tiktok/profile"),
 	},
 	{
@@ -1241,6 +1658,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-profile-2", "Returns the TikTok region code for a public profile, like `US` for United States or `MX` for Mexico.", "/v1/tiktok/profile/region"),
 	},
 	{
@@ -1251,6 +1670,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "user_id", WireName: "user_id"}, {PublicName: "sort_by", WireName: "sort_by"}, {PublicName: "max_cursor", WireName: "max_cursor"}, {PublicName: "region", WireName: "region"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-profile-3", "Fetches videos posted by a TikTok user", "/v3/tiktok/profile/videos"),
 	},
 	{
@@ -1261,6 +1682,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "hashtag", WireName: "hashtag"}, {PublicName: "region", WireName: "region"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-search", "Searches for TikTok videos under a specific hashtag — useful for finding content by topic or trend.", "/v1/tiktok/search/hashtag"),
 	},
 	{
@@ -1271,6 +1694,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "date_posted", WireName: "date_posted"}, {PublicName: "sort_by", WireName: "sort_by"}, {PublicName: "region", WireName: "region"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-search-2", "Searches for TikTok videos by keyword or phrase — the general video search across all of TikTok.", "/v1/tiktok/search/keyword"),
 	},
 	{
@@ -1281,6 +1706,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "region", WireName: "region"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-search-3", "Gets the autocomplete suggestions TikTok shows while someone is typing in search.", "/v1/tiktok/search/suggestions"),
 	},
 	{
@@ -1291,6 +1718,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "publish_time", WireName: "publish_time"}, {PublicName: "sort_by", WireName: "sort_by"}, {PublicName: "region", WireName: "region"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-search-4", "Searches TikTok's 'Top' results by query — returns both videos and photo carousels", "/v1/tiktok/search/top"),
 	},
 	{
@@ -1301,6 +1730,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-search-5", "Searches for TikTok users by keyword or name — useful for finding creators or accounts matching a query.", "/v1/tiktok/search/users"),
 	},
 	{
@@ -1311,6 +1742,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "sort_by", WireName: "sort_by"}, {PublicName: "region", WireName: "region"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-shop", "Lists all products from a specific TikTok Shop store by its URL.", "/v1/tiktok/shop/products"),
 	},
 	{
@@ -1321,6 +1754,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "region", WireName: "region"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-shop-2", "Searches TikTok Shop for products matching a keyword query.", "/v1/tiktok/shop/search"),
 	},
 	{
@@ -1331,6 +1766,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "product_id", WireName: "product_id"}, {PublicName: "region", WireName: "region"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-shop-3", "Fetches customer reviews for a TikTok Shop product by URL or product_id.", "/v1/tiktok/shop/product/reviews"),
 	},
 	{
@@ -1341,6 +1778,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "clipId", WireName: "clipId"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-song", "Fetches detailed metadata for a specific TikTok sound or song by its clipId.", "/v1/tiktok/song"),
 	},
 	{
@@ -1351,6 +1790,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "clipId", WireName: "clipId"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-song-2", "Fetches TikTok videos that use a specific sound or song, identified by its clipId.", "/v1/tiktok/song/videos"),
 	},
 	{
@@ -1361,6 +1802,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-user", "Retrieves audience demographic data for a TikTok user, showing where their followers are located by country.", "/v1/tiktok/user/audience"),
 	},
 	{
@@ -1371,6 +1814,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "user_id", WireName: "user_id"}, {PublicName: "min_time", WireName: "min_time"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-user-2", "Retrieves the follower list of a TikTok account by handle or user_id — useful for seeing who follows a creator or", "/v1/tiktok/user/followers"),
 	},
 	{
@@ -1381,6 +1826,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "min_time", WireName: "min_time"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-user-3", "Retrieves the following list — accounts that a TikTok user follows — by their handle.", "/v1/tiktok/user/following"),
 	},
 	{
@@ -1391,6 +1838,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-user-4", "Checks if a TikTok user is currently live streaming and retrieves their live room details.", "/v1/tiktok/user/live"),
 	},
 	{
@@ -1401,6 +1850,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "region", WireName: "region"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-user-5", "Fetches products featured in a TikTok user's public showcase — the products a creator promotes on their profile.", "/v1/tiktok/user/showcase"),
 	},
 	{
@@ -1410,7 +1861,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Fetches detailed data for a single TikTok video by URL, including its metadata, engagement stats",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "get_transcript", WireName: "get_transcript"}, {PublicName: "region", WireName: "region"}, {PublicName: "trim", WireName: "trim"}, {PublicName: "download_media", WireName: "download_media"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "get_transcript", WireName: "get_transcript"}, {PublicName: "region", WireName: "region"}, {PublicName: "trim", WireName: "trim"}, {PublicName: "download_media", WireName: "download_media"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-video", "Fetches detailed data for a single TikTok video by URL, including its metadata, engagement stats", "/v2/tiktok/video"),
 	},
 	{
@@ -1421,6 +1874,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-video-2", "Fetches comments on a TikTok video by URL — useful for reading audience reactions, replies, and engagement.", "/v1/tiktok/video/comments"),
 	},
 	{
@@ -1431,6 +1886,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "language", WireName: "language"}, {PublicName: "use_ai_as_fallback", WireName: "use_ai_as_fallback"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-video-3", "Extracts the transcript, captions, or subtitles from a TikTok video by URL.", "/v1/tiktok/video/transcript"),
 	},
 	{
@@ -1441,6 +1898,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "comment_id", WireName: "comment_id"}, {PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tiktok", "list-video-4", "Fetches replies to a specific TikTok comment by its ID.", "/v1/tiktok/video/comment/replies"),
 	},
 	{
@@ -1451,6 +1910,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("truthsocial", "list", "Fetches a single Truth Social post by URL, returning text, id, created_at, url, content, account details", "/v1/truthsocial/post"),
 	},
 	{
@@ -1461,6 +1922,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("truthsocial", "list-profile", "Retrieves a Truth Social user's public profile including display_name, username, avatar, header, followers_count", "/v1/truthsocial/profile"),
 	},
 	{
@@ -1471,6 +1934,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "user_id", WireName: "user_id"}, {PublicName: "next_max_id", WireName: "next_max_id"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("truthsocial", "list-user", "Fetches a paginated list of posts from a Truth Social user, returning text, id, created_at, url, content, account info", "/v1/truthsocial/user/posts"),
 	},
 	{
@@ -1480,7 +1945,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("twitch", "list", "Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs.", "/v1/twitch/clip"),
 	},
 	{
@@ -1490,7 +1957,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves a Twitch user's public profile by handle, including identity, social links, and content.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("twitch", "list-profile", "Retrieves a Twitch user's public profile by handle, including identity, social links, and content.", "/v1/twitch/profile"),
 	},
 	{
@@ -1501,6 +1970,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("twitch", "list-user", "Fetches a user's schedule by handle, returning a list of scheduled events with start time, end time, title, description", "/v1/twitch/user/schedule"),
 	},
 	{
@@ -1511,6 +1982,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "filter_by", WireName: "filter_by"}, {PublicName: "sort_by", WireName: "sort_by"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("twitch", "list-user-2", "Fetches a list of videos (100 max) for a Twitch user, returning each video's id, slug, url, embedURL, title, viewCount", "/v1/twitch/user/videos"),
 	},
 	{
@@ -1521,6 +1994,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("twitter", "list", "Retrieves details about a Twitter/X Community by URL.", "/v1/twitter/community"),
 	},
 	{
@@ -1531,6 +2006,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("twitter", "list-community", "Fetches tweets posted within a Twitter/X Community by URL.", "/v1/twitter/community/tweets"),
 	},
 	{
@@ -1540,7 +2017,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves a Twitter user's profile by handle, including account metadata and statistics.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("twitter", "list-profile", "Retrieves a Twitter user's profile by handle, including account metadata and statistics.", "/v1/twitter/profile"),
 	},
 	{
@@ -1550,7 +2029,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves detailed information about a specific tweet by URL, including the author's profile and engagement metrics.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "trim", WireName: "trim"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("twitter", "list-tweet", "Retrieves detailed information about a specific tweet by URL, including the author's profile and engagement metrics.", "/v1/twitter/tweet"),
 	},
 	{
@@ -1560,7 +2041,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Extracts the transcript from a Twitter video tweet using AI-powered transcription.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("twitter", "list-tweet-2", "Extracts the transcript from a Twitter video tweet using AI-powered transcription.", "/v1/twitter/tweet/transcript"),
 	},
 	{
@@ -1571,6 +2054,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "trim", WireName: "trim"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("twitter", "list-usertweets", "Fetches tweets from a Twitter user's profile by handle.", "/v1/twitter/user-tweets"),
 	},
 	{
@@ -1580,7 +2065,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieves comprehensive YouTube channel profile data including name, avatar images, subscriber count (subscribers)",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "channelId", WireName: "channelId"}, {PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "channelId", WireName: "channelId"}, {PublicName: "handle", WireName: "handle"}, {PublicName: "url", WireName: "url"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list", "Retrieves comprehensive YouTube channel profile data including name, avatar images, subscriber count (subscribers)", "/v1/youtube/channel"),
 	},
 	{
@@ -1591,6 +2078,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "channelId", WireName: "channelId"}, {PublicName: "handle", WireName: "handle"}, {PublicName: "continuationToken", WireName: "continuationToken"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-channel", "Fetches community posts from a YouTube channel's Posts tab, including post ID, URL, content, images, attached video", "/v1/youtube/channel/community-posts"),
 	},
 	{
@@ -1601,6 +2090,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "channelId", WireName: "channelId"}, {PublicName: "handle", WireName: "handle"}, {PublicName: "continuationToken", WireName: "continuationToken"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-channel-2", "Fetches live streams and past streams from a YouTube channel's Live tab, including title, URL, thumbnail, view count", "/v1/youtube/channel/lives"),
 	},
 	{
@@ -1611,6 +2102,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "channelId", WireName: "channelId"}, {PublicName: "handle", WireName: "handle"}, {PublicName: "continuationToken", WireName: "continuationToken"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-channel-3", "Fetches playlists from a YouTube channel's Playlists tab, including playlist ID, title, thumbnail, video count", "/v1/youtube/channel/playlists"),
 	},
 	{
@@ -1621,6 +2114,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "handle", WireName: "handle"}, {PublicName: "channelId", WireName: "channelId"}, {PublicName: "sort", WireName: "sort"}, {PublicName: "continuationToken", WireName: "continuationToken"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-channel-4", "Retrieves a paginated list of short-form videos (Shorts) from a YouTube channel, including each short's title, URL", "/v1/youtube/channel/shorts"),
 	},
 	{
@@ -1631,6 +2126,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "channelId", WireName: "channelId"}, {PublicName: "handle", WireName: "handle"}, {PublicName: "sort", WireName: "sort"}, {PublicName: "continuationToken", WireName: "continuationToken"}, {PublicName: "is_paid_promotions", WireName: "is_paid_promotions"}, {PublicName: "includeExtras", WireName: "includeExtras"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-channelvideos", "Fetches a paginated list of videos uploaded by a YouTube channel, including each video's title, URL, thumbnail", "/v1/youtube/channel-videos"),
 	},
 	{
@@ -1641,6 +2138,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-communitypost", "Retrieves the full details of a YouTube community post, including its text content, attached images, like count", "/v1/youtube/community-post"),
 	},
 	{
@@ -1651,6 +2150,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "playlist_id", WireName: "playlist_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-playlist", "Retrieves all videos in a YouTube playlist, including the playlist title, owner info, total video count", "/v1/youtube/playlist"),
 	},
 	{
@@ -1661,6 +2162,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "query", WireName: "query"}, {PublicName: "uploadDate", WireName: "uploadDate"}, {PublicName: "sortBy", WireName: "sortBy"}, {PublicName: "type", WireName: "type"}, {PublicName: "duration", WireName: "duration"}, {PublicName: "region", WireName: "region"}, {PublicName: "continuationToken", WireName: "continuationToken"}, {PublicName: "includeExtras", WireName: "includeExtras"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-search", "Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live streams.", "/v1/youtube/search"),
 	},
 	{
@@ -1671,6 +2174,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "hashtag", WireName: "hashtag"}, {PublicName: "continuationToken", WireName: "continuationToken"}, {PublicName: "type", WireName: "type"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-search-2", "Searches YouTube for content matching a specific hashtag and returns matching videos with title, URL, thumbnail", "/v1/youtube/search/hashtag"),
 	},
 	{
@@ -1681,6 +2186,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-shorts", "Fetches approximately 48 currently trending YouTube Shorts (viral/popular short-form videos) per call", "/v1/youtube/shorts/trending"),
 	},
 	{
@@ -1690,7 +2197,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Fetches full details for a YouTube video or short, including title, description, thumbnail, view count (views)",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "language", WireName: "language"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "language", WireName: "language"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-video", "Fetches full details for a YouTube video or short, including title, description, thumbnail, view count (views)", "/v1/youtube/video"),
 	},
 	{
@@ -1701,6 +2210,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "continuationToken", WireName: "continuationToken"}, {PublicName: "order", WireName: "order"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-video-2", "Fetches comments and replies from a YouTube video, including each comment's text content, author details, like count", "/v1/youtube/video/comments"),
 	},
 	{
@@ -1711,17 +2222,21 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "language", WireName: "language"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-video-3", "Experimental endpoint.", "/v1/youtube/video/sponsors"),
 	},
 	{
 		ID:             "youtube.list-video-4",
 		Method:         "GET",
 		Path:           "/v1/youtube/video/transcript",
-		Summary:        "Retrieves the captions, subtitles, or transcript of a YouTube video or short.",
+		Summary:        "Retrieves the captions, subtitles, or transcript of a YouTube video or Short.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "language", WireName: "language"}},
-		keywords:       codeOrchKeywords("youtube", "list-video-4", "Retrieves the captions, subtitles, or transcript of a YouTube video or short.", "/v1/youtube/video/transcript"),
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "language", WireName: "language"}, {PublicName: "cache_max_age", WireName: "cache_max_age"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("youtube", "list-video-4", "Retrieves the captions, subtitles, or transcript of a YouTube video or Short.", "/v1/youtube/video/transcript"),
 	},
 	{
 		ID:             "youtube.list-video-5",
@@ -1731,6 +2246,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "continuationToken", WireName: "continuationToken"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("youtube", "list-video-5", "Fetches replies to a specific comment on a YouTube video, including each reply's text content, author details (name", "/v1/youtube/video/comment/replies"),
 	},
 }
@@ -1773,6 +2290,25 @@ func codeOrchKeywords(resource, endpoint, summary, path string) []string {
 	return out
 }
 
+func codeOrchEndpointMetadata(ep *codeOrchEndpoint) map[string]any {
+	out := map[string]any{
+		"endpoint_id": ep.ID,
+		"method":      ep.Method,
+		"path":        ep.Path,
+		"summary":     ep.Summary,
+	}
+	return out
+}
+
+func findCodeOrchEndpoint(id string) *codeOrchEndpoint {
+	for i := range codeOrchEndpoints {
+		if codeOrchEndpoints[i].ID == id {
+			return &codeOrchEndpoints[i]
+		}
+	}
+	return nil
+}
+
 func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -1813,17 +2349,33 @@ func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 
 	out := make([]map[string]any, 0, len(results))
 	for _, r := range results {
-		out = append(out, map[string]any{
-			"endpoint_id": r.ep.ID,
-			"method":      r.ep.Method,
-			"path":        r.ep.Path,
-			"summary":     r.ep.Summary,
-			"score":       r.score,
-		})
+		item := codeOrchEndpointMetadata(r.ep)
+		item["score"] = r.score
+		out = append(out, item)
 	}
 	text, err := bound.JSON(map[string]any{"count": len(out), "results": out})
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("encoding search results: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
+}
+
+func handleCodeOrchGet(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	args := req.GetArguments()
+	id, ok := args["endpoint_id"].(string)
+	if !ok || id == "" {
+		return mcplib.NewToolResultError("endpoint_id is required (call scrape-creators_search first)"), nil
+	}
+	ep := findCodeOrchEndpoint(id)
+	if ep == nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("unknown endpoint_id %q — call scrape-creators_search to discover valid ids", id)), nil
+	}
+	if ep.Method != "GET" {
+		return mcplib.NewToolResultError(fmt.Sprintf("endpoint_id %q is %s, but scrape-creators_get only permits GET endpoints", id, ep.Method)), nil
+	}
+	text, err := bound.JSON(codeOrchEndpointMetadata(ep))
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding endpoint metadata: %v", err)), nil
 	}
 	return mcplib.NewToolResultText(text), nil
 }
@@ -1835,13 +2387,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		return mcplib.NewToolResultError("endpoint_id is required (call scrape-creators_search first)"), nil
 	}
 
-	var ep *codeOrchEndpoint
-	for i := range codeOrchEndpoints {
-		if codeOrchEndpoints[i].ID == id {
-			ep = &codeOrchEndpoints[i]
-			break
-		}
-	}
+	ep := findCodeOrchEndpoint(id)
 	if ep == nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("unknown endpoint_id %q — call scrape-creators_search to discover valid ids", id)), nil
 	}
@@ -1851,17 +2397,44 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		params = map[string]any{}
 	}
 
-	c, err := newMCPClient()
+	c, platformSession, err := newMCPClient(ctx)
 	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+
+	if platformSession != nil {
+		defer platformSession.ZeroCredentials()
+	}
+	if err := cli.AdoptMCPOutputSemantics(platformSession, params); err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
 	path := ep.Path
 	for _, p := range ep.Positional {
-		if v, ok := params[p]; ok {
-			path = strings.ReplaceAll(path, "{"+p+"}", formatMCPParamValue(v))
+		if v, ok := params[p]; ok && strings.Contains(path, "{"+p+"}") {
+			path = strings.ReplaceAll(path, "{"+p+"}", mcpPathValue(v))
 			delete(params, p)
 		}
+	}
+
+	hdrs := make(map[string]string, len(ep.HeaderOverrides)+len(ep.HeaderParams))
+	for k, v := range ep.HeaderOverrides {
+		hdrs[k] = v
+	}
+	for _, binding := range ep.HeaderParams {
+		if binding.Default != "" {
+			hdrs[binding.WireName] = binding.Default
+		}
+		for _, key := range []string{binding.PublicName, binding.WireName} {
+			if v, ok := params[key]; ok {
+				hdrs[binding.WireName] = formatMCPParamValue(v)
+				delete(params, key)
+				break
+			}
+		}
+	}
+	if len(hdrs) == 0 {
+		hdrs = nil
 	}
 
 	// Route params to their runtime slots. GET/DELETE params are query
@@ -1887,7 +2460,6 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		}
 	}
 
-	hdrs := ep.HeaderOverrides
 	writeBody := func() any {
 		if ep.BodyIsArray {
 			return codeOrchArrayBody(params)
@@ -1898,9 +2470,17 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	switch ep.Method {
 	case "GET":
 		if len(hdrs) > 0 {
-			data, err = c.GetWithHeaders(ctx, path, query, hdrs)
+			if ep.Mutating {
+				data, err = c.GetMutatingWithHeaders(ctx, path, query, hdrs)
+			} else {
+				data, err = c.GetWithHeaders(ctx, path, query, hdrs)
+			}
 		} else {
-			data, err = c.Get(ctx, path, query)
+			if ep.Mutating {
+				data, err = c.GetMutating(ctx, path, query)
+			} else {
+				data, err = c.Get(ctx, path, query)
+			}
 		}
 	case "DELETE":
 		if len(hdrs) > 0 {
@@ -1935,7 +2515,11 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
-	return mcplib.NewToolResultText(bound.EndpointResponse(ep.Method, data)), nil
+	text := bound.EndpointResponse(ep.Method, data)
+	if platformSession != nil {
+		text = bound.WithMetadata(text, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 // codeOrchWriteBody returns the value handed to the client layer as the

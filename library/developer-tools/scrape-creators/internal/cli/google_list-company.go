@@ -27,7 +27,7 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list-company",
 		Short:       "Fetches public ads for a company from the Google Ad Transparency Library by domain or advertiser_id.",
-		Example:     "  scrape-creators-pp-cli google list-company --domain nike.com",
+		Example:     "  scrape-creators-pp-cli google list-company",
 		Annotations: map[string]string{"pp:endpoint": "google.list-company", "pp:method": "GET", "pp:path": "/v1/google/company/ads", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("topic") {
@@ -85,10 +85,11 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 				"format":         formatCLIParamValue(flagFormat),
 				"get_ad_details": formatCLIParamValue(flagGetAdDetails),
 				"cursor":         formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -96,7 +97,7 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -115,12 +116,16 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -130,7 +135,11 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagDomain, "domain", "", "The domain of the company")

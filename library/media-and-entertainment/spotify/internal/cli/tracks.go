@@ -19,5 +19,8 @@ func newTracksCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newTracksGetCmd(flags))
 	cmd.AddCommand(newTracksGetSeveralCmd(flags))
 	cmd.AddCommand(newTracksWhereCmd(flags))
+	// PATCH(tracks-resolve-setlist-to-uris): hand-written sibling of the
+	// generated track commands — see transcendence_tracks_resolve.go.
+	cmd.AddCommand(newTracksResolveCmd(flags))
 	return cmd
 }

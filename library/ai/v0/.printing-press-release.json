@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "v0",
   "cli_name": "v0-pp-cli",
-  "version": "2026.8.1",
-  "released_at": "2026-08-06T07:39:41Z",
-  "source_commit": "ba9335cf07168ca181d004704662c266a350f86c",
+  "version": "2026.8.2",
+  "released_at": "2026-08-17T07:55:17Z",
+  "source_commit": "148e832d849145d9895fed0c9721f80e50ea64d9",
   "printing_press_version": "4.30.1",
   "run_id": "20260804-232309-9bd8d5ce",
   "changes": [
     {
-      "title": "feat(v0): add v0 (vercel v0 CLI)",
-      "pr": 1657,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1657",
-      "commit": "ba9335cf07168ca181d004704662c266a350f86c"
+      "title": "fix(cli): move v0 module path to vzero",
+      "pr": 1734,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1734",
+      "commit": "148e832d849145d9895fed0c9721f80e50ea64d9"
     }
   ]
 }

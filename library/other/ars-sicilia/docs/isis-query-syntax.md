@@ -32,7 +32,7 @@ con le sigle di campo verificate su questa CLI.
 | `--numero` | interrogazioni/… | `NUMORD` | |
 | `--numero` | resoconti | `NUMSED` | |
 | `--data` | resoconti, convocazioni, sommari | `DATSED` | formato `AAMMGG`; range `AAMMGG/AAMMGG` |
-| `--data` | ddl, interrogazioni, interpellanze, mozioni, odg, risoluzioni | `DATPRE` | presentazione, `AAMMGG`; range `AAMMGG/AAMMGG`. Esposto come flag nativo su `interrogazioni/interpellanze/mozioni/odg/risoluzioni cerca` e su `deputato profilo`; su `ddl cerca` va ancora via `--isis-query`, dove però `--anno` (sopra) copre già l'anno intero |
+| `--data` | ddl, interrogazioni, interpellanze, mozioni, odg, risoluzioni | `DATPRE` | presentazione, `AAMMGG`; range `AAMMGG/AAMMGG`. Esposto come flag nativo su tutti questi `cerca` e su `deputato profilo`. Su `ddl` qualifica lo stesso campo di `--anno` (sopra), che ne è il range annuale: i due flag si escludono a vicenda |
 | `--commissione` | convocazioni, sommari, pareri, risoluzioni | `COMMIS` | nome: `SESTA.COMMIS` |
 | `--presidente` | sommari | `PRESID` | |
 | `--autore` | biblioteca | `AUTORE` | |

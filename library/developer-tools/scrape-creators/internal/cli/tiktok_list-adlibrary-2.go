@@ -12,142 +12,36 @@ import (
 )
 
 func newTiktokListAdlibrary2Cmd(flags *rootFlags) *cobra.Command {
-	var flagRegion string
-	var flagPeriod string
 	var flagQuery string
-	var flagOrderBy string
-	var flagIndustry string
-	var flagObjective string
-	var flagDuration string
-	var flagLikes string
-	var flagAdFormat string
-	var flagAdLanguage string
 	var flagCursor string
-	var flagLimit int
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-adlibrary-2",
-		Short:       "Searches TikTok Creative Center Top Ads, the ad library page at ads.tiktok.",
-		Example:     "  scrape-creators-pp-cli tiktok list-adlibrary-2",
+		Short:       "Searches TikTok's public Ads Library by advertiser name or keyword.",
+		Example:     "  scrape-creators-pp-cli tiktok list-adlibrary-2 --query Anysphere",
 		Annotations: map[string]string{"pp:endpoint": "tiktok.list-adlibrary-2", "pp:method": "GET", "pp:path": "/v1/tiktok/ad-library/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if cmd.Flags().Changed("region") {
-				allowedRegion := []string{"DZ", "AR", "AU", "AT", "AZ", "BH", "BD", "BY", "BE", "BO", "BR", "BG", "KH", "CA", "CL", "CO", "CR", "HR", "CY", "CZ", "DK", "DO", "EC", "EG", "EE", "FI", "FR", "DE", "GR", "GT", "JO", "HU", "ID", "IQ", "IE", "IL", "IT", "JP", "KZ", "KE", "KW", "LV", "LB", "MY", "MX", "MA", "NL", "NZ", "NG", "NO", "OM", "PK", "PA", "PY", "PE", "PH", "PL", "PT", "PR", "QA", "LT", "RO", "SA", "RS", "SG", "SK", "SI", "ZA", "KR", "ES", "LK", "SE", "CH", "TW", "TH", "TR", "AE", "GB", "US", "UY", "VN"}
-				validRegion := false
-				for _, v := range allowedRegion {
-					if flagRegion == v {
-						validRegion = true
-						break
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
 					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
 				}
-				if !validRegion {
-					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagRegion, "region", allowedRegion)
-				}
+				return cmd.Help()
 			}
-			if cmd.Flags().Changed("period") {
-				allowedPeriod := []string{"7", "30", "180"}
-				validPeriod := false
-				for _, v := range allowedPeriod {
-					if flagPeriod == v {
-						validPeriod = true
-						break
-					}
-				}
-				if !validPeriod {
-					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagPeriod, "period", allowedPeriod)
-				}
-			}
-			if cmd.Flags().Changed("order-by") {
-				allowedOrderBy := []string{"for_you", "impression", "play_2s_rate", "play_6s_rate", "cvr", "ctr", "like"}
-				validOrderBy := false
-				for _, v := range allowedOrderBy {
-					if flagOrderBy == v {
-						validOrderBy = true
-						break
-					}
-				}
-				if !validOrderBy {
-					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagOrderBy, "order-by", allowedOrderBy)
-				}
-			}
-			if cmd.Flags().Changed("industry") {
-				allowedIndustry := []string{"apparel_accessories", "appliances", "apps", "baby_kids_maternity", "beauty_personal_care", "business_services", "ecommerce_non_app", "education", "financial_services", "food_beverage", "games", "health", "home_improvement", "household_products", "life_services", "news_entertainment", "pets", "sports_outdoor", "tech_electronics", "travel", "vehicle_transportation"}
-				validIndustry := false
-				for _, v := range allowedIndustry {
-					if flagIndustry == v {
-						validIndustry = true
-						break
-					}
-				}
-				if !validIndustry {
-					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIndustry, "industry", allowedIndustry)
-				}
-			}
-			if cmd.Flags().Changed("objective") {
-				allowedObjective := []string{"app_installs", "conversions", "lead_generation", "product_sales", "reach", "traffic", "video_views"}
-				validObjective := false
-				for _, v := range allowedObjective {
-					if flagObjective == v {
-						validObjective = true
-						break
-					}
-				}
-				if !validObjective {
-					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagObjective, "objective", allowedObjective)
-				}
-			}
-			if cmd.Flags().Changed("duration") {
-				allowedDuration := []string{"under_10s", "10_20s", "20_30s", "30_40s", "40_50s", "over_50s"}
-				validDuration := false
-				for _, v := range allowedDuration {
-					if flagDuration == v {
-						validDuration = true
-						break
-					}
-				}
-				if !validDuration {
-					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagDuration, "duration", allowedDuration)
-				}
-			}
-			if cmd.Flags().Changed("likes") {
-				allowedLikes := []string{"top_1_20", "top_21_40", "top_41_60", "top_61_80", "top_81_100"}
-				validLikes := false
-				for _, v := range allowedLikes {
-					if flagLikes == v {
-						validLikes = true
-						break
-					}
-				}
-				if !validLikes {
-					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagLikes, "likes", allowedLikes)
-				}
-			}
-			if cmd.Flags().Changed("ad-format") {
-				allowedAdFormat := []string{"spark_ads", "non_spark_ads"}
-				validAdFormat := false
-				for _, v := range allowedAdFormat {
-					if flagAdFormat == v {
-						validAdFormat = true
-						break
-					}
-				}
-				if !validAdFormat {
-					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagAdFormat, "ad-format", allowedAdFormat)
-				}
-			}
-			if cmd.Flags().Changed("ad-language") {
-				allowedAdLanguage := []string{"en", "es", "ar", "vi", "th", "de", "id", "pt", "fr", "ms", "nl", "ja", "it", "ro", "zh-Hant", "ko"}
-				validAdLanguage := false
-				for _, v := range allowedAdLanguage {
-					if flagAdLanguage == v {
-						validAdLanguage = true
-						break
-					}
-				}
-				if !validAdLanguage {
-					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagAdLanguage, "ad-language", allowedAdLanguage)
-				}
+			if !cmd.Flags().Changed("query") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "query")
 			}
 			path := "/v1/tiktok/ad-library/search"
 			c, err := flags.newClient()
@@ -155,22 +49,13 @@ func newTiktokListAdlibrary2Cmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "tiktok", path, map[string]string{
-				"region":      formatCLIParamValue(flagRegion),
-				"period":      formatCLIParamValue(flagPeriod),
-				"query":       formatCLIParamValue(flagQuery),
-				"order_by":    formatCLIParamValue(flagOrderBy),
-				"industry":    formatCLIParamValue(flagIndustry),
-				"objective":   formatCLIParamValue(flagObjective),
-				"duration":    formatCLIParamValue(flagDuration),
-				"likes":       formatCLIParamValue(flagLikes),
-				"ad_format":   formatCLIParamValue(flagAdFormat),
-				"ad_language": formatCLIParamValue(flagAdLanguage),
-				"cursor":      formatCLIParamValue(flagCursor),
-				"limit":       formatCLIParamValue(flagLimit),
-			}, nil, flagAll, "cursor", "cursor", "limit", "cursor", "has_more", cmd.ErrOrStderr())
+				"query":  formatCLIParamValue(flagQuery),
+				"cursor": formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -178,7 +63,7 @@ func newTiktokListAdlibrary2Cmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -197,12 +82,16 @@ func newTiktokListAdlibrary2Cmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -212,21 +101,15 @@ func newTiktokListAdlibrary2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagRegion, "region", "", "Country code. Defaults to US. (one of: DZ, AR, AU, AT, AZ, BH, BD, BY, BE, BO, BR, BG, KH, CA, CL, CO, CR, HR, CY, CZ, DK, DO, EC, EG, EE, FI, FR, DE, GR, GT, JO, HU, ID, IQ, IE, IL, IT, JP, KZ, KE, KW, LV, LB, MY, MX, MA, NL, NZ, NG, NO, OM, PK, PA, PY, PE, PH, PL, PT, PR, QA, LT, RO, SA, RS, SG, SK, SI, ZA, KR, ES, LK, SE, CH, TW, TH, TR, AE, GB, US, UY, VN)")
-	cmd.Flags().StringVar(&flagPeriod, "period", "", "Time window for Top Ads. (one of: 7, 30, 180)")
-	cmd.Flags().StringVar(&flagQuery, "query", "", "Optional keyword to search ad titles/content.")
-	cmd.Flags().StringVar(&flagOrderBy, "order-by", "", "Sort metric. Defaults to for_you. (one of: for_you, impression, play_2s_rate, play_6s_rate, cvr, ctr, like)")
-	cmd.Flags().StringVar(&flagIndustry, "industry", "", "Industry filter. (one of: apparel_accessories, appliances, apps, baby_kids_maternity, beauty_personal_care, business_services, ecommerce_non_app, education, financial_services, food_beverage, games, health, home_improvement, household_products, life_services, news_entertainment, pets, sports_outdoor, tech_electronics, travel, vehicle_transportation)")
-	cmd.Flags().StringVar(&flagObjective, "objective", "", "Campaign objective filter. (one of: app_installs, conversions, lead_generation, product_sales, reach, traffic, video_views)")
-	cmd.Flags().StringVar(&flagDuration, "duration", "", "Video duration filter. (one of: under_10s, 10_20s, 20_30s, 30_40s, 40_50s, over_50s)")
-	cmd.Flags().StringVar(&flagLikes, "likes", "", "Likes percentile filter. (one of: top_1_20, top_21_40, top_41_60, top_61_80, top_81_100)")
-	cmd.Flags().StringVar(&flagAdFormat, "ad-format", "", "Ad format filter. (one of: spark_ads, non_spark_ads)")
-	cmd.Flags().StringVar(&flagAdLanguage, "ad-language", "", "Ad language filter. (one of: en, es, ar, vi, th, de, id, pt, fr, ms, nl, ja, it, ro, zh-Hant, ko)")
-	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Page number to fetch. Use the cursor returned from the previous response, like 3 for page 3.")
-	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Number of ads to return, max 50. Defaults to 20.")
+	cmd.Flags().StringVar(&flagQuery, "query", "", "Advertiser name or keyword to search for.")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Opaque cursor returned from the previous response.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "consume-legacy-watch-snapshot",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260717-002908-c6f34c82",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Atomically consume the legacy CFPB watch key when its first limit-scoped successor snapshot is persisted.",
+  "reason": "Leaving the legacy row readable allowed several new limit-specific histories to initialize from the same stale observation and re-emit complaints already seen by another limit.",
+  "files": [
+    "internal/cli/watch_changes.go",
+    "internal/cli/watch_changes_test.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "After migration, the new limit-scoped snapshot exists and the legacy key returns sql.ErrNoRows in the same committed operation."
+}

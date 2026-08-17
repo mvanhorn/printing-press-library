@@ -35,7 +35,7 @@ npx -y @mvanhorn/printing-press-library install clickhouse-cloud --agent opencla
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/cloud/clickhouse-cloud/cmd/clickhouse-cloud-pp-cli@latest

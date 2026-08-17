@@ -47,6 +47,9 @@ func newRecipesListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(recipes) == 0 {
+				if flags.asJSON {
+					return printJSONWithFreshness(cmd.OutOrStdout(), []any{}, flags)
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "No recipes found — run 'anylist-pp-cli sync' first")
 				return nil
 			}

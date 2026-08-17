@@ -28,7 +28,7 @@ To constrain the skill install to one or more specific agents, pass `--agent <na
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/crates-io/cmd/crates-io-pp-cli@latest

@@ -15,14 +15,13 @@ func newYoutubeListChannel4Cmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 	var flagChannelId string
 	var flagSort string
-	var flagContinuationToken string
-
 	var flagAll bool
+	var flagContinuationToken string
 
 	cmd := &cobra.Command{
 		Use:         "list-channel-4",
 		Short:       "Retrieves a paginated list of short-form videos (Shorts) from a YouTube channel, including each short's title, URL",
-		Example:     "  scrape-creators-pp-cli youtube list-channel-4 --handle @mkbhd",
+		Example:     "  scrape-creators-pp-cli youtube list-channel-4",
 		Annotations: map[string]string{"pp:endpoint": "youtube.list-channel-4", "pp:method": "GET", "pp:path": "/v1/youtube/channel/shorts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("sort") {
@@ -56,10 +55,11 @@ func newYoutubeListChannel4Cmd(flags *rootFlags) *cobra.Command {
 			if flagContinuationToken != "" {
 				params["continuationToken"] = formatCLIParamValue(flagContinuationToken)
 			}
-			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, params, nil, flagAll, "continuationToken", "cursor", "", "continuationToken", "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, params, nil, flagAll, "continuationToken", "cursor", "", 0, "continuationToken", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -67,7 +67,7 @@ func newYoutubeListChannel4Cmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -86,12 +86,16 @@ func newYoutubeListChannel4Cmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -101,14 +105,18 @@ func newYoutubeListChannel4Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagHandle, "handle", "", "Can pass channelId or handle")
 	cmd.Flags().StringVar(&flagChannelId, "channel-id", "", "Can pass channelId or handle")
 	cmd.Flags().StringVar(&flagSort, "sort", "", "Sort by newest or popular (one of: newest, popular)")
 	cmd.Flags().StringVar(&flagContinuationToken, "continuation-token", "", "Continuation token to get more videos. Get 'continuationToken' from previous response.")
-	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 	return cmd
 }

@@ -26,6 +26,7 @@ func newNovelDdlIterCmd(flags *rootFlags) *cobra.Command {
 		Args:    cobra.MaximumNArgs(2),
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
+			"pp:happy-args": "legisl=18;numero=1153",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 2 {
@@ -229,6 +230,11 @@ func emitIter(cmd *cobra.Command, flags *rootFlags, report iterReport) error {
 // each iter step in the document status block.
 var reIterDate = regexp.MustCompile(`(\d{1,2})\s+([a-zàèéìòù]{3,})\s+(\d{4})`)
 
+// reRunVirgolette matches the portal's stray quote runs. Two or more, never
+// one: a single quote can be real punctuation, a run of fourteen is the
+// rendering quirk. See its use in parseIterFromBody.
+var reRunVirgolette = regexp.MustCompile(`"{2,}`)
+
 // reLrAnnotation matches the portal's raw law-registration annotation
 // ("Lr <giorno> <mese> alr <anno> nlr <numero> Titolo : ...") that appears as
 // a DDL's own iter event once it is promulgated. Everything after "Titolo :"
@@ -283,6 +289,10 @@ func parseIterFromBody(body string) []iterEvent {
 	locs := reIterDate.FindAllStringIndex(region, -1)
 	subs := reIterDate.FindAllStringSubmatch(region, -1)
 	var events []iterEvent
+	// dopoLr tiene la data della promulgazione finché le date che seguono la
+	// precedono: sono quelle citate dentro il titolo della legge. Vuota fuori da
+	// quella finestra. Vedi il suo uso più sotto.
+	dopoLr := ""
 	for i, loc := range locs {
 		dd, mon, yyyy := subs[i][1], strings.ToLower(subs[i][2]), subs[i][3]
 		actEnd := len(region)
@@ -290,9 +300,33 @@ func parseIterFromBody(body string) []iterEvent {
 			actEnd = locs[i+1][0]
 		}
 		action := region[loc[1]:actEnd]
+		// Una data che segue una preposizione pendente appartiene alla frase, non
+		// è l'inizio dell'evento dopo: «Pubblicazione Gurs n. 10 del 24 febbraio
+		// 2026» veniva tagliata a «del», e la data della pubblicazione — la sola
+		// cosa che quell'evento aggiunge alla promulgazione — si perdeva, mentre
+		// l'evento che ne restava (azione vuota) cadeva subito dopo. Si riattacca
+		// la sola data, non tutto il testo fino alla successiva: l'evento i+1
+		// resta al suo posto con ciò che segue, e se non segue nulla sparisce
+		// come prima. Sui 18 iter di controllo le uniche azioni che finiscono
+		// con una preposizione pendente sono le 13 pubblicazioni in Gurs.
+		if i+1 < len(locs) && terminaConPreposizione(action) {
+			action += region[locs[i+1][0]:locs[i+1][1]]
+		}
+		// Le run di virgolette sono un artefatto di resa del portale, non
+		// contenuto: la fonte emette davvero `ddl"""""""""""""" 229`,
+		// `Seduta"""""""""""""" n. 35` e `Commissione QUARTA""""""""""""""`.
+		// Si tolgono qui, sull'azione già ritagliata, e non prima sulla regione:
+		// una di quelle run sta dentro il titolo di una legge citata
+		// («legge regionale 31"""""""""""""" gennaio 2024, n. 3», ddl 738), e
+		// toglierla prima farebbe affiorare una data che reIterDate leggerebbe
+		// come un evento in più, datato 2024, in mezzo all'iter del 2025.
+		action = reRunVirgolette.ReplaceAllString(action, "")
 		// Il numero di seduta si legge PRIMA di tagliare: è l'unico posto in
 		// cui il portale lo dichiara, e prima finiva nel pezzo scartato.
 		seduta, sedutaAula := sedutaDaAzione(action)
+		// Anche la commissione sta nel suffisso di seduta, e va letta prima del
+		// taglio per la stessa ragione: vedi sedeDaSuffissoSeduta.
+		sedeSuffisso := sedeDaSuffissoSeduta(action)
 		if s := indiceSeduta(action); s >= 0 {
 			action = action[:s]
 		}
@@ -300,19 +334,47 @@ func parseIterFromBody(body string) []iterEvent {
 		if action == "" {
 			continue
 		}
+		data := fmt.Sprintf("%s %s %s", dd, mon, yyyy)
 		if m := reLrAnnotation.FindStringSubmatch(action); m != nil {
 			action = fmt.Sprintf("Promulgata legge regionale n. %s/%s", m[2], m[1])
+			// Il titolo che segue "Titolo :" cita quasi sempre le norme
+			// modificate, con le loro date: quelle date non sono eventi
+			// dell'iter, ma reIterDate le aggancia lo stesso e il pezzo di
+			// titolo che le segue diventa un evento inesistente in cima alla
+			// cronologia — «23 giugno 2011 — ", n. 118. D.F.B. 2023. Mese di
+			// febbraio"» sul ddl 350, dodici anni prima dell'atto. Da qui in poi
+			// si scarta finché le date tornano indietro: la prima che non
+			// precede la promulgazione è di nuovo l'iter vero (la pubblicazione
+			// in Gurs), e chiude la finestra.
+			dopoLr = iterDateKey(data)
+		} else if dopoLr != "" {
+			if iterDateKey(data) < dopoLr {
+				continue
+			}
+			dopoLr = ""
 		}
 		events = append(events, iterEvent{
 			Fase:       classifyIterFase(action),
-			Data:       fmt.Sprintf("%s %s %s", dd, mon, yyyy),
-			Sede:       iterSede(action),
+			Data:       data,
+			Sede:       iterSedeRisolta(sedeSuffisso, action),
 			Titolo:     action,
 			Seduta:     seduta,
 			sedutaAula: sedutaAula,
 		})
 	}
 	return events
+}
+
+// rePreposizionePendente matches an action that breaks off on a preposition
+// introducing a date ("Pubblicazione Gurs n. 10 del"). Only that: an action
+// ending on a word means the step is complete, and the next date starts the
+// next step.
+var rePreposizionePendente = regexp.MustCompile(`(?i)\b(del|dal|nel)\s*$`)
+
+// terminaConPreposizione reports whether the date that follows this action
+// belongs to its sentence rather than opening the next event.
+func terminaConPreposizione(action string) bool {
+	return rePreposizionePendente.MatchString(action)
 }
 
 // reSeduta matches the portal's sitting reference inside an iter step, plus
@@ -654,22 +716,83 @@ func iterSede(action string) string {
 	return ""
 }
 
+// reSedeSuffisso reads the committee the portal writes AFTER the sitting
+// number, in the same suffix reSeduta matches: "Seduta n. 184 0400 Commissione
+// QUARTA". The four-digit code between the two is optional only in the sense
+// that some rows carry the AULA marker instead — where it appears, it is the
+// committee's own code (0100…0600, plus 1200 for the special committees).
+//
+// The name is taken to the end of the action and not as a single word: the
+// standing committees go by ordinal, but the special ones have real names that
+// a one-word capture would cut in half ("Commissione speciale per lo Statuto
+// della Regione", "Commissione riforma statuto" — leg. XVII, ddl 66). It stops
+// at an open parenthesis, which is where the portal appends a note about the
+// event and not about the committee ("Commissione PRIMA (Articolo 3
+// stralciato)"), and at a newline, because the Body fallback of docIterEvents
+// is not flattened and a capture must not run past its own row.
+var reSedeSuffisso = regexp.MustCompile(`(?i)\bseduta"*\s+n\.?\s*\d+\s*(?:\d{4})?\s*(commissione\b[^(\n]*)`)
+
+// sedeDaSuffissoSeduta returns the committee declared in the sitting suffix, or
+// "". It must run on the untruncated action: indiceSeduta cuts exactly the
+// stretch of text this reads, which is why the committee used to be lost even
+// when the source stated it. The verb alone names it only sometimes, and when
+// it does it is not the canonical form —
+//
+//	Esaminato in commissione Seduta n. 184 0400 Commissione QUARTA  -> "commissione"
+//	Parere espresso Commissione * Seduta n. 68 0500 Commissione QUINTA -> "Commissione *"
+//	Esitato per Aula (epa) Seduta n. 185 0100 Commissione PRIMA    -> ""
+//	Parere Commissione Bilancio Seduta n. 153 0200 Commissione SECONDA -> "Commissione Bilancio"
+//
+// — while the suffix always gives the ordinal, which is the form the rest of
+// the CLI accepts (`commissioni sommari --commissione SECONDA`). The informal
+// name of the last case is not lost: `titolo` keeps the action verbatim.
+func sedeDaSuffissoSeduta(action string) string {
+	if m := reSedeSuffisso.FindStringSubmatch(action); m != nil {
+		return strings.Join(strings.Fields(m[1]), " ")
+	}
+	return ""
+}
+
+// iterSedeRisolta prefers the committee read from the sitting suffix and falls
+// back to the one the verb names, with its raw code resolved.
+func iterSedeRisolta(sedeSuffisso, action string) string {
+	if sedeSuffisso != "" {
+		return sedeSuffisso
+	}
+	return risolviCodiceCommissione(iterSede(action))
+}
+
+// reSedeCodice matches a sede left as the portal's internal committee code
+// ("Rinviato Commissione 0400"), the one row shape where the suffix carries the
+// AULA marker instead of the committee name and the code is all there is.
+var reSedeCodice = regexp.MustCompile(`(?i)^commissione\s+(\d{3,4})$`)
+
+// risolviCodiceCommissione turns "Commissione 0400" into "Commissione QUARTA".
+// The iter codes are the ordinal times 100, so they need dividing and not
+// trimming: TrimSpace("0400") is "400", which commissioneOrdinale does not know.
+func risolviCodiceCommissione(sede string) string {
+	m := reSedeCodice.FindStringSubmatch(sede)
+	if m == nil {
+		return sede
+	}
+	n, err := strconv.Atoi(m[1])
+	if err != nil || n%100 != 0 {
+		return sede
+	}
+	if ord := commissioneOrdinale(itoa(n / 100)); ord != "" {
+		return "Commissione " + ord
+	}
+	return sede
+}
+
 // iterDateKey returns a sortable "YYYY-MM-DD" key for both the short-list date
-// form (DD.MM.YY) and the document status form ("DD mese YYYY").
+// form (DD.MM.YY) and the document status form ("DD mese YYYY"). Entrambe le
+// forme, e le altre due che il portale usa altrove, stanno in dataISO; qui
+// resta il ripiego sulla stringa grezza, che i chiamanti storici si aspettano.
 func iterDateKey(s string) string {
 	s = strings.TrimSpace(s)
-	if strings.Contains(s, ".") {
-		return parseICaroDate(s)
-	}
-	parts := strings.Fields(s)
-	if len(parts) == 3 {
-		if mm, ok := itaMonths[strings.ToLower(parts[1])[:min3(len(parts[1]))]]; ok {
-			dd := parts[0]
-			if len(dd) == 1 {
-				dd = "0" + dd
-			}
-			return parts[2] + "-" + mm + "-" + dd
-		}
+	if iso := dataISO(s); iso != "" {
+		return iso
 	}
 	return s
 }
@@ -683,28 +806,11 @@ func min3(n int) int {
 
 // parseICaroDate converts DD.MM.YYYY (or DD.MM.YY) into a sortable string
 // "YYYY-MM-DD"; returns the input as-is when the format isn't recognized.
+// Il riconoscimento sta tutto in dataISO, che copre anche le forme degli altri
+// due motori del portale; qui resta il ripiego sulla stringa grezza.
 func parseICaroDate(s string) string {
-	parts := strings.Split(strings.TrimSpace(s), ".")
-	if len(parts) != 3 {
-		return s
+	if iso := dataISO(s); iso != "" {
+		return iso
 	}
-	dd, mm, yy := parts[0], parts[1], parts[2]
-	if len(yy) == 2 {
-		// Crude century pivot — atti precedenti al 2000 sono rari nel sito.
-		if yy[0] >= '0' && yy[0] <= '4' {
-			yy = "20" + yy
-		} else {
-			yy = "19" + yy
-		}
-	}
-	if len(yy) != 4 || len(mm) > 2 || len(dd) > 2 {
-		return s
-	}
-	if len(mm) == 1 {
-		mm = "0" + mm
-	}
-	if len(dd) == 1 {
-		dd = "0" + dd
-	}
-	return yy + "-" + mm + "-" + dd
+	return strings.TrimSpace(s)
 }

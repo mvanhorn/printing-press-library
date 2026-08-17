@@ -20,7 +20,7 @@ func newSpotifyListPodcast2Cmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list-podcast-2",
 		Short:       "Returns episodes for a Spotify podcast. Pass the cursor returned by a response to get the next page.",
-		Example:     "  scrape-creators-pp-cli spotify list-podcast-2 --id 4rOoJ6Egrf8K2IrywzwOMk",
+		Example:     "  scrape-creators-pp-cli spotify list-podcast-2",
 		Annotations: map[string]string{"pp:endpoint": "spotify.list-podcast-2", "pp:method": "GET", "pp:path": "/v1/spotify/podcast/episodes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path := "/v1/spotify/podcast/episodes"
@@ -32,10 +32,11 @@ func newSpotifyListPodcast2Cmd(flags *rootFlags) *cobra.Command {
 				"id":     formatCLIParamValue(flagId),
 				"url":    formatCLIParamValue(flagUrl),
 				"cursor": formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -43,7 +44,7 @@ func newSpotifyListPodcast2Cmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -62,12 +63,16 @@ func newSpotifyListPodcast2Cmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -77,7 +82,11 @@ func newSpotifyListPodcast2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagId, "id", "", "Spotify podcast id. If you'd prefer to use the URL instead, you can use the url parameter instead.")

@@ -42,7 +42,7 @@ npx -y @mvanhorn/printing-press-library install spotify --agent claude-code --ag
 
 ### Without Node
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/cmd/spotify-pp-cli@latest
@@ -414,6 +414,8 @@ Manage tracks
 - **`spotify-pp-cli tracks get`** - Get Spotify catalog information for a single track identified by its
 unique Spotify ID.
 - **`spotify-pp-cli tracks get-several`** - Get Spotify catalog information for multiple tracks based on their Spotify IDs.
+- **`spotify-pp-cli tracks resolve`** - Resolve artist + title to exactly one track URI; reads a whole tracklist from stdin.
+- **`spotify-pp-cli tracks where`** - Show every place a track appears in your library (playlists, saved, play history, top).
 
 ### users
 
@@ -434,12 +436,49 @@ spotify-pp-cli audio-analysis mock-value --json
 # Filter to specific fields
 spotify-pp-cli audio-analysis mock-value --json --select id,name,status
 
+# A --select that matches nothing exits 2 and names the fields that were
+# available, instead of quietly returning the whole payload. Paths are
+# relative to the data, not to the {meta, results} envelope.
+spotify-pp-cli spotify-web-search --q "track:4D" --type track \
+  --json --select tracks.items.name
+
 # Dry run — show the request without sending
 spotify-pp-cli audio-analysis mock-value --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
 spotify-pp-cli audio-analysis mock-value --agent
 ```
+
+## Turning a tracklist into a playlist
+
+Spotify's `/search` returns a page ranked by relevance, not by title exactness, so a live cut or a cover regularly outranks the studio recording you asked for. `tracks resolve` re-ranks that page (exact title beats normalized-exact beats prefix, and the requested artist always beats another artist) and emits one URI per input line — a setlist becomes a playlist without one search per song and hand-written `jq`:
+
+```bash
+# Resolve the tracklist to URIs (one title per line on stdin)
+pbpaste | spotify-pp-cli tracks resolve --artist Northlane --agent > resolved.json
+
+# See what didn't resolve before creating anything
+jq -r '.results.results[] | select(.uri == null) | .query_title' resolved.json
+
+# Create the playlist and add the URIs
+PLAYLIST=$(spotify-pp-cli me create-playlist --name "Northlane / Milan" --agent \
+  --select id | jq -r '.results.id')
+spotify-pp-cli playlists items add-to-playlist "$PLAYLIST" --agent \
+  --uris "$(jq -c '[.results.results[].uri | select(. != null)]' resolved.json)"
+```
+
+Each row reports `match_kind` (`exact`, `normalized`, `prefix`, `substring`, or `*_other_artist`) so you can tell a confident hit from one worth checking. `--fail-on-miss` exits 2 when any title fails to resolve.
+
+### Reading playlist contents: `.item`, not `.track`
+
+`playlists items get-playlists` calls `/playlists/{id}/items`, whose rows carry the track under **`item`**. Spotify's documentation mostly describes the older `/playlists/{id}/tracks` endpoint, whose rows use `track` — so `jq '.results.items[].track'` copied from the docs silently yields `null` here:
+
+```bash
+spotify-pp-cli playlists items get-playlists <playlist_id> --agent \
+  | jq -r '.results.items[].item.name'
+```
+
+The `playlists tracks ...` subtree targets that legacy `/tracks` endpoint, which Spotify now answers with HTTP 403 for current app credentials. Prefer `playlists items ...`.
 
 ## Agent Usage
 

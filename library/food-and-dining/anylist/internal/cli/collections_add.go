@@ -30,10 +30,10 @@ func newCollectionsAddCmd(flags *rootFlags) *cobra.Command {
 				bodyRecipe = stringFromBody(body, "recipe")
 			}
 			if bodyCollection == "" && !cmd.Flags().Changed("collection") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "collection")
+				return usageErr(fmt.Errorf("required flag \"%s\" not set", "collection"))
 			}
 			if bodyRecipe == "" && !cmd.Flags().Changed("recipe") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "recipe")
+				return usageErr(fmt.Errorf("required flag \"%s\" not set", "recipe"))
 			}
 			if dryRunOK(flags) {
 				return nil
@@ -88,8 +88,6 @@ func newCollectionsAddCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVarP(&bodyCollection, "collection", "c", "", "Name of the recipe collection to add the recipe to")
 	cmd.Flags().StringVarP(&bodyRecipe, "recipe", "r", "", "Name of the recipe to add to the specified collection")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
-	_ = cmd.MarkFlagRequired("collection")
-	_ = cmd.MarkFlagRequired("recipe")
 
 	return cmd
 }

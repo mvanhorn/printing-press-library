@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "stac",
   "cli_name": "stac-pp-cli",
-  "version": "2026.8.1",
-  "released_at": "2026-08-10T04:07:30Z",
-  "source_commit": "06fb37aeb1702fa0fc7664e67945c30a593f7988",
+  "version": "2026.8.3",
+  "released_at": "2026-08-17T08:21:18Z",
+  "source_commit": "bc4b586302c2f3040178080f61960f98fff3529d",
   "printing_press_version": "4.25.0",
   "run_id": "20260624-152026-b6ccb73c",
   "changes": [
     {
-      "title": "feat(stac): add stac",
-      "pr": 1357,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1357",
-      "commit": "06fb37aeb1702fa0fc7664e67945c30a593f7988"
+      "title": "fix(cli): remove redundant toolchain directives",
+      "pr": 1737,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1737",
+      "commit": "bc4b586302c2f3040178080f61960f98fff3529d"
     }
   ]
 }

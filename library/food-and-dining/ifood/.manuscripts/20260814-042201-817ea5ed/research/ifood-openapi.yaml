@@ -1,0 +1,246 @@
+openapi: 3.0.3
+x-mcp:
+  transport: [stdio]
+  orchestration: endpoint-mirror
+x-learn:
+  enabled: true
+  synonyms:
+    alcool gel: alcool em gel
+    papel-toalha: papel toalha
+    filtro linha: filtro de linha
+info:
+  title: iFood Web Read API
+  version: 0.1.0
+  description: >-
+    Read-only contract derived from authenticated iFood web traffic. This
+    specification intentionally excludes cart, checkout, payment, and order
+    mutation endpoints.
+servers:
+  - url: https://www.ifood.com.br/site-api
+security:
+  - bearerAuth: []
+paths:
+  /v2/bm/home:
+    post:
+      operationId: listMarketHome
+      summary: List grocery-market home sections for a delivery location
+      tags: [markets]
+      parameters:
+        - $ref: '#/components/parameters/Latitude'
+        - $ref: '#/components/parameters/Longitude'
+        - $ref: '#/components/parameters/Channel'
+        - name: size
+          in: query
+          schema: {type: integer, default: 20, minimum: 1, maximum: 100}
+        - name: alias
+          in: query
+          schema: {type: string, default: HOME_GROCERIES_V3}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketFeedRequest'
+      responses:
+        '200':
+          description: Grocery home feed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketFeed'
+  /v1/merchants/multicategory/{merchant_id}/catalog:
+    get:
+      operationId: getMerchantCatalog
+      summary: Get a grocery merchant catalog
+      tags: [catalog]
+      parameters:
+        - $ref: '#/components/parameters/MerchantId'
+        - $ref: '#/components/parameters/LatitudeOptional'
+        - $ref: '#/components/parameters/LongitudeOptional'
+        - name: scheduling_time
+          in: query
+          schema: {type: integer, format: int64}
+        - name: category_items_size
+          in: query
+          schema: {type: integer, default: 12, minimum: 1, maximum: 100}
+      responses:
+        '200':
+          description: Merchant catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v2/search/merchants/{merchant_id}/catalog-items:
+    get:
+      operationId: searchMerchantCatalogItems
+      summary: Search product items inside one grocery merchant
+      tags: [products]
+      parameters:
+        - $ref: '#/components/parameters/MerchantId'
+        - $ref: '#/components/parameters/Latitude'
+        - $ref: '#/components/parameters/Longitude'
+        - $ref: '#/components/parameters/Channel'
+        - name: term
+          in: query
+          required: true
+          schema: {type: string, minLength: 1}
+        - name: size
+          in: query
+          schema: {type: integer, default: 100, minimum: 1, maximum: 100}
+        - name: page
+          in: query
+          schema: {type: integer, default: 0, minimum: 0}
+        - name: item_from_merchant_ids
+          in: query
+          description: Merchant UUID repeated for compatibility with the web client.
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Search result page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductSearchResponse'
+  /v1/merchants/{merchant_id}/promotions:
+    get:
+      operationId: listMerchantPromotions
+      summary: List promotions available for a merchant
+      tags: [markets]
+      parameters:
+        - $ref: '#/components/parameters/MerchantId'
+        - $ref: '#/components/parameters/Latitude'
+        - $ref: '#/components/parameters/Longitude'
+        - name: accessPoint
+          in: query
+          schema: {type: string, default: GROCERIES}
+      responses:
+        '200':
+          description: Promotion list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      x-auth-env-vars: [IFOOD_BEARER_AUTH]
+      description: >-
+        Runtime browser transport should reuse the authenticated iFood Chrome
+        session. Never persist copied bearer, device, session, or PX values.
+  parameters:
+    MerchantId:
+      name: merchant_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    Latitude:
+      name: latitude
+      in: query
+      required: true
+      schema: {type: number, format: double}
+    Longitude:
+      name: longitude
+      in: query
+      required: true
+      schema: {type: number, format: double}
+    LatitudeOptional:
+      name: latitude
+      in: query
+      schema: {type: number, format: double}
+    LongitudeOptional:
+      name: longitude
+      in: query
+      schema: {type: number, format: double}
+    Channel:
+      name: channel
+      in: query
+      schema: {type: string, default: IFOOD}
+  schemas:
+    MarketFeedRequest:
+      type: object
+      required: [supported-headers, supported-cards, supported-actions]
+      properties:
+        supported-headers:
+          type: array
+          items: {type: string}
+        supported-cards:
+          type: array
+          items: {type: string}
+        supported-actions:
+          type: array
+          items: {type: string}
+        feed-feature-name: {type: string}
+        faster-overrides: {type: string}
+    MarketFeed:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        alias: {type: string}
+        supercategory: {type: string}
+        header:
+          type: object
+          additionalProperties: true
+        baseImageUrl: {type: string, format: uri}
+        sections:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: true
+    ProductSearchResponse:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        items:
+          type: object
+          properties:
+            data:
+              type: array
+              items: {$ref: '#/components/schemas/CatalogItem'}
+            total: {type: integer}
+          additionalProperties: true
+        page: {type: integer}
+        size: {type: integer}
+      additionalProperties: true
+    CatalogItem:
+      type: object
+      properties:
+        id: {type: string}
+        code: {type: string}
+        ean: {type: string}
+        name: {type: string}
+        description: {type: string}
+        currency: {type: string}
+        price: {type: number}
+        available: {type: boolean}
+        availableForScheduling: {type: boolean}
+        category:
+          type: object
+          additionalProperties: true
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+        resources:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: true
+    Merchant:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        name: {type: string}
+        slug: {type: string}
+        currency: {type: string}
+        distance: {type: number}
+        userRating: {type: number}
+        userRatingCount: {type: integer}
+        available: {type: boolean}
+        deliveryFee:
+          type: object
+          additionalProperties: true
+      additionalProperties: true

@@ -33,6 +33,7 @@ func newNovelCommissioneDossierCmd(flags *rootFlags) *cobra.Command {
 			"  ars-sicilia-pp-cli commissione dossier \"inchiesta e vigilanza\" --legisl 18 --json",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
+			"pp:happy-args": "codcom-o-nome=SESTA;--legisl=18",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

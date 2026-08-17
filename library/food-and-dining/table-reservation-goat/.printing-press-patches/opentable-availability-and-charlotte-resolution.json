@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "opentable-availability-and-charlotte-resolution",
+  "applied_at": "2026-08-10",
+  "base_run_id": "20260712-223206",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Preserve accurate OpenTable browser-captured availability across response-envelope revisions, resolve Charlotte through the curated fallback registry, and retain a non-vulnerable reachable text-normalization dependency floor.",
+  "reason": "The live page rendered bookable slots under the current data.availability envelope while the legacy-only parser reported no availability; the same primary agent flow also failed before search because Charlotte, NC was absent from the fallback registry. The touched Go source additionally exposed a reachable invalid-input infinite-loop advisory in the prior text dependency, so a reprint must retain dual-envelope parsing, ordinary Charlotte resolution, and a fixed dependency floor.",
+  "files": [
+    "internal/cli/place_data.go",
+    "internal/cli/place_registry_test.go",
+    "internal/source/opentable/chrome_avail.go",
+    "internal/source/opentable/chrome_avail_parse_test.go",
+    "go.mod",
+    "go.sum"
+  ],
+  "validated_outcome": "Unit tests preserve current-envelope slot fields and Charlotte lookup; live verification returned the same five OpenTable slots rendered by the page and resolved Charlotte, NC at high confidence; govulncheck reports no reachable vulnerabilities."
+}

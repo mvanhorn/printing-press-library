@@ -1,0 +1,335 @@
+ById:
+  get:
+    tags:
+      - GroupTopic
+    summary: Get a group topic by id
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+    responses:
+      '200':
+        description: An object representing the group topic requested
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/grouptopic_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  patch:
+    tags:
+      - GroupTopic
+    summary: Update a group topic
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - body
+            properties:
+              name:
+                description: Set the name of group topic
+                type: string
+              body:
+                description: Set the body of group topic
+                type: string 
+    responses:
+      '200':
+        description: Updated a group topic
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/grouptopic_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  delete:
+    tags:
+      - GroupTopic
+    summary: Delete Group Topic by id
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+    responses:
+      '200':
+        description: id of the deleted Group Topic
+        content:
+            application/json:
+              schema:
+                type: integer
+                minimum: 0
+                example: 2
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Pin:
+  post:
+    tags:
+      - GroupTopic
+    summary: Pin the group topic
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+    responses:
+      '200':
+        description: Pinned topic
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/group_schemas/topic_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  delete:
+    tags:
+      - GroupTopic
+    summary: Unpin the group topic
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+    responses:
+      '200':
+        description: Unpinned topic
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/group_schemas/topic_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Watch:
+  post:
+    tags:
+      - GroupTopic
+    summary: Watch the group topic
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+    responses:
+      '200':
+        description: Watched topic
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/group_schemas/topic_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  delete:
+    tags:
+      - GroupTopic
+    summary: Unwatch the group topic
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+    responses:
+      '200':
+        description: Unwatched topic
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/group_schemas/topic_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Comments:
+  get:
+    tags:
+      - GroupTopic
+    summary: Get all comments for this topic in a quick pre-threaded view
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+    responses:
+      '200':
+        description: The list of group members.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/comment_schema.yaml' 
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  post:
+    tags:
+      - GroupTopic
+    summary: Post a comment
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - body
+            properties:
+              body:
+                description: Set the body of the comment
+                type: string
+    responses:
+      '200':
+        description: The newly created comment
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/comment_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ForumTopicsComments:
+  get:
+    tags:
+      - GroupTopic
+    summary: Get list topics and comments of a certain forum
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+      - in: query
+        name: search
+        required: false
+        description: The search query to perform
+        schema:
+          type: string
+          example: 3d
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: An object representing the forum topics and comments requested
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                topics_comments:
+                  type: array
+                  items:
+                    oneOf:
+                      - $ref: '../schemas/grouptopic_schema.yaml'
+                      - $ref: '../schemas/comment_schema.yaml'
+                total:
+                  type: integer
+                  minimum: 0
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+RootComments:
+  get:
+    tags:
+      - GroupTopic
+    summary: Get an unthreaded paginated list of root comment objects
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: An array containing a list of root comments on this topic
+        content:
+            application/json:
+              schema:
+                type: array
+                example: []
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Update:
+  post:
+    tags:
+      - GroupTopic
+    summary: Update GroupTopic
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/grouptopicIdPathParam"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                description: Set the name of the topic
+                type: string
+              body:
+                description: Set the body of the topic
+                type: string
+              tags:
+                description: Set the category of the thing. Uses full category name (eg. "3D Printer Parts")
+                type: array
+                example: ["tag1", "tag2", "tag3"]
+              filenames:
+                description: Array of names of the files
+                type: array
+                example: ["File1.jpg", "File2.jpg"]
+              files:
+                description: Array of files
+                type: array
+                example: ["File1.jpg", "File2.jpg"]
+              attachments:
+                description: Array of atachments ids to update
+                type: array
+                example: ["80111"]
+    responses:
+      '200':
+        $ref : "../responses/ok.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

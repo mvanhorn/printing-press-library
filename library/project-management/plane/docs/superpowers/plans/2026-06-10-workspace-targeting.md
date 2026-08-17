@@ -297,7 +297,7 @@ import (
 	"strings"
 	"testing"
 
-	"plane-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/config"
 )
 
 func TestResolveWorkspaceSource(t *testing.T) {
@@ -393,7 +393,7 @@ import (
 	"regexp"
 	"strings"
 
-	"plane-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/config"
 
 	"github.com/spf13/cobra"
 )

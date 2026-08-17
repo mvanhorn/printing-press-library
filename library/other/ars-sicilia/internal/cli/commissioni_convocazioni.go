@@ -4,13 +4,19 @@ package cli
 import "github.com/spf13/cobra"
 
 func newCommissioniConvocazioniCmd(flags *rootFlags) *cobra.Command {
+	// I flag ISIS (--isis-query, --escludi) non sono registrati: l'archivio sta
+	// sul backend /bd/ in modo incondizionato e quel form non ha equivalente,
+	// quindi comparivano in --help potendo solo fallire. --testo fa il percorso
+	// opposto: il form /bd/ espone il campo full-text $TTEXT (docs/bd-migration)
+	// e qui il flag non c'era, quindi l'unico dei tre archivi delle sedute in
+	// cui la ricerca testuale era irraggiungibile.
 	var (
 		flagLegisl   int
 		flagAnno     int
 		flagCodcom   string
 		flagCommis   string
 		flagData     string
-		flagISIS     string
+		flagTesto    string
 		flagLimit    int
 		flagMaxPages int
 	)
@@ -37,9 +43,12 @@ func newCommissioniConvocazioniCmd(flags *rootFlags) *cobra.Command {
 			if flagData != "" {
 				params["data"] = flagData
 			}
+			if flagTesto != "" {
+				params["testo"] = flagTesto
+			}
 			return runCerca(cmd, flags, "convocazioni", cercaParams{
-				Params: params, ISISRaw: flagISIS,
-				Limit: flagLimit, MaxPages: flagMaxPages,
+				Params: params,
+				Limit:  flagLimit, MaxPages: flagMaxPages,
 			})
 		},
 	}
@@ -48,9 +57,8 @@ func newCommissioniConvocazioniCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagCodcom, "codcom", "", "Codice commissione 1-6 (I..VI); in alternativa usa --commissione. Usare con --legisl (gli id commissione sono per-legislatura).")
 	cmd.Flags().StringVar(&flagCommis, "commissione", "", "Nome commissione.")
 	cmd.Flags().StringVar(&flagData, "data", "", "Data seduta (YYYY-MM-DD; range con YYYY-MM-DD:YYYY-MM-DD).")
-	cmd.Flags().StringVar(&flagISIS, "isis-query", "", "Espressione ISIS grezza (escape hatch).")
+	cmd.Flags().StringVar(&flagTesto, "testo", "", "Ricerca testuale sull'ordine del giorno della convocazione (campo full-text del backend /bd/).")
 	cmd.Flags().IntVar(&flagLimit, "limit", 10, "Max risultati da scaricare.")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 0, "Pagine massime (0 = auto).")
-	cmd.Flags().String("escludi", "", "Escludi i documenti che contengono questo termine (ISIS NOT).")
 	return cmd
 }

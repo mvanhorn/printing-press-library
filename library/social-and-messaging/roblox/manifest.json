@@ -1,0 +1,52 @@
+{
+  "manifest_version": "0.3",
+  "name": "roblox-pp-mcp",
+  "display_name": "Roblox",
+  "version": "4.29.0",
+  "description": "Investigate Roblox's fragmented public web data from one agent-friendly CLI.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/roblox-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/roblox-pp-mcp",
+      "args": [],
+      "env": {
+        "ROBLOX_COLLECTIBLE_ITEM_ID": "${user_config.roblox_collectible_item_id}",
+        "ROBLOX_COOKIES": "${user_config.roblox_cookies}",
+        "ROBLOX_TARGET_USER_ID": "${user_config.roblox_target_user_id}"
+      }
+    }
+  },
+  "user_config": {
+    "roblox_collectible_item_id": {
+      "type": "string",
+      "title": "ROBLOX_COLLECTIBLE_ITEM_ID",
+      "description": "Sets ROBLOX_COLLECTIBLE_ITEM_ID for the endpoint template variable {collectibleItemId}.",
+      "required": true
+    },
+    "roblox_cookies": {
+      "type": "string",
+      "title": "ROBLOX_COOKIES",
+      "description": "Optional. Sets ROBLOX_COOKIES for the Roblox MCP server.",
+      "sensitive": true
+    },
+    "roblox_target_user_id": {
+      "type": "string",
+      "title": "ROBLOX_TARGET_USER_ID",
+      "description": "Sets ROBLOX_TARGET_USER_ID for the endpoint template variable {targetUserId}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

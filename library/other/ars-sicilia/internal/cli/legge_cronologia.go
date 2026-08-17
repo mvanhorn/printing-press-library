@@ -33,6 +33,7 @@ esiste in piu' anni della stessa legislatura.`,
 		Args:    cobra.MaximumNArgs(2),
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
+			"pp:happy-args": "legisl=18;numero=26;--anno=2025",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 2 {

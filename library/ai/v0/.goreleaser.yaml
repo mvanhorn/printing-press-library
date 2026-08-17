@@ -5,11 +5,12 @@ changelog:
 builds:
   - id: v0-pp-cli
     main: ./cmd/v0-pp-cli
+    dir: ./vzero
     binary: v0-pp-cli
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/v0/internal/cli.version={{ .Version }}
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/v0/vzero/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -19,6 +20,7 @@ builds:
       - windows_arm64
   - id: v0-pp-mcp
     main: ./cmd/v0-pp-mcp
+    dir: ./vzero
     binary: v0-pp-mcp
     env:
       - CGO_ENABLED=0

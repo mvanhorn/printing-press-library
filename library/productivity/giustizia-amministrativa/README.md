@@ -37,7 +37,11 @@ npx -y @mvanhorn/printing-press-library install giustizia-amministrativa --agent
 
 ### Without Node
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` is not available (no Node, offline), install directly with Go (requires Go 1.26.5 or newer). This writes into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH`:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/cmd/giustizia-amministrativa-pp-cli@latest
+```
 
 ### Pre-built binary
 
@@ -190,7 +194,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
-
 
 ### Testo integrale in markdown
 

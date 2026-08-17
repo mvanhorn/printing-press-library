@@ -3,6 +3,8 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -120,6 +122,42 @@ func TestBuildQuery_DataOnAttiIspettivi(t *testing.T) {
 		if !strings.Contains(q, "200128.DATPRE") {
 			t.Errorf("%s: query = %q, want it to qualify 200128 on DATPRE", slug, q)
 		}
+	}
+}
+
+// TestBuildQuery_DataOnDdl pins the date range `ddl cerca --data` produces.
+// Su ddl --data condivide DATPRE con --anno: qui si fissa che il range con
+// estremi liberi arriva intatto al motore, mentre la mutua esclusione con
+// --anno (due range in AND sullo stesso campo = zero risultati) è imposta
+// dal comando.
+func TestBuildQuery_DataOnDdl(t *testing.T) {
+	arc := *icaro.BySlug("ddl")
+	if got := arc.FieldMap["data"]; got != "DATPRE" {
+		t.Fatalf("ddl: FieldMap[data] = %q, want DATPRE", got)
+	}
+	q := icaro.BuildQuery(arc, normalizeParams(arc, map[string]string{
+		"legisl": "18", "data": "2026-07-01:2026-07-28",
+	}), "")
+	if !strings.Contains(q, "260701/260728.DATPRE") {
+		t.Errorf("query = %q, want it to qualify 260701/260728 on DATPRE", q)
+	}
+	q = icaro.BuildQuery(arc, normalizeParams(arc, map[string]string{
+		"legisl": "18", "data": "2026-07-28",
+	}), "")
+	if !strings.Contains(q, "260728.DATPRE") {
+		t.Errorf("query = %q, want it to qualify 260728 on DATPRE", q)
+	}
+}
+
+// TestDdlCerca_AnnoDataMutuallyExclusive: entrambe qualificano DATPRE, quindi
+// insieme darebbero (260101/261231.DATPRE E 260701/260728.DATPRE) — zero
+// risultati silenziosi invece dell'intersezione attesa. Meglio un errore.
+func TestDdlCerca_AnnoDataMutuallyExclusive(t *testing.T) {
+	cmd := newDdlCercaCmd(&rootFlags{})
+	cmd.SetArgs([]string{"--anno", "2026", "--data", "2026-07-01"})
+	cmd.SilenceErrors, cmd.SilenceUsage = true, true
+	if err := cmd.Execute(); err == nil {
+		t.Fatal("--anno insieme a --data deve fallire, non produrre una query vuota")
 	}
 }
 
@@ -482,4 +520,108 @@ func TestFlatRecordsTitoloSempreValorizzato(t *testing.T) {
 			t.Errorf("riga %d: titolo = %q, want %q", i, titolo, recs[i].Title)
 		}
 	}
+}
+
+// Il `get` che non produce il documento ha due esiti diversi da tenere
+// distinti: il backend ha risposto e il record non c'è, oppure il backend non
+// ha risposto affatto. Fino al 2026-08-12 finivano entrambi in «nessun
+// documento trovato», che sul secondo caso afferma il falso: la seduta 268
+// esisteva, era il portale a troncare le risposte.
+func TestGetMissingErr(t *testing.T) {
+	t.Run("backend risponde, record assente", func(t *testing.T) {
+		err := getMissingErr("resoconti", 18, 999, nil)
+		if !strings.Contains(err.Error(), "nessun documento trovato") {
+			t.Errorf("il not-found vero deve restare tale, ho avuto: %v", err)
+		}
+	})
+
+	t.Run("backend non risponde", func(t *testing.T) {
+		bdErr := errors.New("bd session (resoconti): stream error: stream ID 1; INTERNAL_ERROR")
+		err := getMissingErr("resoconti", 18, 268, bdErr)
+		if strings.Contains(err.Error(), "nessun documento trovato") {
+			t.Errorf("un backend muto non è un documento inesistente, ho avuto: %v", err)
+		}
+		if !strings.Contains(err.Error(), "backend /bd/") {
+			t.Errorf("l'errore deve nominare il backend, ho avuto: %v", err)
+		}
+		if !errors.Is(err, bdErr) {
+			t.Errorf("la causa originale deve restare leggibile, ho avuto: %v", err)
+		}
+	})
+
+	t.Run("429 tiene il suo codice di uscita", func(t *testing.T) {
+		err := getMissingErr("resoconti", 18, 268, &icaro.HTTPRateLimitError{URL: "https://dati.ars.sicilia.it/bd/resoconti"})
+		var ce *cliError
+		if !errors.As(err, &ce) {
+			t.Fatalf("il 429 deve restare un cliError con codice dedicato, ho avuto: %v", err)
+		}
+		if ce.code != 7 {
+			t.Errorf("codice di uscita = %d, atteso 7 (rate limit)", ce.code)
+		}
+	})
+}
+
+// «Riprova» non è un consiglio utile su un portale che tronca le risposte
+// grandi: quello che cambia l'esito è chiedere meno righe. Misurato su sommari
+// il 2026-08-12: la ricerca di una singola seduta è arrivata 8 volte su 8,
+// quella senza filtri zero su 8.
+func TestRestringiHint(t *testing.T) {
+	// Il guasto generico del backend: è il caso in cui restringere serve davvero.
+	errBoom := errors.New("bd session (sommari): stream error: stream ID 1; INTERNAL_ERROR")
+
+	t.Run("suggerisce i filtri che mancano", func(t *testing.T) {
+		h := restringiHint(errBoom, "sommari", map[string]string{"legisl": "18"})
+		for _, atteso := range []string{"--numero", "--anno", "--commissione"} {
+			if !strings.Contains(h, atteso) {
+				t.Errorf("hint = %q, ci si aspettava %s", h, atteso)
+			}
+		}
+	})
+
+	t.Run("non ripete i filtri già messi", func(t *testing.T) {
+		h := restringiHint(errBoom, "sommari", map[string]string{"legisl": "18", "anno": "2025", "codcom": "1"})
+		if strings.Contains(h, "--anno") || strings.Contains(h, "--commissione") {
+			t.Errorf("hint = %q: non deve chiedere filtri già presenti (codcom vale per commissione)", h)
+		}
+		if !strings.Contains(h, "--numero") {
+			t.Errorf("hint = %q: --numero manca ancora, va suggerito", h)
+		}
+	})
+
+	t.Run("tace se non c'è più niente da stringere", func(t *testing.T) {
+		h := restringiHint(errBoom, "sommari", map[string]string{"legisl": "18", "numero": "270", "data": "2026-07-08", "commissione": "Affari"})
+		if h != "" {
+			t.Errorf("hint = %q, atteso vuoto: dare la colpa a chi ha già ristretto tutto è scorretto", h)
+		}
+	})
+
+	t.Run("convocazioni non ha il numero di seduta", func(t *testing.T) {
+		// Verificato sul form del portale: /bd/convocazioni espone legislatura,
+		// anno, commissioni, invitati e testo. Suggerire --numero manderebbe
+		// l'utente contro un flag che non esiste.
+		h := restringiHint(errBoom, "convocazioni", map[string]string{"legisl": "18"})
+		if strings.Contains(h, "--numero") {
+			t.Errorf("hint = %q: convocazioni non ha un filtro per numero di seduta", h)
+		}
+	})
+
+	t.Run("archivi Icaro non c'entrano", func(t *testing.T) {
+		if h := restringiHint(errBoom, "ddl", map[string]string{}); h != "" {
+			t.Errorf("hint = %q: la troncatura è un difetto del backend /bd/", h)
+		}
+	})
+
+	// Un nome che non esiste in anagrafica non si trova restringendo: l'hint
+	// uscirebbe sopra il messaggio che spiega il vero rimedio («prova con il solo
+	// cognome») e manderebbe a mettere --numero o --anno per nulla.
+	t.Run("tace se il filtro non esiste in anagrafica", func(t *testing.T) {
+		irrisolto := &icaro.UnresolvedFilterError{Filtro: "--oratore", Valore: "Pincopallo", Legisl: "18"}
+		if h := restringiHint(irrisolto, "resoconti", map[string]string{"legisl": "18"}); h != "" {
+			t.Errorf("hint = %q: restringere non fa esistere un oratore che non c'è", h)
+		}
+		wrapped := fmt.Errorf("ricerca resoconti: %w", irrisolto)
+		if h := restringiHint(wrapped, "resoconti", map[string]string{"legisl": "18"}); h != "" {
+			t.Errorf("hint = %q: vale anche quando l'errore arriva incartato", h)
+		}
+	})
 }

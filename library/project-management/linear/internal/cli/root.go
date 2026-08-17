@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.7.4"
+var version = "2026.8.3"
 
 type rootFlags struct {
 	asJSON        bool

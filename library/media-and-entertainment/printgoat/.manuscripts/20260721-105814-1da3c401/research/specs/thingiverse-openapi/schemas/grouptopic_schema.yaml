@@ -1,0 +1,61 @@
+type: object
+required:
+  - id
+properties:
+  id:
+    type: integer
+    format: int
+  name:
+    type: string
+  user:
+    $ref: './group_schemas/member_schema.yaml'
+  group_url:
+    type: string
+  url:
+    type: string
+  public_url:
+    type: string
+  comments:
+    type: object
+    properties:
+      count:
+        type: integer
+      url:
+        type: string
+      threaded_url:
+        type: string
+  added:
+    type: string
+    format: date-time
+  modified:
+    anyOf:
+      - type: string
+        maxLength: 0
+      - type: string
+        format: date-time  
+  pinned:
+    type: integer
+    minimum: 0
+    maximum: 1
+  comment_of_topic:
+    $ref: './comment_schema.yaml'
+  tags:
+    type: object
+    properties:
+      name:
+        type: string
+      url:
+        $ref: './url_schema.yaml'
+      count:
+        type: integer
+        format: int
+      absolute_url:
+        type: string
+  watched:
+    type: boolean
+  type_name:
+    type: string
+  root_comment_count:
+    type: integer
+  can_comment:
+    type: boolean

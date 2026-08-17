@@ -6,24 +6,27 @@ package cli
 import "github.com/spf13/cobra"
 
 func newResocontiCercaCmd(flags *rootFlags) *cobra.Command {
+	// I flag ISIS (--argomento, --frase, --isis-query, --escludi) non sono
+	// registrati: questo archivio è servito dal backend /bd/ in modo
+	// incondizionato (client.go: solo `get` forza Icaro, e non c'è flag utente
+	// per chiederlo), e /bd/ ha un form fisso senza equivalente per quei filtri.
+	// Registrarli significava pubblicizzare in --help e nella superficie MCP dei
+	// criteri che potevano solo fallire. La ricerca testuale è --testo ($TTEXT).
 	var (
-		flagLegisl    int
-		flagAnno      int
-		flagData      string
-		flagNumero    int
-		flagOratore   string
-		flagArgomento string
-		flagTesto     string
-		flagFrase     string
-		flagISIS      string
-		flagLimit     int
-		flagMaxPages  int
+		flagLegisl   int
+		flagAnno     int
+		flagData     string
+		flagNumero   int
+		flagOratore  string
+		flagTesto    string
+		flagLimit    int
+		flagMaxPages int
 	)
 
 	cmd := &cobra.Command{
 		Use:     "cerca",
 		Args:    rejectPositionalArgs,
-		Short:   "Cerca resoconti delle sedute d'aula per data, oratore o argomento.",
+		Short:   "Cerca resoconti delle sedute d'aula per data, numero, oratore o testo.",
 		Example: "  ars-sicilia-pp-cli resoconti cerca --legisl 18 --json",
 		Annotations: map[string]string{
 			"pp:endpoint":   "resoconti.cerca",
@@ -46,18 +49,12 @@ func newResocontiCercaCmd(flags *rootFlags) *cobra.Command {
 			if flagOratore != "" {
 				params["oratore"] = flagOratore
 			}
-			if flagArgomento != "" {
-				params["argomento"] = flagArgomento
-			}
 			if flagTesto != "" {
 				params["testo"] = flagTesto
 			}
-			if flagFrase != "" {
-				params["frase"] = flagFrase
-			}
 			return runCerca(cmd, flags, "resoconti", cercaParams{
-				Params: params, ISISRaw: flagISIS,
-				Limit: flagLimit, MaxPages: flagMaxPages,
+				Params: params,
+				Limit:  flagLimit, MaxPages: flagMaxPages,
 			})
 		},
 	}
@@ -66,12 +63,8 @@ func newResocontiCercaCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagData, "data", "", "Data seduta (YYYY-MM-DD; range con YYYY-MM-DD:YYYY-MM-DD).")
 	cmd.Flags().IntVar(&flagNumero, "numero", 0, "Numero seduta.")
 	cmd.Flags().StringVar(&flagOratore, "oratore", "", "Cognome/nome dell'oratore: filtra le sedute in cui è intervenuto (risolto sull'anagrafica del portale; se combinato con --legisl considera solo chi vi è attivo).")
-	cmd.Flags().StringVar(&flagArgomento, "argomento", "", "Argomento.")
-	cmd.Flags().StringVar(&flagTesto, "testo", "", "Ricerca testuale.")
-	cmd.Flags().StringVar(&flagFrase, "frase", "", "Cerca le parole come locuzione, adiacenti e nell'ordine dato (ISIS adj). Piu' preciso di --testo, che combina le parole in AND sull'intero documento: --testo \"aree idonee\" aggancia anche chi ha le due parole in articoli diversi.")
-	cmd.Flags().StringVar(&flagISIS, "isis-query", "", "Espressione ISIS grezza (escape hatch).")
+	cmd.Flags().StringVar(&flagTesto, "testo", "", "Ricerca testuale sul contenuto della seduta (campo full-text del backend /bd/).")
 	cmd.Flags().IntVar(&flagLimit, "limit", 10, "Max risultati da scaricare.")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 0, "Pagine massime da scaricare (0 = auto da --limit).")
-	cmd.Flags().String("escludi", "", "Escludi i documenti che contengono questo termine (ISIS NOT).")
 	return cmd
 }

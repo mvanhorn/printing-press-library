@@ -21,6 +21,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"text/tabwriter"
 	"time"
 	"unicode"
@@ -1115,17 +1116,136 @@ func filterFields(data json.RawMessage, fields string) json.RawMessage {
 	if len(paths) == 0 {
 		return data
 	}
-	return filterFieldsRec(data, paths)
+	// PATCH(amend-2026-08-13: fail-fast on a --select that matches nothing) —
+	// a projection whose paths match no field anywhere used to fall through
+	// the envelope-passthrough branches and hand back the FULL payload with
+	// exit 0, so a typo (`results.tracks.items.name` instead of
+	// `tracks.items.name`) read as success while emitting the very payload
+	// --select existed to avoid. Track whether anything matched, and on a
+	// total miss replace the output with a small diagnostic and mark the run
+	// for exit 2 in Execute().
+	matches := 0
+	filtered := filterFieldsRec(data, paths, &matches)
+	if matches > 0 {
+		return filtered
+	}
+	recordSelectNoMatch(fields)
+	diag := map[string]any{
+		"error":            "--select matched no fields",
+		"select":           fields,
+		"available_fields": selectAvailableFields(data),
+		"hint":             "paths are relative to the payload, not to the JSON envelope: drop a leading \"results.\"/\"data.\" segment, or run without --select once to inspect the shape",
+	}
+	out, err := json.Marshal(diag)
+	if err != nil {
+		return filtered
+	}
+	return out
+}
+
+// selectNoMatch records the --select spec that matched nothing, so Execute()
+// can turn what used to be a silent full-payload response into a usage error
+// (exit 2). Guarded because the projection helpers are exercised by parallel
+// subtests; at runtime a single command owns the process.
+var selectNoMatch struct {
+	mu   sync.Mutex
+	spec string
+}
+
+func recordSelectNoMatch(spec string) {
+	selectNoMatch.mu.Lock()
+	defer selectNoMatch.mu.Unlock()
+	selectNoMatch.spec = spec
+}
+
+// selectNoMatchSpec returns the recorded miss, or "" when the run's --select
+// (if any) projected at least one field.
+func selectNoMatchSpec() string {
+	selectNoMatch.mu.Lock()
+	defer selectNoMatch.mu.Unlock()
+	return selectNoMatch.spec
+}
+
+// maxSelectAvailableFields caps the diagnostic's field list. The point is to
+// make the correct spelling obvious, not to dump the schema — and an uncapped
+// list on a deeply wrapped payload is just the token burn this patch exists to
+// stop, in a different costume.
+const maxSelectAvailableFields = 40
+
+// selectAvailableFields lists the field names a --select spec could have
+// matched: the top-level object keys, plus the keys one level inside a list
+// envelope (`{"items":[{...}]}`) or a single-key wrapper, since those are the
+// levels --select actually descends into. Descent stops after that one level.
+func selectAvailableFields(data json.RawMessage) []string {
+	names := selectFieldNamesAt(data)
+	if len(names) > maxSelectAvailableFields {
+		names = names[:maxSelectAvailableFields]
+	}
+	return names
+}
+
+// selectFieldNamesAt returns the object keys at this level, descending through
+// arrays to their first element, plus one qualified level inside a single-key
+// wrapper. It never recurses more than that one extra level.
+func selectFieldNamesAt(data json.RawMessage) []string {
+	obj, ok := selectObjectAt(data, 0)
+	if !ok {
+		return nil
+	}
+	names := make([]string, 0, len(obj))
+	for k := range obj {
+		names = append(names, k)
+	}
+	sort.Strings(names)
+	// A pure envelope (one key wrapping an array or object) tells the caller
+	// nothing useful on its own — descend once and report the inner names as
+	// dotted paths so the hint is directly usable.
+	if len(obj) == 1 {
+		for k, v := range obj {
+			inner, innerOK := selectObjectAt(v, 0)
+			if !innerOK {
+				break
+			}
+			qualified := make([]string, 0, len(inner))
+			for name := range inner {
+				qualified = append(qualified, k+"."+name)
+			}
+			sort.Strings(qualified)
+			names = append(names, qualified...)
+		}
+	}
+	return names
+}
+
+// selectObjectAt unwraps arrays (taking the first element as representative)
+// until it reaches a JSON object, bounded by the same depth ceiling the
+// projection itself uses.
+func selectObjectAt(data json.RawMessage, depth int) (map[string]json.RawMessage, bool) {
+	if depth > maxNestedListEnvelopeDepth {
+		return nil, false
+	}
+	var arr []json.RawMessage
+	if err := json.Unmarshal(data, &arr); err == nil {
+		if len(arr) == 0 {
+			return nil, false
+		}
+		return selectObjectAt(arr[0], depth+1)
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil || len(obj) == 0 {
+		return nil, false
+	}
+	return obj, true
 }
 
 // filterFieldsRec applies path filters to a JSON value. Each path is a list of
 // lowercase segments; arrays descend element-wise.
-func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
+func filterFieldsRec(data json.RawMessage, paths [][]string, matches *int) json.RawMessage {
 	var arr []json.RawMessage
 	if err := json.Unmarshal(data, &arr); err == nil {
 		out := make([]json.RawMessage, len(arr))
 		for i, el := range arr {
-			out[i] = filterFieldsRec(el, paths)
+			out[i] = filterFieldsRec(el, paths, matches)
 		}
 		result, _ := json.Marshal(out)
 		return result
@@ -1155,11 +1275,16 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 			}
 			matchedAny = true
 			if keepWhole[matched] {
+				// Only a leaf keep counts as a real match. An intermediate
+				// segment that matches but whose sub-paths match nothing
+				// (`--select tracks.bogus`) must still be reported as a miss,
+				// so the recursive call below does its own counting.
+				*matches++
 				filtered[k] = v
 				continue
 			}
 			if subs := subPaths[matched]; subs != nil {
-				filtered[k] = filterFieldsRec(v, subs)
+				filtered[k] = filterFieldsRec(v, subs, matches)
 			}
 		}
 		// Envelope fallback: when no top-level keys matched but at least one
@@ -1173,7 +1298,7 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 		// json.Unmarshal otherwise accepts into a []json.RawMessage as a
 		// nil slice and would coerce to `[]`.
 		if !matchedAny {
-			if pending, foundArray := filterListEnvelopeFields(obj, paths, 0); foundArray {
+			if pending, foundArray := filterListEnvelopeFields(obj, paths, 0, matches); foundArray {
 				filtered = pending
 			}
 		}
@@ -1184,7 +1309,7 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 	return data
 }
 
-func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string, depth int) (map[string]json.RawMessage, bool) {
+func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string, depth int, matches *int) (map[string]json.RawMessage, bool) {
 	pending := map[string]json.RawMessage{}
 	foundArray := false
 	for k, v := range obj {
@@ -1195,10 +1320,10 @@ func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string, 
 		var arr []json.RawMessage
 		if json.Unmarshal(v, &arr) == nil && arr != nil {
 			foundArray = true
-			pending[k] = filterFieldsRec(v, paths)
+			pending[k] = filterFieldsRec(v, paths, matches)
 			continue
 		}
-		if nested, ok := filterNestedListEnvelopeFields(v, paths, depth); ok {
+		if nested, ok := filterNestedListEnvelopeFields(v, paths, depth, matches); ok {
 			foundArray = true
 			pending[k] = nested
 			continue
@@ -1208,7 +1333,7 @@ func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string, 
 	return pending, foundArray
 }
 
-func filterNestedListEnvelopeFields(data json.RawMessage, paths [][]string, depth int) (json.RawMessage, bool) {
+func filterNestedListEnvelopeFields(data json.RawMessage, paths [][]string, depth int, matches *int) (json.RawMessage, bool) {
 	if depth >= maxNestedListEnvelopeDepth {
 		return nil, false
 	}
@@ -1216,7 +1341,7 @@ func filterNestedListEnvelopeFields(data json.RawMessage, paths [][]string, dept
 	if err := json.Unmarshal(data, &obj); err != nil {
 		return nil, false
 	}
-	filtered, found := filterListEnvelopeFields(obj, paths, depth+1)
+	filtered, found := filterListEnvelopeFields(obj, paths, depth+1, matches)
 	if !found {
 		return nil, false
 	}

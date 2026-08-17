@@ -1,0 +1,2648 @@
+{
+  "cli_dir": "C:\\Users\\sidor\\printing-press\\library\\plane",
+  "fresh_dir": "C:\\Users\\sidor\\printing-press\\.runstate\\cli-printing-press-316e4ead\\runs\\20260724-124302-67128fc0\\working\\plane-pp-cli",
+  "applied": true,
+  "files": [
+    {
+      "path": "cmd/plane-pp-cli/main.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "cmd/plane-pp-mcp/main.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "main": {
+            "published": "func main() {\n\t_ = os.Setenv(\"PLANE_LEARN_SURFACE\", \"mcp\")\n\ts := server.NewMCPServer(\n\t\t\"Plane\",\n\t\t\"1.0.0\",\n\t\tserver.Wit...",
+            "fresh": "func main() {\n\t_ = os.Setenv(\"PLANE_LEARN_SURFACE\", \"mcp\")\n\ts := server.NewMCPServer(\n\t\t\"Plane\",\n\t\tversion,\n\t\tserver.Wit..."
+          }
+        }
+      }
+    },
+    {
+      "path": "go.mod",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "go.sum",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cache/cache.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/agent_context.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "buildAgentContext": {
+            "published": "func buildAgentContext(rootCmd *cobra.Command) agentContext {\n\tenvVars := []agentContextAuthEnvVar{\n\t\t{\n\t\t\tName:        ...",
+            "fresh": "func buildAgentContext(rootCmd *cobra.Command) agentContext {\n\tenvVars := []agentContextAuthEnvVar{\n\t\t{\n\t\t\tName:        ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/analytics.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/api_discovery.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/assets.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/assets_create-generic-upload.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAssetsCreateGenericUploadCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/assets_create-user-upload.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAssetsCreateUserUploadCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/assets_delete-user.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAssetsDeleteUserCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/assets_get-generic.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAssetsGetGenericCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/assets_update-generic.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAssetsUpdateGenericCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/assets_update-user.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAssetsUpdateUserCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/attach_file_novel.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/auth.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/channel_workflow.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/data_source.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "resolvePaginatedReadWithStrategy": [
+            "Errorf",
+            "assertLiveJSONBody",
+            "attachFreshness",
+            "isNetworkError",
+            "paginatedGet",
+            "resolveLocal",
+            "validateDataSourceStrategy",
+            "writeThroughCache"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/deliver.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/doctor.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "workspaceDoctorVerdict"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/doctor_workspace_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/effective_slug_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/export.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/feedback.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/helpers.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "classifyAPIError": [
+            "noWorkspaceSelected",
+            "workspaceHintErr"
+          ],
+          "extractPaginatedItems": [
+            "Unmarshal",
+            "extractPaginatedObjectArray"
+          ],
+          "nextFullPageOffsetCursor": [
+            "Atoi"
+          ],
+          "replacePathParam": [
+            "PathEscape"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/import.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newImportCmd": {
+            "published": "func newImportCmd(flags *rootFlags) *cobra.Command {\n\tvar inputFile string\n\tvar dryRun bool\n\tvar batchSize int\n\tcmd := \u0026...",
+            "fresh": "func newImportCmd(flags *rootFlags) *cobra.Command {\n\tvar inputFile string\n\tvar dryRun bool\n\tvar batchSize int\n\tcmd := \u0026..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/invitations.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/invitations_workspaces-create.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInvitationsWorkspacesCreateCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/invitations_workspaces-destroy.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInvitationsWorkspacesDestroyCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/invitations_workspaces-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/invitations_workspaces-partial-update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInvitationsWorkspacesPartialUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/invitations_workspaces-retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInvitationsWorkspacesRetrieveCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/issues.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/issues_get-workspace-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newIssuesGetWorkspaceWorkItemCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/issues_search-work-items.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newIssuesSearchWorkItemsCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/learn_init.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learn_init_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learnings_candidates.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learnings_candidates_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learnings_stats.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learnings_stats_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/module.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/module_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/modules_novel.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/modules_novel_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbook_init.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/playbook_init_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/playbooks/embed.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/pm_load.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/pm_orphans.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/pm_stale.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/profile.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_archive.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_archive_project.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsArchiveProjectCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_archive_unarchive-project.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsArchiveUnarchiveProjectCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_archived-cycles.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_archived-cycles_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsArchivedCyclesListCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_archived-cycles_unarchive-cycle.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsArchivedCyclesUnarchiveCycleCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_archived-modules.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_archived-modules_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsArchivedModulesListCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_archived-modules_unarchive-module.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsArchivedModulesUnarchiveModuleCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_create.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCreateCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_cycles_add-work-items.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesAddWorkItemsCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles_archive.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesArchiveCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles_create.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesCreateCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles_delete-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesDeleteWorkItemCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles_list-work-items.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesListWorkItemsCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesListCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles_retrieve-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesRetrieveWorkItemCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesRetrieveCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles_transfer-work-items.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesTransferWorkItemsCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_cycles_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsCyclesUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_intake-issues.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_intake-issues_create-intake-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIntakeIssuesCreateIntakeWorkItemCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_intake-issues_delete-intake-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIntakeIssuesDeleteIntakeWorkItemCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_intake-issues_get-intake-work-items-list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIntakeIssuesGetIntakeWorkItemsListCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_intake-issues_retrieve-intake-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIntakeIssuesRetrieveIntakeWorkItemCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_intake-issues_update-intake-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIntakeIssuesUpdateIntakeWorkItemCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_issues_create-work-item-attachment.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesCreateWorkItemAttachmentCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_create-work-item-comment.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesCreateWorkItemCommentCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_create-work-item-link.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesCreateWorkItemLinkCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_create-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesCreateWorkItemCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_delete-work-item-attachment.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesDeleteWorkItemAttachmentCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_delete-work-item-comment.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesDeleteWorkItemCommentCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_delete-work-item-link.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesDeleteWorkItemLinkCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_delete-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesDeleteWorkItemCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_list-work-item-activities.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesListWorkItemActivitiesCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_list-work-item-attachments.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesListWorkItemAttachmentsCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_list-work-item-comments.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesListWorkItemCommentsCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_list-work-item-links.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesListWorkItemLinksCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_list-work-items.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesListWorkItemsCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_retrieve-work-item-activity.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesRetrieveWorkItemActivityCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_retrieve-work-item-attachment.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesRetrieveWorkItemAttachmentCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_retrieve-work-item-comment.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesRetrieveWorkItemCommentCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_retrieve-work-item-link.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesRetrieveWorkItemLinkCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_retrieve-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesRetrieveWorkItemCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_update-link.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesUpdateLinkCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_update-work-item-comment.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesUpdateWorkItemCommentCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_update-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesUpdateWorkItemCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_issues_upload-work-item-attachment.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsIssuesUploadWorkItemAttachmentCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_labels.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_labels_create.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsLabelsCreateCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_labels_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsLabelsDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_labels_get.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsLabelsGetCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_labels_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsLabelsListCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_labels_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsLabelsUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newProjectsListCmd": {
+            "published": "func newProjectsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCursor string\n\tvar flagExpand string\n\tvar flagFields...",
+            "fresh": "func newProjectsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCursor string\n\tvar flagExpand string\n\tvar flagFields..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_members.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_members_create-project.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsMembersCreateProjectCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_members_delete-project.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsMembersDeleteProjectCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_members_get-project-projects.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsMembersGetProjectProjectsCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_members_get-project.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsMembersGetProjectCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_members_update-project.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsMembersUpdateProjectCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_modules.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_modules_add-work-items.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsModulesAddWorkItemsCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_modules_archive.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsModulesArchiveCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_modules_create.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsModulesCreateCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_modules_delete-work-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsModulesDeleteWorkItemCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_modules_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsModulesDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_modules_list-work-items.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsModulesListWorkItemsCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_modules_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsModulesListCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_modules_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsModulesRetrieveCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_modules_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsModulesUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_project-members.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_project-members_create-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsProjectMembersCreate2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_project-members_delete-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsProjectMembersDelete2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_project-members_get-2-projects.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsProjectMembersGet2ProjectsCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_project-members_get-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsProjectMembersGet2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_project-members_update-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsProjectMembersUpdate2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsRetrieveCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_states.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_states_create.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsStatesCreateCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_states_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsStatesDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_states_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsStatesListCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_states_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsStatesRetrieveCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_states_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsStatesUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_summary.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_summary_workspaces-projects-retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsSummaryWorkspacesProjectsRetrieveCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/projects_work-items_create-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsCreate2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_create-attachment-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsCreateAttachment2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_create-comment-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsCreateComment2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_create-link-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsCreateLink2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_create-relation.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsCreateRelationCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_delete-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsDelete2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_delete-attachment-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsDeleteAttachment2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_delete-comment-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsDeleteComment2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_delete-link-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsDeleteLink2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_list-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsList2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_list-activities-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsListActivities2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_list-attachments-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsListAttachments2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_list-comments-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsListComments2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_list-links-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsListLinks2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_list-relations.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsListRelationsCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_retrieve-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsRetrieve2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_retrieve-activity-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsRetrieveActivity2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_retrieve-attachment-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsRetrieveAttachment2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_retrieve-comment-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsRetrieveComment2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_retrieve-link-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsRetrieveLink2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_update-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsUpdate2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_update-comment-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsUpdateComment2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_update-issue-link-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsUpdateIssueLink2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/projects_work-items_upload-attachment-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProjectsWorkItemsUploadAttachment2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_members.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/promoted_users.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/relations.go",
+      "verdict": "NOVEL-COLLISION",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "buildRelationDeleteScript",
+          "deleteShellExample",
+          "envRelationShellCmd",
+          "envWorkspaceSlug",
+          "isWindows",
+          "newRelationsCmd",
+          "newRelationsListCmd",
+          "newRelationsSetCmd",
+          "newRelationsUnsetCmd",
+          "validRelationTypes"
+        ],
+        "in_fresh_not_published": [
+          "newNovelRelationsCmd"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/relations_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/resource_paths.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/root.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*rootFlags).newClient": [
+            "NormalizeWorkspaceSlug"
+          ],
+          "newRootCmd": [
+            "StringVarP"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/root_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestFilterFields": {
+            "published": "func TestFilterFields(t *testing.T) {\n\tt.Parallel()\n\tcases := []struct {\n\t\tname   string\n\t\tinput  string\n\t\tfields string...",
+            "fresh": "func TestFilterFields(t *testing.T) {\n\tt.Parallel()\n\tcases := []struct {\n\t\tname   string\n\t\tinput  string\n\t\tfields string..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/search.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/stickies.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/stickies_create-sticky.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/stickies_delete-sticky.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newStickiesDeleteStickyCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/stickies_list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/stickies_retrieve-sticky.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newStickiesRetrieveStickyCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/stickies_update-sticky.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newStickiesUpdateStickyCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/sync.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "resolveActiveWorkspaceID"
+        ],
+        "in_fresh_not_published": [
+          "cursorPageHasContinuation",
+          "reconcileTypedTable",
+          "reconcileTypedTables",
+          "shortPageEndsPagination"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/sync_hint.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "emitSyncHints": {
+            "published": "func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge time.Duration) {\n\tstate, err := readSyncHin...",
+            "fresh": "func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge time.Duration) {\n\tif !syncHintsEnabled {\n\t\t..."
+          },
+          "hintIfStale": {
+            "published": "func hintIfStale(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) bool {\n\tif cmd == nil |...",
+            "fresh": "func hintIfStale(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) bool {\n\tif !syncHintsEn..."
+          },
+          "hintIfUnsynced": {
+            "published": "func hintIfUnsynced(cmd *cobra.Command, db *store.Store, resourceType string) bool {\n\tif cmd == nil || db == nil {\n\t\tret...",
+            "fresh": "func hintIfUnsynced(cmd *cobra.Command, db *store.Store, resourceType string) bool {\n\tif !syncHintsEnabled || cmd == nil..."
+          },
+          "maybeEmitSyncHints": {
+            "published": "func maybeEmitSyncHints(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) {\n\tif cmd == nil...",
+            "fresh": "func maybeEmitSyncHints(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) {\n\tif !syncHints..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/sync_hint_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/sync_numeric_id_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/tail.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "fetchAndEmit": [
+            "Unmarshal"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/teach.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTeachCmd": {
+            "published": "func newTeachCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar query string\n\tvar resources []string...",
+            "fresh": "func newTeachCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar query string\n\tvar resources []string..."
+          },
+          "newTeachLookupCmd": {
+            "published": "func newTeachLookupCmd(flags *rootFlags) *cobra.Command {\n\tvar kind string\n\tvar canonical string\n\tvar value string\n\tvar ...",
+            "fresh": "func newTeachLookupCmd(flags *rootFlags) *cobra.Command {\n\tvar kind string\n\tvar canonical string\n\tvar value string\n\tvar ..."
+          },
+          "newTeachPatternCmd": {
+            "published": "func newTeachPatternCmd(flags *rootFlags) *cobra.Command {\n\tvar queryTemplate string\n\tvar resourceTemplate string\n\tvar r...",
+            "fresh": "func newTeachPatternCmd(flags *rootFlags) *cobra.Command {\n\tvar queryTemplate string\n\tvar resourceTemplate string\n\tvar r..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/teach_playbook.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/teach_playbook_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/teach_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/version.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/which.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "rankWhich": [
+            "Fields"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/which_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/work-items.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/work-items_get-workspace-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newWorkItemsGetWorkspace2Cmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/work-items_search-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newWorkItemsSearch2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/workspace_flag_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/workspace_hint.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/workspace_hint_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/workspace_scope_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/workspaces_novel.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/workspaces_novel_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/client/client.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "(*APIError).Error": {
+            "published": "func (e *APIError) Error() string {\n\treturn fmt.Sprintf(\"%s %s returned HTTP %d: %s\", e.Method, e.Path, e.StatusCode, e....",
+            "fresh": "func (e *APIError) Error() string {\n\tmsg := fmt.Sprintf(\"%s %s returned HTTP %d\", e.Method, e.Path, e.StatusCode)\n\tif st..."
+          },
+          "(*Client).doInternal": {
+            "published": "func (c *Client) doInternal(ctx context.Context, method, path string, params map[string]string, body any, headerOverride...",
+            "fresh": "func (c *Client) doInternal(ctx context.Context, method, path string, params map[string]string, body any, headerOverride..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/client/client_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/client/client_verify_short_circuit_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/client/url.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/cliutil_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/credentials.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "LoadCredentials": {
+            "published": "func LoadCredentials() (*Credentials, bool, error) {\n\tpath, err := credentialsPath()\n\tif err != nil {\n\t\treturn nil, fals...",
+            "fresh": "func LoadCredentials() (*Credentials, bool, error) {\n\tpath, err := credentialsPath()\n\tif err != nil {\n\t\treturn nil, fals..."
+          },
+          "SaveCredentials": {
+            "published": "func SaveCredentials(creds *Credentials) error {\n\tpath, err := credentialsPath()\n\tif err != nil {\n\t\treturn err\n\t}\n\tdata,...",
+            "fresh": "func SaveCredentials(creds *Credentials) error {\n\tpath, err := credentialsPath()\n\tif err != nil {\n\t\treturn err\n\t}\n\tdata,..."
+          },
+          "type:Credentials": {
+            "published": "type Credentials struct {\n\tAuthHeaderVal             string    `toml:\"auth_header,omitempty\"`\n\tAccessToken              ...",
+            "fresh": "type Credentials struct {\n\tAuthHeaderVal             string    `toml:\"auth_header\"`\n\tAccessToken               string   ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/credentials_perms_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/credentials_test.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "legacyCredentialTOML"
+        ],
+        "in_fresh_not_published": [
+          "TestCaptureCredentialStderrDrainsConcurrently",
+          "legacyConfigData"
+        ]
+      }
+    },
+    {
+      "path": "internal/cliutil/creds_perms_eval.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/creds_perms_eval_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/creds_perms_unix.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/creds_perms_windows.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/csv.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/duration.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/duration_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/extractnumber.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/extractnumber_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/fanout.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/jwtshape.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/jwtshape_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/odata_date.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/odata_date_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/paths.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/paths_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/probe.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/ratelimit.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/text.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/verifyenv.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/config/config.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "(*Config).Save",
+          "NormalizeWorkspaceSlug",
+          "WorkspaceEntry",
+          "normalizeWorkspaceSlug"
+        ]
+      }
+    },
+    {
+      "path": "internal/config/config_perms_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/config/config_workspace_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/derive.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/derive_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/doc.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/entities/config.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/entities/config_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/entities/extract.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/entities/extract_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/journal.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/journal_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/lookups/seeds.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/lookups/seeds_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/lookups/store.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/lookups/store_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/match.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/match_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/normalize.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/normalize_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/apply.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/apply_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/doc.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/extract.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/extract_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/store.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/store_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/playbooks.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/playbooks_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/preseed.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/preseed_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/promote.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/promote_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/protocol.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/recall.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/recall_canonical_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/recall_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/synthesize.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/synthesize_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/teach.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/teach_log.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/teach_log_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/teach_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/bound/bound.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "boundedSingleArrayPageObject": {
+            "published": "func boundedSingleArrayPageObject(data json.RawMessage, opts PageOptions) ([]byte, bool) {\n\tvar obj map[string]json.RawM...",
+            "fresh": "func boundedSingleArrayPageObject(data json.RawMessage, opts PageOptions) ([]byte, bool) {\n\tvar obj map[string]json.RawM..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/bound/bound_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/classify.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/cli_path.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/names.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "shellOutToCLI": [
+            "NewToolResultError"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestCliArgsFromMCP_BlocksRootFlags": {
+            "published": "func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {\n\tin := map[string]any{\n\t\t\"args\":     \"contacts\",\n\t\t\"base-url\": \"...",
+            "fresh": "func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {\n\tin := map[string]any{\n\t\t\"args\":     \"contacts\",\n\t\t\"base-url\": \"..."
+          },
+          "writeShelloutHelper": {
+            "published": "func writeShelloutHelper(t *testing.T, mode string) string {\n\tt.Helper()\n\tdir := t.TempDir()\n\tif runtime.GOOS == \"window...",
+            "fresh": "func writeShelloutHelper(t *testing.T, mode string) string {\n\tt.Helper()\n\tdir := t.TempDir()\n\tif runtime.GOOS == \"window..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/typemap.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/walker.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/code_orch.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "handleCodeOrchExecute": [
+            "applyWorkspaceArg"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/code_orch_writebody_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/tools.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "makeAPIHandler": [
+            "NewToolResultError",
+            "applyWorkspaceArg"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/tools_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/workspace_arg.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/workspace_arg_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/store/candidates.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/candidates_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/events.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/events_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/extras.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/learnings.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/learnings_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/list_ids_scoped_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/store/playbooks.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/playbooks_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/reconcile_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/store/schema_version_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/store.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "OpenWithContext": {
+            "published": "func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {\n\tif err := os.MkdirAll(filepath.Dir(dbPath), ...",
+            "fresh": "func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {\n\tif err := os.MkdirAll(filepath.Dir(dbPath), ..."
+          },
+          "var:isoDatePattern": {
+            "published": "var isoDatePattern = regexp.MustCompile(`^\\d{4}-\\d{2}-\\d{2}(?:[T ][0-9:.+Zz-]+)?$`)",
+            "fresh": "var isoDatePattern = regexp.MustCompile(`^\\d{4}-\\d{2}-\\d{2}(?:[T ][0-9:.+-Zz]+)?$`)"
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/store/store_novel_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/store/upsert_batch_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/types/types.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "spec.yaml",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    }
+  ],
+  "go_mod": {
+    "merged": true,
+    "preserved_module_path": "plane-pp-cli"
+  }
+}

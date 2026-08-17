@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-data-iso",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Un solo lettore di date per tutta la CLI (dataISO), che copre le quattro grafie della fonte, e un campo data_iso affiancato a ogni data in output — JSON via printOutputWithFlags, CSV via writeRecordsCSV. L'ordinamento di deputato profilo passa da chiaveData, che scarta le date illeggibili invece di lasciarle competere come stringhe grezze. SKILL.md documenta le quattro grafie, data_iso e la matrice --data/--anno per archivio, col ripiego --isis-query per i range piu' stretti dell'anno su ddl e leggi. L'iniezione e' rifatta dentro emitEnvelope, che ha un percorso di uscita suo.",
+  "reason": "La fonte scrive le date in quattro dialetti — `28.07.26` (Icaro), `5.01.2026` (archivio leggi), `05/08/2026` (backend /bd/), `17 giu 2026` (blocco di stato dentro un DDL) — e due di questi convivono nello stesso payload di `ddl iter`. Nessuno e' ordinabile come stringa, mentre i filtri d'ingresso vogliono ISO: l'output non si poteva reimmettere in una query costruita con gli stessi criteri. Il danno diretto era in `deputato profilo`: parseICaroDate splittava solo sul punto e sui formati senza punti restituiva la stringa grezza, cosi' `28/07/2026` batteva `2026-08-03` nel confronto lessicografico (\"28\" > \"20\") e il resoconto finiva in testa a interrogazioni piu' recenti. Il riconoscimento delle quattro forme esisteva gia' ma sparso e parziale (iterDateKey in ddl_iter.go, dataOrdinabile in sync_coverage.go): ora entrambi delegano a dataISO, mantenendo il ripiego sulla stringa grezza che i chiamanti storici si aspettano.",
+  "files": [
+    "internal/cli/data_iso.go",
+    "internal/cli/data_iso_test.go",
+    "internal/cli/ddl_iter.go",
+    "internal/cli/deputato_profilo.go",
+    "internal/cli/helpers.go",
+    "internal/cli/icaro_helpers.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "`deputato profilo \"Chinnici Valentina\" --legisl 18 --data 2026-07-25:2026-08-14 --agent`: il resoconto del 28/07 era in prima posizione sopra le interrogazioni del 3.08, ora e' in quinta fra il 29/07 e il 27/07. `ddl iter 18 1153 --agent --select data,data_iso,fase`: i due dialetti dello stesso payload (`16.06.26` e `17 giu 2026`) danno entrambi data_iso corretto. Il range chiesto in radice (`2026-07-25:2026-08-14`) resta senza data_iso, come deve. CSV: `interrogazioni cerca --legisl 18 --limit 5 --csv` letto da duckdb tipizza data_iso come data. --agent (compact) non lo strippa. go test ./... verde. `ddl drift` legge `$.data` dallo store, dove il formato e' quello Icaro (`16.07.26`, verificato sui record sincronizzati): parseICaroDate lo trattava gia' cosi' e continua a trattarlo identicamente. L'esecuzione del comando non e' stata misurata, richiede due deep sync a distanza di tempo. Il CSV degli aggregati e' coperto dalla patch ars-sicilia-csv-aggregati, che rende renderizzabile il loro payload a oggetto. Sull'archivio `pareri` la mancanza di data_iso e' riga per riga, non d'archivio: `pareri cerca --commissione SESTA --legisl 18` e la sezione pareri di `commissione dossier` mostrano `30 gen 2026` (che da' data_iso) accanto a `17 luglio 2` e `05 febbraio` (che non lo danno, manca l'anno). SKILL.md lo dice cosi'. Trovato rivalutando la build: la busta di --envelope esce da writeJSON e non da printOutputWithFlags, quindi le stesse righe avevano data_iso senza --envelope e non l'avevano con --envelope (`commissioni convocazioni --legisl 18 --anno 2026 --agent --envelope` -> data_iso null su tutte le righe). Corretto e coperto da TestBustaEIniezioneDannoLoStessoDataISO."
+}

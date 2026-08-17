@@ -296,6 +296,22 @@ class CommandConstructor:
     children: list[str] = field(default_factory=list)
 
 
+def cli_source_dir(cli_dir: Path) -> Path | None:
+    """Return the directory containing the shipped Cobra command sources.
+
+    Most catalog entries keep source at internal/cli. A small number of entries
+    may keep the public catalog files at the parent while the installable Go
+    module lives in a nested directory to avoid Go module path constraints.
+    """
+    direct = cli_dir / "internal/cli"
+    if direct.exists():
+        return direct
+    nested = sorted(path for path in cli_dir.glob("*/internal/cli") if path.is_dir())
+    if len(nested) == 1:
+        return nested[0]
+    return None
+
+
 @lru_cache(maxsize=None)
 def collect_command_constructors(cli_dir: Path) -> dict[str, CommandConstructor]:
     """Scan internal/cli/*.go for `func newXxxCmd(...) *cobra.Command`
@@ -311,8 +327,8 @@ def collect_command_constructors(cli_dir: Path) -> dict[str, CommandConstructor]
     file-system scan only needs to happen once. Callers must not
     mutate the returned dict (it's the cache's storage).
     """
-    src = cli_dir / "internal/cli"
-    if not src.exists():
+    src = cli_source_dir(cli_dir)
+    if not src:
         return {}
     constructors: dict[str, CommandConstructor] = {}
     for go_file in src.glob("*.go"):
@@ -356,8 +372,8 @@ def find_root_children(cli_dir: Path) -> list[str]:
 
     Cached per cli_dir; callers must not mutate the returned list.
     See collect_command_constructors for rationale."""
-    src = cli_dir / "internal/cli"
-    if not src.exists():
+    src = cli_source_dir(cli_dir)
+    if not src:
         return []
     seen: dict[str, None] = {}
     for go_file in src.glob("*.go"):
@@ -467,8 +483,8 @@ def _legacy_find_command_source(cli_dir: Path, cmd_path: list[str]):
     expects (e.g., commands constructed via local helpers, or files that
     declare cobra.Commands without going through a `newXxxCmd` factory)."""
     leaf = cmd_path[-1]
-    src = cli_dir / "internal/cli"
-    if not src.exists():
+    src = cli_source_dir(cli_dir)
+    if not src:
         return [], None, None
 
     candidates = []
@@ -701,8 +717,8 @@ def flag_declared_via_helper(cli_dir: Path, cmd_files: Iterable[Path], flag_name
     if not helper_names:
         return False
 
-    src = cli_dir / "internal/cli"
-    if not src.exists():
+    src = cli_source_dir(cli_dir)
+    if not src:
         return False
 
     func_re = re.compile(
@@ -726,8 +742,8 @@ def flag_declared_via_helper(cli_dir: Path, cmd_files: Iterable[Path], flag_name
 
 
 def persistent_flag_declared(cli_dir: Path, flag_name: str) -> bool:
-    src = cli_dir / "internal/cli"
-    if not src.exists():
+    src = cli_source_dir(cli_dir)
+    if not src:
         return False
     for go_file in src.glob("*.go"):
         try:
@@ -1139,7 +1155,8 @@ def check_flag_names(cli_dir: Path, sources: list[Path], cli_binary: str, report
     # so users see both surfaces and don't get a false "fixed" signal
     # after editing only the first source. Matches check_flag_commands's
     # per-source emission policy.
-    all_files = list((cli_dir / "internal/cli").glob("*.go"))
+    source_dir = cli_source_dir(cli_dir)
+    all_files = list(source_dir.glob("*.go")) if source_dir else []
     for src in sources:
         seen: set[str] = set()
         for raw_cmd_path, _positional, flags, _surface in extract_cli_invocations(src, cli_binary, cli_dir):
@@ -1164,7 +1181,8 @@ def check_flag_names(cli_dir: Path, sources: list[Path], cli_binary: str, report
 
 
 def check_flag_commands(cli_dir: Path, sources: list[Path], cli_binary: str, report: Report) -> None:
-    all_files = list((cli_dir / "internal/cli").glob("*.go"))
+    source_dir = cli_source_dir(cli_dir)
+    all_files = list(source_dir.glob("*.go")) if source_dir else []
     for src in sources:
         seen: set[tuple[str, str]] = set()
         for raw_cmd_path, _positional, flags, _surface in extract_cli_invocations(src, cli_binary, cli_dir):
@@ -1443,8 +1461,8 @@ def run_checks(cli_dir: Path, only: set[str] | None) -> Report:
     if not skill.exists():
         print(f"error: no SKILL.md in {cli_dir}", file=sys.stderr)
         sys.exit(2)
-    if not (cli_dir / "internal/cli").exists():
-        print(f"error: no internal/cli/ in {cli_dir}", file=sys.stderr)
+    if not cli_source_dir(cli_dir):
+        print(f"error: no internal/cli/ source tree in {cli_dir}", file=sys.stderr)
         sys.exit(2)
 
     cli_binary = derive_cli_binary(cli_dir)

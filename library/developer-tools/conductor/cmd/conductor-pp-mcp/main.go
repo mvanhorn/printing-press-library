@@ -13,7 +13,7 @@ import (
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
-var version = "0.0.0-dev"
+var version = "2026.8.1"
 
 func main() {
 	// Pin the learn-event surface for this process and every walker

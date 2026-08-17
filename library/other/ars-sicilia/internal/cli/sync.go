@@ -62,5 +62,6 @@ Successivamente, i comandi analytics, ddl drift e sync stale useranno i dati loc
 	cmd.Flags().BoolVar(&flagDeep, "deep", false, "Per i ddl, scarica anche la scheda di dettaglio di ogni record per estrarre firmatari e stato dell'iter (sblocca `analytics --group-by cofirmatari` e `ddl drift`). Molto più lento: ~1 richiesta extra per ddl.")
 
 	cmd.AddCommand(newNovelSyncStaleCmd(flags))
+	cmd.AddCommand(newNovelSyncCoverageCmd(flags))
 	return cmd
 }

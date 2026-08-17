@@ -1,0 +1,252 @@
+{
+  "dir": "<HOME>/printing-press/library/scrape-creators",
+  "binary": "<HOME>/printing-press/library/scrape-creators/build/stage/bin/scrape-creators-pp-cli",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 15,
+  "passed": 15,
+  "failed": 0,
+  "skipped": 9,
+  "unverified": 9,
+  "pass_rate": 100,
+  "commands": [
+    "account budget",
+    "ads monitor",
+    "amazon",
+    "analytics",
+    "api",
+    "apple-music list"
+  ],
+  "tests": [
+    {
+      "command": "account budget",
+      "kind": "help",
+      "args": [
+        "account",
+        "budget",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "See how fast you're spending API credits and how many days remain at the current pace.\n\nUsage:\n  scrape-creators-pp-cli account budget [flags]\n\nExamples:\n  scrape-creators-pp-cli account budget\n\nFlags:\n      --days int   limit the burn-rate average to the most recent N days (0 = all available)\n  -h, --help       help for budget\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'scrape-creators-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "account budget",
+      "kind": "happy_path",
+      "args": [
+        "account",
+        "budget"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"avg_daily_spend\": 439,\n  \"credit_balance\": 13751,\n  \"days_remaining\": 31.3,\n  \"days_sampled\": 24,\n  \"fetch_failures\": [],\n  \"most_used_routes\": [\n    {\n      \"base_endpoint\": \"/v1/github/user\",\n      \"call_count\": \"39\",\n      \"total_credits\": \"2\"\n    },\n    {\n      \"base_endpoint\": \"/v1/reddit/subreddit/search\",\n      \"call_count\": \"38\",\n      \"total_credits\": \"38\"\n    },\n    {\n      \"base_endpoint\": \"/v2/instagram/media/transcript\",\n      \"call_count\": \"26\",\n      \"total_credits\": \"19\"\n    },\n    {\n      \"base_endpoint\": \"/v1/apple-music/album\",\n      \"call_count\": \"26\",\n      \"total_credits\": \"6\"\n    },\n    {\n      \"base_endpoint\": \"/v1/tiktok/video/transcript\",\n      \"call_count\": \"26\",\n      \"total_credits\": \"26\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "account budget",
+      "kind": "json_fidelity",
+      "args": [
+        "account",
+        "budget",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"avg_daily_spend\": 439,\n  \"credit_balance\": 13751,\n  \"days_remaining\": 31.3,\n  \"days_sampled\": 24,\n  \"fetch_failures\": [],\n  \"most_used_routes\": [\n    {\n      \"base_endpoint\": \"/v1/github/user\",\n      \"call_count\": \"39\",\n      \"total_credits\": \"2\"\n    },\n    {\n      \"base_endpoint\": \"/v1/reddit/subreddit/search\",\n      \"call_count\": \"38\",\n      \"total_credits\": \"38\"\n    },\n    {\n      \"base_endpoint\": \"/v2/instagram/media/transcript\",\n      \"call_count\": \"26\",\n      \"total_credits\": \"19\"\n    },\n    {\n      \"base_endpoint\": \"/v1/apple-music/album\",\n      \"call_count\": \"26\",\n      \"total_credits\": \"6\"\n    },\n    {\n      \"base_endpoint\": \"/v1/tiktok/video/transcript\",\n      \"call_count\": \"26\",\n      \"total_credits\": \"26\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "account budget",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "ads monitor",
+      "kind": "help",
+      "args": [
+        "ads",
+        "monitor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn; on rerun, diff new vs. gone ads.\n\nUsage:\n  scrape-creators-pp-cli ads monitor \u003cbrand\u003e [flags]\n\nExamples:\n  scrape-creators-pp-cli ads monitor nike\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for monitor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'scrape-creators-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "ads monitor",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"brand\" at depth 0"
+    },
+    {
+      "command": "ads monitor",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"brand\" at depth 0"
+    },
+    {
+      "command": "ads monitor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "amazon",
+      "kind": "help",
+      "args": [
+        "amazon",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scrapes a creator's Amazon Shop page by URL, returning their storefront profile and product collections.\n\nUsage:\n  scrape-creators-pp-cli amazon [flags]\n\nExamples:\n  scrape-creators-pp-cli amazon --url https://www.amazon.com/shop/sydneydelrey\n\nFlags:\n  -h, --help         help for amazon\n      --url string   URL to Amazon Shop page\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'scrape-creators-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "amazon",
+      "kind": "happy_path",
+      "args": [
+        "amazon",
+        "--url",
+        "https://www.amazon.com/shop/sydneydelrey"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"avatar\":\"https://m.media-amazon.com/images/I/A1rW00V-tHL._CR0%2C0%2C2560%2C2560_._US500_SCLZZZZZZZ_.jpg\",\"credits_charged\":1,\"credits_remaining\":13750,\"curations\":[{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/3520061e-8329-48e2-94aa-879edff35c67/a07df-6366-4871-9447-4eb791a01._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":121,\"title\":\"styled fits (non try on)\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/45a32943-0bd5-495a-8630-2390fac635c4\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/3d21bc19-066d-478e-8a9f-f01fb4fa8d4f/51bdc-bc29-416b-8940-8f7107072._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":105,\"title\":\"S/S fit try ons\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/5f8fb9ec-e682-4ed1-a9ac-654661e63d51\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/047e02b7-0e8d-4c73-9a42-6d8adfd9cdf8/e6d57-8dfe-4d36-9eed-d376838e7._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":114,\"title\":\"Gym outfits\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/7d2a59d2-d2d5-459a-a664-90ae837c2fec\"},{\"image\":\"https://m.media-amazon.com/images/I/61WlaUxV0OL._US225_SCLZZZZZZZ_.jpg\",\"postCount\":13,\"title\":\"PRIME DAY\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/c288f6db-d87f-482a-b8e0-295e21cba45d\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/5f7beb8f-8082-4a1b-ad7e-b74225afaa41/02f27-de2b-4798-be69-2463e279f._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":50,\"title\":\"FESTIVAL 🪩\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/d3b3bc61-e5cb-41b7-8ef3-a97835802528\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/b97c7bda-c7b5-413c-a56b-eafa8af6178f/f2c70-8360-4f82-b9ac-e4fc43b66._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":304,\"title\":\"S/S/vacay fits\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/94a14bea-11ab-49c9-b1eb-d14c8892ac4c\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/a28b689b-400a-43ac-9137-3c4758f014b6/dc486-906c-45b6-b082-508ec7053._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":211,\"title\":\"fall/winter fits\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/1514dc33-6b7f-4639-971f-0d377539f85d\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/48f67417-062f-456b-a254-dbfa2f0e2da7/f314f-8c6a-4eae-9501-e3c284b23._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":34,\"title\":\"My jewelry 💎\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/1060e92a-7bbe-4581-8cf8-888a6a4ded70\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/a82d4490-2fca-4648-bea1-a39a9ac029b7/d1926-6b07-4cb6-96af-571b46644._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":175,\"title\":\"Holiday outfits (xmas, nye, vday, st pats)\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/b74328f3-11ce-4a55-a844-40f6aff6e467\"},{\"image\":\"https://m.media-amazon.com/images/G/01/Influencer/Curations_Fallback_Thumbnail.png\",\"postCount\":38,\"title\":\"home goods\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/83cfdc54-e837-44c2-89ab-5eb9299828e9\"}],\"description\":\"sharing all of my favorite Amazon finds ᥫ᭡ click the icons below to follow me on socials! all photo \u0026 video content is also shoppable x\",\"isTopCreator\":true,\"lists\":[{\"image\":\"https://m.media-amazon.com/images/G/01/Influencer/full_bleed_pin_2x.png\",\"itemCount\":72,\"title\":\"my amazon heel collection\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/list/16P4Z5SKOB7EG?tag=sydneybertonc-20\"},{\"image\":\"https://m.media-amazon.com/images/G/01/Influencer/full_bleed_pin_2x.png\",\"itemCount\":269,\"title\":\"vacay fitspo (from videos)\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/list/KUGNMP73CKST?tag=sydneybertonc-20\"},{\"image\":\"https://m.media-amazon.com/images/G/01/Influencer/full_bleed_pin_2x.png\",\"itemCount\":173,\"title\":\"MY JEWELRY 🫶🏼\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/list/2AFQPW1LWR5N4?tag=sydneybertonc-20\"},{\"ima…[truncated]"
+    },
+    {
+      "command": "amazon",
+      "kind": "json_fidelity",
+      "args": [
+        "amazon",
+        "--url",
+        "https://www.amazon.com/shop/sydneydelrey",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"avatar\":\"https://m.media-amazon.com/images/I/A1rW00V-tHL._CR0%2C0%2C2560%2C2560_._US500_SCLZZZZZZZ_.jpg\",\"credits_charged\":1,\"credits_remaining\":13750,\"curations\":[{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/3520061e-8329-48e2-94aa-879edff35c67/a07df-6366-4871-9447-4eb791a01._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":121,\"title\":\"styled fits (non try on)\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/45a32943-0bd5-495a-8630-2390fac635c4\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/3d21bc19-066d-478e-8a9f-f01fb4fa8d4f/51bdc-bc29-416b-8940-8f7107072._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":105,\"title\":\"S/S fit try ons\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/5f8fb9ec-e682-4ed1-a9ac-654661e63d51\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/047e02b7-0e8d-4c73-9a42-6d8adfd9cdf8/e6d57-8dfe-4d36-9eed-d376838e7._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":114,\"title\":\"Gym outfits\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/7d2a59d2-d2d5-459a-a664-90ae837c2fec\"},{\"image\":\"https://m.media-amazon.com/images/I/61WlaUxV0OL._US225_SCLZZZZZZZ_.jpg\",\"postCount\":13,\"title\":\"PRIME DAY\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/c288f6db-d87f-482a-b8e0-295e21cba45d\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/5f7beb8f-8082-4a1b-ad7e-b74225afaa41/02f27-de2b-4798-be69-2463e279f._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":50,\"title\":\"FESTIVAL 🪩\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/d3b3bc61-e5cb-41b7-8ef3-a97835802528\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/b97c7bda-c7b5-413c-a56b-eafa8af6178f/f2c70-8360-4f82-b9ac-e4fc43b66._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":304,\"title\":\"S/S/vacay fits\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/94a14bea-11ab-49c9-b1eb-d14c8892ac4c\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/a28b689b-400a-43ac-9137-3c4758f014b6/dc486-906c-45b6-b082-508ec7053._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":211,\"title\":\"fall/winter fits\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/1514dc33-6b7f-4639-971f-0d377539f85d\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/48f67417-062f-456b-a254-dbfa2f0e2da7/f314f-8c6a-4eae-9501-e3c284b23._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":34,\"title\":\"My jewelry 💎\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/1060e92a-7bbe-4581-8cf8-888a6a4ded70\"},{\"image\":\"https://m.media-amazon.com/images/S/shoppable-media-external-prod-iad-us-east-1/a82d4490-2fca-4648-bea1-a39a9ac029b7/d1926-6b07-4cb6-96af-571b46644._SX225_SCLZZZZZZZ_.jpeg\",\"postCount\":175,\"title\":\"Holiday outfits (xmas, nye, vday, st pats)\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/b74328f3-11ce-4a55-a844-40f6aff6e467\"},{\"image\":\"https://m.media-amazon.com/images/G/01/Influencer/Curations_Fallback_Thumbnail.png\",\"postCount\":38,\"title\":\"home goods\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/curation/83cfdc54-e837-44c2-89ab-5eb9299828e9\"}],\"description\":\"sharing all of my favorite Amazon finds ᥫ᭡ click the icons below to follow me on socials! all photo \u0026 video content is also shoppable x\",\"isTopCreator\":true,\"lists\":[{\"image\":\"https://m.media-amazon.com/images/G/01/Influencer/full_bleed_pin_2x.png\",\"itemCount\":72,\"title\":\"my amazon heel collection\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/list/16P4Z5SKOB7EG?tag=sydneybertonc-20\"},{\"image\":\"https://m.media-amazon.com/images/G/01/Influencer/full_bleed_pin_2x.png\",\"itemCount\":269,\"title\":\"vacay fitspo (from videos)\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/list/KUGNMP73CKST?tag=sydneybertonc-20\"},{\"image\":\"https://m.media-amazon.com/images/G/01/Influencer/full_bleed_pin_2x.png\",\"itemCount\":173,\"title\":\"MY JEWELRY 🫶🏼\",\"url\":\"https://www.amazon.com/shop/sydneydelrey/list/2AFQPW1LWR5N4?tag=sydneybertonc-20\"},{\"ima…[truncated]"
+    },
+    {
+      "command": "amazon",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  scrape-creators-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  scrape-creators-pp-cli analytics --type messages\n\n  # Group by a field\n  scrape-creators-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  scrape-creators-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         SQLite database file path (default: resolved data directory data.db)\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'scrape-creators-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'scrape-creators-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'scrape-creators-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  scrape-creators-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  scrape-creators-pp-cli api\n\n  # Show methods for a specific interface\n  scrape-creators-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'scrape-creators-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'scrape-creators-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "apple-music list",
+      "kind": "help",
+      "args": [
+        "apple-music",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieves public Apple Music album details, including title, artist, artwork, release info, tracks\n\nUsage:\n  scrape-creators-pp-cli apple-music list [flags]\n\nExamples:\n  scrape-creators-pp-cli apple-music list\n\nFlags:\n  -h, --help         help for list\n      --id string    Apple Music album id. If you'd prefer to use the URL instead, you can use the url parameter instead.\n      --url string   Apple Music album URL. If you'd prefer to use the id instead, you can use the id parameter instead.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'scrape-creators-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "apple-music list",
+      "kind": "happy_path",
+      "args": [
+        "apple-music",
+        "list",
+        "--url",
+        "https://music.apple.com/us/album/lover/1468058165"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"success\": true,\n    \"credits_remaining\": 13749,\n    \"credits_charged\": 1,\n    \"id\": \"1468058165\",\n    \"kind\": \"album\",\n    \"title\": \"Lover\",\n    \"artist_name\": \"Taylor Swift\",\n    \"artist_url\": \"https://music.apple.com/us/artist/taylor-swift/159260351\",\n    \"url\": \"https://music.apple.com/us/album/lover/1468058165\",\n    \"artwork\": {\n      \"url\": \"https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/49/3d/ab/493dab54-f920-9043-6181-80993b8116c9/19UMGIM53909.rgb.jpg/1200x1200bb.jpg\",\n      \"width\": 3900,\n      \"height\": 3900,\n      \"bgColor\": \"fbcedd\",\n      \"textColor1\": \"31251f\",\n      \"textColor2\": \"223040\",\n      \"textColor3\": \"5a4745\",\n      \"textColor4\": \"4d4f60\"\n    },\n    \"track_count\": 18,\n    \"release_info\": \"August 23, 2019\\n18 songs, 1 hour 1 minute\\n℗ 2019 Taylor Swift\",\n    \"tracks\": [\n      {\n        \"id\": \"1468058169\",\n        \"kind\": \"song\",\n        \"title\": \"I Forgot That You Existed\",\n        \"subtitle\": null,\n        \"album\": null,\n        \"url\": \"https://music.apple.com/us/album/i-forgot-that-you-existed/1468058165?i=1468058169\",\n        \"artwork\": {\n          \"url\": \"https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/49/3d/ab/493dab54-f920-9043-6181-80993b8116c9/19UMGIM53909.rgb.jpg/1200x1200bb.jpg\",\n          \"width\": 3900,\n          \"height\": 3900,\n          \"bgColor\": \"fbcedd\",\n          \"textColor1\": \"31251f\",\n          \"textColor2\": \"223040\",\n          \"textColor3\": \"5a4745\",\n          \"textColor4\": \"4d4f60\"\n        },\n        \"duration_ms\": 170651,\n        \"track_number\": 1,\n        \"disc_number\": 1,\n        \"artist_name\": \"Taylor Swift\",\n        \"explicit\": false,\n        \"preview_url\": \"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9c/e2/97/9ce2976a-b1c8-aa80-3e94-f4562cbad53e/mzaf_13898706762824220632.plus.aac.ep.m4a\",\n        \"track_count\": null,\n        \"album_id\": \"1468058165\"\n      },\n      {\n        \"id\": \"1468058171\",\n        \"kind\": \"song\",\n        \"title\": \"Cruel Summer\",\n        \"subtitle\": null,\n        \"album\": null,\n        \"url\": \"https://music.apple.com/us/album/cruel-summer/1468058165?i=1468058171\",\n        \"artwork\": {\n          \"url\": \"https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/49/3d/ab/493dab54-f920-9043-6181-80993b8116c9/19UMGIM53909.rgb.jpg/1200x1200bb.jpg\",\n          \"width\": 3900,\n          \"height\": 3900,\n          \"bgColor\": \"fbcedd\",\n          \"textColor1\": \"31251f\",\n          \"textColor2\": \"223040\",\n          \"textColor3\": \"5a4745\",\n          \"textColor4\": \"4d4f60\"\n        },\n        \"duration_ms\": 178426,\n        \"track_number\": 2,\n        \"disc_number\": 1,\n        \"artist_name\": \"Taylor Swift\",\n        \"explicit\": false,\n        \"preview_url\": \"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/44/af/81/44af8168-9609-1b85-5048-ada08dceacf3/mzaf_5595361395314573470.plus.aac.ep.m4a\",\n        \"track_count\": null,\n        \"album_id\": \"1468058165\"\n      },\n      {\n        \"id\": \"1468058173\",\n        \"kind\": \"song\",\n        \"title\": \"Lover\",\n        \"subtitle\": null,\n        \"album\": null,\n        \"url\": \"https://music.apple.com/us/album/lover/1468058165?i=1468058173\",\n        \"artwork\": {\n          \"url\": \"https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/49/3d/ab/493dab54-f920-9043-6181-80993b8116c9/19UMGIM53909.rgb.jpg/1200x1200bb.jpg\",\n          \"width\": 3900,\n          \"height\": 3900,\n          \"bgColor\": \"fbcedd\",\n          \"textColor1\": \"31251f\",\n          \"textColor2\": \"223040\",\n          \"textColor3\": \"5a4745\",\n          \"textColor4\": \"4d4f60\"\n        },\n        \"duration_ms\": 221300,\n        \"track_number\": 3,\n        \"disc_number\": 1,\n        \"artist_name\": \"Taylor Swift\",\n        \"explicit\": false,\n        \"preview_url\": \"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e0/db/47/e0db47b0-7f70-0631-0414-cd4777d2fb3e/mzaf_6008069204816798831.plus.aac.ep.m4a\",\n        \"track_count\": null,\n        \"album_id\": \"1468058165\"\n      },\n      {\n        \"id\": \"1468058176\",\n        \"kind\": \"song\",\n        \"title\": \"The Man\",\n        \"subt…[truncated]"
+    },
+    {
+      "command": "apple-music list",
+      "kind": "json_fidelity",
+      "args": [
+        "apple-music",
+        "list",
+        "--url",
+        "https://music.apple.com/us/album/lover/1468058165",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"success\": true,\n    \"credits_remaining\": 13749,\n    \"credits_charged\": 1,\n    \"id\": \"1468058165\",\n    \"kind\": \"album\",\n    \"title\": \"Lover\",\n    \"artist_name\": \"Taylor Swift\",\n    \"artist_url\": \"https://music.apple.com/us/artist/taylor-swift/159260351\",\n    \"url\": \"https://music.apple.com/us/album/lover/1468058165\",\n    \"artwork\": {\n      \"url\": \"https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/49/3d/ab/493dab54-f920-9043-6181-80993b8116c9/19UMGIM53909.rgb.jpg/1200x1200bb.jpg\",\n      \"width\": 3900,\n      \"height\": 3900,\n      \"bgColor\": \"fbcedd\",\n      \"textColor1\": \"31251f\",\n      \"textColor2\": \"223040\",\n      \"textColor3\": \"5a4745\",\n      \"textColor4\": \"4d4f60\"\n    },\n    \"track_count\": 18,\n    \"release_info\": \"August 23, 2019\\n18 songs, 1 hour 1 minute\\n℗ 2019 Taylor Swift\",\n    \"tracks\": [\n      {\n        \"id\": \"1468058169\",\n        \"kind\": \"song\",\n        \"title\": \"I Forgot That You Existed\",\n        \"subtitle\": null,\n        \"album\": null,\n        \"url\": \"https://music.apple.com/us/album/i-forgot-that-you-existed/1468058165?i=1468058169\",\n        \"artwork\": {\n          \"url\": \"https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/49/3d/ab/493dab54-f920-9043-6181-80993b8116c9/19UMGIM53909.rgb.jpg/1200x1200bb.jpg\",\n          \"width\": 3900,\n          \"height\": 3900,\n          \"bgColor\": \"fbcedd\",\n          \"textColor1\": \"31251f\",\n          \"textColor2\": \"223040\",\n          \"textColor3\": \"5a4745\",\n          \"textColor4\": \"4d4f60\"\n        },\n        \"duration_ms\": 170651,\n        \"track_number\": 1,\n        \"disc_number\": 1,\n        \"artist_name\": \"Taylor Swift\",\n        \"explicit\": false,\n        \"preview_url\": \"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9c/e2/97/9ce2976a-b1c8-aa80-3e94-f4562cbad53e/mzaf_13898706762824220632.plus.aac.ep.m4a\",\n        \"track_count\": null,\n        \"album_id\": \"1468058165\"\n      },\n      {\n        \"id\": \"1468058171\",\n        \"kind\": \"song\",\n        \"title\": \"Cruel Summer\",\n        \"subtitle\": null,\n        \"album\": null,\n        \"url\": \"https://music.apple.com/us/album/cruel-summer/1468058165?i=1468058171\",\n        \"artwork\": {\n          \"url\": \"https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/49/3d/ab/493dab54-f920-9043-6181-80993b8116c9/19UMGIM53909.rgb.jpg/1200x1200bb.jpg\",\n          \"width\": 3900,\n          \"height\": 3900,\n          \"bgColor\": \"fbcedd\",\n          \"textColor1\": \"31251f\",\n          \"textColor2\": \"223040\",\n          \"textColor3\": \"5a4745\",\n          \"textColor4\": \"4d4f60\"\n        },\n        \"duration_ms\": 178426,\n        \"track_number\": 2,\n        \"disc_number\": 1,\n        \"artist_name\": \"Taylor Swift\",\n        \"explicit\": false,\n        \"preview_url\": \"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/44/af/81/44af8168-9609-1b85-5048-ada08dceacf3/mzaf_5595361395314573470.plus.aac.ep.m4a\",\n        \"track_count\": null,\n        \"album_id\": \"1468058165\"\n      },\n      {\n        \"id\": \"1468058173\",\n        \"kind\": \"song\",\n        \"title\": \"Lover\",\n        \"subtitle\": null,\n        \"album\": null,\n        \"url\": \"https://music.apple.com/us/album/lover/1468058165?i=1468058173\",\n        \"artwork\": {\n          \"url\": \"https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/49/3d/ab/493dab54-f920-9043-6181-80993b8116c9/19UMGIM53909.rgb.jpg/1200x1200bb.jpg\",\n          \"width\": 3900,\n          \"height\": 3900,\n          \"bgColor\": \"fbcedd\",\n          \"textColor1\": \"31251f\",\n          \"textColor2\": \"223040\",\n          \"textColor3\": \"5a4745\",\n          \"textColor4\": \"4d4f60\"\n        },\n        \"duration_ms\": 221300,\n        \"track_number\": 3,\n        \"disc_number\": 1,\n        \"artist_name\": \"Taylor Swift\",\n        \"explicit\": false,\n        \"preview_url\": \"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e0/db/47/e0db47b0-7f70-0631-0414-cd4777d2fb3e/mzaf_6008069204816798831.plus.aac.ep.m4a\",\n        \"track_count\": null,\n        \"album_id\": \"1468058165\"\n      },\n      {\n        \"id\": \"1468058176\",\n        \"kind\": \"song\",\n        \"title\": \"The Man\",\n        \"subt…[truncated]"
+    },
+    {
+      "command": "apple-music list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-08-09T11:24:59.542124Z"
+}

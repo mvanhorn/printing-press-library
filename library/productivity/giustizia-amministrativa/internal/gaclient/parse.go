@@ -34,6 +34,17 @@ type Provvedimento struct {
 	NomeFile     string `json:"nome_file"`
 	URL          string `json:"url"`
 	FullText     string `json:"full_text,omitempty"`
+	// Duplicati is set (>0) when near-duplicate results sharing the same
+	// snippet were folded into this one (ricorsi gemelli: multiple parties
+	// challenging the same provvedimento). It holds the total group size;
+	// the folded siblings are omitted from the result list.
+	Duplicati int `json:"duplicati,omitempty"`
+	// MatchCount is set (>0) when the full text was found in the local store
+	// and the search terms were counted in it. It distinguishes "1 match in
+	// an obiter" from "12 matches in the dispositivo" — the portal's snippet
+	// shows only one occurrence, so relevance is invisible without it.
+	// Absent when the text is not cached (first search on a fresh store).
+	MatchCount int `json:"match_count,omitempty"`
 }
 
 var (
@@ -130,10 +141,23 @@ func parseItem(block string) Provvedimento {
 }
 
 // normalizeDocURL rewrites the printable "/visualizza/" variant to the
-// "/visualizzah2/" highlighted full-text endpoint, which both serve the same
-// public document.
+// "/visualizzah2/" highlighted full-text endpoint. The two serve the same
+// public document only when it is HTML: visualizzah2 renders the document as
+// a highlighted page and cannot do that for a PDF, where it answers with a
+// 159-byte "net::ERR_ABORTED" string instead of the file. The portal's own
+// result rows already carry the working /visualizza/ URL, so for a PDF the
+// rewrite is what breaks it — leave those alone.
 func normalizeDocURL(u string) string {
+	if isPDFPath(u) {
+		return u
+	}
 	return strings.Replace(u, "/visualizza/?", "/visualizzah2/?", 1)
+}
+
+// isPDFPath reports whether a document URL or file name refers to a PDF.
+func isPDFPath(s string) bool {
+	low := strings.ToLower(s)
+	return strings.HasSuffix(low, ".pdf") || strings.Contains(low, ".pdf&") || strings.Contains(low, ".pdf?")
 }
 
 func normalizeTipo(t string) string {

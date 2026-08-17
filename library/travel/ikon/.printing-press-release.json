@@ -2,9 +2,17 @@
   "schema_version": 1,
   "slug": "ikon",
   "cli_name": "ikon-pp-cli",
-  "version": "",
-  "released_at": "",
-  "source_commit": "",
+  "version": "2026.8.2",
+  "released_at": "2026-08-17T08:21:18Z",
+  "source_commit": "bc4b586302c2f3040178080f61960f98fff3529d",
   "printing_press_version": "4.24.0",
-  "run_id": "20260614-225531-a02ed005"
+  "run_id": "20260614-225531-a02ed005",
+  "changes": [
+    {
+      "title": "fix(cli): remove redundant toolchain directives",
+      "pr": 1737,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1737",
+      "commit": "bc4b586302c2f3040178080f61960f98fff3529d"
+    }
+  ]
 }

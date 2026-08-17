@@ -7,6 +7,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
+	golang.org/x/sys v0.46.0
 	modernc.org/sqlite v1.37.0
 )
 
@@ -25,8 +26,3 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect
 )
-
-// Floor x/sys above the vulnerable v0.31.0. It is pulled only transitively
-// (modernc.org/sqlite, ...), so MVS needs this explicit floor rather than
-// whatever the transitive graph happens to resolve.
-require golang.org/x/sys v0.46.0 // indirect

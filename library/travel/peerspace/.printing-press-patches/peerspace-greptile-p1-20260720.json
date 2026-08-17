@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "peerspace-greptile-p1-20260720",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260716-123216-7a9be8d4",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Address Greptile P1s: Homebrew owner, required auth cookies PSUser/PSAccess, skip reconcile on extract failures, namespace missing parent storage IDs.",
+  "reason": "PR review findings that block publish confidence for auth profile selection and destructive sync prune.",
+  "files": [
+    ".goreleaser.yaml",
+    "internal/cli/auth.go",
+    "internal/cli/sync.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "go build ./..."
+}

@@ -1,0 +1,121 @@
+Root:
+  get:
+    tags: 
+      - Banner
+    summary: Get a banner (ad)
+    deprecated: true
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: query
+        name: location
+        required: true
+        description: This parameter is responsible for getting the banner for the corresponding type of page at the specified location on the page
+        schema:
+          type: string
+          enum: ["home", "thing", "make", "download", "explore", "user_profile", "search"]
+      - in: query
+        name: query
+        required: false
+        description: This parameter is used as a keyword to perform a search by link parameter of banner
+        schema:
+          type: string
+          example: 3D
+      - in: query
+        name: category_id
+        required: false
+        description: The id of thing category
+        schema:
+          type: integer
+          minimum: 0
+          example: 63
+      - in: query
+        name: type
+        required: false
+        description: The type of link of the banner
+        schema:
+          type: string
+          enum: ["Link Generator", "Amazon Program", "Ad card replacement", "Manage Printers", "Remove All Ads"]
+      - in: query
+        name: search
+        required: false
+        description: This parameter is used as a keyword or array of keywords to perform a search in industry parameter of banner
+        schema:
+          type: string
+          example: q=test&page=1&type=things&sort=relevant
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              nullable: true
+              $ref: '../schemas/banner_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+AdByPage:
+  get:
+    deprecated: true
+    tags:
+      - Banner
+    summary: Get banner (ad) for a certain page
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: query
+        name: location
+        required: true
+        description: This parameter is responsible for getting the banner for the corresponding type of page at the specified location on the page
+        schema:
+          type: string
+          enum: ["home", "thing", "make", "download", "explore", "user_profile", "search"]
+      - in: query
+        name: query
+        required: false
+        description: This parameter is used as a keyword to perform a search in link parameter of banner
+        schema:
+          type: string
+          example: 3D
+      - in: query
+        name: category_id
+        required: false
+        description: The id of thing category
+        schema:
+          type: integer
+          minimum: 0
+          example: 63
+      - in: query
+        name: type
+        required: false
+        description: The type of link of the banner
+        schema:
+          type: string
+          enum: ["Link Generator", "Amazon Program", "Ad card replacement", "Manage Printers", "Remove All Ads"]
+      - in: query
+        name: search
+        required: false
+        description: This parameter is used as a keyword or array of keywords to perform a search in industry parameter of banner
+        schema:
+          type: string
+          example: q=test&page=1&type=things&sort=relevant
+    responses:
+      '200':
+        description: An object representing the banner requested
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customAds:
+                    type: object
+                  blockedAdVariation:
+                    type: string
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

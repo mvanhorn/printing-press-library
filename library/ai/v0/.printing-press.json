@@ -9,6 +9,12 @@
     "handle": "SomSamantray",
     "name": "Som Samantray"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "owner": "somsamantray",
   "printer": "SomSamantray",
   "printer_name": "Som Samantray",

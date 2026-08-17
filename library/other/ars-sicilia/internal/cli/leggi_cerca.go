@@ -62,7 +62,7 @@ func newLeggiCercaCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&flagLegisl, "legisl", 0, "Legislatura (es. 18 per XVIII).")
-	cmd.Flags().IntVar(&flagAnno, "anno", 0, "Anno della legge.")
+	cmd.Flags().IntVar(&flagAnno, "anno", 0, "Anno della legge (filtro temporale di questo archivio: non esiste --data sulle leggi; disambigua anche numeri ripetuti tra anni).")
 	cmd.Flags().IntVar(&flagNumero, "numero", 0, "Numero della legge.")
 	cmd.Flags().StringVar(&flagTesto, "testo", "", "Ricerca testuale libera.")
 	cmd.Flags().StringVar(&flagFrase, "frase", "", "Cerca le parole come locuzione, adiacenti e nell'ordine dato (ISIS adj). Piu' preciso di --testo, che combina le parole in AND sull'intero documento: --testo \"aree idonee\" aggancia anche chi ha le due parole in articoli diversi.")

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-sede-sweep",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Aggiunto --sede-sweep (SearchOptions.SedeSweep): interroga tutte le 31 sedi del form e unisce i risultati in round-robin, con --limit inteso come totale complessivo e non per sede. Aggiunto withSedeCoverageWarning: una ricerca senza --sede i cui risultati sono tutti della stessa sede e troncati rispetto al Total dichiarato lo segnala esplicitamente. Guardie: --sede-sweep non si combina con --sede ne' con --anno-from/--anno-to. appendSkippedWarning generalizzata con un parametro noun (anni/sedi). sync distingue ora 'fetched' da 'added' invece dell'ambiguo 'seeded'.",
+  "reason": "Il portale ordina i risultati per sede, non per pertinenza ne' per data: una ricerca senza filtro sede restituisce TAR Lazio Roma nelle prime ~4 pagine (misurato: pagine 1-2 100% Roma, pagina 5 mista CdS/Roma, pagina 20 mista reale) pur dichiarando un totale nazionale (21.829 risultati contro i 907 della sola Milano). Con un --limit ordinario l'utente riceve quindi solo il TAR Lazio credendo di vedere il quadro nazionale: una risposta plausibile e incompleta, senza alcun segnale -- il caso peggiore per un esperto di dominio che consulta il tool da un client MCP. Verificato con curl diretto sul portale che non e' un difetto del nostro client: inviare sedeProvvedimenti vuoto come fa il form non cambia nulla. E' la stessa classe di problema gia' risolta per gli anni con --anno-from/--anno-to. Su 'seeded': valeva len(res.Items), cioe' quanti provvedimenti erano stati scaricati e riscritti, non quanti fossero nuovi; il nome ha indotto un agente a riferire '20 nuovi provvedimenti' mentre il totale dello store restava invariato perche' erano tutti gia' presenti.",
+  "files": [
+    "internal/gaclient/client.go",
+    "internal/cli/search.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "search --phrase 'soccorso istruttorio' --sede-sweep --limit 12: 12 risultati da 12 sedi distinte (prima: 12 tutti Roma). Senza --sede-sweep lo stesso comando emette 'Attenzione: tutti i 5 risultati mostrati sono della sede ROMA, su 19314 totali...'. Con --limit sotto il numero di sedi interrogate avvisa che le sedi restanti restano fuori. Guardie: --sede+--sede-sweep e --sede-sweep+--anno-from danno errore esplicito. sync --limit 5 ripetuto: {fetched:5, added:0}. go build/vet/test verdi."
+}

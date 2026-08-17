@@ -7,6 +7,7 @@ package cli
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -52,7 +53,7 @@ Esempi:
 		},
 	}
 	cmd.Flags().StringVar(&flagType, "type", "", "Archivio sorgente (ddl, interrogazioni, mozioni, resoconti).")
-	cmd.Flags().StringVar(&flagGroupBy, "group-by", "", "Campo di aggregazione (cofirmatari, oratore, proponente, gruppo, anno).")
+	cmd.Flags().StringVar(&flagGroupBy, "group-by", "", "Campo di aggregazione (cofirme, cofirmatari, oratore, proponente, gruppo, anno). cofirme = quante volte ciascun deputato ha cofirmato (in diretta, richiede --legisl); cofirmatari = coppie che firmano insieme (richiede sync --deep).")
 	cmd.Flags().IntVar(&flagLimit, "limit", 30, "Max righe in output.")
 	cmd.Flags().IntVar(&flagLegisl, "legisl", 0, "Filtra per legislatura (0 = tutte).")
 	cmd.Flags().StringVar(&flagDB, "db", "", "Percorso del database SQLite.")
@@ -90,6 +91,14 @@ func runAnalytics(cmd *cobra.Command, flags *rootFlags, typ, groupBy string, lim
 		return runOratoreAnalyticsLive(cmd, flags, legisl, limit)
 	}
 
+	// group-by cofirme: percorso LIVE, una richiesta per deputato. Non è un
+	// doppione di `cofirmatari`: quello conta le coppie e per farlo deve leggere
+	// i firmatari dentro ogni documento (deep sync); questo conta quante volte
+	// ciascuno ha cofirmato, e il portale lo sa già dire (vedi analytics_cofirme.go).
+	if groupBy == "cofirme" {
+		return runCofirmeAnalyticsLive(cmd, flags, typ, legisl, limit, dbPath)
+	}
+
 	// group-by proponente/gruppo: percorso LIVE sulle viste pre-aggregate /edem/
 	// (una sola richiesta). Sono classifiche dei DDL già calcolate dal portale
 	// (proponente = primo firmatario; gruppo = gruppo parlamentare).
@@ -115,7 +124,7 @@ func runAnalytics(cmd *cobra.Command, flags *rootFlags, typ, groupBy string, lim
 	case "anno":
 		rows, err = groupByAnno(ctx, db.DB(), typ, legisl, limit)
 	default:
-		return fmt.Errorf("group-by %q non supportato. Disponibili: cofirmatari, oratore, proponente, gruppo, anno", groupBy)
+		return fmt.Errorf("group-by %q non supportato. Disponibili: cofirme, cofirmatari, oratore, proponente, gruppo, anno", groupBy)
 	}
 	if err != nil {
 		return err
@@ -128,7 +137,7 @@ func runAnalytics(cmd *cobra.Command, flags *rootFlags, typ, groupBy string, lim
 			// The firmatari are not in the short-list; only the deep sync
 			// extracts them from each ddl's detail page.
 			fmt.Fprintf(os.Stderr,
-				"hint: --group-by cofirmatari richiede i firmatari estratti dalle schede di dettaglio dei ddl. Esegui `ars-sicilia-pp-cli sync --resources ddl --deep` (più lento) e riprova; una sync normale non li popola.\n")
+				"hint: --group-by cofirmatari conta le COPPIE di cofirmatari, e le coppie stanno solo dentro le schede di dettaglio: esegui `ars-sicilia-pp-cli sync --resources ddl --deep` (più lento) e riprova, una sync normale non le popola. Se invece ti basta quante volte ciascuno ha cofirmato, `--group-by cofirme --legisl N` lo chiede al portale in diretta, senza sync.\n")
 		default:
 			// Distinguere "store vuoto" da "store popolato ma senza record per
 			// questa legislatura": la sync di default scarica le prime pagine
@@ -176,9 +185,26 @@ func runOratoreAnalyticsLive(cmd *cobra.Command, flags *rootFlags, legisl, limit
 			fmt.Fprintln(os.Stderr)
 		}
 	}
-	counts, err := c.SpeakerSessionCounts(ctx, itoa(legisl), "", progress)
+	counts, persi, err := c.SpeakerSessionCounts(ctx, itoa(legisl), "", progress)
 	if err != nil {
+		// Il rate limit ha un codice suo: chi ha uno script deve poter capire che
+		// si tratta di aspettare e riprovare, non di un guasto.
+		if rlErr := new(icaro.HTTPRateLimitError); errors.As(err, &rlErr) {
+			return rateLimitErr(err)
+		}
 		return err
+	}
+	// Sempre su stderr, come il caveat su --legisl qui sopra: lo stdout resta
+	// JSON/CSV puro. Una classifica a cui manca qualcuno non può però uscire
+	// muta: chi la legge la userebbe per dire «è intervenuto meno degli altri»,
+	// quando in realtà non l'abbiamo misurato.
+	if len(persi) > 0 {
+		soggetto := fmt.Sprintf("%d oratori su %d non misurati", len(persi), len(persi)+len(counts))
+		if len(persi) == 1 {
+			soggetto = fmt.Sprintf("1 oratore su %d non misurato", len(counts)+1)
+		}
+		fmt.Fprintf(os.Stderr, "nota: classifica parziale — %s (il backend /bd/ non ha risposto): %s. Ripeti il comando per completarla.\n",
+			soggetto, elencoTroncato(persi, 5))
 	}
 	rows := make([]analyticsRow, 0, len(counts))
 	for _, sc := range counts {
@@ -424,4 +450,14 @@ func writeAnalyticsCSV(w interface{ Write(p []byte) (int, error) }, rows []analy
 		fmt.Fprintf(w, "%s,%d,%s\n", csvEscape(r.Chiave), r.Conteggio, csvEscape(r.Note))
 	}
 	return nil
+}
+
+// elencoTroncato rende leggibile una lista di nomi in un avviso di una riga:
+// oltre `max` nomi si dice quanti ne restano invece di riversarli tutti nel
+// terminale. Novantuno nomi in un `nota:` non li legge nessuno.
+func elencoTroncato(nomi []string, max int) string {
+	if len(nomi) <= max {
+		return strings.Join(nomi, ", ")
+	}
+	return strings.Join(nomi[:max], ", ") + fmt.Sprintf(" e altri %d", len(nomi)-max)
 }

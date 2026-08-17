@@ -390,3 +390,33 @@ func extractTotalPages(root *html.Node) int {
 	}
 	return 1
 }
+
+// reResultCount cattura il totale dei documenti dal blocco `<ul id="resultsList">`
+// della pagina di apertura sessione, dove il portale scrive
+// `<h3 ...><a>Lista Documenti</a> (302)</h3>`.
+var reResultCount = regexp.MustCompile(`Lista Documenti\s*</a>\s*\(\s*(\d+)\s*\)`)
+
+// ParseResultCount legge il numero di documenti trovati dichiarato dal portale
+// nella pagina `default.jsp`, e dice se c'era.
+//
+// È il totale vero, non una stima: la stessa ricerca che qui dichiara 302 ne
+// restituisce 302 scaricandoli tutti (verificato su un deputato con 31 pagine di
+// cofirme). Il secondo valore distingue «zero documenti» da «il totale non c'è
+// in questa pagina»: senza, un parsing fallito diventerebbe un archivio vuoto.
+//
+// Si prende l'ULTIMA occorrenza, non la prima. Quel blocco è la cronologia della
+// sessione: il portale accumula una voce per ogni ricerca fatta («1. Disegni di
+// Legge», «2. …»), e la ricerca appena eseguita è in fondo. Leggendo la prima,
+// tre conteggi diversi nella stessa sessione tornavano tutti col numero della
+// prima ricerca — 302 per chiunque, un errore che si presenta come un dato.
+func ParseResultCount(body string) (int, bool) {
+	ms := reResultCount.FindAllStringSubmatch(body, -1)
+	if len(ms) == 0 {
+		return 0, false
+	}
+	n, err := strconv.Atoi(ms[len(ms)-1][1])
+	if err != nil {
+		return 0, false
+	}
+	return n, true
+}

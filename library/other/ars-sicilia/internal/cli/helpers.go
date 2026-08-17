@@ -772,6 +772,9 @@ func camelToKebab(s string) string {
 
 // printOutputWithFlags routes output through the right format based on flags.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
+	// data_iso viaggia accanto a ogni data della fonte, e viene prima di
+	// --select e --compact così resta selezionabile come qualunque altro campo.
+	data = iniettaDataISO(data)
 	// --select wins over --compact when both are set: an explicit field list
 	// is the user's authoritative request, so the high-gravity allow-list
 	// must not strip those fields out before --select can pick them. When
@@ -779,7 +782,9 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	// still runs.
 	if flags.selectFields != "" {
 		warnUnknownSelectFields(data, flags.selectFields)
+		originale := data
 		data = filterFields(data, flags.selectFields)
+		data = preservaAvvisi(originale, data)
 	} else if flags.compact {
 		data = compactFields(data)
 	}
@@ -958,9 +963,16 @@ func compactObjectFields(obj map[string]any) json.RawMessage {
 func printCSV(w io.Writer, data json.RawMessage) error {
 	var items []map[string]any
 	if err := json.Unmarshal(data, &items); err != nil || len(items) == 0 {
-		// Single object or empty - just print as JSON
-		fmt.Fprintln(w, string(data))
-		return nil
+		// Payload che avvolge la lista in un oggetto: i comandi aggregati
+		// finivano tutti qui e uscivano in JSON senza dire che il formato
+		// chiesto non era arrivato.
+		if righe := righeDaOggetto(data); len(righe) > 0 {
+			items = righe
+		} else {
+			fmt.Fprintln(w, string(data))
+			fmt.Fprintln(os.Stderr, "hint: --csv: questa risposta non ha una lista di righe da mettere in tabella, l'output è JSON.")
+			return nil
+		}
 	}
 	// Collect all keys for header
 	keySet := map[string]bool{}

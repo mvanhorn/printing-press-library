@@ -31,23 +31,37 @@ func newProjectsStatesUpdateCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "states.update", "pp:method": "PATCH", "pp:path": "/projects/{project_id}/states/{state_id}/"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <project_id> <state_id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <project_id> <state_id>"))
 			}
 			if !stdinBody {
 			}
+			path := "/projects/{project_id}/states/{state_id}/"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
+			}
+			path = replacePathParam(path, "project_id", args[0])
+			if len(args) < 2 || args[1] == "" {
+				return usageErr(fmt.Errorf("state_id is required\nUsage: %s <%s>", cmd.CommandPath(), "state_id"))
+			}
+			path = replacePathParam(path, "state_id", args[1])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/projects/{project_id}/states/{state_id}/"
-			path = replacePathParam(path, "project_id", args[0])
-			if len(args) < 2 {
-				return usageErr(fmt.Errorf("state_id is required\nUsage: %s <%s>", cmd.CommandPath(), "state_id"))
-			}
-			path = replacePathParam(path, "state_id", args[1])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -59,33 +73,34 @@ func newProjectsStatesUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyColor != "" {
-					body["color"] = bodyColor
+					bodyMap["color"] = bodyColor
 				}
 				if cmd.Flags().Changed("default") {
-					body["default"] = bodyDefault
+					bodyMap["default"] = bodyDefault
 				}
 				if bodyDescription != "" {
-					body["description"] = bodyDescription
+					bodyMap["description"] = bodyDescription
 				}
 				if bodyExternalId != "" {
-					body["external_id"] = bodyExternalId
+					bodyMap["external_id"] = bodyExternalId
 				}
 				if bodyExternalSource != "" {
-					body["external_source"] = bodyExternalSource
+					bodyMap["external_source"] = bodyExternalSource
 				}
 				if bodyGroup != "" {
-					body["group"] = bodyGroup
+					bodyMap["group"] = bodyGroup
 				}
 				if cmd.Flags().Changed("is-triage") {
-					body["is_triage"] = bodyIsTriage
+					bodyMap["is_triage"] = bodyIsTriage
 				}
 				if bodyName != "" {
-					body["name"] = bodyName
+					bodyMap["name"] = bodyName
 				}
 				if bodySequence != 0.0 {
-					body["sequence"] = bodySequence
+					bodyMap["sequence"] = bodySequence
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
@@ -155,6 +170,9 @@ func newProjectsStatesUpdateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -193,7 +211,11 @@ func newProjectsStatesUpdateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

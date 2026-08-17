@@ -19,7 +19,7 @@ const DefaultBaseURL = "https://dati.ars.sicilia.it"
 
 // DefaultUserAgent is sent with every request so the portal team can identify
 // the CLI in their logs.
-const DefaultUserAgent = "ars-sicilia-pp-cli/0.1.0 (+https://github.com/aborruso/ars-trasparente)"
+const DefaultUserAgent = "github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/0.1.0 (+https://github.com/aborruso/ars-trasparente)"
 
 // HTTPRateLimitError is returned by the icaroclient when the portal
 // responds with HTTP 429 Too Many Requests. Callers can check for this
@@ -210,6 +210,62 @@ func (c *Client) Search(ctx context.Context, arc Archive, opts SearchOptions) ([
 	return all, nil
 }
 
+// Count ritorna quanti documenti soddisfano la ricerca, senza scaricarli tutti.
+//
+// Serve dove il numero È la risposta (le classifiche di `analytics`) e le righe
+// non interessano: contare scaricandole costa una pagina ogni dieci record —
+// misurato, le 302 cofirme di un deputato sono 31 richieste e 39 secondi, che
+// moltiplicati per i 66 firmatari di una legislatura non stanno in piedi.
+//
+// Costa UNA richiesta, ed è quella che si pagava comunque: il totale è scritto
+// nella pagina che apre la sessione («Lista Documenti (302)»), il cui corpo
+// veniva scaricato e buttato via. Nessuna richiesta in più del necessario.
+//
+// Se quel numero non c'è si ripiega sulle pagine: prima pagina per la dimensione
+// e il numero di pagine, ultima pagina per il resto — due richieste, e comunque
+// un conteggio esatto. `pagine × 10` sarebbe stato più semplice e avrebbe detto
+// 310 dove i documenti sono 302: un numero finto dentro una classifica è peggio
+// del dato mancante che questo metodo esiste per dare.
+//
+// Non vale sugli archivi /bd/: quel backend ha una paginazione propria e non
+// passa da qui. Chiederglielo è un errore del chiamante, non un risultato vuoto.
+func (c *Client) Count(ctx context.Context, arc Archive, opts SearchOptions) (int, error) {
+	if c == nil {
+		return 0, fmt.Errorf("nil icaroclient.Client")
+	}
+	if IsBDArchive(arc.Slug) {
+		return 0, fmt.Errorf("Count non è disponibile sull'archivio %s: è servito dal backend /bd/", arc.Slug)
+	}
+	expr := BuildQuery(arc, opts.Params, opts.ISISRaw)
+	body, err := c.bootstrapSessionBody(ctx, arc.ID, expr)
+	if err != nil {
+		return 0, err
+	}
+	if n, ok := ParseResultCount(body); ok {
+		return n, nil
+	}
+	prima, totalPages, err := c.fetchPage(ctx, arc, 1)
+	if err != nil {
+		return 0, err
+	}
+	if len(prima) == 0 {
+		return 0, nil
+	}
+	if totalPages <= 1 {
+		return len(prima), nil
+	}
+	ultima, _, err := c.fetchPage(ctx, arc, totalPages)
+	if err != nil {
+		return 0, err
+	}
+	if len(ultima) == 0 {
+		// L'ultima pagina esiste e non ha righe: il conto non si chiude, e
+		// dedurlo dalle pagine sarebbe inventarlo.
+		return 0, fmt.Errorf("conteggio %s non chiuso: la pagina %d, dichiarata esistente, non ha restituito righe", arc.Slug, totalPages)
+	}
+	return (totalPages-1)*len(prima) + len(ultima), nil
+}
+
 // GetDoc fetches and parses the document body for a previously-searched item.
 // The session established by Search MUST still be valid when GetDoc runs;
 // callers that just want one record should call Search with a query that
@@ -245,16 +301,24 @@ func PermalinkURL(baseURL, archiveID string, docNo int) string {
 // bootstrapSession establishes a fresh server-side query state. icaQueryId is
 // always 1 after this call.
 func (c *Client) bootstrapSession(ctx context.Context, archiveID, queryExpr string) error {
+	_, err := c.bootstrapSessionBody(ctx, archiveID, queryExpr)
+	return err
+}
+
+// bootstrapSessionBody apre la sessione e RITORNA il corpo della pagina. Quel
+// corpo veniva scartato, e dentro c'è il totale dei documenti trovati — il dato
+// per cui altrimenti si pagano richieste in più (vedi Count).
+func (c *Client) bootstrapSessionBody(ctx context.Context, archiveID, queryExpr string) (string, error) {
 	q := url.Values{}
 	q.Set("icaDB", archiveID)
 	q.Set("icaQuery", queryExpr)
 	q.Set("_", strconv.FormatInt(time.Now().UnixMilli(), 10))
 	bootURL := c.BaseURL + "/icaro/default.jsp?" + q.Encode()
-	_, err := c.get(ctx, bootURL)
+	body, err := c.get(ctx, bootURL)
 	if err != nil {
-		return fmt.Errorf("bootstrap session (archive %s): %w", archiveID, err)
+		return "", fmt.Errorf("bootstrap session (archive %s): %w", archiveID, err)
 	}
-	return nil
+	return body, nil
 }
 
 // fetchPage requests one shortList page and parses its rows; also extracts
@@ -277,37 +341,98 @@ func (c *Client) fetchPage(ctx context.Context, arc Archive, page int) ([]Record
 	return rows, totalPages, nil
 }
 
-// get issues a GET against the URL using the client's session jar.
-// The adaptive limiter paces requests and backs off on 429 responses.
-func (c *Client) get(ctx context.Context, rawURL string) (string, error) {
-	c.limiter.Wait()
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
-	if err != nil {
-		return "", err
-	}
-	if c.UserAgent != "" {
-		req.Header.Set("User-Agent", c.UserAgent)
-	}
-	req.Header.Set("Accept-Language", "it-IT,it;q=0.9")
-	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9")
+// transientAttempts è quante volte una singola lettura HTTP viene tentata prima
+// di arrendersi. Il portale tronca le risposte a intermittenza — misurato il
+// 2026-08-12: 6 corpi tagliati a metà su 20 GET dello stesso URL, identico su
+// HTTP/2 e su HTTP/1.1, quindi non è un problema di protocollo — e senza
+// ritentare un comando su tre falliva per nulla. Tre tentativi portano il
+// fallimento di una lettura singola sotto il 3%. Alzare ancora questo numero
+// non è la risposta per i comandi che fanno decine di richieste in fila: lì
+// serve tollerare i buchi, non moltiplicare i tentativi.
+const transientAttempts = 3
+
+// retryDelay è l'attesa prima del tentativo successivo. Corta di proposito: il
+// troncamento è istantaneo e indipendente da un tentativo all'altro, non è
+// congestione da smaltire. Attese lunghe raddoppierebbero i tempi dei comandi
+// senza alzare la probabilità di successo.
+func retryDelay(attempt int) time.Duration { return time.Duration(attempt) * 200 * time.Millisecond }
+
+// readOnce esegue una richiesta e ne legge il corpo. Il secondo valore dice se
+// vale la pena ritentare: sì per gli errori di trasporto (connessione caduta,
+// corpo troncato a metà), no per le risposte che il server ha completato e che
+// dicono qualcosa di definitivo — un 404 ritentato resta un 404.
+func (c *Client) readOnce(req *http.Request, rawURL string) (body string, retryable bool, err error) {
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", true, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 429 {
 		c.limiter.OnRateLimit()
-		return "", &HTTPRateLimitError{URL: rawURL}
+		return "", false, &HTTPRateLimitError{URL: rawURL}
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		return "", fmt.Errorf("unexpected status %d for %s", resp.StatusCode, rawURL)
+		return "", false, fmt.Errorf("unexpected status %d for %s", resp.StatusCode, rawURL)
 	}
 	raw, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		// Qui cade il troncamento: gli header e lo status sono arrivati, il
+		// corpo no. È l'errore che si vedeva come «stream error … INTERNAL_ERROR».
+		return "", true, err
 	}
-	c.limiter.OnSuccess()
-	return string(raw), nil
+	return string(raw), false, nil
+}
+
+// read esegue una lettura HTTP ritentandola se il portale la tronca. build
+// costruisce una richiesta nuova a ogni tentativo: una *http.Request consumata
+// non si può rigiocare. Il limiter viene interpellato prima di ogni tentativo,
+// perché ognuno è una richiesta vera verso il portale, e avvisato del successo
+// una volta sola, alla fine.
+func (c *Client) read(ctx context.Context, rawURL string, build func() (*http.Request, error)) (string, error) {
+	var lastErr error
+	for attempt := 1; attempt <= transientAttempts; attempt++ {
+		if attempt > 1 {
+			select {
+			case <-ctx.Done():
+				return "", ctx.Err()
+			case <-time.After(retryDelay(attempt - 1)):
+			}
+		}
+		c.limiter.Wait()
+		req, err := build()
+		if err != nil {
+			return "", err
+		}
+		body, retryable, err := c.readOnce(req, rawURL)
+		if err == nil {
+			c.limiter.OnSuccess()
+			return body, nil
+		}
+		lastErr = err
+		// Un ctx scaduto o annullato non è il portale che sbaglia: è chi chiama
+		// che non aspetta più. Ritentare allungherebbe soltanto l'attesa.
+		if !retryable || ctx.Err() != nil {
+			return "", err
+		}
+	}
+	return "", lastErr
+}
+
+// get issues a GET against the URL using the client's session jar.
+// The adaptive limiter paces requests and backs off on 429 responses.
+func (c *Client) get(ctx context.Context, rawURL string) (string, error) {
+	return c.read(ctx, rawURL, func() (*http.Request, error) {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+		if err != nil {
+			return nil, err
+		}
+		if c.UserAgent != "" {
+			req.Header.Set("User-Agent", c.UserAgent)
+		}
+		req.Header.Set("Accept-Language", "it-IT,it;q=0.9")
+		req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9")
+		return req, nil
+	})
 }
 
 // Source returns the URL that would have been used as the entry point in a

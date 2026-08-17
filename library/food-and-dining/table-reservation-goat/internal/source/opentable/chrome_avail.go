@@ -731,6 +731,10 @@ func fetchResponseBody(ctx context.Context, reqID network.RequestID) ([]byte, er
 func parseAvailabilityResponse(body []byte) ([]RestaurantAvailability, error) {
 	var env struct {
 		Data struct {
+			// Current consumer-frontend shape (observed August 2026). Keep
+			// this alongside the legacy nested shape below because OpenTable
+			// rolls the two response envelopes independently.
+			Availability            []RestaurantAvailability `json:"availability"`
 			RestaurantsAvailability struct {
 				Availabilities []struct {
 					RestaurantID     int `json:"restaurantId"`
@@ -755,6 +759,9 @@ func parseAvailabilityResponse(body []byte) ([]RestaurantAvailability, error) {
 	if len(env.Errors) > 0 {
 		return nil, fmt.Errorf("opentable: chrome-captured response carried %d GraphQL errors; first: %s",
 			len(env.Errors), env.Errors[0].Message)
+	}
+	if len(env.Data.Availability) > 0 {
+		return env.Data.Availability, nil
 	}
 	out := make([]RestaurantAvailability, 0, len(env.Data.RestaurantsAvailability.Availabilities))
 	for _, a := range env.Data.RestaurantsAvailability.Availabilities {

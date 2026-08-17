@@ -83,6 +83,33 @@ func warnFetchFailures(cmd *cobra.Command, label string, failures []fetchFailure
 		label, len(failures), strings.Join(names, ", "))
 }
 
+// allSourcesFailedErr converts a 100%-failed fan-out into a hard error so an
+// empty aggregate is never presented as a genuine "no results" answer.
+// attempted is the number of sources the command tried; the error fires only
+// when every one of them recorded a fetch failure. When the failures are
+// uniformly auth-shaped (HTTP 401/402/403), the standard auth hint is appended
+// and the auth exit code is used, matching single-endpoint commands.
+func allSourcesFailedErr(label string, attempted int, failures []fetchFailure) error {
+	if attempted == 0 || len(failures) < attempted {
+		return nil
+	}
+	base := fmt.Errorf("%s: all %d source fetch(es) failed; no data to aggregate (first error: %s)",
+		label, attempted, failures[0].Error)
+	allAuth := true
+	for _, f := range failures {
+		if !strings.Contains(f.Error, "HTTP 401") && !strings.Contains(f.Error, "HTTP 402") && !strings.Contains(f.Error, "HTTP 403") {
+			allAuth = false
+			break
+		}
+	}
+	if allAuth {
+		return authErr(fmt.Errorf("%w\nhint: check your API key."+
+			" Set your API key with: export SCRAPECREATORS_API_KEY=\"your-token-here\""+
+			"\n      Run 'scrape-creators-pp-cli doctor' to check auth status.", base))
+	}
+	return base
+}
+
 // novelWantsMachine reports whether a novel command should emit JSON rather
 // than a human table: explicit --json/--agent, or a non-terminal stdout that
 // did not ask for another explicit text format.

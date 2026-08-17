@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "productive-delete-confirmation",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260704-155923-ab89631d",
+  "base_printing_press_version": "4.27.1",
+  "summary": "delete now prompts for confirmation before the live DELETE; --yes/--agent skip it, --no-input without --yes refuses.",
+  "reason": "The generic delete command sent the live DELETE immediately with no confirmation, so a mistyped type/id could remove a Productive object irreversibly. The root command already exposes --yes for confirmation-safe scripting.",
+  "files": ["internal/cli/productive_write.go"],
+  "validated_outcome": "Matrix tested: --dry-run previews without prompting; --no-input without --yes refuses; interactive 'n' aborts; --agent skips the prompt."
+}
