@@ -125,6 +125,9 @@ func newObjectsRecordsMergeCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(cmd.OutOrStdout(), err, flags)
