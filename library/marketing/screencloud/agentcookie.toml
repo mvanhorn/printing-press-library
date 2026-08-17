@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "screencloud-pp-cli"
+display_name = "ScreenCloud"
+description = "A Playgrounds release and fleet-operations CLI that understands both Studio and the app content service."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/screencloud-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SCREENCLOUD_API_KEY = true

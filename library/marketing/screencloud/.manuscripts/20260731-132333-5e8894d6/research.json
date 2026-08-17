@@ -1,0 +1,267 @@
+{
+  "api_name": "ScreenCloud",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "ScreenCloud Developer SDKs",
+      "url": "https://github.com/screencloud/developer",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Playgrounds write-conflict and preview-promotion behavior remain unverified because no live mutation was authorized.",
+    "Runtime GraphQL introspection is disabled, so the CLI must ship maintained query documents rather than generate from live introspection.",
+    "The Playgrounds content-service contract is derived from official production bundles rather than a published stable reference.",
+    "ScreenCloud states that the Studio GraphQL schema has no fully implemented versioning policy, so the generated v2.103.0 atlas needs drift checks.",
+    "A bounded live placement query reported graphqlQueryCost 1579, so repeated deep live traversal is unsuitable as the default impact strategy.",
+    "Permission diagnostics can be incomplete when the current identity cannot see its full grant context; unknown states must fail closed."
+  ],
+  "patterns": [
+    "Treat HTTP 200 GraphQL responses as failures when the errors array is non-empty.",
+    "Mint management and viewer JWTs only for the exact operation and never persist or print them by default.",
+    "Use lastModified as a drift boundary, not as a general catalog sync cursor.",
+    "Keep private Playgrounds source and JSON data outside the default SQLite metadata store.",
+    "Use bounded pagination and a freshness-stamped local placement graph for impact analysis, and surface GraphQL query cost.",
+    "Report capability states as available, missing, or unknown without exposing raw effective grants.",
+    "Treat generation and read-only dogfooding as non-authorization for mutation testing; use the separate staged sandbox plan."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-31T18:12:00Z",
+  "novel_features": [
+    {
+      "name": "Release impact map",
+      "command": "playgrounds impact",
+      "description": "Map the synchronized spaces, channels, playlists, and screens related to a reviewed Playgrounds working copy before publishing.",
+      "rationale": "It combines a deterministic working-copy fingerprint with sanitized direct-cast, association, share, channel, playlist, and screen identifiers while marking incomplete mirrors.",
+      "example": "screencloud-pp-cli playgrounds impact 6f14d9d8-7e6d-42a1-9bb4-0a3d75a8a123 --dir ./fixtures/playgrounds --home /tmp/screencloud-pp-sample-home --agent",
+      "why_it_matters": "Use this before a publish when an agent must explain the known synchronized placement graph and its completeness, not merely show a file fingerprint.",
+      "group": "Release confidence"
+    },
+    {
+      "name": "Fleet readiness audit",
+      "command": "playgrounds readiness",
+      "description": "Find missing, inactive, outdated, dangling, and inconsistent Playgrounds deployments across the organization.",
+      "rationale": "It joins spaces, installations, instances, versions, and sanitized Playgrounds metadata in the local store.",
+      "example": "screencloud-pp-cli playgrounds readiness --home /tmp/screencloud-pp-sample-home --agent --select summary,findings,complete,hint",
+      "why_it_matters": "Use this instead of separate list calls when an agent needs an actionable organization-wide health verdict.",
+      "group": "Fleet intelligence"
+    },
+    {
+      "name": "Privacy-preserving config drift",
+      "command": "playgrounds config-drift",
+      "description": "Detect structurally divergent Playgrounds configurations without storing or revealing private values.",
+      "rationale": "It fingerprints sanitized configuration-key sets and groups matching synchronized instance IDs without retaining private values.",
+      "example": "screencloud-pp-cli playgrounds config-drift --app-uuid 6f14d9d8-7e6d-42a1-9bb4-0a3d75a8a123 --home /tmp/screencloud-pp-sample-home --agent",
+      "why_it_matters": "Use this when an agent must compare a fleet safely without pulling sensitive configuration values into context.",
+      "group": "Fleet intelligence"
+    },
+    {
+      "name": "Interrupted-create reconciler",
+      "command": "playgrounds create-reconcile",
+      "description": "Turn a partial create receipt into a resume or cleanup plan; a no-op conclusion requires live verification.",
+      "rationale": "It reconciles a redacted local receipt against both Studio instance state and Playgrounds content state.",
+      "example": "screencloud-pp-cli playgrounds create-reconcile --receipt ./fixtures/receipts/summer-campaign.json --verify-live --yes --dry-run --agent",
+      "why_it_matters": "Use this after an interrupted two-service create workflow instead of guessing which mutation is safe to repeat. The example uses a shipped fixture; use your own redacted receipt path for real recovery.",
+      "group": "Safe recovery"
+    },
+    {
+      "name": "Playgrounds contract check",
+      "command": "playgrounds contract-check",
+      "description": "Verify the current management and viewer content contracts after minting ephemeral scoped JWTs, without changing Playgrounds content.",
+      "rationale": "It coordinates ScreenCloud's two scoped JWT types with file, data, and viewer-package assertions across separate services.",
+      "example": "screencloud-pp-cli playgrounds contract-check --app-uuid 6f14d9d8-7e6d-42a1-9bb4-0a3d75a8a123 --space-id 11223344-5566-4788-99aa-bbccddeeff00 --agent --yes",
+      "why_it_matters": "Use this before automation relies on the bundle-derived Playgrounds contract or after an unexpected response shape.",
+      "group": "Release confidence"
+    },
+    {
+      "name": "Preview drift queue",
+      "command": "playgrounds preview-drift",
+      "description": "Find unpublished previews, production-ahead conflicts, and preview work that has waited too long.",
+      "rationale": "It compares the Playgrounds-specific preview workspace convention and last-modified metadata across mapped app instances.",
+      "example": "screencloud-pp-cli playgrounds preview-drift --older-than 7d --home /tmp/screencloud-pp-sample-home --agent",
+      "why_it_matters": "Use this when an agent needs a fleet-level preview queue rather than inspecting preview and production workspaces one at a time.",
+      "group": "Release confidence"
+    },
+    {
+      "name": "Least-privilege capability matrix",
+      "command": "auth capabilities",
+      "description": "Explain whether the current identity appears able to run a supported mapped command without exposing token material or raw effective grants.",
+      "rationale": "It compares currentToken and currentUser structure with the published 25-domain permission catalog and reports available, missing, or unknown states before execution.",
+      "example": "screencloud-pp-cli auth capabilities --for 'playgrounds files put' --agent --select summary,capabilities,partial_visibility,authorization_proof,visibility",
+      "why_it_matters": "Use this before automation or a guarded mutation needs a least-privilege preflight; it is diagnostic evidence, not authorization or a guarantee of mutation success.",
+      "group": "Safe automation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Release impact map",
+      "command": "playgrounds impact",
+      "description": "Map the synchronized spaces, channels, playlists, and screens related to a reviewed Playgrounds working copy before publishing.",
+      "rationale": "It combines a deterministic working-copy fingerprint with sanitized direct-cast, association, share, channel, playlist, and screen identifiers while marking incomplete mirrors.",
+      "example": "screencloud-pp-cli playgrounds impact 6f14d9d8-7e6d-42a1-9bb4-0a3d75a8a123 --dir ./fixtures/playgrounds --home /tmp/screencloud-pp-sample-home --agent",
+      "why_it_matters": "Use this before a publish when an agent must explain the known synchronized placement graph and its completeness, not merely show a file fingerprint.",
+      "group": "Release confidence"
+    },
+    {
+      "name": "Fleet readiness audit",
+      "command": "playgrounds readiness",
+      "description": "Find missing, inactive, outdated, dangling, and inconsistent Playgrounds deployments across the organization.",
+      "rationale": "It joins spaces, installations, instances, versions, and sanitized Playgrounds metadata in the local store.",
+      "example": "screencloud-pp-cli playgrounds readiness --home /tmp/screencloud-pp-sample-home --agent --select summary,findings,complete,hint",
+      "why_it_matters": "Use this instead of separate list calls when an agent needs an actionable organization-wide health verdict.",
+      "group": "Fleet intelligence"
+    },
+    {
+      "name": "Privacy-preserving config drift",
+      "command": "playgrounds config-drift",
+      "description": "Detect structurally divergent Playgrounds configurations without storing or revealing private values.",
+      "rationale": "It fingerprints sanitized configuration-key sets and groups matching synchronized instance IDs without retaining private values.",
+      "example": "screencloud-pp-cli playgrounds config-drift --app-uuid 6f14d9d8-7e6d-42a1-9bb4-0a3d75a8a123 --home /tmp/screencloud-pp-sample-home --agent",
+      "why_it_matters": "Use this when an agent must compare a fleet safely without pulling sensitive configuration values into context.",
+      "group": "Fleet intelligence"
+    },
+    {
+      "name": "Interrupted-create reconciler",
+      "command": "playgrounds create-reconcile",
+      "description": "Turn a partial create receipt into a resume or cleanup plan; a no-op conclusion requires live verification.",
+      "rationale": "It reconciles a redacted local receipt against both Studio instance state and Playgrounds content state.",
+      "example": "screencloud-pp-cli playgrounds create-reconcile --receipt ./fixtures/receipts/summer-campaign.json --verify-live --yes --dry-run --agent",
+      "why_it_matters": "Use this after an interrupted two-service create workflow instead of guessing which mutation is safe to repeat. The example uses a shipped fixture; use your own redacted receipt path for real recovery.",
+      "group": "Safe recovery"
+    },
+    {
+      "name": "Playgrounds contract check",
+      "command": "playgrounds contract-check",
+      "description": "Verify the current management and viewer content contracts after minting ephemeral scoped JWTs, without changing Playgrounds content.",
+      "rationale": "It coordinates ScreenCloud's two scoped JWT types with file, data, and viewer-package assertions across separate services.",
+      "example": "screencloud-pp-cli playgrounds contract-check --app-uuid 6f14d9d8-7e6d-42a1-9bb4-0a3d75a8a123 --space-id 11223344-5566-4788-99aa-bbccddeeff00 --agent --yes",
+      "why_it_matters": "Use this before automation relies on the bundle-derived Playgrounds contract or after an unexpected response shape.",
+      "group": "Release confidence"
+    },
+    {
+      "name": "Preview drift queue",
+      "command": "playgrounds preview-drift",
+      "description": "Find unpublished previews, production-ahead conflicts, and preview work that has waited too long.",
+      "rationale": "It compares the Playgrounds-specific preview workspace convention and last-modified metadata across mapped app instances.",
+      "example": "screencloud-pp-cli playgrounds preview-drift --older-than 7d --home /tmp/screencloud-pp-sample-home --agent",
+      "why_it_matters": "Use this when an agent needs a fleet-level preview queue rather than inspecting preview and production workspaces one at a time.",
+      "group": "Release confidence"
+    },
+    {
+      "name": "Least-privilege capability matrix",
+      "command": "auth capabilities",
+      "description": "Explain whether the current identity appears able to run a supported mapped command without exposing token material or raw effective grants.",
+      "rationale": "It compares currentToken and currentUser structure with the published 25-domain permission catalog and reports available, missing, or unknown states before execution.",
+      "example": "screencloud-pp-cli auth capabilities --for 'playgrounds files put' --agent --select summary,capabilities,partial_visibility,authorization_proof,visibility",
+      "why_it_matters": "Use this before automation or a guarded mutation needs a least-privilege preflight; it is diagnostic evidence, not authorization or a guarantee of mutation success.",
+      "group": "Safe automation"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SCREENCLOUD_API_KEY"
+  },
+  "narrative": {
+    "display_name": "ScreenCloud",
+    "headline": "A Playgrounds release and fleet-operations CLI that understands both Studio and the app content service.",
+    "value_prop": "Inspect the maintained ScreenCloud Studio v2.103.0 reference snapshot, synchronize sanitized placement metadata locally, and coordinate Playgrounds files, data, previews, scoped tokens, and capability diagnostics from one guarded workflow. Release impact, readiness, config drift, contract checks, and recovery plans compose multiple ScreenCloud surfaces into repeatable operator workflows.",
+    "auth_narrative": "Set SCREENCLOUD_API_KEY to the organization API key shown in ScreenCloud Studio's Developer page, set SCREENCLOUD_ORGANIZATION_ID (or pass org current --expected-org-id) to enable fail-closed organization matching, and set the region-specific GraphQL endpoint when it differs from the default. The CLI conditionally verifies currentOrgId against that expected organization and can compare currentToken/currentUser structure with the published permission catalog without printing raw grants. Management and viewer JWTs require separate --yes approval, are redacted from normal output, and are never persisted.",
+    "quickstart": [
+      {
+        "command": "screencloud-pp-cli doctor --dry-run",
+        "comment": "Validate configuration and local prerequisites without using credentials or changing ScreenCloud."
+      },
+      {
+        "command": "screencloud-pp-cli org current --expected-org-id \"$SCREENCLOUD_ORGANIZATION_ID\" --agent",
+        "comment": "Verify that the API key belongs to the intended organization."
+      },
+      {
+        "command": "screencloud-pp-cli auth capabilities --for sync --agent --select summary,capabilities,partial_visibility,authorization_proof,visibility",
+        "comment": "Inspect least-privilege capability states without exposing raw grants or changing ScreenCloud."
+      },
+      {
+        "command": "screencloud-pp-cli sync --resources apps,spaces,app-installs,app-instances,app-versions,channels,playlists,screens,associations,share-associations --max-pages 10",
+        "comment": "Build the sanitized placement topology used by fleet and impact analysis."
+      },
+      {
+        "command": "screencloud-pp-cli playgrounds preview-drift --refresh --app-uuid 6f14d9d8-7e6d-42a1-9bb4-0a3d75a8a123 --space-id 11223344-5566-4788-99aa-bbccddeeff00 --yes --agent",
+        "comment": "With fresh approval, populate sanitized files/data timestamps for each Playgrounds app; otherwise readiness remains incomplete."
+      },
+      {
+        "command": "screencloud-pp-cli playgrounds readiness --agent --select summary,findings,complete,hint",
+        "comment": "Turn the synchronized topology into actionable Playgrounds readiness findings."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The endpoint returns HTTP 200 but the command fails.",
+        "fix": "Inspect the reported GraphQL errors; ScreenCloud can return operation failures in the errors array with HTTP 200."
+      },
+      {
+        "symptom": "Authentication works but the organization check fails.",
+        "fix": "Confirm SCREENCLOUD_ORGANIZATION_ID and the region-specific GraphQL endpoint match the organization shown in Studio's Developer page."
+      },
+      {
+        "symptom": "A Playgrounds command reports contract drift.",
+        "fix": "After fresh approval to mint scoped JWTs, run screencloud-pp-cli playgrounds contract-check with --app-uuid, --space-id, and --yes; its content assertions are read-only."
+      },
+      {
+        "symptom": "A local fleet command reports unsynced or stale data.",
+        "fix": "Run a bounded sync including channels, playlists, screens, associations, and share-associations, review query cost and freshness, then retry."
+      },
+      {
+        "symptom": "A capability check reports unknown or permission-incomplete.",
+        "fix": "Treat the result as fail-closed, verify the API key role in Studio, and do not infer mutation authorization from a partial permission view."
+      }
+    ],
+    "when_to_use": "Use this CLI for the maintained ScreenCloud Studio v2.103.0 schema reference, Playgrounds development and release analysis, placement topology, least-privilege diagnostics for mapped commands, scoped-token checks, and safe agent automation that needs stable structured output. It is especially valuable when a task crosses Studio app-instance metadata and Playgrounds files, data, preview, viewer, channel, playlist, share, or screen state.",
+    "anti_triggers": [
+      "Do not use this CLI to design visual content interactively; use the ScreenCloud Playgrounds editor.",
+      "Do not use it to automate login-gated websites; use ScreenCloud Dashboards or the supported browser workflow.",
+      "Do not treat the deprecated Signage REST API as the current Studio integration surface.",
+      "Do not perform any live mutation, including arbitrary GraphQL mutations, app-instance creation, scoped-JWT minting, or Playgrounds writes, without fresh approval, an exact target review, and --yes; --agent never grants mutation approval.",
+      "Do not treat auth capabilities output as authorization or proof that a write will succeed."
+    ],
+    "recipes": [
+      {
+        "title": "Audit Playgrounds fleet health",
+        "command": "screencloud-pp-cli playgrounds readiness --agent --select summary,findings,complete,hint",
+        "explanation": "After bounded sync and per-app timestamp refresh, joins instances, installs, spaces, versions, and sanitized content evidence; absent, stale, or truncated evidence returns complete=false."
+      },
+      {
+        "title": "Map a working-copy change",
+        "command": "screencloud-pp-cli playgrounds impact 6f14d9d8-7e6d-42a1-9bb4-0a3d75a8a123 --dir ./campaign-playground --agent",
+        "explanation": "Uses a working-copy fingerprint and the synchronized sanitized relationship graph to map related spaces, channels, playlists, and screens; completeness reflects required mirror state."
+      },
+      {
+        "title": "Check the live Playgrounds contract",
+        "command": "screencloud-pp-cli playgrounds contract-check --app-uuid 6f14d9d8-7e6d-42a1-9bb4-0a3d75a8a123 --space-id 11223344-5566-4788-99aa-bbccddeeff00 --agent --yes",
+        "explanation": "After fresh approval, mints ephemeral management and viewer JWTs and performs content-read-only assertions; it never persists the tokens or changes Playgrounds content."
+      },
+      {
+        "title": "Find aging previews",
+        "command": "screencloud-pp-cli playgrounds preview-drift --older-than 7d --agent",
+        "explanation": "Surfaces drift only for apps whose sanitized timestamps were previously populated with preview-drift --refresh --app-uuid \u003cid\u003e --space-id \u003cid\u003e --yes; missing evidence returns complete=false."
+      },
+      {
+        "title": "Check least-privilege readiness",
+        "command": "screencloud-pp-cli auth capabilities --for 'playgrounds files put' --agent --select summary,capabilities,partial_visibility,authorization_proof,visibility",
+        "explanation": "Explains available, missing, or unknown capabilities for a supported mapped command; partial permission visibility and unmapped commands fail closed as unknown."
+      }
+    ],
+    "trigger_phrases": [
+      "audit my ScreenCloud Playgrounds",
+      "show which screens this Playground affects",
+      "check ScreenCloud permissions",
+      "check ScreenCloud preview drift",
+      "reconcile a failed Playgrounds create",
+      "synchronize ScreenCloud Studio topology",
+      "inspect ScreenCloud Playgrounds files and data"
+    ]
+  }
+}

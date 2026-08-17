@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "screencloud-current-dry-run-json",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260731-132333-5e8894d6",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Backport the current Printing Press dry-run JSON envelopes for local learning commands so automated live dogfood can verify their output without creating local state.",
+  "reason": "A full 4.30.3 force regeneration currently produces an incompatible mixed template tree when preserving this CLI's novel additions. These helper calls are the exact current-generator behavior and can be safely applied without replacing ScreenCloud-specific safety work.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/learnings_candidates.go",
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go"
+  ],
+  "validated_outcome": "Go build, unit tests, vet, direct JSON dry-run probes, and the full authenticated read-only dogfood matrix passed (148 evaluated checks, 0 failures).",
+  "upstream_issue": null
+}

@@ -1,0 +1,72 @@
+name: screencloud
+description: "ScreenCloud Studio and Playgrounds release-operations CLI"
+version: "0.1.0"
+category: marketing
+base_url: "https://graphql.us.screencloud.com"
+health_check_path: "/graphql"
+http_transport: standard
+
+auth:
+  type: bearer_token
+  header: Authorization
+  format: "Bearer {token}"
+  env_vars:
+    - SCREENCLOUD_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/screencloud-pp-cli/config.toml"
+
+learn:
+  entity_lookup_seeds:
+    app:
+      - canonical: Playgrounds
+        aliases: [playground, playground app, custom html app]
+    content_type:
+      - canonical: AppInstance
+        aliases: [app instance, instance]
+      - canonical: Channel
+        aliases: [channel]
+      - canonical: Playlist
+        aliases: [playlist]
+      - canonical: Screen
+        aliases: [screen, player]
+  ticker_patterns:
+    - "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+  synonyms:
+    playground: playgrounds
+    display: screen
+
+resources:
+  graphql:
+    description: "Execute maintained or user-supplied Studio GraphQL documents"
+    endpoints:
+      request:
+        method: POST
+        path: "/graphql"
+        description: "Execute a Studio GraphQL document with optional variables"
+        example: "  screencloud-pp-cli graphql request --query 'query { currentOrgId }' --json"
+        happy_args: "--query=query { currentOrgId }"
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document"
+            variables:
+              type: object
+              required: false
+              description: "GraphQL variables as JSON"
+        response:
+          type: object
+          item: GraphQLResponse
+
+types:
+  GraphQLResponse:
+    fields:
+      - name: data
+        type: object
+      - name: errors
+        type: array
+      - name: meta
+        type: object

@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-08-01T16:29:33Z",
+  "elapsed_ms": 15664,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-08-01T16:29:33Z",
+      "elapsed_ms": 9704,
+      "command": "/Users/hofstebs/.local/bin/cli-printing-press verify --dir /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/working/screencloud-pp-cli --write-manifest /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/working/screencloud-pp-cli/.printing-press.json --spec /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/research/screencloud-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-08-01T16:29:43Z",
+      "elapsed_ms": 702,
+      "command": "/Users/hofstebs/.local/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/research.json --binary /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/working/screencloud-pp-cli/screencloud-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-08-01T16:29:44Z",
+      "elapsed_ms": 2073,
+      "command": "/Users/hofstebs/.local/bin/cli-printing-press dogfood --dir /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/working/screencloud-pp-cli --spec /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/research/screencloud-spec.yaml --research-dir /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-08-01T16:29:46Z",
+      "elapsed_ms": 21,
+      "command": "/Users/hofstebs/.local/bin/cli-printing-press workflow-verify --dir /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/working/screencloud-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-08-01T16:29:46Z",
+      "elapsed_ms": 33,
+      "command": "/Users/hofstebs/.local/bin/cli-printing-press apify-audit --dir /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/working/screencloud-pp-cli --research-dir /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-08-01T16:29:46Z",
+      "elapsed_ms": 2514,
+      "command": "/Users/hofstebs/.local/bin/cli-printing-press verify-skill --dir /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/working/screencloud-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-08-01T16:29:48Z",
+      "elapsed_ms": 613,
+      "command": "/Users/hofstebs/.local/bin/cli-printing-press scorecard --dir /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/working/screencloud-pp-cli --write-manifest /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/working/screencloud-pp-cli/.printing-press.json --research-dir /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6 --spec /Users/hofstebs/printing-press/.runstate/screen-cloud-9f64da40/runs/20260731-132333-5e8894d6/research/screencloud-spec.yaml --live-check"
+    }
+  ]
+}

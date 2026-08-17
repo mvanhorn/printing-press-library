@@ -1,0 +1,457 @@
+name: screencloud
+description: Discovered API spec for studio-us-screencloud
+version: 0.1.0
+base_url: https://graphql.us.screencloud.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "query" from body: search input'
+config:
+    format: toml
+    path: ~/.config/screencloud-pp-cli/config.toml
+resources:
+    data:
+        description: Operations on REDACTED
+        endpoints:
+            list_REDACTED:
+                method: GET
+                path: /data/REDACTED
+                description: GET /data/REDACTED
+                params:
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: lastModified
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: location
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: REDACTED2
+                pagination: null
+    files:
+        description: Operations on REDACTED
+        endpoints:
+            list_REDACTED:
+                method: GET
+                path: /files/REDACTED
+                description: GET /files/REDACTED
+                params:
+                    - name: files
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: css
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: html
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: js
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: scriptType
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: lastModified
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: location
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: REDACTED
+                pagination: null
+    graphql:
+        description: Operations on graphql
+        endpoints:
+            create_graphql:
+                method: POST
+                path: /graphql
+                description: POST /graphql
+                params:
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: allApps
+                          type: object
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: nodes
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: totalCount
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: createSignedAppManagementJwt
+                          type: object
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: expiresAt
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: signedAppManagementToken
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: tokenType
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: createSignedAppViewerJwt
+                          type: object
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: expiresAt
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: signedAppViewerToken
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: tokenType
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: currentOrgId
+                          type: string
+                          required: false
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: meta
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: graphqlQueryCost
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                body:
+                    - name: query
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: input
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: spaceId
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Graphql
+                pagination: null
+    templates:
+        description: Operations on templates
+        endpoints:
+            list_templates:
+                method: GET
+                path: /templates
+                description: GET /templates
+                params:
+                    - name: templates
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: data
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: description
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: files
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: css
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: html
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: js
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: scriptType
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: lastModified
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: tags
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: thumbnailUrl
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                body: []
+                response:
+                    type: array
+                    item: Template
+                pagination: null
+                response_path: templates
+types:
+    AllApps:
+        fields:
+            - name: nodes
+              type: array
+            - name: totalCount
+              type: integer
+    CreateSignedAppManagementJwt:
+        fields:
+            - name: expiresAt
+              type: integer
+            - name: signedAppManagementToken
+              type: string
+            - name: tokenType
+              type: string
+    CreateSignedAppViewerJwt:
+        fields:
+            - name: expiresAt
+              type: integer
+            - name: signedAppViewerToken
+              type: string
+            - name: tokenType
+              type: string
+    Data:
+        fields:
+            - name: allApps
+              type: ref:AllApps
+              omit_empty: true
+            - name: createSignedAppManagementJwt
+              type: ref:CreateSignedAppManagementJwt
+              omit_empty: true
+            - name: createSignedAppViewerJwt
+              type: ref:CreateSignedAppViewerJwt
+              omit_empty: true
+            - name: currentOrgId
+              type: string
+              omit_empty: true
+    Files:
+        fields:
+            - name: css
+              type: string
+            - name: html
+              type: string
+            - name: js
+              type: string
+            - name: scriptType
+              type: string
+    Files2:
+        fields:
+            - name: css
+              type: string
+            - name: html
+              type: string
+            - name: js
+              type: string
+            - name: scriptType
+              type: string
+    Graphql:
+        fields:
+            - name: data
+              type: ref:Data
+            - name: meta
+              type: ref:Meta
+              omit_empty: true
+    Meta:
+        fields:
+            - name: graphqlQueryCost
+              type: integer
+    REDACTED:
+        fields:
+            - name: files
+              type: ref:Files2
+            - name: lastModified
+              type: string
+            - name: location
+              type: string
+    REDACTED2:
+        fields:
+            - name: data
+              type: object
+            - name: lastModified
+              type: string
+            - name: location
+              type: string
+    Template:
+        fields:
+            - name: data
+              type: object
+            - name: description
+              type: string
+            - name: files
+              type: ref:Files
+            - name: lastModified
+              type: integer
+            - name: name
+              type: string
+            - name: tags
+              type: array
+            - name: thumbnailUrl
+              type: string
