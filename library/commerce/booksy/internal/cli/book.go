@@ -60,7 +60,7 @@ func newNovelBookCmd(flags *rootFlags) *cobra.Command {
 			"--date/--time from `booksy-pp-cli availability <business_id> --service-variant <id>`.\n" +
 			"Requires BOOKSY_ACCESS_TOKEN. The --confirm step refuses under any automated test harness; the preview is always safe.",
 		Example:     "  booksy-pp-cli book 297360 --service-variant 20193554 --date 2026-08-19 --time 10:00",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "business_id=297360;--service-variant=20193554;--date=2026-08-19;--time=10:00"},
+		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "business_id=297360;--service-variant=20193554;--date=2026-08-19;--time=10:00"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
