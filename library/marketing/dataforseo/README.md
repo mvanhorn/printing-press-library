@@ -11,13 +11,13 @@ Created by [@mazzsterr](https://github.com/mazzsterr) (Mazzsterr).
 The recommended path installs both the `dataforseo-pp-cli` binary and the `pp-dataforseo` agent skill in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install dataforseo
+npx -y @mvanhorn/printing-press-library install dataforseo
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install dataforseo --cli-only
+npx -y @mvanhorn/printing-press-library install dataforseo --cli-only
 ```
 
 

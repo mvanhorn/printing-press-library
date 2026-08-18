@@ -5,7 +5,7 @@ Read Fox News headlines from the public **Google Publisher RSS** feeds on `moxie
 ## Install
 
 ```bash
-npx -y @mvanhorn/printing-press install foxnews --cli-only
+npx -y @mvanhorn/printing-press-library install foxnews --cli-only
 ```
 
 Or from this directory:

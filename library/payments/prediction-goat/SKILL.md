@@ -20,7 +20,7 @@ This skill drives the `prediction-goat-pp-cli` binary. You must verify the CLI i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install prediction-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install prediction-goat --cli-only
    ```
 2. Verify: `prediction-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
