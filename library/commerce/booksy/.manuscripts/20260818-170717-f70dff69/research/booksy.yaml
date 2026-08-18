@@ -1,0 +1,445 @@
+name: booksy
+description: "Book a haircut (or any Booksy service) in Poland from the terminal — search barbers/salons, compare prices and reviews, check open slots, and book."
+version: "0.1.0"
+base_url: "https://pl.booksy.com"
+http_transport: standard
+health_check_path: "/core/v2/customer_api/search/recommended_treatments/"
+category: appointments-scheduling
+
+# Every Booksy request carries these constant headers. x-api-key is Booksy's
+# PUBLIC web constant (served to all anonymous visitors in the web bundle — a
+# publishable key, not a user secret). x-fingerprint is a per-install device id
+# (a fresh random UUID baked here). The per-user credential (x-access-token) is
+# supplied separately via auth (BOOKSY_ACCESS_TOKEN) and is never baked.
+required_headers:
+  - name: x-api-key
+    value: "web-e3d812bf-d7a2-445d-ab38-55589ae6a121"
+  - name: x-app-version
+    value: "3.0"
+  - name: accept-language
+    value: "pl"
+  - name: x-fingerprint
+    value: "92b1b36d-e6fc-4d91-ada3-80cab96ec2f6"
+
+# Public read endpoints (search, business, reviews, suggest, locations) work
+# with only the constant x-api-key above. Authenticated endpoints (me, my_booksy,
+# availability, booking) additionally require the per-user x-access-token, sent
+# raw in the x-access-token header from BOOKSY_ACCESS_TOKEN.
+auth:
+  type: api_key
+  header: "x-access-token"
+  in: header
+  env_vars:
+    - BOOKSY_ACCESS_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/booksy-pp-cli/config.toml"
+
+learn:
+  entity_lookup_seeds:
+    category:
+      - canonical: "Barber Shop"
+        aliases: [barber, barbershop, fryzjer meski, barbers]
+      - canonical: "Fryzjer"
+        aliases: [hairdresser, salon fryzjerski, hair salon, fryzjerstwo]
+      - canonical: "Paznokcie"
+        aliases: [nails, manicure, nail salon]
+      - canonical: "Kosmetyczka"
+        aliases: [beauty salon, kosmetyka, cosmetician]
+    city:
+      - canonical: "Warszawa"
+        aliases: [warsaw, warszawie, waw]
+      - canonical: "Kraków"
+        aliases: [krakow, cracow, krakowie]
+      - canonical: "Wrocław"
+        aliases: [wroclaw, wroclawiu]
+      - canonical: "Poznań"
+        aliases: [poznan, poznaniu]
+      - canonical: "Gdańsk"
+        aliases: [gdansk, gdansku]
+      - canonical: "Łódź"
+        aliases: [lodz, lodzi]
+  synonyms:
+    "haircut": "strzyżenie"
+    "mens haircut": "strzyżenie męskie"
+    "beard": "broda"
+    "soonest": "earliest"
+    "next available": "earliest"
+  stopwords:
+    - booksy
+    - appointment
+    - salon
+
+resources:
+  businesses:
+    description: "Search and inspect Booksy businesses (barbers, salons)"
+    endpoints:
+      search:
+        method: GET
+        path: "/core/v2/customer_api/businesses"
+        description: "Search barbers/salons. Filter by query, city (location-id), and category; sort by score/distance/reviews."
+        example: "  booksy-pp-cli businesses search --query barber --location-id 47905 --per-page 10"
+        happy_args: "--query=barber;--per-page=3"
+        params:
+          - name: query
+            type: string
+            required: false
+            description: "Free-text search (e.g. barber, strzyżenie, fryzjer)"
+          - name: location_id
+            flag_name: location-id
+            type: int
+            required: false
+            description: "City/area location id (resolve with `search locations`)"
+          - name: location_geo
+            flag_name: location-geo
+            type: string
+            required: false
+            description: "lat,lng geo string as an alternative to location-id"
+          - name: category
+            type: int
+            required: false
+            description: "Category id filter (e.g. 16 = hair/barber)"
+          - name: treatment
+            type: int
+            required: false
+            description: "Treatment id filter (from `search suggest`)"
+          - name: sort_order
+            flag_name: sort
+            type: string
+            required: false
+            default: "score"
+            description: "Result ordering"
+            enum: [score, distance, reviews]
+          - name: businesses_page
+            flag_name: page
+            type: int
+            required: false
+            default: 1
+            description: "Result page (1-based)"
+          - name: businesses_per_page
+            flag_name: per-page
+            type: int
+            required: false
+            default: 20
+            description: "Results per page"
+          - name: has_online_services
+            flag_name: online-only
+            type: int
+            required: false
+            description: "1 to only include businesses with online booking"
+          - name: response_type
+            flag_name: response-type
+            type: string
+            required: false
+            default: "listing_web"
+            description: "Booksy response profile"
+        response:
+          type: array
+          item: BusinessListItem
+        response_path: businesses
+      get:
+        method: GET
+        path: "/core/v2/customer_api/businesses/{business_id}/"
+        description: "Full business profile: services (with prices/variant ids), staff, hours, reviews summary."
+        example: "  booksy-pp-cli businesses get 297360"
+        happy_args: "business_id=297360"
+        params:
+          - name: business_id
+            type: string
+            required: true
+            positional: true
+            description: "Booksy business id"
+          - name: with_combos
+            flag_name: with-combos
+            type: int
+            required: false
+            default: 1
+            description: "Include combo services"
+          - name: with_markdown
+            flag_name: with-markdown
+            type: int
+            required: false
+            default: 0
+            description: "Render markdown description"
+        response:
+          type: object
+          item: BusinessDetailEnvelope
+        response_path: business
+      reviews:
+        method: GET
+        path: "/core/v2/customer_api/businesses/{business_id}/reviews"
+        description: "Customer reviews for a business."
+        example: "  booksy-pp-cli businesses reviews 297360 --per-page 10"
+        happy_args: "business_id=297360;--per-page=3"
+        params:
+          - name: business_id
+            type: string
+            required: true
+            positional: true
+            description: "Booksy business id"
+          - name: reviews_page
+            flag_name: page
+            type: int
+            required: false
+            default: 1
+            description: "Reviews page (1-based)"
+          - name: reviews_per_page
+            flag_name: per-page
+            type: int
+            required: false
+            default: 20
+            description: "Reviews per page"
+          - name: ordering
+            type: string
+            required: false
+            description: "Review ordering"
+        response:
+          type: array
+          item: Review
+        response_path: reviews
+
+  discover:
+    description: "Discovery helpers: query suggestions and location resolution"
+    endpoints:
+      suggest:
+        method: GET
+        path: "/core/v2/customer_api/search/modern_query_hints/"
+        description: "Query suggestions (treatments/categories) for free text."
+        example: "  booksy-pp-cli search suggest --text barber"
+        happy_args: "--text=barber"
+        params:
+          - name: text
+            type: string
+            required: false
+            description: "Partial query text"
+          - name: location_id
+            flag_name: location-id
+            type: int
+            required: false
+            description: "Bias suggestions to a city/area id"
+          - name: location_geo
+            flag_name: location-geo
+            type: string
+            required: false
+            description: "lat,lng bias"
+        response:
+          type: array
+          item: Suggestion
+        response_path: suggestions
+      locations:
+        method: GET
+        path: "/core/v2/customer_api/search/street_hints/"
+        description: "Resolve a place/city name to Booksy location ids for search."
+        example: "  booksy-pp-cli search locations --query Warszawa"
+        happy_args: "--query=Warszawa"
+        params:
+          - name: query
+            type: string
+            required: false
+            description: "Place/city/street text"
+          - name: advanced
+            type: bool
+            required: false
+            description: "Advanced hint resolution"
+        response:
+          type: array
+          item: LocationHint
+        response_path: hints
+      treatments:
+        method: GET
+        path: "/core/v2/customer_api/search/recommended_treatments/"
+        description: "Popular treatments to browse/seed a search."
+        example: "  booksy-pp-cli search treatments --limit 10"
+        happy_args: "--limit=5"
+        params:
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Max treatments"
+        response:
+          type: array
+          item: Treatment
+        response_path: treatments
+
+  me:
+    description: "Your Booksy account (requires BOOKSY_ACCESS_TOKEN)"
+    endpoints:
+      profile:
+        method: GET
+        path: "/core/v2/customer_api/me"
+        description: "Your customer profile (name, email, phone). Requires auth."
+        example: "  booksy-pp-cli me profile"
+        response:
+          type: object
+          item: Customer
+        response_path: customer
+      home:
+        method: GET
+        path: "/core/v2/customer_api/my_booksy/"
+        description: "Your Booksy home: active booking box, favorite/visited businesses, categories. Requires auth."
+        example: "  booksy-pp-cli me home"
+        params:
+          - name: no_thumbs
+            flag_name: no-thumbs
+            type: bool
+            required: false
+            default: true
+            description: "Omit thumbnail expansion"
+        response:
+          type: object
+          item: MyBooksy
+        response_path: null
+
+types:
+  BusinessListItem:
+    fields:
+      - name: id
+        type: integer
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: subdomain
+        type: string
+      - name: url
+        type: string
+      - name: reviews_stars
+        type: number
+      - name: reviews_count
+        type: integer
+      - name: reviews_rank
+        type: number
+      - name: distance
+        type: number
+      - name: primary_category
+        type: integer
+      - name: low_availability
+        type: bool
+      - name: promoted
+        type: bool
+      - name: thumbnail_photo
+        type: string
+      - name: location
+        type: object
+  BusinessDetailEnvelope:
+    fields:
+      - name: id
+        type: integer
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: description
+        type: string
+      - name: phone
+        type: string
+      - name: url
+        type: string
+      - name: website
+        type: string
+      - name: reviews_stars
+        type: integer
+      - name: reviews_count
+        type: integer
+      - name: reviews_rank
+        type: number
+      - name: booking_mode
+        type: string
+      - name: booking_policy
+        type: string
+      - name: location
+        type: object
+      - name: open_hours
+        type: array
+      - name: service_categories
+        type: array
+      - name: top_services
+        type: array
+      - name: staff
+        type: array
+      - name: amenities
+        type: array
+  Review:
+    fields:
+      - name: id
+        type: integer
+      - name: rank
+        type: integer
+      - name: review
+        type: string
+      - name: created
+        type: string
+      - name: staff_name
+        type: string
+      - name: services
+        type: array
+      - name: customer
+        type: object
+      - name: verified
+        type: bool
+  Suggestion:
+    fields:
+      - name: object_type
+        type: string
+      - name: label
+        type: string
+      - name: query_parameters
+        type: object
+  LocationHint:
+    fields:
+      - name: id
+        type: integer
+      - name: type
+        type: string
+      - name: name
+        type: string
+      - name: full_name
+        type: string
+      - name: city
+        type: string
+      - name: latitude
+        type: number
+      - name: longitude
+        type: number
+      - name: businesses_count
+        type: integer
+      - name: slug
+        type: string
+  Treatment:
+    fields:
+      - name: id
+        type: integer
+      - name: name
+        type: string
+      - name: slug
+        type: string
+  Customer:
+    fields:
+      - name: id
+        type: integer
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+      - name: cell_phone
+        type: string
+      - name: gender
+        type: string
+      - name: language
+        type: string
+      - name: active
+        type: bool
+  MyBooksy:
+    fields:
+      - name: booking_box
+        type: object
+      - name: favorites_visited
+        type: array
+      - name: main_categories
+        type: array
+      - name: subcategories
+        type: array

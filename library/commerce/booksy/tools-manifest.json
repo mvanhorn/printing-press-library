@@ -1,0 +1,299 @@
+{
+  "api_name": "booksy",
+  "base_url": "https://pl.booksy.com",
+  "description": "Book a haircut in Poland from the terminal — search barbers, compare prices and reviews, check open slots, and book, with a dry-run-by-default booking guard.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-access-token",
+    "in": "header",
+    "env_vars": [
+      "BOOKSY_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BOOKSY_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "x-api-key",
+      "value": "web-e3d812bf-d7a2-445d-ab38-55589ae6a121"
+    },
+    {
+      "name": "x-app-version",
+      "value": "3.0"
+    },
+    {
+      "name": "accept-language",
+      "value": "pl"
+    },
+    {
+      "name": "x-fingerprint",
+      "value": "92b1b36d-e6fc-4d91-ada3-80cab96ec2f6"
+    }
+  ],
+  "tools": [
+    {
+      "name": "businesses_get",
+      "description": "Full business profile: services (with prices/variant ids), staff, hours, reviews summary. Required: business_id. Optional: with-combos (default: 1), with-markdown (default: 0). Returns the BusinessDetailEnvelope.",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses/{business_id}/",
+      "params": [
+        {
+          "name": "business_id",
+          "type": "string",
+          "location": "path",
+          "description": "Booksy business id",
+          "required": true
+        },
+        {
+          "name": "with-combos",
+          "wire_name": "with_combos",
+          "type": "int",
+          "location": "query",
+          "description": "Include combo services"
+        },
+        {
+          "name": "with-markdown",
+          "wire_name": "with_markdown",
+          "type": "int",
+          "location": "query",
+          "description": "Render markdown description"
+        }
+      ]
+    },
+    {
+      "name": "businesses_reviews",
+      "description": "Customer reviews for a business. Required: business_id. Optional: page (default: 1), per-page (default: 20), ordering. Returns array of Review.",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses/{business_id}/reviews",
+      "params": [
+        {
+          "name": "business_id",
+          "type": "string",
+          "location": "path",
+          "description": "Booksy business id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "reviews_page",
+          "type": "int",
+          "location": "query",
+          "description": "Reviews page (1-based)"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "reviews_per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Reviews per page"
+        },
+        {
+          "name": "ordering",
+          "type": "string",
+          "location": "query",
+          "description": "Review ordering"
+        }
+      ]
+    },
+    {
+      "name": "businesses_search",
+      "description": "Search barbers/salons. Filter by query, city (location-id), and category; sort by score/distance/reviews. Optional: query, location-id, location-geo (plus 7 more). Returns array of BusinessListItem.",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search (e.g. barber, strzyżenie, fryzjer)"
+        },
+        {
+          "name": "location-id",
+          "wire_name": "location_id",
+          "type": "int",
+          "location": "query",
+          "description": "City/area location id (resolve with `search locations`)"
+        },
+        {
+          "name": "location-geo",
+          "wire_name": "location_geo",
+          "type": "string",
+          "location": "query",
+          "description": "lat,lng geo string as an alternative to location-id"
+        },
+        {
+          "name": "category",
+          "type": "int",
+          "location": "query",
+          "description": "Category id filter (e.g. 16 = hair/barber)"
+        },
+        {
+          "name": "treatment",
+          "type": "int",
+          "location": "query",
+          "description": "Treatment id filter (from `search suggest`)"
+        },
+        {
+          "name": "sort",
+          "wire_name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Result ordering"
+        },
+        {
+          "name": "page",
+          "wire_name": "businesses_page",
+          "type": "int",
+          "location": "query",
+          "description": "Result page (1-based)"
+        },
+        {
+          "name": "per-page",
+          "wire_name": "businesses_per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "online-only",
+          "wire_name": "has_online_services",
+          "type": "int",
+          "location": "query",
+          "description": "1 to only include businesses with online booking"
+        },
+        {
+          "name": "response-type",
+          "wire_name": "response_type",
+          "type": "string",
+          "location": "query",
+          "description": "Booksy response profile"
+        }
+      ]
+    },
+    {
+      "name": "discover_locations",
+      "description": "Resolve a place/city name to Booksy location ids for search. Optional: query, advanced. Returns array of LocationHint.",
+      "method": "GET",
+      "path": "/core/v2/customer_api/search/street_hints/",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Place/city/street text"
+        },
+        {
+          "name": "advanced",
+          "type": "bool",
+          "location": "query",
+          "description": "Advanced hint resolution"
+        }
+      ]
+    },
+    {
+      "name": "discover_suggest",
+      "description": "Query suggestions (treatments/categories) for free text. Optional: text, location-id, location-geo. Returns array of Suggestion.",
+      "method": "GET",
+      "path": "/core/v2/customer_api/search/modern_query_hints/",
+      "params": [
+        {
+          "name": "text",
+          "type": "string",
+          "location": "query",
+          "description": "Partial query text"
+        },
+        {
+          "name": "location-id",
+          "wire_name": "location_id",
+          "type": "int",
+          "location": "query",
+          "description": "Bias suggestions to a city/area id"
+        },
+        {
+          "name": "location-geo",
+          "wire_name": "location_geo",
+          "type": "string",
+          "location": "query",
+          "description": "lat,lng bias"
+        }
+      ]
+    },
+    {
+      "name": "discover_treatments",
+      "description": "Popular treatments to browse/seed a search. Optional: limit (default: 20). Returns array of Treatment.",
+      "method": "GET",
+      "path": "/core/v2/customer_api/search/recommended_treatments/",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max treatments"
+        }
+      ]
+    },
+    {
+      "name": "me_home",
+      "description": "Your Booksy home: active booking box, favorite/visited businesses, categories. Requires auth. Optional: no-thumbs (default: true). Returns the MyBooksy.",
+      "method": "GET",
+      "path": "/core/v2/customer_api/my_booksy/",
+      "params": [
+        {
+          "name": "no-thumbs",
+          "wire_name": "no_thumbs",
+          "type": "bool",
+          "location": "query",
+          "description": "Omit thumbnail expansion"
+        }
+      ]
+    },
+    {
+      "name": "me_profile",
+      "description": "Your customer profile (name, email, phone). Requires auth. Returns the Customer.",
+      "method": "GET",
+      "path": "/core/v2/customer_api/me",
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Guided haircut booking",
+      "command": "book",
+      "description": "Book an appointment end to end — it previews the exact service, staffer, time, and price first, and only sends the real booking when you pass --confirm."
+    },
+    {
+      "name": "Open slots",
+      "command": "availability",
+      "description": "List open time slots for a service at a business over a date range, grouped by day. No login required."
+    },
+    {
+      "name": "Services table",
+      "command": "services",
+      "description": "Flatten a business profile into a clean table of bookable services with price, duration, and the service-variant id you pass to book."
+    },
+    {
+      "name": "Soonest slot",
+      "command": "earliest",
+      "description": "Find the single earliest open slot for a service across a date window in one call."
+    },
+    {
+      "name": "Compare barbers",
+      "command": "compare",
+      "description": "Compare several businesses side by side on rating, review count, and cheapest matching service price — from the local cache."
+    },
+    {
+      "name": "Cheapest haircut nearby",
+      "command": "cheapest",
+      "description": "Scan search results in a city and rank businesses by the cheapest service matching your query (e.g. haircut), with rating alongside price."
+    }
+  ]
+}
