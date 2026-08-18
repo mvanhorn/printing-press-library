@@ -15,22 +15,22 @@
       "command": "${__dirname}/bin/gmail-pp-mcp",
       "args": [],
       "env": {
-        "GOOGLE_CALENDAR_CALENDAR_ID": "${user_config.google_calendar_calendar_id}",
-        "GOOGLE_CALENDAR_OAUTH2C": "${user_config.google_calendar_oauth2c}"
+        "GMAIL_CONFIG_DIR": "${user_config.gmail_config_dir}",
+        "GMAIL_OAUTH2C": "${user_config.gmail_oauth2c}"
       }
     }
   },
   "user_config": {
-    "google_calendar_calendar_id": {
+    "gmail_config_dir": {
       "type": "string",
-      "title": "GOOGLE_CALENDAR_CALENDAR_ID",
-      "description": "Sets GOOGLE_CALENDAR_CALENDAR_ID for the endpoint template variable {calendarId}.",
-      "required": true
+      "title": "GMAIL_CONFIG_DIR",
+      "description": "Sets GMAIL_CONFIG_DIR \u2014 auth directory (profiles.yaml + tokens/) used by the mirrored CLI command tools; typed API tools authenticate with GMAIL_OAUTH2C.",
+      "required": false
     },
-    "google_calendar_oauth2c": {
+    "gmail_oauth2c": {
       "type": "string",
-      "title": "GOOGLE_CALENDAR_OAUTH2C",
-      "description": "Sets GOOGLE_CALENDAR_OAUTH2C for the Gmail MCP server.",
+      "title": "GMAIL_OAUTH2C",
+      "description": "Sets GMAIL_OAUTH2C \u2014 direct OAuth bearer token alternative for single-account use.",
       "sensitive": true,
       "required": true
     }

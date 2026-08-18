@@ -17,6 +17,9 @@ two known environment/expectation classes, zero CLI defects**:
    does not honor `pp:typed-exit-codes` (google-calendar retro issue #1).
 Raw runner marker preserved (`phase5-acceptance.json`, status:fail) — not
 hand-edited, per house rule; this report is the adjudication record.
+(Same runner-limitation adjudication class as the google-calendar package
+shipped in PR #1746: truthful typed-exit refusals and sandbox-HOME env
+failures, not CLI defects.)
 
 ## Manual write lifecycle (live, ads account, operator-approved fixture) — ALL PASS
 Fixture: year-old promotional message (id 198d…8ef), labels at start

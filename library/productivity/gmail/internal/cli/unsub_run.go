@@ -25,9 +25,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // unsubRunSenderResult is one frozen sender's outcome.
@@ -98,11 +98,11 @@ func fetchUnsubLiveHeaders(ctx context.Context, c *client.Client, id string) (un
 
 // checkUnsubRunConditions re-verifies the full one-click ladder for one
 // frozen sender at run time from the LIVE headers plus the stored
-// Authentication-Results, and performs the DKIM coverage check. Returns
-// ("", nil) when the sender may be posted, or a skip reason. Ambiguity of
-// any kind (duplicate headers, duplicate URLs, duplicate signatures) is a
-// skip, never a guess.
-func checkUnsubRunConditions(frozenURL, sender, storedAuthResults string, live unsubLiveHeaders) string {
+// Authentication-Results, and performs the DKIM coverage and
+// destination-alignment checks. Returns "" when the sender may be posted,
+// or a skip reason. Ambiguity of any kind (duplicate headers, duplicate
+// URLs, duplicate signatures) is a skip, never a guess.
+func checkUnsubRunConditions(frozenURL, sender, storedAuthResults string, live unsubLiveHeaders, allowThirdParty bool) string {
 	// (a) exactly ONE List-Unsubscribe header instance, live.
 	if len(live.listUnsub) == 0 {
 		return "live message no longer carries a List-Unsubscribe header"
@@ -153,11 +153,19 @@ func checkUnsubRunConditions(frozenURL, sender, storedAuthResults string, live u
 	if registrableDomain(d) != registrableDomain(emailDomain(sender)) {
 		return fmt.Sprintf("DKIM d= domain %s does not align with sender domain %s", d, emailDomain(sender))
 	}
+	// (f) destination alignment: (e) ties the MESSAGE to the sender; this
+	// ties the POST DESTINATION to it. A third-party (ESP-hosted) URL host
+	// is posted only under the operator's explicit --allow-third-party.
+	if !allowThirdParty && !unsubHostAligned(frozenURL, sender) {
+		return fmt.Sprintf("unsubscribe host %q is outside sender domain %q (third-party); re-run with --allow-third-party to permit",
+			unsubURLHost(frozenURL), emailDomain(sender))
+	}
 	return ""
 }
 
 func newNovelUnsubRunCmd(flags *rootFlags) *cobra.Command {
 	var planSha, token string
+	var allowThirdParty bool
 
 	cmd := &cobra.Command{
 		Use:   "run",
@@ -178,8 +186,11 @@ Ordering (every step fails closed):
     "List-Unsubscribe=One-Click"; Gmail's own stored dmarc=pass verdict;
     and exactly one DKIM-Signature whose h= list covers both one-click
     headers and whose d= domain aligns (registrable domain) with the
-    sender. Any failure or ambiguity SKIPS that sender with a reason —
-    nothing is ever posted on a guess.
+    sender; and the unsubscribe URL's own host must share the sender's
+    registrable domain — third-party (ESP-hosted) destinations are
+    skipped unless this run passed --allow-third-party ('unsub plan'
+    lists them under third_party_hosts). Any failure or ambiguity SKIPS
+    that sender with a reason — nothing is ever posted on a guess.
  6. each POST runs the hardened path: the URL host must resolve to ONLY
     public unicast addresses (RFC1918, loopback, link-local, CGNAT, ULA,
     multicast, reserved all refuse), the connection dials the exact
@@ -293,6 +304,16 @@ lock busy.`,
 				}
 				sr.MessageID = newest.ID
 
+				// The plan froze exactly one message id per sender; if the
+				// store's newest unsubscribe-bearing message has changed
+				// since, the stored Authentication-Results below would come
+				// from a message the operator never confirmed — skip and
+				// re-plan.
+				if len(g.IDs) != 1 || newest.ID != g.IDs[0] {
+					skip("newest unsubscribe-bearing message changed since the plan froze — re-plan")
+					continue
+				}
+
 				var live unsubLiveHeaders
 				var found bool
 				lerr := engineCall(ctx, func(cctx context.Context) error {
@@ -320,7 +341,7 @@ lock busy.`,
 					skip("message no longer exists in the mailbox")
 					continue
 				}
-				if reason := checkUnsubRunConditions(g.UnsubURL, g.Sender, newest.AuthResults, live); reason != "" {
+				if reason := checkUnsubRunConditions(g.UnsubURL, g.Sender, newest.AuthResults, live, allowThirdParty); reason != "" {
 					skip(reason)
 					continue
 				}
@@ -389,5 +410,6 @@ lock busy.`,
 	}
 	cmd.Flags().StringVar(&planSha, "plan", "", "The plan sha printed by 'unsub plan' (also the plan's file name)")
 	cmd.Flags().StringVar(&token, "token", "", "The one-time run token minted with that plan (10-minute expiry, single use)")
+	cmd.Flags().BoolVar(&allowThirdParty, "allow-third-party", false, "Permit one-click POSTs whose URL host is outside the sender's registrable domain (ESP-hosted unsubscribe endpoints); skipped by default")
 	return cmd
 }

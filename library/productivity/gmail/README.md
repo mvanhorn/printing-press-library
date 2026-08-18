@@ -421,7 +421,7 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 - **401 Unauthorized on any command** — Re-run gmail-pp-cli accounts auth --account <name> — the refresh token was revoked (password changes revoke Gmail tokens)
 - **sync reports an expired history cursor (HTTP 404)** — Run gmail-pp-cli sync --account <name> --full — Gmail expires historyId cursors after long gaps; a full resync rebuilds cleanly
 - **cleanup apply refuses without a plan token** — Run cleanup plan first and pass its printed token to apply — applies never run unplanned
-- **unsub run skips a sender** — That sender only offers mailto: unsubscribe — it appears in unsub audit --mailto-only for manual handling; this tool never sends email
+- **unsub run skips a sender** — Two common cases. (1) The sender only offers mailto: unsubscribe — it appears in unsub audit --mailto-only for manual handling; this tool never sends email. (2) The one-click URL host lives outside the sender's registrable domain (ESP-hosted): unsub plan lists these under third_party_hosts, and unsub run skips them unless invoked with --allow-third-party
 
 ## Sources & Inspiration
 

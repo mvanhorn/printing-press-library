@@ -109,7 +109,7 @@ These capabilities aren't available in any other tool for this API.
 
 ## Command Reference
 
-Raw modify/trash/delete subcommands do not exist. Every mailbox mutation flows through `cleanup plan` → `cleanup apply` (reversible via `undo`), `labels create`/`labels rename`, or `unsub plan` → `unsub run` — all gated by one-time plan tokens.
+Raw modify/trash/delete subcommands do not exist. Every mailbox mutation flows through `cleanup plan` → `cleanup apply` (reversible via `undo`), `labels create`/`labels rename`, or `unsub plan` → `unsub run` — all gated by one-time plan tokens. One-click POSTs additionally require the unsubscribe URL host to share the sender's registrable domain: ESP-hosted (third-party) destinations are listed by `unsub plan` under `third_party_hosts` and are skipped by `unsub run` unless it is invoked with `--allow-third-party`.
 
 **Mailbox engine**
 

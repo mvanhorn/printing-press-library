@@ -19,6 +19,9 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"golang.org/x/net/idna"
+	"golang.org/x/net/publicsuffix"
 )
 
 // Unsubscribe classification vocabulary. classUnsubOneClick carries the
@@ -82,51 +85,29 @@ func parseListUnsubscribe(v string) unsubHeaderInfo {
 	return info
 }
 
-// twoLevelPublicSuffixes is the short hardcoded list backing the eTLD+1
-// approximation: suffixes under which registrations happen one label deeper
-// (example.co.uk, not co.uk). This is deliberately an APPROXIMATION, not
-// the full Public Suffix List: it covers the common two-level country
-// suffixes; an exotic suffix outside this list degrades to a last-two-labels
-// answer, which can only make the alignment check STRICTER for the hardened
-// path (a false "not aligned" skips a sender; never the reverse for these
-// common cases).
-var twoLevelPublicSuffixes = map[string]bool{
-	"co.uk": true, "org.uk": true, "ac.uk": true, "gov.uk": true, "me.uk": true, "net.uk": true, "ltd.uk": true, "plc.uk": true,
-	"com.au": true, "net.au": true, "org.au": true, "edu.au": true, "gov.au": true, "id.au": true,
-	"co.nz": true, "org.nz": true, "net.nz": true, "govt.nz": true,
-	"co.jp": true, "or.jp": true, "ne.jp": true, "ac.jp": true, "go.jp": true,
-	"com.br": true, "net.br": true, "org.br": true,
-	"com.mx": true, "org.mx": true,
-	"com.ar": true, "com.co": true, "com.pe": true, "com.ve": true,
-	"co.in": true, "net.in": true, "org.in": true, "ac.in": true,
-	"com.sg": true, "com.my": true, "com.hk": true, "com.tw": true, "com.cn": true, "net.cn": true, "org.cn": true,
-	"co.kr": true, "or.kr": true,
-	"co.za": true, "org.za": true, "web.za": true,
-	"com.tr": true, "com.pl": true, "com.ua": true, "co.il": true, "org.il": true,
-}
-
-// registrableDomain approximates the eTLD+1 of a host: lowercase, strip any
-// trailing dot and port-free host expected. Hosts with fewer than two
-// labels (or IP literals) are returned as-is; when the last two labels form
-// a known two-level public suffix the last THREE labels are returned,
-// otherwise the last two.
+// registrableDomain is the eTLD+1 of a host per the full Public Suffix
+// List (golang.org/x/net/publicsuffix, private section included — so
+// foo.github.io and bar.github.io are DIFFERENT parties), after IDNA
+// normalization (punycode and unicode spellings of one host compare
+// equal). IP literals return as-is. A host that IS a public suffix (or
+// otherwise has no eTLD+1) returns the normalized host itself, so two
+// different registrations under an exotic suffix can never collapse into
+// one "aligned" value.
 func registrableDomain(host string) string {
 	h := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(host), "."))
 	if h == "" {
 		return ""
 	}
-	if ip := net.ParseIP(h); ip != nil {
+	if ip := net.ParseIP(strings.Trim(h, "[]")); ip != nil {
 		return h
 	}
-	labels := strings.Split(h, ".")
-	if len(labels) < 2 {
-		return h
+	if a, err := idna.Lookup.ToASCII(h); err == nil && a != "" {
+		h = a
 	}
-	lastTwo := strings.Join(labels[len(labels)-2:], ".")
-	if twoLevelPublicSuffixes[lastTwo] && len(labels) >= 3 {
-		return strings.Join(labels[len(labels)-3:], ".")
+	if d, err := publicsuffix.EffectiveTLDPlusOne(h); err == nil {
+		return d
 	}
-	return lastTwo
+	return h
 }
 
 // emailDomain returns the domain part of an address (” when malformed).
@@ -136,6 +117,29 @@ func emailDomain(email string) string {
 		return ""
 	}
 	return strings.ToLower(email[at+1:])
+}
+
+// unsubURLHost is the lowercase hostname of an unsubscribe URL ("" when
+// unparsable). Ports and userinfo never participate in alignment.
+func unsubURLHost(raw string) string {
+	u, err := url.Parse(strings.TrimSpace(raw))
+	if err != nil || u == nil {
+		return ""
+	}
+	return strings.ToLower(u.Hostname())
+}
+
+// unsubHostAligned reports whether the unsubscribe URL's host shares the
+// sender's registrable domain. DKIM alignment ties the message to the
+// sender; this ties the POST destination to the same party. Unparsable
+// URLs and malformed senders are never aligned.
+func unsubHostAligned(rawURL, sender string) bool {
+	h := unsubURLHost(rawURL)
+	sd := emailDomain(sender)
+	if h == "" || sd == "" {
+		return false
+	}
+	return registrableDomain(h) == registrableDomain(sd)
 }
 
 // dmarcPassRe matches a boundary-checked dmarc=pass token.

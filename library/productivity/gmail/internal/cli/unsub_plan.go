@@ -15,9 +15,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // unsubIneligible is one requested sender the plan refused to freeze.
@@ -26,11 +26,21 @@ type unsubIneligible struct {
 	Reason string `json:"reason"`
 }
 
+// unsubThirdParty is one frozen sender whose one-click URL host lives
+// outside the sender's registrable domain (ESP-hosted): 'unsub run'
+// skips exactly these unless it is invoked with --allow-third-party.
+type unsubThirdParty struct {
+	Sender string `json:"sender"`
+	Host   string `json:"host"`
+}
+
 // unsubPlanOutput wraps the shared plan output with the per-sender verdicts.
 type unsubPlanOutput struct {
 	*planOutput
-	Ineligible []unsubIneligible `json:"ineligible,omitempty"`
-	RunHint    string            `json:"run_hint,omitempty"`
+	Ineligible     []unsubIneligible `json:"ineligible,omitempty"`
+	ThirdParty     []unsubThirdParty `json:"third_party_hosts,omitempty"`
+	ThirdPartyNote string            `json:"third_party_note,omitempty"`
+	RunHint        string            `json:"run_hint,omitempty"`
 }
 
 func newNovelUnsubPlanCmd(flags *rootFlags) *cobra.Command {
@@ -50,7 +60,11 @@ listed under "ineligible" with the reason and are NOT frozen.
 
 The plan freezes, per eligible sender: the sender address, the exact https
 URL (the only URL run is authorized to POST to), and the sender's newest
-unsubscribe-bearing message id (snapshot + sample). The file is written to
+unsubscribe-bearing message id (snapshot + sample). Frozen senders whose
+one-click URL host lives outside the sender's own registrable domain
+(ESP-hosted) are listed under "third_party_hosts": 'unsub run' skips
+exactly those unless it is invoked with --allow-third-party, so confirm
+this plan with that list in hand. The file is written to
 <auth-dir>/plans/<sha>.json (0600) where the name IS the sha256 of the
 content, and a one-time 128-bit token bound to (plan, account) is minted,
 valid 10 minutes — the token flow is identical to 'cleanup plan'.
@@ -144,6 +158,15 @@ refusal / 5 auth or API failure.`,
 				})
 			}
 
+			// Destination alignment is surfaced at plan time so the operator
+			// confirms with the host list in hand; run re-derives it live.
+			var thirdParty []unsubThirdParty
+			for _, r := range reqs {
+				if !unsubHostAligned(r.UnsubURL, r.Sender) {
+					thirdParty = append(thirdParty, unsubThirdParty{Sender: r.Sender, Host: unsubURLHost(r.UnsubURL)})
+				}
+			}
+
 			if len(reqs) == 0 {
 				out := &unsubPlanOutput{
 					planOutput: &planOutput{
@@ -161,7 +184,13 @@ refusal / 5 auth or API failure.`,
 			if err != nil {
 				return err
 			}
-			out := &unsubPlanOutput{planOutput: planOut, Ineligible: ineligible}
+			out := &unsubPlanOutput{planOutput: planOut, Ineligible: ineligible, ThirdParty: thirdParty}
+			if len(thirdParty) > 0 {
+				// The hint stays default-deny on purpose: hints get executed
+				// verbatim, and adding the override here would turn disclosure
+				// into silent consent. The operator types the flag themselves.
+				out.ThirdPartyNote = fmt.Sprintf("%d frozen sender(s) post to third-party (ESP) hosts — see third_party_hosts; 'unsub run' skips exactly those unless the operator explicitly adds --allow-third-party", len(thirdParty))
+			}
 			if planOut.PlanSha != "" && planOut.Nonce != "" {
 				out.RunHint = fmt.Sprintf("gmail-pp-cli unsub run --plan %s --token %s", planOut.PlanSha, planOut.Nonce)
 				out.ApplyHint = "" // the cleanup-apply hint does not apply to unsub plans
