@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "import-graphql-issues",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Import routes issues through the shared issueCreate mutation path and returns an actionable typed-command error for resources without a GraphQL import adapter.",
+  "reason": "Linear is GraphQL-only with no REST create endpoint, so the generated POST /<resource> loop rejects every record with a missing-query error. A regeneration must preserve issue import through issueCreate, including team resolution, pp_created tracking, and local-store write-back.",
+  "files": [
+    "internal/cli/import.go",
+    "internal/cli/issues_create.go"
+  ],
+  "validated_outcome": "Automated tests verify per-record issueCreate mutations, continued processing after malformed and rejected records, pp_created and local-store writes, dry-run team resolution without mutations, required-field validation, and actionable rejection of unsupported resources.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2617"
+}
