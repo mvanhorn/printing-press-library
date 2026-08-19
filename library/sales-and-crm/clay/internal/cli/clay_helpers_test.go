@@ -47,7 +47,8 @@ func TestResolveRefsToNames(t *testing.T) {
 
 func TestResolveNamesToRefs(t *testing.T) {
 	byName := indexByName(testFields())
-	got, unknown := resolveNamesToRefs("{{Company}} in {{City}}", byName)
+	byID := indexByID(testFields())
+	got, unknown, _ := resolveNamesToRefs("{{Company}} in {{City}}", byName, byID)
 	if len(unknown) != 0 {
 		t.Fatalf("unexpected unknown refs: %v", unknown)
 	}
@@ -55,15 +56,15 @@ func TestResolveNamesToRefs(t *testing.T) {
 		t.Fatalf("resolveNamesToRefs = %q", got)
 	}
 	// Case-insensitive match.
-	if got, _ := resolveNamesToRefs("{{company}}", byName); got != "{{f_company}}" {
+	if got, _, _ := resolveNamesToRefs("{{company}}", byName, byID); got != "{{f_company}}" {
 		t.Fatalf("case-insensitive lookup failed: %q", got)
 	}
 	// Unknown names are reported, not silently written.
-	if _, unknown := resolveNamesToRefs("{{Nope}}", byName); len(unknown) != 1 {
+	if _, unknown, _ := resolveNamesToRefs("{{Nope}}", byName, byID); len(unknown) != 1 {
 		t.Fatalf("expected 1 unknown ref, got %v", unknown)
 	}
 	// Already-id refs are left alone.
-	if got, _ := resolveNamesToRefs("{{f_company}}", byName); got != "{{f_company}}" {
+	if got, _, _ := resolveNamesToRefs("{{f_company}}", byName, byID); got != "{{f_company}}" {
 		t.Fatalf("id ref rewritten: %q", got)
 	}
 }
@@ -126,7 +127,11 @@ func TestResolveNamesToRefsPrefersNameOverFieldIDShape(t *testing.T) {
 	}
 	byName := indexByName(fields)
 
-	got, unknown := resolveNamesToRefs("{{f_lookalike}}", byName)
+	byID := indexByID(fields)
+
+	// f_lookalike is only a column NAME here (not a real field id), so it must
+	// still resolve by name.
+	got, unknown, _ := resolveNamesToRefs("{{f_lookalike}}", byName, byID)
 	if len(unknown) != 0 {
 		t.Fatalf("unexpected unknown refs: %v", unknown)
 	}
@@ -134,14 +139,41 @@ func TestResolveNamesToRefsPrefersNameOverFieldIDShape(t *testing.T) {
 		t.Fatalf("column named f_lookalike was not remapped: got %q, want {{f_realid1}}", got)
 	}
 
-	// A real id that is not a column name still passes through untouched.
-	if got, _ := resolveNamesToRefs("{{f_realid2}}", byName); got != "{{f_realid2}}" {
+	// A real id that is not a column name passes through untouched.
+	if got, _, _ := resolveNamesToRefs("{{f_realid2}}", byName, byID); got != "{{f_realid2}}" {
 		t.Fatalf("actual field id should pass through, got %q", got)
 	}
 
 	// A non-id, non-column token is still reported as unresolved.
-	if _, unknown := resolveNamesToRefs("{{Ghost}}", byName); len(unknown) != 1 {
+	if _, unknown, _ := resolveNamesToRefs("{{Ghost}}", byName, byID); len(unknown) != 1 {
 		t.Fatalf("expected Ghost to be unresolved, got %v", unknown)
+	}
+}
+
+// An explicit, real field id must bind to that field even when a DIFFERENT
+// column is literally named like it — and the collision must be reported.
+func TestResolveNamesToRefsExplicitFieldIDWins(t *testing.T) {
+	fields := []clayField{
+		{ID: "f_company", Name: "Company"},
+		{ID: "f_other", Name: "f_company"}, // a column NAMED like the id above
+	}
+	byName := indexByName(fields)
+	byID := indexByID(fields)
+
+	got, unknown, ambiguous := resolveNamesToRefs("{{f_company}}", byName, byID)
+	if len(unknown) != 0 {
+		t.Fatalf("unexpected unknown refs: %v", unknown)
+	}
+	if got != "{{f_company}}" {
+		t.Fatalf("explicit field id must bind to itself, got %q (would have read the wrong column)", got)
+	}
+	if len(ambiguous) != 1 || ambiguous[0] != "f_company" {
+		t.Fatalf("collision should be reported as ambiguous, got %v", ambiguous)
+	}
+
+	// Ordinary names are unaffected.
+	if got, _, _ := resolveNamesToRefs("{{Company}}", byName, byID); got != "{{f_company}}" {
+		t.Fatalf("ordinary name remap broke, got %q", got)
 	}
 }
 

@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "cookie"
   },
-  "source_fingerprint": "0117cb435225657ad8d5032982fa30a5a7e477cfdf3cc47b7448921b678f61e7",
+  "source_fingerprint": "f03d581e328701671120e96ca767a9b349d596f014bd5bf64d9e5a7c9a3e214d",
   "source_files": {
     "cmd/clay-pp-cli/main.go": "f15612cc13634fe6f415031a675beffb61f29cd2b91a640a8e95578830af6175",
     "cmd/clay-pp-mcp/main.go": "3a95834b5196db3fc2de7eca27d4f3dfc46469442ce2701d18d579aaea8424a3",
@@ -31,8 +31,8 @@
     "internal/cli/blueprint_export.go": "1bf6e398e48059f2365d0af42613f59effa95a67977fce09a4ad28c89ea6b724",
     "internal/cli/blueprint_export_test.go": "cbeda9678a8e34a24ea199d47d5819a5849c0a615215b34b38848983dc48b3c2",
     "internal/cli/channel_workflow.go": "f690d175615c533e944a3fe7ccff8320575b5f6ff971d1af91d658dd11afa942",
-    "internal/cli/clay_helpers.go": "eb90a4c40e8880121d24304cea50efa1396f4ac20508d7b4189aa6d4aa2ab796",
-    "internal/cli/clay_helpers_test.go": "8167c5131ba39485cc22143037ddd995c903d4ee699d174e6b7235f8ee45f4ed",
+    "internal/cli/clay_helpers.go": "712e27b4ae1f5e2779356fc2aa069d7e136bb7aed8dcdababcbf2dc4ae4dbc48",
+    "internal/cli/clay_helpers_test.go": "8fe73ad98705d7d2af96f000b955952af0e727b95caa45a62b21e2c75c2c89e8",
     "internal/cli/columns.go": "e1f81f3823656f2252d1f07265d55ceae30670ac2e931351be520806597d66ec",
     "internal/cli/columns_create.go": "ac6c8684f6c22e65c0b79889619f1dc6a5e8fbb6cb1ef3dcdde6b394178242c7",
     "internal/cli/columns_delete.go": "0467256354d62cd132082e366f5fd338bc3ed824562c8c6aff300b679adb7de1",
@@ -42,7 +42,7 @@
     "internal/cli/columns_graph_test.go": "d9d2bf872ea55f58513ab72c79ded17901df99383690251f66c9151b24b6b779",
     "internal/cli/columns_link.go": "e1aae704499bfa49b77d504fc18458c7ac8c97f9c5a45da311c149120a8a41bd",
     "internal/cli/columns_link_test.go": "9457c9f332c563b3d78273a6c0f14b259d8a41dc55052cdbe55c0ae4bb9b1c68",
-    "internal/cli/columns_set_formula.go": "456798c9018ca1cb34edbe5ca92492e39d8022ba9eba18b7acf61122b28dbfd9",
+    "internal/cli/columns_set_formula.go": "ea6c01c454dccafb63f927b332294f4aa4d3cdcb23383e36da7aa058692b94ca",
     "internal/cli/columns_set_formula_test.go": "c59adc591bcdeb9b3e4b61f95dfbeec1e079a419db16202d041aac330debcbf0",
     "internal/cli/columns_update.go": "f8bb7d05d4fbcbbe36496c4b22afe01a2171cfcc81ddad65766a31eadd0838a5",
     "internal/cli/data_source.go": "21cbceb3aa5ab7421a7aede7d9de8cee51e86fea49b519088a75559e00e1afe0",

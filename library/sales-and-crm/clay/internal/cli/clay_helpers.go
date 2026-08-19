@@ -106,23 +106,37 @@ func resolveRefsToNames(formula string, byID map[string]clayField) string {
 	})
 }
 
-// resolveNamesToRefs rewrites {{Column Name}} back into {{f_id}} before writing.
-// Tokens already in f_ form are left alone. Unknown names are reported.
-func resolveNamesToRefs(formula string, byName map[string]clayField) (string, []string) {
+// resolveNamesToRefs rewrites {{Column Name}} into {{f_id}} before writing a
+// user-authored formula.
+//
+// Precedence is deliberately the opposite of blueprint apply. Here the author
+// may type an explicit field id, so an id-shaped token that names a real field
+// in this table binds to that field. Only when the token is not a real field id
+// do we fall back to a column-name lookup. A column literally named like a
+// different real field id is reported as ambiguous rather than silently bound.
+func resolveNamesToRefs(formula string, byName map[string]clayField, byID map[string]clayField) (string, []string, []string) {
 	var unknown []string
+	var ambiguous []string
 	out := namedRefPattern.ReplaceAllStringFunc(formula, func(m string) string {
 		sub := namedRefPattern.FindStringSubmatch(m)
 		if len(sub) < 2 {
 			return m
 		}
 		token := strings.TrimSpace(sub[1])
-		// Name lookup wins: a column may legitimately be named "f_something",
-		// and treating it as an id would silently drop the remap.
+
+		// An explicit, real field id wins: the author asked for that field.
+		if _, isRealID := byID[token]; isRealID {
+			if named, clash := byName[strings.ToLower(token)]; clash && named.ID != token {
+				ambiguous = append(ambiguous, token)
+			}
+			return m
+		}
+		// Otherwise resolve by column name, which also covers a column whose
+		// name merely looks like a field id.
 		if f, ok := byName[strings.ToLower(token)]; ok {
 			return "{{" + f.ID + "}}"
 		}
-		// Not a known column name. Only pass through tokens that actually look
-		// like a generated field id; anything else is genuinely unresolved.
+		// Unrecognized but id-shaped: pass through and let the API judge it.
 		if fieldIDPattern.MatchString(token) {
 			return m
 		}
@@ -130,7 +144,8 @@ func resolveNamesToRefs(formula string, byName map[string]clayField) (string, []
 		return m
 	})
 	sort.Strings(unknown)
-	return out, unknown
+	sort.Strings(ambiguous)
+	return out, unknown, ambiguous
 }
 
 func indexByID(fields []clayField) map[string]clayField {

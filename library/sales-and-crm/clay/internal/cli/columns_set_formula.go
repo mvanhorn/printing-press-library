@@ -87,9 +87,14 @@ func newNovelColumnsSetFormulaCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			byName := indexByName(tbl.Fields)
-			remapped, unknown := resolveNamesToRefs(flagFormula, byName)
+			remapped, unknown, ambiguous := resolveNamesToRefs(flagFormula, byName, byID)
 			if len(unknown) > 0 {
 				return usageErr(fmt.Errorf("unknown column reference(s): %s", strings.Join(unknown, ", ")))
+			}
+			for _, tok := range ambiguous {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: %q is both a real field id and the name of a different column; "+
+						"binding it as the explicit field id\n", tok)
 			}
 			if remapped == view.Raw {
 				view.Unchanged = true
