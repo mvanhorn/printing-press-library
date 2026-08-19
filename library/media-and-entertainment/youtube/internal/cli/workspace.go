@@ -186,12 +186,25 @@ func newWorkspaceUseCmd(flags *rootFlags) *cobra.Command {
 					prev := os.Getenv("YOUTUBE_HOME")
 					_ = os.Setenv("YOUTUBE_HOME", home)
 					// PATCH(pr1755-greptile: preserve workspace credentials) — seed only a
-					// workspace that has no credential of its own. Re-seeding on every
-					// switch overwrote a workspace-specific `auth set-token` key with the
-					// globally active ring entry, silently billing a different key's quota.
-					if hasCred, credErr := cliutil.CredentialsFileHasValues(); credErr == nil && hasCred {
+					// workspace that affirmatively has no credential. Fail SAFE: a load
+					// error, a perms/parse refusal, or any non-empty existing file all
+					// mean preserve — never overwrite a credential we could not read
+					// (maintainer review on PR #1755).
+					seedFromRing := false
+					creds, credStatus, credErr := cliutil.LoadCredentialsWithStatus()
+					switch {
+					case credErr != nil || credStatus.Refusal != nil:
+						hint = "active; workspace credential file preserved (unreadable or refused — not overwriting)"
+					case credStatus.Loaded && creds.HasValues():
 						hint = "active; existing workspace credential preserved"
-					} else {
+					default:
+						if fi, statErr := os.Stat(credStatus.Path); statErr == nil && fi.Size() > 0 {
+							hint = "active; existing non-empty credential file preserved"
+						} else {
+							seedFromRing = true
+						}
+					}
+					if seedFromRing {
 						ring, ringErr := loadKeyRing()
 						if ringErr == nil && ring.Active != "" {
 							if err := activateRingKey(ring, ring.Active, ""); err == nil {

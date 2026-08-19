@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "api_key"
   },
-  "source_fingerprint": "4fc5b82764110d5da229e012ccb4e89a02ee12eba4e736d53a3d133f61b65a10",
+  "source_fingerprint": "ecd805509ff8d408b963fa0e35bb0b7e3ae8c0f23b1056702779491154bec721",
   "source_files": {
     "cmd/youtube-pp-cli/main.go": "5dd260fd2f51c16b8ad1f6af9100af0aa193e4a43679487ef1723483970cc3eb",
     "cmd/youtube-pp-mcp/main.go": "78b2f30cd2d57dc889d751d6112c9e0a744623ac0e78b62cfd223ab3e45116b9",
@@ -88,7 +88,7 @@
     "internal/cli/watch_test.go": "c728d09a8b9df08d16c214286690f2c6536e17764afae892f64d7809d687d9f7",
     "internal/cli/which.go": "7f0f3434014faae95ef1ec713bd335c0c41f6ab815485fe784cf74b06e752af6",
     "internal/cli/which_test.go": "8d9cb05e3a07fdeb4448d7194338d5abcd6c466c4b746a3fe8d575aa82a74abd",
-    "internal/cli/workspace.go": "2224798ed7c1124abe8b3b1cd845570d8448b21619217b27869b9393daf40143",
+    "internal/cli/workspace.go": "79b1ffaf957ce554aacabf9ae53420d971ef943f18b514ce2a6aeb6787adea31",
     "internal/cli/workspace_test.go": "351c5fe246c3b82f7193c3b6067854eb439c9ad48d0e374c5ef44e0776abc2ae",
     "internal/cli/youtube.go": "a458435f9df8aca7e04678db7483013291171cd2365f5760237b0ceb89b67c28",
     "internal/cli/youtube_activities-list.go": "0bd2e695f2d2b73ef095ba72a462e77c7077139509ca00a406692d2258f241f6",
