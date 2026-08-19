@@ -2,8 +2,8 @@
 # See docs/spec-agentcookie-secrets-bus-v2-adoption.md
 schema_version = 2
 name = "offerup-pp-cli"
-display_name = "Offerup"
-description = "Search local OfferUp listings, track prices, and surface deals from your terminal"
+display_name = "OfferUp"
+description = "Search local OfferUp listings from your terminal, keep them in a local database, and spot underpriced deals before anyone else — no login and no paid key for the things that matter most."
 project_kind = "cli"
 
 [secrets.file]
@@ -13,4 +13,4 @@ path = "~/.config/offerup-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-OFFERUP_COOKIE = true
+"OFFERUP_COOKIE" = true

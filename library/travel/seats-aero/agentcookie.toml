@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "seats-aero-pp-cli"
+display_name = "Seats Aero Partner"
+description = "Search Seats.aero award-flight availability, route coverage, and trip details from the terminal."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/seats-aero-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"SEATS_AERO_API_KEY" = true

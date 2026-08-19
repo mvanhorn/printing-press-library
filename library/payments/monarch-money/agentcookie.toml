@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "monarch-money-pp-cli"
+display_name = "Monarch Money"
+description = "Use Monarch Money account balances, tags, transactions, cashflow summaries, and explicit transaction CRUD workflows from the terminal."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/monarch-money-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"MONARCH_EMAIL" = true
+"MONARCH_PASSWORD" = true
+"MONARCH_TOKEN" = true

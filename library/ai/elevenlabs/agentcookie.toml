@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "elevenlabs-pp-cli"
+display_name = "ElevenLabs"
+description = "Generate, transform, transcribe, dub, and manage AI audio, voices, music, and conversational agents with ElevenLabs."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/elevenlabs-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"ELEVENLABS_API_KEY" = true

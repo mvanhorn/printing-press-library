@@ -13,4 +13,4 @@ path = "~/.config/twelvelabs-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-TWELVELABS_X_API_KEY = true
+"TWELVELABS_X_API_KEY" = true

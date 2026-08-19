@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "digitalocean-pp-cli"
+display_name = "DigitalOcean"
+description = "Manage DigitalOcean Droplets, Kubernetes, databases, firewalls, networking, billing, and other cloud resources from the terminal."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/digitalocean-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"DIGITALOCEAN_BEARER_AUTH" = true

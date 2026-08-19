@@ -1,0 +1,15 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "cal-com-pp-cli"
+display_name = "Cal.com"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/cal-com-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"CAL_COM_TOKEN" = true

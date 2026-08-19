@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "allrecipes-pp-cli"
+display_name = "Allrecipes"
+description = "Search Allrecipes, fetch structured recipe data, scale servings, build grocery lists, and rank cached recipes by popularity."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/allrecipes-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"ALLRECIPES_COOKIES" = true

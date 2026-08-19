@@ -1,0 +1,15 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "numista-pp-cli"
+display_name = "Numista Documentation"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/numista-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"NUMISTA_API_KEY" = true

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "lawhub-pp-cli"
+display_name = "LawHub"
+description = "Local-first LSAT practice analytics from authenticated LawHub score metadata, with SQLite, weakness reports, question notes, and safe review links back to LawHub."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/lawhub-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"LAWHUB_USER_ID" = true

@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "squarespace-pp-cli"
+display_name = "Squarespace"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/squarespace-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"COMMERCE_AUTHORIZATION" = true
+"SQUARESPACE_ACCOUNT_COOKIE" = true
+"SQUARESPACE_ACCOUNT_COOKIE_FILE" = true

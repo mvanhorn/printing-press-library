@@ -13,5 +13,5 @@ path = "~/.config/revenuecat-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-DEVELOPER_BEARER_AUTH = true
-REVENUECAT_API_KEY = true
+"DEVELOPER_BEARER_AUTH" = true
+"REVENUECAT_API_KEY" = true

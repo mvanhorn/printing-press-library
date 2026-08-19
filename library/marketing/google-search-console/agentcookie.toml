@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "google-search-console-pp-cli"
+display_name = "Google Search Console"
+description = "Every Google Search Console feature you'd reach for, plus an offline SQLite cache that powers quick-wins, cannibalization, period compare, and historical queries beyond the 16-month API window."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/google-search-console-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"GSC_ACCESS_TOKEN" = true

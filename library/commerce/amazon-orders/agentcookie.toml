@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "amazon-orders-pp-cli"
+display_name = "Amazon Orders"
+description = "Sync your Amazon order history into a local SQLite store, then ask cross-cutting questions offline: which deliveries are slipping, what did I spend last quarter, when did I order that thing, where is my stuff right now."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/amazon-orders-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"AMAZON_COOKIES" = true

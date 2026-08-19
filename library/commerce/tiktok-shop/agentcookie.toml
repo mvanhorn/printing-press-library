@@ -1,0 +1,20 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "tiktok-shop-pp-cli"
+display_name = "TikTok Shop"
+description = "Safe v1 TikTok Shop Seller API CLI/MCP for auth readiness, token exchange and read endpoints; pre-flight checks gate live writes by default."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/tiktok-shop-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"TIKTOK_SHOP_ACCESS_TOKEN" = true
+"TIKTOK_SHOP_APP_KEY" = true
+"TIKTOK_SHOP_APP_SECRET" = true
+"TIKTOK_SHOP_REFRESH_TOKEN" = true
+"TIKTOK_SHOP_SHOP_CIPHER" = true

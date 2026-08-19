@@ -13,4 +13,4 @@ path = "~/.config/scrape-creators-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-SCRAPECREATORS_API_KEY = true
+"SCRAPECREATORS_API_KEY" = true

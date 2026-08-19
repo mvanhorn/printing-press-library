@@ -13,4 +13,4 @@ path = "~/.config/splitwise-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-SPLITWISE_API_KEY = true
+"SPLITWISE_API_KEY" = true

@@ -13,4 +13,4 @@ path = "~/.config/spotify-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-SPOTIFY_OAUTH_2_0 = true
+"SPOTIFY_OAUTH_2_0" = true

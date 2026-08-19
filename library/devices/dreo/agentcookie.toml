@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "dreo-pp-cli"
+display_name = "Dreo"
+description = "Control Dreo smart fans, heaters, air purifiers, humidifiers, and ACs from the command line."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/dreo-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"DREO_PASSWORD" = true
+"DREO_USERNAME" = true

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "klaviyo-pp-cli"
+display_name = "Klaviyo"
+description = "Marketing automation, profiles, events, campaigns, flows, segments, and templates."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/klaviyo-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"KLAVIYO_API_KEY" = true

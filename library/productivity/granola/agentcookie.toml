@@ -1,0 +1,15 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "granola-pp-cli"
+display_name = "Granola"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/granola-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"GRANOLA_API_KEY" = true

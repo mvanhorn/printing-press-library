@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "outlook-email-pp-cli"
+display_name = "Outlook Email"
+description = "Drive your personal Microsoft 365 inbox from agentic workflows: read, send, sync, and run offline triage analytics like followup, senders, waiting, and digest that no Graph endpoint exposes."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/outlook-email-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"OUTLOOK_EMAIL_TOKEN" = true

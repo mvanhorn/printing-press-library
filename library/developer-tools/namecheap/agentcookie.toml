@@ -1,0 +1,19 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "namecheap-pp-cli"
+display_name = "Namecheap"
+description = "Manage Namecheap domains, DNS, account balances, pricing, contacts, TLDs, and SSL metadata from the terminal using Namecheap’s XML API."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/namecheap-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"NAMECHEAP_API_KEY" = true
+"NAMECHEAP_CLIENT_IP" = true
+"NAMECHEAP_SANDBOX" = true
+"NAMECHEAP_USERNAME" = true

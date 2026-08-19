@@ -351,7 +351,16 @@ func findCLIDirs(libraryRoot string) ([]string, error) {
 // summary of what changed (e.g. "42 files").
 type sweepStatus string
 
-const statusUnchanged sweepStatus = "unchanged"
+const (
+	statusUnchanged       sweepStatus = "unchanged"
+	statusSkillOnly       sweepStatus = "skill-only"
+	statusReadmeOnly      sweepStatus = "readme-only"
+	statusBoth            sweepStatus = "both"
+	statusAgentcookieOnly sweepStatus = "agentcookie-only"
+	statusBothPlusAC      sweepStatus = "skill+readme+agentcookie"
+	statusReadmePlusAC    sweepStatus = "readme+agentcookie"
+	statusSkillPlusAC     sweepStatus = "skill+agentcookie"
+)
 
 const minimumGoVersion = "Go 1.26.6 or newer"
 
@@ -427,6 +436,7 @@ func sweepCLI(cliDir, ownerName string, readmeOnly, attributionOnly bool, contri
 	creator := resolveCreator(mf)
 
 	var edits []fileEdit
+	skillChanged := false
 
 	// SKILL.md (canonical docs shape) — skipped in readme-only and
 	// attribution-only modes.
@@ -445,6 +455,7 @@ func sweepCLI(cliDir, ownerName string, readmeOnly, attributionOnly bool, contri
 			return statusUnchanged, fmt.Errorf("patch SKILL.md: %w", err)
 		}
 		if skillAfter != string(skillBefore) {
+			skillChanged = true
 			edits = append(edits, fileEdit{skillPath, skillBefore, []byte(skillAfter)})
 		}
 	}
@@ -465,7 +476,8 @@ func sweepCLI(cliDir, ownerName string, readmeOnly, attributionOnly bool, contri
 	if err != nil {
 		return statusUnchanged, fmt.Errorf("patch README.md: %w", err)
 	}
-	if readmeAfter != string(readmeBefore) {
+	readmeChanged := readmeAfter != string(readmeBefore)
+	if readmeChanged {
 		edits = append(edits, fileEdit{readmePath, readmeBefore, []byte(readmeAfter)})
 	}
 
@@ -495,25 +507,73 @@ func sweepCLI(cliDir, ownerName string, readmeOnly, attributionOnly bool, contri
 	}
 	edits = append(edits, headerEdits...)
 
-	if len(edits) == 0 {
+	// Probe whether agentcookie.toml would change so we can fast-return
+	// statusUnchanged when nothing at all is dirty. The probe re-renders
+	// against current inputs; the real write happens below inside the
+	// snapshot-tracked block.
+	agentcookieWouldChange, agentcookieProbeErr := agentcookieManifestWouldChange(cliDir)
+	if agentcookieProbeErr != nil {
+		return statusUnchanged, fmt.Errorf("probe agentcookie.toml: %w", agentcookieProbeErr)
+	}
+	if !skillChanged && !readmeChanged && !agentcookieWouldChange {
 		return statusUnchanged, nil
 	}
 
 	// Write all edits, rolling back already-written files on any failure.
 	var written []fileEdit
+	rollback := func() {
+		for _, w := range written {
+			if rerr := os.WriteFile(w.path, w.before, 0o644); rerr != nil {
+				fmt.Printf("    WARN restore %s failed: %v\n", w.path, rerr)
+			}
+		}
+	}
 	for _, e := range edits {
 		if err := os.WriteFile(e.path, e.after, 0o644); err != nil {
-			for _, w := range written {
-				if rerr := os.WriteFile(w.path, w.before, 0o644); rerr != nil {
-					fmt.Printf("    WARN restore %s failed: %v\n", w.path, rerr)
-				}
-			}
+			rollback()
 			return statusUnchanged, fmt.Errorf("write %s: %w", e.path, err)
 		}
 		written = append(written, e)
 	}
 
-	return sweepStatus(fmt.Sprintf("%d files", len(edits))), nil
+	// agentcookie.toml emit. Skipped CLIs (cookie-only, override marker)
+	// silently return changed=false; readability of the per-CLI sweep
+	// line takes priority over surfacing every skip in the status field.
+	// Render here, then write inside the snapshot block, so a partial
+	// write failure (e.g. ENOSPC mid-write) lands the snapshot in
+	// `written` and rollback() can restore the prior contents — matching
+	// the skill/readme pattern above.
+	agentcookieBody, agentcookieChanged, agentcookieErr := agentcookieManifestForSweep(cliDir)
+	if agentcookieErr != nil {
+		rollback()
+		return statusUnchanged, fmt.Errorf("render agentcookie.toml: %w", agentcookieErr)
+	}
+	if agentcookieChanged {
+		agentcookiePath := filepath.Join(cliDir, agentcookieTomlFilename)
+		agentcookieBefore, _ := os.ReadFile(agentcookiePath)
+		written = append(written, fileEdit{path: agentcookiePath, before: agentcookieBefore, after: []byte(agentcookieBody)})
+		if err := os.WriteFile(agentcookiePath, []byte(agentcookieBody), 0o644); err != nil {
+			rollback()
+			return statusUnchanged, fmt.Errorf("write agentcookie.toml: %w", err)
+		}
+	}
+
+	switch {
+	case skillChanged && readmeChanged && agentcookieChanged:
+		return statusBothPlusAC, nil
+	case skillChanged && readmeChanged:
+		return statusBoth, nil
+	case readmeChanged && agentcookieChanged:
+		return statusReadmePlusAC, nil
+	case skillChanged && agentcookieChanged:
+		return statusSkillPlusAC, nil
+	case agentcookieChanged:
+		return statusAgentcookieOnly, nil
+	case skillChanged:
+		return statusSkillOnly, nil
+	default:
+		return statusReadmeOnly, nil
+	}
 }
 
 // sweepGoFallbackFloorCLI retargets only the canonical direct-Go fallback

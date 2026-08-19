@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "fedex-pp-cli"
+display_name = "FedEx"
+description = "Ship, rate, and track FedEx packages from the terminal — built for small business shippers."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/fedex-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"FEDEX_API_KEY" = true
+"FEDEX_SECRET_KEY" = true

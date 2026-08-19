@@ -1,0 +1,20 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "podcast-goat-pp-cli"
+display_name = "Podcast GOAT"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/podcast-goat-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"DEEPGRAM_API_KEY" = true
+"ELEVENLABS_API_KEY" = true
+"OPENAI_API_KEY" = true
+"SPOKEN_API_KEY" = true
+"TADDY_API_KEY" = true
+"TADDY_USER_ID" = true

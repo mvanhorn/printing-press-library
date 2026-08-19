@@ -1,0 +1,15 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "supabase-pp-cli"
+display_name = "Supabase"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/supabase-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"SUPABASE_ACCESS_TOKEN" = true

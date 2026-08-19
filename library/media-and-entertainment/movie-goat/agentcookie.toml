@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "movie-goat-pp-cli"
+display_name = "Movie Goat"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/movie-goat-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"OMDB_API_KEY" = true
+"TMDB_API_KEY" = true

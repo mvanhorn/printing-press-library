@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "outlook-calendar-pp-cli"
+display_name = "Outlook Calendar"
+description = "Drive your personal Microsoft 365 calendar from agentic workflows: read, write, sync, and run offline analytics like conflicts, freetime, and recurring-drift that no Graph endpoint exposes."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/outlook-calendar-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"OUTLOOK_CALENDAR_TOKEN" = true

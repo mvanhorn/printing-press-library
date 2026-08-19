@@ -13,5 +13,5 @@ path = "~/.config/restaurant365-odata-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-RESTAURANT365_ODATA_PASSWORD = true
-RESTAURANT365_ODATA_USERNAME = false
+"RESTAURANT365_ODATA_PASSWORD" = true
+"RESTAURANT365_ODATA_USERNAME" = true

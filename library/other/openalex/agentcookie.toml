@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "openalex-pp-cli"
+display_name = "OpenAlex"
+description = "Free scholarly graph API for works, authors, sources, institutions, topics, funders, and citation-aware research intelligence."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/openalex-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"OPENALEX_API_KEY" = true

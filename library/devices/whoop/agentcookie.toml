@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "whoop-pp-cli"
+display_name = "WHOOP"
+description = "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/whoop-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"WHOOP_OAUTH" = true

@@ -13,4 +13,4 @@ path = "~/.config/infotbm-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-INFOTBM_API_KEY = true
+"INFOTBM_API_KEY" = true

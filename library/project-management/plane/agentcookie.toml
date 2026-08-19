@@ -3,7 +3,7 @@
 schema_version = 2
 name = "plane-pp-cli"
 display_name = "Plane"
-description = "Open-source project management — issues, cycles, modules, sub-issues, and workspaces. A self-hostable Jira/Linear/ClickUp alternative."
+description = "Open-source project management вЂ” issues, cycles, modules, sub-issues, and workspaces. A self-hostable Jira/Linear/ClickUp alternative."
 project_kind = "cli"
 
 [secrets.file]
@@ -13,4 +13,4 @@ path = "~/.config/plane-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-PLANE_API_KEY_AUTHENTICATION = true
+"PLANE_API_KEY_AUTHENTICATION" = true

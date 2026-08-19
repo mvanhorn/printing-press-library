@@ -1,0 +1,15 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "gravitus-pp-cli"
+display_name = "Gravitus"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/gravitus-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"GRAVITUS_SESSION_ID" = true

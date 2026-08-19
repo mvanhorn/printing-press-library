@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "sncf-connect-pp-cli"
+display_name = "Navitia"
+description = "navitia.io is the open API for building cool stuff with mobility data."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/sncf-connect-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"SNCF_API_KEY" = true

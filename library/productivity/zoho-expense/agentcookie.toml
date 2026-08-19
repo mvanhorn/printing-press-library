@@ -1,0 +1,19 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "zoho-expense-pp-cli"
+display_name = "Zoho Expense"
+description = "Upload receipts, tag expenses, and bundle monthly reports on Zoho Expense from the terminal"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/zoho-expense-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"ZOHO_EXPENSE_CLIENT_ID" = true
+"ZOHO_EXPENSE_CLIENT_SECRET" = true
+"ZOHO_EXPENSE_ORGANIZATION_ID" = true
+"ZOHO_EXPENSE_REFRESH_TOKEN" = true

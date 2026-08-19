@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "posthog-pp-cli"
+display_name = "PostHog"
+description = "Every PostHog resource in one CLI — with offline search, agent-native output, and cross-resource analytics no dashboard exposes."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/posthog-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"POSTHOG_PERSONAL_APIKEY_AUTH" = true

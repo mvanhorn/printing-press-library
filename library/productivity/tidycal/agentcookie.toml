@@ -13,5 +13,5 @@ path = "~/.config/tidycal-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-TIDYCAL_API_TOKEN = true
-TIDYCAL_BEARER_AUTH = true
+"TIDYCAL_API_TOKEN" = true
+"TIDYCAL_BEARER_AUTH" = true

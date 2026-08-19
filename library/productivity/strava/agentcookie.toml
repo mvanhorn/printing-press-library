@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "strava-pp-cli"
+display_name = "Strava"
+description = "Every Strava feature, plus offline analytics — training load, power curves, zone time, and segment progression — that the website can't show you."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/strava-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"STRAVA_STRAVA_OAUTH" = true

@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "suno-pp-cli"
+display_name = "Suno"
+description = "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library, full-text search, and agent-native output none of them ship."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/suno-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"SUNO_JWT" = true
+"SUNO_TOKEN" = true

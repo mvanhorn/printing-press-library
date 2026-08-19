@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "dice-fm-pp-cli"
+display_name = "DICE"
+description = "Every ticket, fan, and pound of revenue from your DICE events — queryable, exportable, and joinable across shows."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/dice-fm-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"DICE_FM_TOKEN" = true

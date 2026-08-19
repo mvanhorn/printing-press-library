@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "bento-pp-cli"
+display_name = "Bento"
+description = "Every Bento feature, plus the ones their own CLI does not have, plus a local SQLite store that turns 'who are my top spenders by tag' into a one-liner."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/bento-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"BENTO_PUBLISHABLE_KEY" = true
+"BENTO_SECRET_KEY" = true
+"BENTO_SITE_UUID" = true

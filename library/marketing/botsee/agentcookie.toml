@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "botsee-pp-cli"
+display_name = "Botsee"
+description = "Have your agents measure and improve your brand's AI Visibility with botsee.io. Run audits across every major LLM, see what's missing, then get specific recommendations and ready-to-publish content to close the gap. API-first, agent-native"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/botsee-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"BOTSEE_API_KEY" = true

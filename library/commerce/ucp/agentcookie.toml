@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "ucp-pp-cli"
+display_name = "UCP"
+description = "A Go CLI for Google's Universal Commerce Protocol — talk to UCP merchants over REST or MCP, search across them in parallel, build carts, and prep checkout drafts that an AP2 CLI can authorize."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/ucp-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"API_TOKEN" = true

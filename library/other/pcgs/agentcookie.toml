@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "pcgs-pp-cli"
+display_name = "Pcgs"
+description = "PCGS Public API CLI — verify PCGS-graded coin certs, extract full CoinFacts metadata, and stay under the 1,000-call-per-day budget."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/pcgs-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"PCGS_AUTH_TOKEN" = true

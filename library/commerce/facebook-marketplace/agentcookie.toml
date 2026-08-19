@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "facebook-marketplace-pp-cli"
+display_name = "Facebook Marketplace"
+description = "Search, publish, mirror, and manage Facebook Marketplace seller workflows with explicit write checkpoints."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/facebook-marketplace-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"FACEBOOK_MARKET_COOKIES" = true

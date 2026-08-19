@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "dominos-pp-cli"
+display_name = "Domino's"
+description = "Order pizza, browse menus, optimize deals, and track delivery from your terminal — with a local SQLite store that powers reorder, price comparison, and deal stacking no other Domino's tool offers."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/dominos-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"DOMINOS_PASSWORD" = true
+"DOMINOS_TOKEN" = true
+"DOMINOS_USERNAME" = true

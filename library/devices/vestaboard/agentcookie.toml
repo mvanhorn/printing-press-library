@@ -13,4 +13,4 @@ path = "~/.config/vestaboard-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-VESTABOARD_API_KEY = true
+"VESTABOARD_API_KEY" = true

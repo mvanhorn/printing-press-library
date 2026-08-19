@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "producthunt-pp-cli"
+display_name = "Producthunt"
+description = "Find, monitor, and export Product Hunt launches for launch research, scouting, and competitive tracking without requiring a Product Hunt API application."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/producthunt-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"PRODUCT_HUNT_TOKEN" = true

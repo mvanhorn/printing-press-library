@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "sumble-pp-cli"
+display_name = "Sumble"
+description = "Every Sumble v6 feature, plus the credit-awareness the API itself won't give you: cost estimates before every billed call, a running balance, a budget guard, and a local SQLite cache so you never pay twice."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/sumble-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"SUMBLE_API_KEY" = true

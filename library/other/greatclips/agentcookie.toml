@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "greatclips-pp-cli"
+display_name = "Great Clips"
+description = "Check Great Clips salon wait times, prepare Online Check-In requests, inspect route shapes, and track local wait history."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/greatclips-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"GREATCLIPS_TOKEN" = true

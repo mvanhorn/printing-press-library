@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "roam-pp-cli"
+display_name = "Roam HQ"
+description = "Local-first CLI for the Roam HQ API (chat, On-Air events, transcripts, SCIM, webhooks) with offline FTS search and agent-friendly JSON output."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/roam-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"ROAM_API_KEY" = true

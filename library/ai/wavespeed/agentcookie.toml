@@ -13,4 +13,4 @@ path = "~/.config/wavespeed-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-WAVESPEED_API_KEY = true
+"WAVESPEED_API_KEY" = true

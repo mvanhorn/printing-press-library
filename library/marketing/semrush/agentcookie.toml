@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "semrush-pp-cli"
+display_name = "Semrush"
+description = "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/semrush-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"SEMRUSH_API_KEY" = true

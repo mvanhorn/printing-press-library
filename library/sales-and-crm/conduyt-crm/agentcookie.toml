@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "conduyt-crm-pp-cli"
+display_name = "Conduyt CRM"
+description = "Manage Conduyt CRM contacts, deals, pipelines, automations, campaigns, invoices, and local insight reports from the terminal."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/conduyt-crm-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"CONDUYT_CRM_TOKEN" = true

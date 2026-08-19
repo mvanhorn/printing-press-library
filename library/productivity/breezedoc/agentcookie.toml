@@ -13,6 +13,6 @@ path = "~/.config/breezedoc-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-BREEZEDOC_API_TOKEN = true
-BREEZEDOC_BEARER_AUTH = true
-BREEZEDOC_BEARER_TOKEN = true
+"BREEZEDOC_API_TOKEN" = true
+"BREEZEDOC_BEARER_AUTH" = true
+"BREEZEDOC_BEARER_TOKEN" = true

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "goodreads-pp-cli"
+display_name = "Goodreads"
+description = "Agent-native CLI + MCP for Goodreads, read and write. Rate books via the modern AppSync GraphQL API (RateBook/UnrateBook), write reviews with spoiler + feed-publicize via the legacy form, add to and create shelves, browse the home updates feed, friends, recommendations, genre/topic search, book pages, and Goodreads Giveaways. Goodreads has no public developer API; routes are reverse-engineered from the logged-in web app and live-verified."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/goodreads-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"GOODREADS_GOODREADS_COOKIE_SESSION" = true

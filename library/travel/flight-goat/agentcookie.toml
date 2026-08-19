@@ -13,4 +13,4 @@ path = "~/.config/flight-goat-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-FLIGHT_GOAT_API_KEY = true
+"FLIGHT_GOAT_API_KEY" = true

@@ -1,0 +1,15 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "render-pp-cli"
+display_name = "Render"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/render-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"RENDER_API_KEY" = true

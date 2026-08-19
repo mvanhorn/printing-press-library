@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "tesla-pp-cli"
+display_name = "Tesla"
+description = "Every Tesla mobile-API feature, plus offline charging history and a SQLite-backed vehicle log no other Tesla CLI has"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/tesla-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"TESLA_AUTH_TOKEN" = true

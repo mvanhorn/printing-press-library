@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "ollama-cloud-pp-cli"
+display_name = "Ollama Cloud"
+description = "Ollama Cloud is Ollama's hosted inference API."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/ollama-cloud-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"OLLAMA_CLOUD_API_KEY" = true

@@ -13,4 +13,4 @@ path = "~/.config/intercom-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-INTERCOM_ACCESS_TOKEN = true
+"INTERCOM_ACCESS_TOKEN" = true

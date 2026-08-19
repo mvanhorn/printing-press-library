@@ -13,4 +13,4 @@ path = "~/.config/everbee-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-EVERBEE_ACCESS_TOKEN = true
+"EVERBEE_ACCESS_TOKEN" = true

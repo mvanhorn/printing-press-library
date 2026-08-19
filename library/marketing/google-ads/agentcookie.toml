@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "google-ads-pp-cli"
+display_name = "Google Ads"
+description = "Query and manage Google Ads accounts from the terminal."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/google-ads-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"GOOGLE_ADS_ACCESS_TOKEN" = true
+"GOOGLE_ADS_DEVELOPER_TOKEN" = true
+"GOOGLE_ADS_LOGIN_CUSTOMER_ID" = true

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "eventbrite-pp-cli"
+display_name = "Eventbrite"
+description = "Every Eventbrite organizer endpoint, plus a local SQLite mirror of your events, orders, and attendees you can search offline — the cross-event search Eventbrite removed, restored over your own data."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/eventbrite-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"EVENTBRITE_API_KEY" = true

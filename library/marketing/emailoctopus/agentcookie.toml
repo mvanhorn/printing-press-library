@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "emailoctopus-pp-cli"
+display_name = "EmailOctopus"
+description = "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/emailoctopus-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"EMAILOCTOPUS_API_KEY" = true

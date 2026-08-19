@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "printify-pp-cli"
+display_name = "Printify"
+description = "Create and audit Printify products with manifest-driven image uploads, personalization checks, and local proofing."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/printify-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"PRINTIFY_BEARER_AUTH" = true

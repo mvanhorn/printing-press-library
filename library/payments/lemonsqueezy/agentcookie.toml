@@ -13,4 +13,4 @@ path = "~/.config/lemonsqueezy-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-LEMONSQUEEZY_API_KEY = true
+"LEMONSQUEEZY_API_KEY" = true

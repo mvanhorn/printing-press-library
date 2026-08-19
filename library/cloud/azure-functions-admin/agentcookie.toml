@@ -13,7 +13,7 @@ path = "~/.config/azure-functions-admin-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-AZURE_CLIENT_ID = true
-AZURE_CLIENT_SECRET = true
-AZURE_SUBSCRIPTION_ID = true
-AZURE_TENANT_ID = true
+"AZURE_CLIENT_ID" = true
+"AZURE_CLIENT_SECRET" = true
+"AZURE_SUBSCRIPTION_ID" = true
+"AZURE_TENANT_ID" = true

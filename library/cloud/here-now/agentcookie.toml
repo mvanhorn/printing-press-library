@@ -13,4 +13,4 @@ path = "~/.config/here-now-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-HERENOW_API_KEY = true
+"HERENOW_API_KEY" = true

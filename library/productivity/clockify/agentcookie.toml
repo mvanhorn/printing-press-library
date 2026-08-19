@@ -1,0 +1,15 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "clockify-pp-cli"
+display_name = "Clockify"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/clockify-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"CLOCKIFY_API_KEY" = true

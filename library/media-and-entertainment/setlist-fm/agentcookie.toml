@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "setlist-fm-pp-cli"
+display_name = "setlist.fm"
+description = "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/setlist-fm-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"SETLIST_FM_API_KEY" = true

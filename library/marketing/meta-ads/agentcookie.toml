@@ -13,4 +13,4 @@ path = "~/.config/meta-ads-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-META_ACCESS_TOKEN = true
+"META_ACCESS_TOKEN" = true

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "cloud-run-admin-pp-cli"
+display_name = "Google Cloud Run"
+description = "Cloud Run Admin API for deploying and managing serverless container services, revisions, jobs, and executions"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/cloud-run-admin-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"CLOUD_RUN_ADMIN_OAUTH2C" = true

@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "contact-goat-pp-cli"
+display_name = "Contact GOAT"
+description = "Search, enrich, and map warm-introduction paths across LinkedIn, Happenstance, Deepline, and a unified local contacts store."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/contact-goat-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"DEEPLINE_API_KEY" = true
+"HAPPENSTANCE_API_KEY" = true

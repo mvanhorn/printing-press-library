@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "gorgias-pp-cli"
+display_name = "Gorgias"
+description = "Gorgias support CLI with offline sync, local search, read-only SQL, and MCP tools for agent-native support workflows."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/gorgias-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"GORGIAS_API_KEY" = true
+"GORGIAS_BASE_URL" = true
+"GORGIAS_USERNAME" = true

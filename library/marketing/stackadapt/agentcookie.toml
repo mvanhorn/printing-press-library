@@ -13,4 +13,4 @@ path = "~/.config/stackadapt-pp-cli/config.toml"
 default = false
 
 [sync.keys]
-STACKADAPT_API_TOKEN = true
+"STACKADAPT_API_TOKEN" = true

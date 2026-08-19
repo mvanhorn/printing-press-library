@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "amazon-seller-pp-cli"
+display_name = "Amazon Seller"
+description = "Operate an Amazon seller account from the terminal: inventory, orders, reports, listings, and catalog."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/amazon-seller-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"SP_API_LWA_CLIENT_ID" = true
+"SP_API_LWA_CLIENT_SECRET" = true
+"SP_API_REFRESH_TOKEN" = true

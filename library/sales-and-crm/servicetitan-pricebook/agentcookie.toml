@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "servicetitan-pricebook-pp-cli"
+display_name = "ServiceTitan Pricebook"
+description = "Sync ServiceTitan Pricebook services, materials, equipment, vendors, markups, warranties, and cost-drift audits."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/servicetitan-pricebook-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"ST_CLIENT_ID" = true
+"ST_CLIENT_SECRET" = true

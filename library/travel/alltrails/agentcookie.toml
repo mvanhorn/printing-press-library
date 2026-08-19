@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "alltrails-pp-cli"
+display_name = "Alltrails Unofficial Seed"
+description = "Evidence-labeled, live-capable route map for AllTrails browser/mobile surfaces. Not an official API contract."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/alltrails-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+"ALLTRAILS_ACCESS_TOKEN" = true
+"ALLTRAILS_COOKIE" = true
+"ALLTRAILS_CSRF_TOKEN" = true
