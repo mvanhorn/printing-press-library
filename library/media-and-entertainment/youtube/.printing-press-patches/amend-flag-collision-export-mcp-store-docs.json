@@ -1,0 +1,43 @@
+{
+ "schema_version": 2,
+ "id": "amend-flag-collision-export-mcp-store-docs",
+ "applied_at": "2026-08-19",
+ "base_run_id": "20260819-035139-99573931",
+ "base_printing_press_version": "4.31.0",
+ "summary": "fix(youtube): un-shadow the global --home flag in activities-list; honest refusal for bulk export; MCP store path mirrors the CLI's credential-scoped databank filename; document the yt_* analyst schema in SKILL/README; add live-matrix fixtures to 7 video commands. Re-applied the MCP schema-property-name sanitizer the regen dropped (12 illegal keys).",
+ "reason": "Live command census (proofs/live-command-census.md) exposed: (F1) the API's deprecated `home` param registered as --home, shadowing the global workspace flag \u2014 any workspace user got 'Incompatible parameters: channelId, home' from the live API; (F2) export youtube walked /youtube/v3/activities filterless and died with raw HTTP 400; (F4) mcpDBPath hardcoded data.db while the CLI writes data-<credhash>.db, splitting CLI and MCP onto different databanks on fresh homes; (F3) SKILL/README documented zero databank tables so agents could not use the sql tool; (F5) 7 video commands had no pp:happy-args so the live matrix skipped their happy paths. (F6, found by post-install benchmark) The reprint regenerated cobratree/typemap.go without the July schema-key sanitizer, reintroducing 12 Anthropic-illegal property keys like 'videoId|url' that 400-fail a session's entire tool list; sanitizer re-applied verbatim from patch fix-mcp-schema-property-names.",
+ "files": [
+  "internal/cli/youtube_activities-list.go",
+  "internal/cli/export.go",
+  "internal/mcp/tools.go",
+  "internal/cli/videos_transcript.go",
+  "internal/cli/videos_comments.go",
+  "internal/cli/videos_embed.go",
+  "internal/cli/videos_related.go",
+  "internal/cli/videos_enrich.go",
+  "internal/cli/videos_links.go",
+  "internal/cli/playlist_enrich.go",
+  "SKILL.md",
+  "README.md",
+  "internal/mcp/cobratree/typemap.go"
+ ],
+ "validated_outcome": "publish validate + re-minted phase5 acceptance after fixes; F1/F2/F4 re-verified with live API calls",
+ "findings_addressed": [
+  "F1",
+  "F2",
+  "F3",
+  "F4",
+  "F5",
+  "F6"
+ ],
+ "deferred_to_upstream": [
+  {
+   "feature": "Generator must not register endpoint params whose flag name collides with a global persistent flag (rename or prefix them)",
+   "reason": "F1 is a generator template bug; the local rename to --home-feed should be superseded by a machine-level collision check."
+  },
+  {
+   "feature": "Export/sync should detect filter-required bulk endpoints at generation time and emit the refusal themselves",
+   "reason": "F2's refusal is API-shape knowledge the generator already has in the spec."
+  }
+ ]
+}

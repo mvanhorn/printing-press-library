@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "youtube-pp-cli"
+display_name = "YouTube"
+description = "A self-maintained competitor-monitoring machine for YouTube: full read API coverage plus a local databank of channel histories, snapshots, comments, and packaging assets - market data hours old, not weeks."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/youtube-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+YOUTUBE_API_KEY = true

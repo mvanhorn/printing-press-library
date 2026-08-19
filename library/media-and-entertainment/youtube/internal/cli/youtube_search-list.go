@@ -12,6 +12,7 @@ import (
 )
 
 func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
+	var flagPart string
 	var flagChannelId string
 	var flagChannelType string
 	var flagEventType string
@@ -20,7 +21,10 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 	var flagForMine bool
 	var flagLocation string
 	var flagLocationRadius string
+	var flagMaxResults int
+	var flagOnBehalfOfContentOwner string
 	var flagOrder string
+	var flagPageToken string
 	var flagPublishedAfter string
 	var flagPublishedBefore string
 	var flagQ string
@@ -39,16 +43,36 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 	var flagVideoLicense string
 	var flagVideoSyndicated string
 	var flagVideoType string
-	var flagPart string
-	var flagMaxResults int
+	var flagVideoPaidProductPlacement string
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "search-list",
 		Short:       "Retrieves a list of search resources",
-		Example:     "  youtube-pp-cli youtube search-list",
-		Annotations: map[string]string{"pp:endpoint": "youtube.search-list", "pp:method": "GET", "pp:path": "/youtube/v3/search", "mcp:read-only": "true"},
+		Example:     "  youtube-pp-cli youtube search-list --part snippet --q howto --max-results 5",
+		Annotations: map[string]string{"pp:happy-args": "--part=snippet;--q=howto;--max-results=5", "pp:endpoint": "youtube.search-list", "pp:method": "GET", "pp:path": "/youtube/v3/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
+			if !cmd.Flags().Changed("part") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "part")
+			}
 			if cmd.Flags().Changed("channel-type") {
 				allowedChannelType := []string{"channelTypeUnspecified", "any", "show"}
 				validChannelType := false
@@ -59,7 +83,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validChannelType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "channel-type", flagChannelType, allowedChannelType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagChannelType, "channel-type", allowedChannelType)
 				}
 			}
 			if cmd.Flags().Changed("event-type") {
@@ -72,7 +96,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validEventType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "event-type", flagEventType, allowedEventType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagEventType, "event-type", allowedEventType)
 				}
 			}
 			if cmd.Flags().Changed("order") {
@@ -85,7 +109,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validOrder {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "order", flagOrder, allowedOrder)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagOrder, "order", allowedOrder)
 				}
 			}
 			if cmd.Flags().Changed("safe-search") {
@@ -98,7 +122,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validSafeSearch {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "safe-search", flagSafeSearch, allowedSafeSearch)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagSafeSearch, "safe-search", allowedSafeSearch)
 				}
 			}
 			if cmd.Flags().Changed("video-caption") {
@@ -111,7 +135,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validVideoCaption {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "video-caption", flagVideoCaption, allowedVideoCaption)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagVideoCaption, "video-caption", allowedVideoCaption)
 				}
 			}
 			if cmd.Flags().Changed("video-definition") {
@@ -124,7 +148,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validVideoDefinition {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "video-definition", flagVideoDefinition, allowedVideoDefinition)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagVideoDefinition, "video-definition", allowedVideoDefinition)
 				}
 			}
 			if cmd.Flags().Changed("video-dimension") {
@@ -137,7 +161,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validVideoDimension {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "video-dimension", flagVideoDimension, allowedVideoDimension)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagVideoDimension, "video-dimension", allowedVideoDimension)
 				}
 			}
 			if cmd.Flags().Changed("video-duration") {
@@ -150,7 +174,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validVideoDuration {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "video-duration", flagVideoDuration, allowedVideoDuration)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagVideoDuration, "video-duration", allowedVideoDuration)
 				}
 			}
 			if cmd.Flags().Changed("video-embeddable") {
@@ -163,7 +187,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validVideoEmbeddable {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "video-embeddable", flagVideoEmbeddable, allowedVideoEmbeddable)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagVideoEmbeddable, "video-embeddable", allowedVideoEmbeddable)
 				}
 			}
 			if cmd.Flags().Changed("video-license") {
@@ -176,7 +200,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validVideoLicense {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "video-license", flagVideoLicense, allowedVideoLicense)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagVideoLicense, "video-license", allowedVideoLicense)
 				}
 			}
 			if cmd.Flags().Changed("video-syndicated") {
@@ -189,7 +213,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validVideoSyndicated {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "video-syndicated", flagVideoSyndicated, allowedVideoSyndicated)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagVideoSyndicated, "video-syndicated", allowedVideoSyndicated)
 				}
 			}
 			if cmd.Flags().Changed("video-type") {
@@ -202,66 +226,96 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validVideoType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "video-type", flagVideoType, allowedVideoType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagVideoType, "video-type", allowedVideoType)
 				}
 			}
+			if cmd.Flags().Changed("video-paid-product-placement") {
+				allowedVideoPaidProductPlacement := []string{"videoPaidProductPlacementUnspecified", "any", "true"}
+				validVideoPaidProductPlacement := false
+				for _, v := range allowedVideoPaidProductPlacement {
+					if flagVideoPaidProductPlacement == v {
+						validVideoPaidProductPlacement = true
+						break
+					}
+				}
+				if !validVideoPaidProductPlacement {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagVideoPaidProductPlacement, "video-paid-product-placement", allowedVideoPaidProductPlacement)
+				}
+			}
+			path := "/youtube/v3/search"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/youtube/v3/search"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "youtube", path, map[string]string{
-				"channelId":         fmt.Sprintf("%v", flagChannelId),
-				"channelType":       fmt.Sprintf("%v", flagChannelType),
-				"eventType":         fmt.Sprintf("%v", flagEventType),
-				"forContentOwner":   fmt.Sprintf("%v", flagForContentOwner),
-				"forDeveloper":      fmt.Sprintf("%v", flagForDeveloper),
-				"forMine":           fmt.Sprintf("%v", flagForMine),
-				"location":          fmt.Sprintf("%v", flagLocation),
-				"locationRadius":    fmt.Sprintf("%v", flagLocationRadius),
-				"order":             fmt.Sprintf("%v", flagOrder),
-				"publishedAfter":    fmt.Sprintf("%v", flagPublishedAfter),
-				"publishedBefore":   fmt.Sprintf("%v", flagPublishedBefore),
-				"q":                 fmt.Sprintf("%v", flagQ),
-				"regionCode":        fmt.Sprintf("%v", flagRegionCode),
-				"relatedToVideoId":  fmt.Sprintf("%v", flagRelatedToVideoId),
-				"relevanceLanguage": fmt.Sprintf("%v", flagRelevanceLanguage),
-				"safeSearch":        fmt.Sprintf("%v", flagSafeSearch),
-				"topicId":           fmt.Sprintf("%v", flagTopicId),
-				"type":              fmt.Sprintf("%v", flagType),
-				"videoCaption":      fmt.Sprintf("%v", flagVideoCaption),
-				"videoCategoryId":   fmt.Sprintf("%v", flagVideoCategoryId),
-				"videoDefinition":   fmt.Sprintf("%v", flagVideoDefinition),
-				"videoDimension":    fmt.Sprintf("%v", flagVideoDimension),
-				"videoDuration":     fmt.Sprintf("%v", flagVideoDuration),
-				"videoEmbeddable":   fmt.Sprintf("%v", flagVideoEmbeddable),
-				"videoLicense":      fmt.Sprintf("%v", flagVideoLicense),
-				"videoSyndicated":   fmt.Sprintf("%v", flagVideoSyndicated),
-				"videoType":         fmt.Sprintf("%v", flagVideoType),
-				"part":              flagPart,
-				"maxResults":        fmt.Sprintf("%d", flagMaxResults),
-			}, nil, flagAll, "pagetoken", "nextPageToken", "")
-			if err != nil {
-				return classifyAPIError(err, flags)
+			if flagPart != "" {
+				path = appendArrayQueryParam(path, "part", flagPart, "form", true)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			if flagType != "" {
+				path = appendArrayQueryParam(path, "type", flagType, "form", true)
+			}
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, map[string]string{
+				"channelId":                 formatCLIParamValue(flagChannelId),
+				"channelType":               formatCLIParamValue(flagChannelType),
+				"eventType":                 formatCLIParamValue(flagEventType),
+				"forContentOwner":           formatCLIParamValue(flagForContentOwner),
+				"forDeveloper":              formatCLIParamValue(flagForDeveloper),
+				"forMine":                   formatCLIParamValue(flagForMine),
+				"location":                  formatCLIParamValue(flagLocation),
+				"locationRadius":            formatCLIParamValue(flagLocationRadius),
+				"maxResults":                formatCLIParamValue(flagMaxResults),
+				"onBehalfOfContentOwner":    formatCLIParamValue(flagOnBehalfOfContentOwner),
+				"order":                     formatCLIParamValue(flagOrder),
+				"pageToken":                 formatCLIParamValue(flagPageToken),
+				"publishedAfter":            formatCLIParamValue(flagPublishedAfter),
+				"publishedBefore":           formatCLIParamValue(flagPublishedBefore),
+				"q":                         formatCLIParamValue(flagQ),
+				"regionCode":                formatCLIParamValue(flagRegionCode),
+				"relatedToVideoId":          formatCLIParamValue(flagRelatedToVideoId),
+				"relevanceLanguage":         formatCLIParamValue(flagRelevanceLanguage),
+				"safeSearch":                formatCLIParamValue(flagSafeSearch),
+				"topicId":                   formatCLIParamValue(flagTopicId),
+				"videoCaption":              formatCLIParamValue(flagVideoCaption),
+				"videoCategoryId":           formatCLIParamValue(flagVideoCategoryId),
+				"videoDefinition":           formatCLIParamValue(flagVideoDefinition),
+				"videoDimension":            formatCLIParamValue(flagVideoDimension),
+				"videoDuration":             formatCLIParamValue(flagVideoDuration),
+				"videoEmbeddable":           formatCLIParamValue(flagVideoEmbeddable),
+				"videoLicense":              formatCLIParamValue(flagVideoLicense),
+				"videoSyndicated":           formatCLIParamValue(flagVideoSyndicated),
+				"videoType":                 formatCLIParamValue(flagVideoType),
+				"videoPaidProductPlacement": formatCLIParamValue(flagVideoPaidProductPlacement),
+			}, nil, flagAll, "pageToken", "page_token", "maxResults", 0, "nextPageToken", "", "items", cmd.ErrOrStderr())
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			outputData := collectionItemsForOutput(data, path)
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"etag": true, "id": true, "kind": true, "snippet": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -270,7 +324,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -280,9 +334,14 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"etag": true, "id": true, "kind": true, "snippet": true})
 		},
 	}
+	cmd.Flags().StringVar(&flagPart, "part", "", "The *part* parameter specifies a comma-separated list of one or more search resource properties that the API response")
 	cmd.Flags().StringVar(&flagChannelId, "channel-id", "", "Filter on resources belonging to this channelId.")
 	cmd.Flags().StringVar(&flagChannelType, "channel-type", "", "Add a filter on the channel search. (one of: channelTypeUnspecified, any, show)")
 	cmd.Flags().StringVar(&flagEventType, "event-type", "", "Filter on the livestream status of the videos. (one of: none, upcoming, live, completed)")
@@ -291,7 +350,10 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&flagForMine, "for-mine", false, "Search for the private videos of the authenticated user.")
 	cmd.Flags().StringVar(&flagLocation, "location", "", "Filter on location of the video")
 	cmd.Flags().StringVar(&flagLocationRadius, "location-radius", "", "Filter on distance from the location (specified above).")
+	cmd.Flags().IntVar(&flagMaxResults, "max-results", 0, "The *maxResults* parameter specifies the maximum number of items that should be returned in the result set.")
+	cmd.Flags().StringVar(&flagOnBehalfOfContentOwner, "on-behalf-of-content-owner", "", "*Note:* This parameter is intended exclusively for YouTube content partners.")
 	cmd.Flags().StringVar(&flagOrder, "order", "", "Sort order of the results. (one of: searchSortUnspecified, date, rating, viewCount, relevance, title, videoCount)")
+	cmd.Flags().StringVar(&flagPageToken, "page-token", "", "The *pageToken* parameter identifies a specific page in the result set that should be returned.")
 	cmd.Flags().StringVar(&flagPublishedAfter, "published-after", "", "Filter on resources published after this date.")
 	cmd.Flags().StringVar(&flagPublishedBefore, "published-before", "", "Filter on resources published before this date.")
 	cmd.Flags().StringVar(&flagQ, "q", "", "Textual search terms to match.")
@@ -310,8 +372,7 @@ func newYoutubeSearchListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagVideoLicense, "video-license", "", "Filter on the license of the videos. (one of: any, youtube, creativeCommon)")
 	cmd.Flags().StringVar(&flagVideoSyndicated, "video-syndicated", "", "Filter on syndicated videos. (one of: videoSyndicatedUnspecified, any, true)")
 	cmd.Flags().StringVar(&flagVideoType, "video-type", "", "Filter on videos of a specific type. (one of: videoTypeUnspecified, any, movie, episode)")
-	cmd.Flags().StringVar(&flagPart, "part", "snippet", "Comma-separated list of resource parts the response should include (e.g. snippet, id).")
-	cmd.Flags().IntVar(&flagMaxResults, "max-results", 25, "Maximum number of results to return per page (1-50).")
+	cmd.Flags().StringVar(&flagVideoPaidProductPlacement, "video-paid-product-placement", "", "Video paid product placement (one of: videoPaidProductPlacementUnspecified, any, true)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

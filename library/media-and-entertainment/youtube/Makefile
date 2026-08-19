@@ -1,7 +1,9 @@
 .PHONY: build test lint install clean
 
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
+
 build:
-	go build -o bin/youtube-pp-cli ./cmd/youtube-pp-cli
+	go build -o bin/youtube-pp-cli$(BIN_EXT) ./cmd/youtube-pp-cli
 
 test:
 	go test ./...
@@ -16,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/youtube-pp-mcp ./cmd/youtube-pp-mcp
+	go build -o bin/youtube-pp-mcp$(BIN_EXT) ./cmd/youtube-pp-mcp
 
 install-mcp:
 	go install ./cmd/youtube-pp-mcp

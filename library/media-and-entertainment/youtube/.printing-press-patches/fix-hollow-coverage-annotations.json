@@ -1,0 +1,20 @@
+{
+ "schema_version": 2,
+ "id": "fix-hollow-coverage-annotations",
+ "applied_at": "2026-08-19",
+ "base_run_id": "20260819-035139-99573931",
+ "base_printing_press_version": "4.31.0",
+ "summary": "Annotate the ten novel commands so the live dogfood matrix can really execute them: leaf analysis commands (monitor, backfill, breakouts, comments-mine, packaging) carry mcp:read-only (write-through caching to the local store, matching the generated list-command convention) instead of mcp:local-write; the watch/workspace/keys parents carry mcp:read-only + pp:parent-group; the API key ring is additionally registered as a top-level 'keys' command because the dogfood matrix excludes the whole 'auth' subtree by name, and research.json's parent-command features now point at their representative executable 'list' leaves.",
+ "reason": "Phase 5.6 'lock promote' rejected the tree with 'phase5 acceptance has hollow coverage' for 8 of 10 novel features. The dogfood runner classifies mcp:local-write commands as mutating and forces --dry-run on their happy paths, so those features could never count as executed; features living under 'auth' get no probe at all. Without these annotations any reprint will regress to a hollow, unpromotable acceptance marker.",
+ "files": [
+  "internal/cli/watch.go",
+  "internal/cli/workspace.go",
+  "internal/cli/auth_keys.go",
+  "internal/cli/monitor.go",
+  "internal/cli/backfill.go",
+  "internal/cli/breakouts.go",
+  "internal/cli/comments_mine.go",
+  "internal/cli/packaging.go",
+  "internal/cli/root.go"
+ ]
+}

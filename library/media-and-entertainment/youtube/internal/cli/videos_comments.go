@@ -42,7 +42,7 @@ func newYoutubeVideosCommentsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "videos-comments <videoId|url>",
 		Short:       "Fetch top comments on a video, ranked by likeCount (uses commentThreads.list, public read-only)",
 		Example:     "  youtube-pp-cli youtube videos-comments dQw4w9WgXcQ --top 10\n  youtube-pp-cli youtube videos-comments 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' --top 10",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "videoId=dQw4w9WgXcQ;--top=3", "pp:typed-exit-codes": "0,2,3,5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -68,8 +68,6 @@ func newYoutubeVideosCommentsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c = c.WithContext(cmd.Context())
-
 			out := videoCommentsResponse{VideoID: videoID, Order: order}
 
 			// Fetch up to ceil(top / 100) pages so --top above 100 still works.
@@ -95,10 +93,10 @@ func newYoutubeVideosCommentsCmd(flags *rootFlags) *cobra.Command {
 				if pageToken != "" {
 					params["pageToken"] = pageToken
 				}
-				data, err := c.GetWithHeaders("/youtube/v3/commentThreads", params, nil)
+				data, err := c.GetWithHeaders(cmd.Context(), "/youtube/v3/commentThreads", params, nil)
 				if err != nil {
 					if page == 0 {
-						return classifyAPIError(err, flags)
+						return classifyAPIError(cmd.ErrOrStderr(), err, flags)
 					}
 					out.Warnings = append(out.Warnings, fmt.Sprintf("page %d fetch failed: %v", page+1, err))
 					break

@@ -12,56 +12,95 @@ import (
 )
 
 func newYoutubePlaylistsListCmd(flags *rootFlags) *cobra.Command {
+	var flagPart string
 	var flagChannelId string
 	var flagHl string
 	var flagId string
-	var flagMine bool
-	var flagOnBehalfOfContentOwnerChannel string
-	var flagPart string
 	var flagMaxResults int
+	var flagMine bool
+	var flagOnBehalfOfContentOwner string
+	var flagOnBehalfOfContentOwnerChannel string
+	var flagPageToken string
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "playlists-list",
 		Short:       "Retrieves a list of resources, possibly filtered.",
-		Example:     "  youtube-pp-cli youtube playlists-list",
-		Annotations: map[string]string{"pp:endpoint": "youtube.playlists-list", "pp:method": "GET", "pp:path": "/youtube/v3/playlists", "mcp:read-only": "true"},
+		Example:     "  youtube-pp-cli youtube playlists-list --part snippet --channel-id UC_x5XG1OV2P6uZZ5FSM9Ttw --max-results 5",
+		Annotations: map[string]string{"pp:happy-args": "--part=snippet;--channel-id=UC_x5XG1OV2P6uZZ5FSM9Ttw;--max-results=5", "pp:endpoint": "youtube.playlists-list", "pp:method": "GET", "pp:path": "/youtube/v3/playlists", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
+			if !cmd.Flags().Changed("part") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "part")
+			}
+			path := "/youtube/v3/playlists"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/youtube/v3/playlists"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "youtube", path, map[string]string{
-				"channelId":                     fmt.Sprintf("%v", flagChannelId),
-				"hl":                            fmt.Sprintf("%v", flagHl),
-				"id":                            fmt.Sprintf("%v", flagId),
-				"mine":                          fmt.Sprintf("%v", flagMine),
-				"onBehalfOfContentOwnerChannel": fmt.Sprintf("%v", flagOnBehalfOfContentOwnerChannel),
-				"part":                          flagPart,
-				"maxResults":                    fmt.Sprintf("%d", flagMaxResults),
-			}, nil, flagAll, "pagetoken", "nextPageToken", "")
-			if err != nil {
-				return classifyAPIError(err, flags)
+			if flagPart != "" {
+				path = appendArrayQueryParam(path, "part", flagPart, "form", true)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			if flagId != "" {
+				path = appendArrayQueryParam(path, "id", flagId, "form", true)
+			}
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, map[string]string{
+				"channelId":                     formatCLIParamValue(flagChannelId),
+				"hl":                            formatCLIParamValue(flagHl),
+				"maxResults":                    formatCLIParamValue(flagMaxResults),
+				"mine":                          formatCLIParamValue(flagMine),
+				"onBehalfOfContentOwner":        formatCLIParamValue(flagOnBehalfOfContentOwner),
+				"onBehalfOfContentOwnerChannel": formatCLIParamValue(flagOnBehalfOfContentOwnerChannel),
+				"pageToken":                     formatCLIParamValue(flagPageToken),
+			}, nil, flagAll, "pageToken", "page_token", "maxResults", 0, "nextPageToken", "", "items", cmd.ErrOrStderr())
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			outputData := collectionItemsForOutput(data, path)
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"contentDetails": true, "etag": true, "id": true, "kind": true, "localizations": true, "player": true, "snippet": true, "status": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -70,7 +109,7 @@ func newYoutubePlaylistsListCmd(flags *rootFlags) *cobra.Command {
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -80,16 +119,22 @@ func newYoutubePlaylistsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"contentDetails": true, "etag": true, "id": true, "kind": true, "localizations": true, "player": true, "snippet": true, "status": true})
 		},
 	}
+	cmd.Flags().StringVar(&flagPart, "part", "", "The *part* parameter specifies a comma-separated list of one or more playlist resource properties that the API response")
 	cmd.Flags().StringVar(&flagChannelId, "channel-id", "", "Return the playlists owned by the specified channel ID.")
 	cmd.Flags().StringVar(&flagHl, "hl", "", "Return content in specified language")
 	cmd.Flags().StringVar(&flagId, "id", "", "Return the playlists with the given IDs for Stubby or Apiary.")
+	cmd.Flags().IntVar(&flagMaxResults, "max-results", 0, "The *maxResults* parameter specifies the maximum number of items that should be returned in the result set.")
 	cmd.Flags().BoolVar(&flagMine, "mine", false, "Return the playlists owned by the authenticated user.")
-	cmd.Flags().StringVar(&flagOnBehalfOfContentOwnerChannel, "on-behalf-of-content-owner-channel", "", "This parameter can only be used in a properly authorized request. *Note:* This parameter is intended exclusively for...")
-	cmd.Flags().StringVar(&flagPart, "part", "snippet", "Comma-separated list of resource parts the response should include (e.g. snippet, contentDetails).")
-	cmd.Flags().IntVar(&flagMaxResults, "max-results", 25, "Maximum number of results to return per page (1-50).")
+	cmd.Flags().StringVar(&flagOnBehalfOfContentOwner, "on-behalf-of-content-owner", "", "*Note:* This parameter is intended exclusively for YouTube content partners.")
+	cmd.Flags().StringVar(&flagOnBehalfOfContentOwnerChannel, "on-behalf-of-content-owner-channel", "", "This parameter can only be used in a properly authorized request.")
+	cmd.Flags().StringVar(&flagPageToken, "page-token", "", "The *pageToken* parameter identifies a specific page in the result set that should be returned.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

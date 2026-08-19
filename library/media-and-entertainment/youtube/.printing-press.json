@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-15T12:59:42.433708Z",
-  "printing_press_version": "4.2.2",
+  "schema_version": 2,
+  "generated_at": "2026-08-19T03:52:15.125015Z",
+  "printing_press_version": "4.31.0",
   "api_name": "youtube",
-  "display_name": "Youtube Data",
+  "display_name": "YouTube",
   "cli_name": "youtube-pp-cli",
   "creator": {
     "handle": "justinwfu",
@@ -11,63 +11,157 @@
   },
   "contributors": [
     {
-      "handle": "giuseppebisemi",
-      "name": "Giuseppe Bisemi"
+      "handle": "vieGPT",
+      "name": "Maximus"
     }
   ],
   "owner": "justinwfu",
   "printer": "justinwfu",
   "printer_name": "Justin",
+  "spec_path": "spec.yaml",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:2bdb40d21ee2685b64ce4f457ee626e2aef00f5ff989236d664f370420559ead",
-  "run_id": "20260515-050804",
+  "spec_checksum": "sha256:301ca99393ddfa11585591bc6f1ce84b5e54c1833a1ece710cb7304244d7d6ce",
+  "run_id": "20260819-035139-99573931",
+  "category": "media-and-entertainment",
+  "description": "A self-maintained competitor-monitoring machine for YouTube: full read API coverage plus a local databank of channel histories, snapshots, comments, and packaging assets - market data hours old, not weeks.",
   "mcp_binary": "youtube-pp-mcp",
-  "mcp_tool_count": 5,
+  "mcp_tool_count": 12,
   "mcp_ready": "full",
   "api_version": "v3",
   "auth_type": "api_key",
+  "auth_preference": "ApiKey",
   "auth_env_vars": [
-    "YOUTUBE_API_KEY"
+    "PRINTING_PRESS_CLIENT_PROFILE"
   ],
   "auth_env_var_specs": [
     {
-      "name": "YOUTUBE_API_KEY",
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
       "kind": "per_call",
       "required": true,
-      "sensitive": true,
-      "description": "YouTube Data API key for read-only public-data operations"
+      "sensitive": false
     }
   ],
+  "auth_key_url": "https://console.cloud.google.com",
   "novel_features": [
     {
-      "name": "Bulk search from stdin",
-      "command": "youtube search-bulk",
-      "description": "Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails."
+      "name": "Competitor watchlist",
+      "command": "watch list",
+      "description": "Register the competitor channels your monitoring machine tracks, in a typed watchlist table you own."
     },
     {
-      "name": "Transcript fetcher",
-      "command": "youtube videos-transcript",
-      "description": "Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. Caches into the local store."
+      "name": "Watchlist monitor",
+      "command": "monitor",
+      "description": "Refresh every watched channel in one run: stats snapshot, new uploads, re-snapshot of recent video statistics."
     },
     {
-      "name": "Embed snippet generator",
-      "command": "youtube videos-embed",
-      "description": "Print embed HTML, iframe, or markdown-style embed for a video ID. Direct copy-paste into a blog draft."
+      "name": "Video velocity",
+      "command": "velocity",
+      "description": "See which tracked videos are gaining views fastest right now, computed from real between-snapshot deltas."
     },
     {
-      "name": "Topic-similarity related videos",
-      "command": "youtube videos-related",
-      "description": "Find videos related to a target video using topicDetails + same-channel + tag overlap from the local store. Best-effort replacement for the deprecated relatedToVideoId parameter."
+      "name": "Growth between snapshots",
+      "command": "growth",
+      "description": "Channel-level subscriber, view, and upload-count deltas between dated local snapshots."
     },
     {
-      "name": "Top comments by likes",
-      "command": "youtube videos-comments",
-      "description": "Fetch top comments on a video, ranked locally by likeCount. Pulls up to 5 pages from commentThreads.list and sorts so most-liked floats regardless of API order."
+      "name": "Breakout finder",
+      "command": "breakouts",
+      "description": "Chain search filters into a matrix (terms x upload window x duration x region), join results to channel size, and rank fresh high-momentum videos."
     },
     {
-      "name": "Channel uploads in one call",
-      "command": "youtube channel-uploads",
-      "description": "List a channel's most recent uploads in one call. Resolves @handle or channelId, walks the auto-generated uploads playlist, returns video IDs + titles + publish times."
+      "name": "Comment intelligence",
+      "command": "comments-mine",
+      "description": "Sync comments into a typed full-text-searchable table and report top-liked comments, keyword frequencies, and audience questions."
+    },
+    {
+      "name": "Channel history backfill",
+      "command": "backfill",
+      "description": "Pull a channel's complete upload history with statistics into the local databank in one command."
+    },
+    {
+      "name": "Packaging collector",
+      "command": "packaging",
+      "description": "Collect titles, thumbnails (downloaded as local image files), and hook text from transcript openings into a packaging table."
+    },
+    {
+      "name": "Workspaces",
+      "command": "workspace list",
+      "description": "Named databanks: keep the competitor machine in one database and explore a new niche in another, switching instantly."
+    },
+    {
+      "name": "API key ring",
+      "command": "keys list",
+      "description": "Store multiple named YouTube API keys, switch between them instantly, and optionally fail over automatically via --rotate when one runs out of quota."
     }
-  ]
+  ],
+  "novel_features_built": [
+    {
+      "name": "Competitor watchlist",
+      "command": "watch",
+      "description": "Register the competitor channels your monitoring machine tracks, in a typed watchlist table you own."
+    },
+    {
+      "name": "Watchlist monitor",
+      "command": "monitor",
+      "description": "Refresh every watched channel in one run: stats snapshot, new uploads, re-snapshot of recent video statistics."
+    },
+    {
+      "name": "Video velocity",
+      "command": "velocity",
+      "description": "See which tracked videos are gaining views fastest right now, computed from real between-snapshot deltas."
+    },
+    {
+      "name": "Growth between snapshots",
+      "command": "growth",
+      "description": "Channel-level subscriber, view, and upload-count deltas between dated local snapshots."
+    },
+    {
+      "name": "Breakout finder",
+      "command": "breakouts",
+      "description": "Chain search filters into a matrix (terms x upload window x duration x region), join results to channel size, and rank fresh high-momentum videos."
+    },
+    {
+      "name": "Comment intelligence",
+      "command": "comments-mine",
+      "description": "Sync comments into a typed full-text-searchable table and report top-liked comments, keyword frequencies, and audience questions."
+    },
+    {
+      "name": "Channel history backfill",
+      "command": "backfill",
+      "description": "Pull a channel's complete upload history with statistics into the local databank in one command."
+    },
+    {
+      "name": "Packaging collector",
+      "command": "packaging",
+      "description": "Collect titles, thumbnails (downloaded as local image files), and hook text from transcript openings into a packaging table."
+    },
+    {
+      "name": "Workspaces",
+      "command": "workspace",
+      "description": "Named databanks: keep the competitor machine in one database and explore a new niche in another, switching instantly."
+    },
+    {
+      "name": "API key ring",
+      "command": "auth keys",
+      "description": "Store multiple named YouTube API keys, switch between them instantly, and optionally fail over automatically via --rotate when one runs out of quota."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 50,
+    "total": 50,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 96,
+      "grade": "A (1 of 26 dimensions unverified: live_api_verification)",
+      "total": 96
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
 }

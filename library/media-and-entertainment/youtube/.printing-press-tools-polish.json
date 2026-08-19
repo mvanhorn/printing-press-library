@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-05-15T16:28:31.557262Z",
-  "cli_dir": "/Users/justinfu/printing-press/library/youtube",
+  "timestamp": "2026-08-19T03:27:23.656287Z",
+  "cli_dir": "\u003ccli-dir\u003e/youtube-pp-cli",
   "findings": null,
   "scorecard_before": {
     "mcp_description_quality": 10,
-    "captured": "2026-05-15T12:58:00.758164Z"
+    "captured": "2026-08-19T02:56:59.203195Z"
   }
 }

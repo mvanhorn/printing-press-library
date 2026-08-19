@@ -26,7 +26,7 @@ func newYoutubeVideosEnrichCmd(flags *rootFlags) *cobra.Command {
 		Use:         "videos-enrich <videoId|url>",
 		Short:       "Resolve a single video to metadata + transcript + description in one call",
 		Example:     "  youtube-pp-cli youtube videos-enrich dQw4w9WgXcQ",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "videoId=dQw4w9WgXcQ", "pp:typed-exit-codes": "0,2,3,5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -48,7 +48,7 @@ func newYoutubeVideosEnrichCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c = c.WithContext(cmd.Context())
+			getter := contextualAPIGetter{ctx: cmd.Context(), client: c}
 
 			// Position is playlist-only; it stays 0 for a standalone video.
 			row := enrichedVideo{
@@ -59,7 +59,7 @@ func newYoutubeVideosEnrichCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Metadata + description via videos.list (single-element batch).
-			meta, metaWarns := fetchVideoMetadata(c, []playlistEntry{{videoID: videoID}})
+			meta, metaWarns := fetchVideoMetadata(getter, []playlistEntry{{videoID: videoID}})
 			for _, w := range metaWarns {
 				fmt.Fprintln(cmd.ErrOrStderr(), "warning:", w)
 			}

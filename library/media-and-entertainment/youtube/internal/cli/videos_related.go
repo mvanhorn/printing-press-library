@@ -41,7 +41,7 @@ func newYoutubeVideosRelatedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "videos-related <videoId|url>",
 		Short:       "Find related videos via topic + channel + tag overlap (heuristic; replaces deprecated relatedToVideoId)",
 		Example:     "  youtube-pp-cli youtube videos-related dQw4w9WgXcQ --limit 10\n  youtube-pp-cli youtube videos-related 'https://youtu.be/dQw4w9WgXcQ' --limit 10",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "videoId=dQw4w9WgXcQ", "pp:typed-exit-codes": "0,2,3,5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -61,15 +61,15 @@ func newYoutubeVideosRelatedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c = c.WithContext(cmd.Context())
+			getter := contextualAPIGetter{ctx: cmd.Context(), client: c}
 
 			// 1. Fetch the input video to extract channelId, tags, topicIds, title.
-			data, err := c.GetWithHeaders("/youtube/v3/videos", map[string]string{
+			data, err := c.GetWithHeaders(cmd.Context(), "/youtube/v3/videos", map[string]string{
 				"id":   videoID,
 				"part": "snippet,topicDetails",
 			}, nil)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.ErrOrStderr(), err, flags)
 			}
 			var srcResp struct {
 				Items []struct {
@@ -123,7 +123,7 @@ func newYoutubeVideosRelatedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// 2a. Same-channel search
-			sameChannelHits, err := searchListVideos(c, map[string]string{
+			sameChannelHits, err := searchListVideos(getter, map[string]string{
 				"channelId":  src.Snippet.ChannelID,
 				"type":       "video",
 				"part":       "snippet",
@@ -145,7 +145,7 @@ func newYoutubeVideosRelatedCmd(flags *rootFlags) *cobra.Command {
 				// 2b. Topic-based search (best-effort)
 				if len(src.TopicDetails.TopicIds) > 0 {
 					topicID := src.TopicDetails.TopicIds[0]
-					topicHits, terr := searchListVideos(c, map[string]string{
+					topicHits, terr := searchListVideos(getter, map[string]string{
 						"topicId":    topicID,
 						"type":       "video",
 						"part":       "snippet",
@@ -168,7 +168,7 @@ func newYoutubeVideosRelatedCmd(flags *rootFlags) *cobra.Command {
 						topTags = topTags[:3]
 					}
 					q := strings.Join(topTags, " ")
-					tagHits, terr := searchListVideos(c, map[string]string{
+					tagHits, terr := searchListVideos(getter, map[string]string{
 						"q":          q,
 						"type":       "video",
 						"part":       "snippet",
