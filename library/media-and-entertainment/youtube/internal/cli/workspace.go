@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/cliutil"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -183,10 +185,18 @@ func newWorkspaceUseCmd(flags *rootFlags) *cobra.Command {
 					// process.
 					prev := os.Getenv("YOUTUBE_HOME")
 					_ = os.Setenv("YOUTUBE_HOME", home)
-					ring, ringErr := loadKeyRing()
-					if ringErr == nil && ring.Active != "" {
-						if err := activateRingKey(ring, ring.Active, ""); err == nil {
-							hint = fmt.Sprintf("active; key %q seeded from the key ring", ring.Active)
+					// PATCH(pr1755-greptile: preserve workspace credentials) — seed only a
+					// workspace that has no credential of its own. Re-seeding on every
+					// switch overwrote a workspace-specific `auth set-token` key with the
+					// globally active ring entry, silently billing a different key's quota.
+					if hasCred, credErr := cliutil.CredentialsFileHasValues(); credErr == nil && hasCred {
+						hint = "active; existing workspace credential preserved"
+					} else {
+						ring, ringErr := loadKeyRing()
+						if ringErr == nil && ring.Active != "" {
+							if err := activateRingKey(ring, ring.Active, ""); err == nil {
+								hint = fmt.Sprintf("active; key %q seeded from the key ring", ring.Active)
+							}
 						}
 					}
 					if prev == "" {

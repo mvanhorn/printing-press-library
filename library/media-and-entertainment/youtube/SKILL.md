@@ -267,6 +267,8 @@ Agents should treat the CLI's path resolver as part of the runtime contract:
   }
   ```
 
+⚠️ Two files deliberately live OUTSIDE the relocatable tree, in the platform config dir (`~/Library/Application Support/youtube-pp-cli/` on macOS): `workspaces.json` (the workspace registry must sit outside workspace homes or switching becomes self-referential) and `keyring.json` (quota is per key, not per workspace). Consequence: `--home`/`YOUTUBE_HOME` does NOT isolate the key ring or workspace registry — `keys add/use` and `workspace create/use` mutate shared state even under an isolated home.
+
 Fleet precedence: an inherited per-kind env var overrides an explicit `--home` for that kind. Use `YOUTUBE_HOME` or per-kind vars as durable fleet levers, and use `--home` only for a single invocation. Relocation is not reversible by unsetting env vars; move files manually before clearing `YOUTUBE_HOME`, or `doctor` will not find credentials left under the former root.
 
 ## The analyst databank (SQL schema)
