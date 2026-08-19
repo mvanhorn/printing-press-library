@@ -61,7 +61,7 @@ func newNovelUnusualCmd(flags *rootFlags) *cobra.Command {
 					_ = cmd.Usage()
 					return usageErr(fmt.Errorf("--baseline %q is not a duration (try 30d): %w", baseline, err))
 				}
-				cutoff = nowUTC().Add(-d).Format(rfc3339)
+				cutoff = nowUTC().Add(-d).Format(snapshotTimeFormat)
 			}
 			times, err := listSnapshotTimes(ctx, s, snapshotKindMarket)
 			if err != nil {

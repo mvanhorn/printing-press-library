@@ -81,7 +81,7 @@ func newNovelRotationCmd(flags *rootFlags) *cobra.Command {
 					_ = cmd.Usage()
 					return usageErr(fmt.Errorf("--window %q is not a duration (try 30d, 4w): %w", window, err))
 				}
-				cutoff := nowUTC().Add(-d).Format(rfc3339)
+				cutoff := nowUTC().Add(-d).Format(snapshotTimeFormat)
 				for _, t := range times {
 					if t <= cutoff {
 						oldest = t

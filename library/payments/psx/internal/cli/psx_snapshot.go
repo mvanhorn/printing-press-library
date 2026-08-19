@@ -14,7 +14,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 
@@ -89,7 +88,7 @@ func takeSnapshot(ctx context.Context, s *store.Store, c *psx.Client, kind strin
 	if err != nil {
 		return 0, "", err
 	}
-	takenAt := time.Now().UTC().Format(time.RFC3339)
+	takenAt := nowUTC().Format(snapshotTimeFormat)
 
 	tx, err := s.DB().BeginTx(ctx, nil)
 	if err != nil {

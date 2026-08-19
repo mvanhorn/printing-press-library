@@ -103,7 +103,7 @@ func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 					_ = cmd.Usage()
 					return usageErr(fmt.Errorf("--since %q is not a duration (try 90d, 4w): %w", since, err))
 				}
-				cutoff = nowUTC().Add(-d).Format(rfc3339)
+				cutoff = nowUTC().Add(-d).Format(snapshotTimeFormat)
 			}
 			series, err := loadSeries(ctx, s, snapshotKindScreener, sym, cutoff)
 			if err != nil {

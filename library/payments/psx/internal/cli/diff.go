@@ -82,7 +82,7 @@ func newNovelDiffCmd(flags *rootFlags) *cobra.Command {
 					_ = cmd.Usage()
 					return usageErr(fmt.Errorf("--since %q is not a duration (try 7d, 24h, 2w): %w", since, err))
 				}
-				cutoff := nowUTC().Add(-d).Format(rfc3339)
+				cutoff := nowUTC().Add(-d).Format(snapshotTimeFormat)
 				oldest = times[len(times)-1]
 				for _, t := range times {
 					if t <= cutoff {
