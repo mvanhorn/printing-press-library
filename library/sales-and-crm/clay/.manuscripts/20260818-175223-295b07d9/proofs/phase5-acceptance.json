@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "cookie"
   },
-  "source_fingerprint": "ea836e92d852e5540d8cd2fadd18a3005bd57f66c485abda44fe99c5241c88a7",
+  "source_fingerprint": "8f0c5dbc5284c780839cfa39674c808b695ffad64f71bac9a641eec579b6414e",
   "source_files": {
     "cmd/clay-pp-cli/main.go": "f15612cc13634fe6f415031a675beffb61f29cd2b91a640a8e95578830af6175",
     "cmd/clay-pp-mcp/main.go": "3a95834b5196db3fc2de7eca27d4f3dfc46469442ce2701d18d579aaea8424a3",
@@ -31,8 +31,8 @@
     "internal/cli/blueprint_export.go": "1bf6e398e48059f2365d0af42613f59effa95a67977fce09a4ad28c89ea6b724",
     "internal/cli/blueprint_export_test.go": "cbeda9678a8e34a24ea199d47d5819a5849c0a615215b34b38848983dc48b3c2",
     "internal/cli/channel_workflow.go": "f690d175615c533e944a3fe7ccff8320575b5f6ff971d1af91d658dd11afa942",
-    "internal/cli/clay_helpers.go": "712e27b4ae1f5e2779356fc2aa069d7e136bb7aed8dcdababcbf2dc4ae4dbc48",
-    "internal/cli/clay_helpers_test.go": "8fe73ad98705d7d2af96f000b955952af0e727b95caa45a62b21e2c75c2c89e8",
+    "internal/cli/clay_helpers.go": "420c9d986152868409b8aabcfc4c01af1d4fd4495efc5c73f8a4bd36cef177db",
+    "internal/cli/clay_helpers_test.go": "e614d863b164d3dc9330dc2aaec4e7f4843684870e26b9f150d93db444b1febf",
     "internal/cli/columns.go": "e1f81f3823656f2252d1f07265d55ceae30670ac2e931351be520806597d66ec",
     "internal/cli/columns_create.go": "ac6c8684f6c22e65c0b79889619f1dc6a5e8fbb6cb1ef3dcdde6b394178242c7",
     "internal/cli/columns_delete.go": "0467256354d62cd132082e366f5fd338bc3ed824562c8c6aff300b679adb7de1",

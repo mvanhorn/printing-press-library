@@ -92,17 +92,31 @@ var fieldIDPattern = regexp.MustCompile(`^f_[A-Za-z0-9_]+$`)
 // namedRefPattern matches human-authored {{Column Name}} references.
 var namedRefPattern = regexp.MustCompile(`\{\{\s*([^}]+?)\s*\}\}`)
 
-// resolveRefsToNames rewrites {{f_id}} into {{Column Name}} for display/editing.
+// resolveRefsToNames rewrites {{f_id}} into {{Column Name}} for display and
+// editing.
+//
+// It deliberately refuses to render a column name that is itself a real field
+// id in this table. Doing so would break the round trip: the write path treats
+// an id-shaped token that names a real field as an explicit id reference, so
+// rendering column "f_other" for field f_realid would silently rebind the
+// formula to f_other on the next save. Keeping the raw id is less readable and
+// strictly correct.
 func resolveRefsToNames(formula string, byID map[string]clayField) string {
 	return fieldRefPattern.ReplaceAllStringFunc(formula, func(m string) string {
 		sub := fieldRefPattern.FindStringSubmatch(m)
 		if len(sub) < 2 {
 			return m
 		}
-		if f, ok := byID[sub[1]]; ok && f.Name != "" {
-			return "{{" + f.Name + "}}"
+		f, ok := byID[sub[1]]
+		if !ok || f.Name == "" {
+			return m
 		}
-		return m
+		// The name collides with some other field's id: rendering it would not
+		// survive a save. Leave the id in place.
+		if other, clash := byID[f.Name]; clash && other.ID != f.ID {
+			return m
+		}
+		return "{{" + f.Name + "}}"
 	})
 }
 

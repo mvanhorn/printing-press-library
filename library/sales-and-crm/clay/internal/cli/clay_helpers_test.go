@@ -214,3 +214,34 @@ func TestFieldIDPatternShape(t *testing.T) {
 		}
 	}
 }
+
+// Read and write must agree. If a column's NAME is also another column's real
+// field id, rendering that name would rebind the formula on the next save, so
+// the read path must keep the raw id instead.
+func TestFormulaRoundTripDoesNotRebind(t *testing.T) {
+	fields := []clayField{
+		{ID: "f_realid", Name: "f_other"}, // name collides with the id below
+		{ID: "f_other", Name: "Company"},
+	}
+	byID := indexByID(fields)
+	byName := indexByName(fields)
+
+	rendered := resolveRefsToNames("{{f_realid}}", byID)
+	if rendered != "{{f_realid}}" {
+		t.Fatalf("read rendered a colliding name %q; a save would rebind it", rendered)
+	}
+
+	// Round trip must land on the same field it started from.
+	written, unknown, _ := resolveNamesToRefs(rendered, byName, byID)
+	if len(unknown) != 0 {
+		t.Fatalf("unexpected unknown refs: %v", unknown)
+	}
+	if written != "{{f_realid}}" {
+		t.Fatalf("round trip rebound %q -> %q", rendered, written)
+	}
+
+	// A non-colliding name still renders for readability.
+	if got := resolveRefsToNames("{{f_other}}", byID); got != "{{Company}}" {
+		t.Fatalf("non-colliding name should render, got %q", got)
+	}
+}
