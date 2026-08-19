@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "cookie"
   },
-  "source_fingerprint": "5e2eb104a35e599fdafc3fb2eb8cc0424b6312c937d5f4cc728207010da36d22",
+  "source_fingerprint": "93cce8afe8d90c099fc088e5b8e787b4d0145361ac73baa476022b23566771ad",
   "source_files": {
     "cmd/clay-pp-cli/main.go": "f15612cc13634fe6f415031a675beffb61f29cd2b91a640a8e95578830af6175",
     "cmd/clay-pp-mcp/main.go": "3a95834b5196db3fc2de7eca27d4f3dfc46469442ce2701d18d579aaea8424a3",
@@ -27,13 +27,13 @@
     "internal/cli/api_discovery.go": "0a4fa20340c4aa04f11e82c922fca497a5add5a9a73d043aa17623515d8cb03a",
     "internal/cli/auth.go": "122c99d70c8c1b17bec90a4c817a55ed67a1cb8f453d420afa68fad57b45a109",
     "internal/cli/blueprint.go": "ffe4e9c6f151f2693af3f07f36a1a0f433a82395774362c6c5d92f022c881393",
-    "internal/cli/blueprint_apply.go": "9a8316acfd612577813426d8104cc155a5845f0e0afe2125258dc62f64363d0b",
+    "internal/cli/blueprint_apply.go": "e2b71d6191d10d679e99a982e6588511db0634c13ae0741f709ee07dfbc5839d",
     "internal/cli/blueprint_apply_test.go": "9370e3abd8205d006e4719b739ee83d1ee61b6d49f5df0051440c430b95cd8c0",
     "internal/cli/blueprint_export.go": "1bf6e398e48059f2365d0af42613f59effa95a67977fce09a4ad28c89ea6b724",
     "internal/cli/blueprint_export_test.go": "cbeda9678a8e34a24ea199d47d5819a5849c0a615215b34b38848983dc48b3c2",
     "internal/cli/channel_workflow.go": "f690d175615c533e944a3fe7ccff8320575b5f6ff971d1af91d658dd11afa942",
-    "internal/cli/clay_helpers.go": "d7ddf4ec1de6127f76ca1bd61739d000c32b5ef42afeed5657b9460188deb03d",
-    "internal/cli/clay_helpers_test.go": "f3cb893d5aaaff299a6158ad176d4519fef018537cfa5b3dd233e03da4bce267",
+    "internal/cli/clay_helpers.go": "eb90a4c40e8880121d24304cea50efa1396f4ac20508d7b4189aa6d4aa2ab796",
+    "internal/cli/clay_helpers_test.go": "8167c5131ba39485cc22143037ddd995c903d4ee699d174e6b7235f8ee45f4ed",
     "internal/cli/columns.go": "e1f81f3823656f2252d1f07265d55ceae30670ac2e931351be520806597d66ec",
     "internal/cli/columns_create.go": "ac6c8684f6c22e65c0b79889619f1dc6a5e8fbb6cb1ef3dcdde6b394178242c7",
     "internal/cli/columns_delete.go": "0467256354d62cd132082e366f5fd338bc3ed824562c8c6aff300b679adb7de1",

@@ -279,11 +279,16 @@ func remapNamedRefs(formula string, nameToID map[string]string) (string, []strin
 			return m
 		}
 		token := strings.TrimSpace(sub[1])
-		if strings.HasPrefix(token, "f_") {
-			return m
-		}
+		// Name lookup wins: a blueprint column may legitimately be named
+		// "f_something". Checking the id shape first would leave that
+		// reference pointing at the source table's id and break the formula.
 		if id, ok := nameToID[strings.ToLower(token)]; ok {
 			return "{{" + id + "}}"
+		}
+		// Not a known column name. Only pass through tokens that actually look
+		// like a generated field id; anything else is genuinely unresolved.
+		if fieldIDPattern.MatchString(token) {
+			return m
 		}
 		unknown = append(unknown, token)
 		return m

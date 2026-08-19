@@ -84,6 +84,11 @@ func formulaRefs(formula string) []string {
 	return out
 }
 
+// fieldIDPattern matches a generated Clay field id. Used to tell an actual id
+// apart from a column whose *name* merely begins with "f_", which is legal and
+// must still be remapped by name.
+var fieldIDPattern = regexp.MustCompile(`^f_[A-Za-z0-9_]+$`)
+
 // namedRefPattern matches human-authored {{Column Name}} references.
 var namedRefPattern = regexp.MustCompile(`\{\{\s*([^}]+?)\s*\}\}`)
 
@@ -111,11 +116,15 @@ func resolveNamesToRefs(formula string, byName map[string]clayField) (string, []
 			return m
 		}
 		token := strings.TrimSpace(sub[1])
-		if strings.HasPrefix(token, "f_") {
-			return m
-		}
+		// Name lookup wins: a column may legitimately be named "f_something",
+		// and treating it as an id would silently drop the remap.
 		if f, ok := byName[strings.ToLower(token)]; ok {
 			return "{{" + f.ID + "}}"
+		}
+		// Not a known column name. Only pass through tokens that actually look
+		// like a generated field id; anything else is genuinely unresolved.
+		if fieldIDPattern.MatchString(token) {
+			return m
 		}
 		unknown = append(unknown, token)
 		return m
