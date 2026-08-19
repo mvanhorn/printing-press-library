@@ -2374,7 +2374,15 @@ const (
 // classDetailField, which is exactly what removes it from "pending" on the
 // next call.
 func planClassDetailSync(db *store.Store, full bool, scopeSince, staleBefore *time.Time, maxParents int) (dependentSyncPlan, error) {
-	rideIDs, err := db.ListField("workouts", "ride_id")
+	// DistinctWorkoutRideIDs, not db.ListField("workouts", "ride_id"): the
+	// typed ride_id column is only populated by enrichWorkoutRideMetadata
+	// at write time, and round-12 verification NEW B found a real account
+	// where the column covered barely more than half of the workouts that
+	// actually carried a ride association in their raw JSON (511 of 843).
+	// Reading ListField alone silently caps this dependent's fan-out to
+	// whatever subset of taken classes happened to get the typed column
+	// populated, not the account's real distinct-class count.
+	rideIDs, err := db.DistinctWorkoutRideIDs()
 	if err != nil {
 		return dependentSyncPlan{}, err
 	}
@@ -2586,7 +2594,20 @@ func runDependentFanOut(ctx context.Context, c interface {
 	}
 
 	if failures > 0 && !humanFriendly {
-		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"reason":"per_parent_fetch_failed"}`+"\n", resource, len(plan.ids), totalCount)
+		// sample_error surfaces the first failure's own message so a
+		// consistent-but-unexplained per_parent_fetch_failed count (round-12
+		// verification NEW D: roughly one failure per classes_detail batch,
+		// with no way to tell from the event alone whether it's a specific
+		// class type, a transient blip, or something systematic) is at
+		// least diagnosable from the sync output itself, without needing a
+		// second debugging pass. Only the first error is sampled (not one
+		// per failure) to keep the event a single bounded line even when
+		// every failure shares the same cause.
+		sampleError := ""
+		if firstErr != nil {
+			sampleError = strings.ReplaceAll(truncate(firstErr.Error(), 200), `"`, `\"`)
+		}
+		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"failed":%d,"reason":"per_parent_fetch_failed","sample_error":"%s"}`+"\n", resource, len(plan.ids), totalCount, failures, sampleError)
 	}
 	// Persist --full's two-tier resumability state now that plan.ids has
 	// actually been fetched (never before -- see dependentSyncPlan's

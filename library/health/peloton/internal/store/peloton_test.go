@@ -183,6 +183,53 @@ func TestUpsertWithFacts_UsesCallerSuppliedID(t *testing.T) {
 	}
 }
 
+// TestDistinctWorkoutRideIDs_FallsBackToNestedRideWhenTypedColumnEmpty
+// guards round-12 verification NEW B: a real account had 843 workouts with
+// a nested "ride" object in their raw JSON but only 511 with the typed
+// ride_id column populated (enrichWorkoutRideMetadata only promotes at
+// write time; a workout written before that promotion existed, or by any
+// path that bypasses it, keeps the nested object with no corresponding
+// column value). DistinctWorkoutRideIDs must recover ride ids from the raw
+// JSON for rows where the typed column is empty, not silently drop them.
+func TestDistinctWorkoutRideIDs_FallsBackToNestedRideWhenTypedColumnEmpty(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	// w1: typed ride_id column populated (the normal, enriched case).
+	if err := s.UpsertWorkoutsWithFacts(json.RawMessage(`{"id":"w1","ride_id":"ride-a","start_time":"2026-01-01T10:00:00Z"}`)); err != nil {
+		t.Fatalf("seed w1: %v", err)
+	}
+	// w2: only a nested "ride" object, no top-level ride_id -- simulate a
+	// row written without going through enrichWorkoutRideMetadata's
+	// promotion by calling UpsertBatch directly (it still populates the
+	// typed table's columns from the raw item, but skips the enrichment
+	// UpsertBatchWithFacts/UpsertWorkoutsWithFacts normally apply first).
+	// lookupFieldValue finds no top-level ride_id on this raw item, so the
+	// typed column stays empty while "data" still carries the nested ride.
+	if _, _, err := s.UpsertBatch("workouts", []json.RawMessage{json.RawMessage(`{"id":"w2","ride":{"id":"ride-b"},"start_time":"2026-01-02T10:00:00Z"}`)}); err != nil {
+		t.Fatalf("seed w2: %v", err)
+	}
+
+	ids, err := s.DistinctWorkoutRideIDs()
+	if err != nil {
+		t.Fatalf("DistinctWorkoutRideIDs: %v", err)
+	}
+	seen := map[string]bool{}
+	for _, id := range ids {
+		seen[id] = true
+	}
+	if !seen["ride-a"] {
+		t.Errorf("ids = %v, missing ride-a (typed column case)", ids)
+	}
+	if !seen["ride-b"] {
+		t.Errorf("ids = %v, missing ride-b (nested-only fallback case)", ids)
+	}
+}
+
 // TestProviderFactIDsWithField_DistinguishesPresenceFromFieldPresence guards
 // the classes_detail dependent sync's pending-detection: a class synced via
 // the bulk catalog list endpoint already has a "classes" provider_payloads
@@ -224,6 +271,112 @@ func TestProviderFactIDsWithField_DistinguishesPresenceFromFieldPresence(t *test
 
 	if _, err := s.ProviderFactIDsWithField("classes", "not an identifier"); err == nil {
 		t.Error("expected ProviderFactIDsWithField to reject a non-identifier field name")
+	}
+}
+
+// TestUpsertBatchWithFacts_ClassesFlatSyncPreservesDetailFields guards
+// round-12 verification NEW A: a class enriched by classes_detail (segments,
+// target_metrics_data, the nested "ride" object) had those fields silently
+// stripped by the very next routine `sync --resources classes` /
+// `workflow archive` call, because the flat catalog list sync's own items
+// never carry them and UpsertBatch's write is a wholesale replace, not a
+// merge. A real account's segment coverage went 187 -> 156 across a single
+// archive call from this. The flat classes write path must preserve
+// detail-only fields already present on the stored record when the newly
+// synced (list-shaped) item doesn't carry them, so a backfill accumulates
+// across repeated syncs instead of oscillating.
+func TestUpsertBatchWithFacts_ClassesFlatSyncPreservesDetailFields(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	// classes_detail backfills segments onto ride-a.
+	detail := json.RawMessage(`{"id":"ride-a","title":"Old Title","duration":1800,"ride":{"id":"ride-a"},"segments":[{"role":"warmup"}],"target_metrics_data":{"cadence":[55,65]}}`)
+	if _, _, err := s.UpsertBatchWithFacts("classes", []json.RawMessage{detail}); err != nil {
+		t.Fatalf("seeding detail-enriched class: %v", err)
+	}
+
+	// A routine flat catalog list sync re-fetches ride-a in list form
+	// (fresher title, no segments/ride/target_metrics_data at all).
+	listForm := json.RawMessage(`{"id":"ride-a","title":"New Title","duration":1800}`)
+	if _, _, err := s.UpsertBatchWithFacts("classes", []json.RawMessage{listForm}); err != nil {
+		t.Fatalf("flat re-sync: %v", err)
+	}
+
+	stored, err := s.Get("classes", "ride-a")
+	if err != nil {
+		t.Fatalf("Get(classes, ride-a): %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(stored, &got); err != nil {
+		t.Fatalf("decode stored record: %v", err)
+	}
+	if got["title"] != "New Title" {
+		t.Errorf("title = %v, want the fresher list-sync value %q", got["title"], "New Title")
+	}
+	if _, ok := got["segments"]; !ok {
+		t.Error("segments was stripped by the flat re-sync; expected it to survive from the prior detail fetch")
+	}
+	if _, ok := got["target_metrics_data"]; !ok {
+		t.Error("target_metrics_data was stripped by the flat re-sync")
+	}
+	if _, ok := got["ride"]; !ok {
+		t.Error("ride was stripped by the flat re-sync")
+	}
+
+	// provider_payloads must reflect the same merge, since that's what
+	// planClassDetailSync's ProviderFactIDsWithField pending-check reads.
+	fact, err := s.GetProviderFact("classes", "ride-a")
+	if err != nil {
+		t.Fatalf("GetProviderFact(classes, ride-a): %v", err)
+	}
+	var gotFact map[string]any
+	if err := json.Unmarshal(fact.Payload, &gotFact); err != nil {
+		t.Fatalf("decode provider fact: %v", err)
+	}
+	if _, ok := gotFact["segments"]; !ok {
+		t.Error("provider_payloads lost segments after the flat re-sync merge")
+	}
+}
+
+// TestUpsertBatchWithFacts_ClassesFlatSyncOfNeverDetailFetchedClassIsUnaffected
+// guards the common case: a class that was only ever synced in list form
+// (never classes_detail-fetched) must not trigger any merge logic on a
+// routine re-sync -- the fix must be a no-op for the vast majority of the
+// catalog.
+func TestUpsertBatchWithFacts_ClassesFlatSyncOfNeverDetailFetchedClassIsUnaffected(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	first := json.RawMessage(`{"id":"ride-b","title":"Title v1","duration":1800}`)
+	if _, _, err := s.UpsertBatchWithFacts("classes", []json.RawMessage{first}); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+	second := json.RawMessage(`{"id":"ride-b","title":"Title v2","duration":1800}`)
+	if _, _, err := s.UpsertBatchWithFacts("classes", []json.RawMessage{second}); err != nil {
+		t.Fatalf("re-sync: %v", err)
+	}
+
+	stored, err := s.Get("classes", "ride-b")
+	if err != nil {
+		t.Fatalf("Get(classes, ride-b): %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(stored, &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got["title"] != "Title v2" {
+		t.Errorf("title = %v, want %q", got["title"], "Title v2")
+	}
+	if len(got) != 3 { // id, title, duration
+		t.Errorf("unexpected extra fields merged in for a list-only class: %#v", got)
 	}
 }
 

@@ -3,10 +3,12 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/store"
@@ -175,6 +177,55 @@ func TestSyncClassDetailDependent_EnrichesExistingClassRecordInPlace(t *testing.
 	}
 	if len(replan.ids) != 0 {
 		t.Fatalf("replan.ids = %v, want empty (ride-a should no longer be pending)", replan.ids)
+	}
+}
+
+// TestSyncClassDetailDependent_AnomalyEventIncludesSampleError guards round-12
+// verification NEW D: a per_parent_fetch_failed anomaly reported only counts,
+// with no way to tell from the event alone whether a consistent failure rate
+// is a specific class type, region lock, or transient blip. The event must
+// now carry a failed count and a sample of the actual error message.
+func TestSyncClassDetailDependent_AnomalyEventIncludesSampleError(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	seedPlanTestWorkoutsWithRides(t, db, map[string]string{"w1": "ride-a", "w2": "ride-b"})
+
+	// Only ride-a has a fixture response; ride-b's fetch fails with
+	// pathAwareSyncClient's own "no fixture response" error.
+	detailClient := &pathAwareSyncClient{byPath: map[string]json.RawMessage{
+		"/api/ride/ride-a/details": json.RawMessage(`{"ride":{"id":"ride-a"},"segments":[{"role":"warmup"}]}`),
+	}}
+
+	plan, err := planClassDetailSync(db, false, nil, nil, 0)
+	if err != nil {
+		t.Fatalf("planClassDetailSync: %v", err)
+	}
+	if len(plan.ids) != 2 {
+		t.Fatalf("plan.ids = %v, want 2", plan.ids)
+	}
+
+	var events bytes.Buffer
+	res := syncClassDetailDependent(context.Background(), detailClient, db, plan, 1, &events)
+	if res.Err != nil {
+		t.Fatalf("syncClassDetailDependent: %v (a per-item failure must stay a soft anomaly, not a hard error)", res.Err)
+	}
+	if res.Count != 1 {
+		t.Fatalf("Count = %d, want 1 (only ride-a succeeded)", res.Count)
+	}
+
+	out := events.String()
+	if !strings.Contains(out, `"reason":"per_parent_fetch_failed"`) {
+		t.Fatalf("expected a per_parent_fetch_failed anomaly event, got: %s", out)
+	}
+	if !strings.Contains(out, `"failed":1`) {
+		t.Fatalf("expected failed:1 in the anomaly event, got: %s", out)
+	}
+	if !strings.Contains(out, "no fixture response") {
+		t.Fatalf("expected the anomaly event to sample the actual error message, got: %s", out)
 	}
 }
 
