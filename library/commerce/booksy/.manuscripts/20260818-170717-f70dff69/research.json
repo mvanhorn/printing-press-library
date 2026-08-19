@@ -60,6 +60,15 @@
       "example": "booksy-pp-cli cheapest --location-id 47905 --service haircut --limit 10",
       "why_it_matters": "Answers 'where's the cheapest decent haircut near me?' — a query Booksy's own UI cannot express.",
       "group": "Local intelligence"
+    },
+    {
+      "name": "Cancel appointment",
+      "command": "cancel",
+      "description": "Cancel one of your Booksy appointments by id — previews the appointment first and only cancels with --confirm.",
+      "rationale": "Completes the booking loop using the appointment _version handshake captured from a real cancellation.",
+      "example": "booksy-pp-cli cancel 746784544 --confirm",
+      "why_it_matters": "Lets an agent undo a booking it made without opening the Booksy app.",
+      "group": "Booking funnel"
     }
   ],
   "novel_features_built": [
@@ -116,6 +125,15 @@
       "example": "booksy-pp-cli cheapest --location-id 47905 --service haircut --limit 10",
       "why_it_matters": "Answers 'where's the cheapest decent haircut near me?' — a query Booksy's own UI cannot express.",
       "group": "Local intelligence"
+    },
+    {
+      "name": "Cancel appointment",
+      "command": "cancel",
+      "description": "Cancel one of your Booksy appointments by id — previews the appointment first and only cancels with --confirm.",
+      "rationale": "Completes the booking loop using the appointment _version handshake captured from a real cancellation.",
+      "example": "booksy-pp-cli cancel 746784544 --confirm",
+      "why_it_matters": "Lets an agent undo a booking it made without opening the Booksy app.",
+      "group": "Booking funnel"
     }
   ],
   "auth": {

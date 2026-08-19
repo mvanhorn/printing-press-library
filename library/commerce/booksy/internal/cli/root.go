@@ -247,6 +247,7 @@ Highlights (not in the official API docs):
   • earliest   Find the single earliest open slot for a service across a date window in one call.
   • compare   Compare several businesses side by side on rating, review count, and cheapest matching service price — from the local cache.
   • cheapest   Scan search results in a city and rank businesses by the cheapest service matching your query (e.g. haircut), with rating alongside price.
+  • cancel   Cancel one of your Booksy appointments by id — previews the appointment first and only cancels with --confirm.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'booksy-pp-cli doctor' to verify auth and connectivity.

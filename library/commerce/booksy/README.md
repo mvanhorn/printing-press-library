@@ -171,6 +171,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   booksy-pp-cli services 297360 --query haircut
   ```
+- **`cancel`** — Cancel one of your Booksy appointments by id — previews the appointment first and only cancels with --confirm.
+
+  _Lets an agent undo a booking it made without opening the Booksy app._
+
+  ```bash
+  booksy-pp-cli cancel 746784544 --confirm
+  ```
 
 ### Local intelligence
 - **`earliest`** — Find the single earliest open slot for a service across a date window in one call.

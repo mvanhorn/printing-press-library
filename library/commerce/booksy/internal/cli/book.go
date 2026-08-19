@@ -7,6 +7,11 @@
 //   2. Only --confirm sends the real booking POST, and that step refuses under
 //      any test harness (verify/dogfood) so automated runs never touch a real
 //      barber's calendar.
+//
+// The confirm request shape is captured from a real completed Booksy booking:
+// POST /me/appointments/business/{id}/ with the full agreements/pre-auth payload,
+// returning the created appointment (appointment_uid). Prepayment businesses also
+// require a --payment-method id.
 
 package cli
 
@@ -20,13 +25,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// dry_run / appointment response (only the preview fields we render).
-type bkDryRunResp struct {
+// bkApptResp parses the dry_run preview and the real confirm response
+// (identical shape). Only the fields we render/reuse are declared.
+type bkApptResp struct {
 	Appointment struct {
-		AppointmentUID any `json:"appointment_uid"`
+		AppointmentUID json.Number `json:"appointment_uid"`
+		Version        json.Number `json:"_version"`
 		Subbookings    []struct {
 			BookedFrom string `json:"booked_from"`
 			BookedTill string `json:"booked_till"`
+			StafferID  int64  `json:"staffer_id"`
 			Service    struct {
 				Name    string `json:"name"`
 				Variant struct {
@@ -47,6 +55,8 @@ func newNovelBookCmd(flags *rootFlags) *cobra.Command {
 	var flagDate string
 	var flagTime string
 	var flagStaffer int64
+	var flagPaymentMethod int64
+	var flagNote string
 	var flagConfirm bool
 
 	cmd := &cobra.Command{
@@ -58,7 +68,9 @@ func newNovelBookCmd(flags *rootFlags) *cobra.Command {
 			"Pass --confirm to actually place the booking.\n\n" +
 			"Get --service-variant from `booksy-pp-cli services <business_id>` and a\n" +
 			"--date/--time from `booksy-pp-cli availability <business_id> --service-variant <id>`.\n" +
-			"Requires BOOKSY_ACCESS_TOKEN. The --confirm step refuses under any automated test harness; the preview is always safe.",
+			"Businesses that require prepayment also need --payment-method <id>.\n" +
+			"Requires BOOKSY_ACCESS_TOKEN. The --confirm step refuses under any automated test harness; the preview is always safe.\n" +
+			"Cancel a booking with `booksy-pp-cli cancel <appointment_id>`.",
 		Example:     "  booksy-pp-cli book 297360 --service-variant 20193554 --date 2026-08-19 --time 10:00",
 		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "business_id=297360;--service-variant=20193554;--date=2026-08-19;--time=10:00"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -82,7 +94,8 @@ func newNovelBookCmd(flags *rootFlags) *cobra.Command {
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("--date and --time are required (see `booksy-pp-cli availability %s --service-variant %d`)", businessID, variantID))
 			}
-			bookedFrom := flagDate + " " + flagTime
+			// Booksy expects an ISO datetime (date + "T" + time).
+			bookedFrom := flagDate + "T" + flagTime
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
@@ -91,43 +104,43 @@ func newNovelBookCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			body := map[string]any{
-				"subbookings": []map[string]any{
-					{
-						"booked_from":     bookedFrom,
-						"staffer_id":      flagStaffer,
-						"service_variant": map[string]any{"mode": "variant", "id": variantID},
-						"addons":          []any{},
-						"combo_children":  []any{},
-					},
-				},
-				"compatibilities": map[string]any{"prepayment": true},
+			subbooking := func(stafferID int64) map[string]any {
+				return map[string]any{
+					"staffer_id":      stafferID,
+					"booked_from":     bookedFrom,
+					"service_variant": map[string]any{"mode": "variant", "id": variantID},
+					"combo_children":  []any{},
+				}
 			}
 
-			// Always dry-run first (preview).
-			previewData, status, err := c.Post(ctx, "/core/v2/customer_api/me/appointments/business/"+businessID+"/dry_run/", body)
+			// Always dry-run first (non-committal preview + staffer resolution).
+			dryBody := map[string]any{
+				"subbookings":     []any{subbooking(flagStaffer)},
+				"compatibilities": map[string]any{"prepayment": true},
+			}
+			previewData, status, err := c.Post(ctx, "/core/v2/customer_api/me/appointments/business/"+businessID+"/dry_run/", dryBody)
 			if err != nil {
 				return err
 			}
 			if status >= 400 {
 				return fmt.Errorf("booking preview failed (HTTP %d): %s", status, bkTruncate(string(previewData), 400))
 			}
-			var preview bkDryRunResp
+			var preview bkApptResp
 			_ = json.Unmarshal(previewData, &preview)
 
 			out := cmd.OutOrStdout()
-			renderPreview := func() (svcName, staffer, priceLabel, from, till string) {
-				if len(preview.Appointment.Subbookings) > 0 {
-					sb := preview.Appointment.Subbookings[0]
+			render := func(a bkApptResp) (svcName, staffer, priceLabel, from, till string, stafferID int64) {
+				if len(a.Appointment.Subbookings) > 0 {
+					sb := a.Appointment.Subbookings[0]
 					priceLabel = cliutilCleanPrice(sb.ServicePrice)
 					if priceLabel == "" {
 						priceLabel = fmt.Sprintf("%.2f zł", sb.Service.Variant.Price)
 					}
-					return sb.Service.Name, sb.Staffer.Name, priceLabel, sb.BookedFrom, sb.BookedTill
+					return sb.Service.Name, sb.Staffer.Name, priceLabel, sb.BookedFrom, sb.BookedTill, sb.StafferID
 				}
-				return "", "", "", bookedFrom, ""
+				return "", "", "", bookedFrom, "", 0
 			}
-			svcName, staffer, priceLabel, from, till := renderPreview()
+			svcName, staffer, priceLabel, from, till, resolvedStaffer := render(preview)
 
 			if !flagConfirm {
 				view := struct {
@@ -156,40 +169,76 @@ func newNovelBookCmd(flags *rootFlags) *cobra.Command {
 
 			// --confirm places a REAL appointment. Refuse under any test harness
 			// so automated runs (verify/dogfood) never touch a barber's calendar.
-			// The preview above (dry_run) is non-committal and is allowed to run.
 			if cliutil.IsAnyHarness() {
 				return writeHarnessRefusal(cmd.OutOrStdout(), flags, "confirm a Booksy booking")
 			}
-			// --confirm: place the real booking. Same validated payload, posted
-			// to the non-dry-run endpoint.
-			bookData, bstatus, err := c.Post(ctx, "/core/v2/customer_api/me/appointments/business/"+businessID+"/", body)
+
+			// Use the staffer the dry-run resolved (Booksy turns -1 into a real
+			// staffer); fall back to the requested value if none came back.
+			confirmStaffer := resolvedStaffer
+			if confirmStaffer == 0 {
+				confirmStaffer = flagStaffer
+			}
+			confirmBody := map[string]any{
+				"subbookings":                      []any{subbooking(confirmStaffer)},
+				"is_cancellation_fee_preauth_flow": false,
+				"pre_auth_type":                    "control",
+				"customer_note":                    flagNote,
+				"service_questions":                []any{},
+				"bci_agreements":                   map[string]any{"web_communication_agreement": false, "disclosure_obligation_agreement": false},
+				"recurring":                        false,
+				"ask_for_consent":                  false,
+				"compatibilities":                  map[string]any{"prepayment": true},
+			}
+			if flagPaymentMethod > 0 {
+				confirmBody["payment_method"] = flagPaymentMethod
+			}
+
+			bookData, bstatus, err := c.Post(ctx, "/core/v2/customer_api/me/appointments/business/"+businessID+"/", confirmBody)
 			if err != nil {
 				return err
 			}
 			if bstatus >= 400 {
-				return fmt.Errorf("booking failed (HTTP %d): %s", bstatus, bkTruncate(string(bookData), 400))
+				hint := ""
+				if bstatus == 400 && flagPaymentMethod == 0 {
+					hint = " (this business may require prepayment — retry with --payment-method <id>)"
+				}
+				return fmt.Errorf("booking failed (HTTP %d)%s: %s", bstatus, hint, bkTruncate(string(bookData), 400))
 			}
-			var booked bkDryRunResp
+			var booked bkApptResp
 			_ = json.Unmarshal(bookData, &booked)
+			bSvc, bStaffer, bPrice, bFrom, bTill, _ := render(booked)
+			if bSvc == "" {
+				bSvc, bStaffer, bPrice, bFrom = svcName, staffer, priceLabel, from
+			}
+			apptUID := booked.Appointment.AppointmentUID.String()
+
 			view := struct {
-				Preview        bool            `json:"preview"`
-				Committed      bool            `json:"committed"`
-				BusinessID     string          `json:"business_id"`
-				ServiceVariant int64           `json:"service_variant_id"`
-				Service        string          `json:"service"`
-				Staffer        string          `json:"staffer"`
-				Price          string          `json:"price"`
-				BookedFrom     string          `json:"booked_from"`
-				Response       json.RawMessage `json:"response"`
-			}{Preview: false, Committed: true, BusinessID: businessID, ServiceVariant: variantID, Service: svcName, Staffer: staffer, Price: priceLabel, BookedFrom: from, Response: bookData}
+				Preview        bool   `json:"preview"`
+				Committed      bool   `json:"committed"`
+				AppointmentUID string `json:"appointment_uid,omitempty"`
+				BusinessID     string `json:"business_id"`
+				ServiceVariant int64  `json:"service_variant_id"`
+				Service        string `json:"service"`
+				Staffer        string `json:"staffer"`
+				Price          string `json:"price"`
+				BookedFrom     string `json:"booked_from"`
+				BookedTill     string `json:"booked_till,omitempty"`
+			}{Preview: false, Committed: true, AppointmentUID: apptUID, BusinessID: businessID, ServiceVariant: variantID, Service: bSvc, Staffer: bStaffer, Price: bPrice, BookedFrom: bFrom, BookedTill: bTill}
 			if !wantsHumanTable(out, flags) {
 				return printJSONFiltered(out, view, flags)
 			}
 			fmt.Fprintln(out, "✅ Booked!")
-			fmt.Fprintf(out, "  Service : %s\n", orDash(svcName))
-			fmt.Fprintf(out, "  Staffer : %s\n", orDash(staffer))
-			fmt.Fprintf(out, "  When    : %s\n", from)
-			fmt.Fprintf(out, "  Price   : %s\n", orDash(priceLabel))
+			if apptUID != "" {
+				fmt.Fprintf(out, "  Appointment : #%s\n", apptUID)
+			}
+			fmt.Fprintf(out, "  Service     : %s\n", orDash(bSvc))
+			fmt.Fprintf(out, "  Staffer     : %s\n", orDash(bStaffer))
+			fmt.Fprintf(out, "  When        : %s%s\n", bFrom, tillSuffix(bTill))
+			fmt.Fprintf(out, "  Price       : %s\n", orDash(bPrice))
+			if apptUID != "" {
+				fmt.Fprintf(out, "\nCancel with:\n  booksy-pp-cli cancel %s --confirm\n", apptUID)
+			}
 			return nil
 		},
 	}
@@ -197,6 +246,8 @@ func newNovelBookCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagDate, "date", "", "Appointment date, YYYY-MM-DD")
 	cmd.Flags().StringVar(&flagTime, "time", "", "Appointment time, HH:MM")
 	cmd.Flags().Int64Var(&flagStaffer, "staffer", -1, "Staffer id, or -1 for any staffer")
+	cmd.Flags().Int64Var(&flagPaymentMethod, "payment-method", 0, "Payment method id (required by prepayment businesses)")
+	cmd.Flags().StringVar(&flagNote, "note", "", "Optional note to the business")
 	cmd.Flags().BoolVar(&flagConfirm, "confirm", false, "Actually place the booking (default is a safe preview)")
 	return cmd
 }

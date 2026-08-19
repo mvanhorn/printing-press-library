@@ -33,6 +33,7 @@ var whichIndex = []whichEntry{
 	{Command: "earliest", Description: "Find the single earliest open slot for a service across a date window in one call.", Group: "Local intelligence", WhyItMatters: "Answers 'what's the soonest I can get a haircut here?' directly instead of returning a whole calendar."},
 	{Command: "compare", Description: "Compare several businesses side by side on rating, review count, and cheapest matching service price — from the local cache.", Group: "Local intelligence", WhyItMatters: "Turns 'which of these barbers is best value?' into one command instead of opening N tabs."},
 	{Command: "cheapest", Description: "Scan search results in a city and rank businesses by the cheapest service matching your query (e.g. haircut), with rating alongside price.", Group: "Local intelligence", WhyItMatters: "Answers 'where's the cheapest decent haircut near me?' — a query Booksy's own UI cannot express."},
+	{Command: "cancel", Description: "Cancel one of your Booksy appointments by id — previews the appointment first and only cancels with --confirm.", Group: "Booking funnel", WhyItMatters: "Lets an agent undo a booking it made without opening the Booksy app."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
