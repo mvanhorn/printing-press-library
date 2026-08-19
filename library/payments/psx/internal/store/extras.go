@@ -40,6 +40,20 @@ func (s *Store) migrateExtras(ctx context.Context, conn *sql.Conn) error {
 			ON psx_snapshots (kind, symbol, taken_at)`,
 		`CREATE INDEX IF NOT EXISTS idx_psx_snapshots_kind_taken
 			ON psx_snapshots (kind, taken_at)`,
+		// Pad taken_at values written before snapshots moved to the fixed-width
+		// nanosecond layout. Every query above orders and filters taken_at as
+		// TEXT, so lexicographic order has to equal chronological order. The
+		// legacy second-resolution form ("...:05Z") breaks that against the
+		// fractional form ("...:05.000000000Z") inside one second, because 'Z'
+		// (0x5A) sorts above '.' (0x2E) -- the newer row would sort first.
+		//
+		// Idempotent: the pattern is exactly the unpadded 20-character UTC form,
+		// and LIKE matches the whole value, so a padded 30-character row cannot
+		// match. OR REPLACE covers the sub-nanosecond chance that padding
+		// collides with an existing row for the same instant, kind, and symbol.
+		`UPDATE OR REPLACE psx_snapshots
+			SET taken_at = substr(taken_at, 1, 19) || '.000000000Z'
+			WHERE taken_at LIKE '____-__-__T__:__:__Z'`,
 	}
 	for _, m := range migrations {
 		if _, err := conn.ExecContext(ctx, m); err != nil {
