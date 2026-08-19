@@ -39,6 +39,7 @@ var whichIndex = []whichEntry{
 	{Command: "columns set-formula", Description: "Read a column's current formula with references resolved to column names, edit it, and write it back.", Group: "Design as code", WhyItMatters: "Reach for this to change a formula without deleting and recreating the column."},
 	{Command: "errors", Description: "Report why columns failed, combining Clay's structured validation errors with per-column run status counts.", Group: "Table intelligence", WhyItMatters: "Reach for this when a column is empty and you need to know whether the request was rejected or the run failed."},
 	{Command: "tables rows", Description: "Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status.", Group: "Table intelligence", WhyItMatters: "Reach for this to see which cells failed and why, without decoding f_ field ids by hand."},
+	{Command: "formulas generate", Description: "Turn a natural-language prompt into a Clay formula that references the target table's real columns.", Group: "Design as code", WhyItMatters: "Reach for this to draft a formula against a specific table, then apply it with 'columns set-formula'."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.

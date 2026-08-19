@@ -260,6 +260,7 @@ Highlights (not in the official API docs):
   • columns set-formula   Read a column's current formula with references resolved to column names, edit it, and write it back.
   • errors   Report why columns failed, combining Clay's structured validation errors with per-column run status counts.
   • tables rows   Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status.
+  • formulas generate   Turn a natural-language prompt into a Clay formula that references the target table's real columns.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'clay-pp-cli doctor' to verify auth and connectivity.
@@ -413,8 +414,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newSearchCmd(flags))
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
-	rootCmd.AddCommand(newAPICmd(flags))
-	rootCmd.AddCommand(newFormulasPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCmd())
 	// Self-learning loop commands. newLearnConfig (defined in
 	// learn_init.go) reads spec.Learn.TickerPatterns + Stopwords and

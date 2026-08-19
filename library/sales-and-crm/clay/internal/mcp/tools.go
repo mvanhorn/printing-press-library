@@ -137,17 +137,6 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/workspaces/{workspaceId}/enrichment-search/query-v2", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "workspaceId", WireName: "workspaceId", Location: "path"}, {PublicName: "userQuery", WireName: "userQuery", Location: "body"}, {PublicName: "limit", WireName: "limit", Location: "body"}}, []string{"workspaceId"}),
 	)
 	s.AddTool(
-		mcplib.NewTool("formulas_generate",
-			mcplib.WithDescription("Turn a natural-language prompt into a Clay formula. Required: workspaceId, userPromptInput. Optional: mode (default: basic)."),
-			mcplib.WithString("workspaceId", mcplib.Required(), mcplib.Description("Clay workspace id")),
-			mcplib.WithString("userPromptInput", mcplib.Required(), mcplib.Description("Natural-language description of the formula")),
-			mcplib.WithString("mode", mcplib.Description("Generation mode")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/workspaces/{workspaceId}/ai-generation/formula", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "workspaceId", WireName: "workspaceId", Location: "path"}, {PublicName: "userPromptInput", WireName: "userPromptInput", Location: "body"}, {PublicName: "mode", WireName: "mode", Location: "body"}}, []string{"workspaceId"}),
-	)
-	s.AddTool(
 		mcplib.NewTool("public_me",
 			mcplib.WithDescription("Get the authenticated user and workspace for the public API key."),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -334,6 +323,15 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/workspaces/{workspaceId}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "workspaceId", WireName: "workspaceId", Location: "path"}}, []string{"workspaceId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("workspace_me",
+			mcplib.WithDescription("Get the authenticated Clay user for the browser session."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/me", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("workspace_permissions",
@@ -1162,13 +1160,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"writable":    true,
 			},
 			{
-				"name":        "formulas",
-				"description": "Generate Clay formulas from natural language",
-				"endpoints":   []string{"generate"},
-				"searchable":  true,
-				"writable":    true,
-			},
-			{
 				"name":        "public",
 				"description": "Clay's documented Public API (requires CLAY_API_KEY, not the browser session)",
 				"endpoints":   []string{"me", "search_create", "search_fields", "tables_query"},
@@ -1193,7 +1184,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "workspace",
 				"description": "Workspace metadata, permissions, sources, and connected accounts",
-				"endpoints":   []string{"get", "permissions", "sources", "subroutines"},
+				"endpoints":   []string{"get", "me", "permissions", "sources", "subroutines"},
 				"searchable":  true,
 			},
 		},
@@ -1219,6 +1210,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Formula edit in place", "command": "columns set-formula", "description": "Read a column's current formula with references resolved to column names, edit it, and write it back.", "rationale": "Formulas store generated field ids, so editing safely requires resolving ids to names on read and back to ids on write.", "via": "mcp-command-mirror"},
 			{"name": "Typed error surfacing", "command": "errors", "description": "Report why columns failed, combining Clay's structured validation errors with per-column run status counts.", "rationale": "Clay splits failure information between a typed request-error envelope and per-field run status; neither is useful alone.", "via": "mcp-command-mirror"},
 			{"name": "Row read with column names", "command": "tables rows", "description": "Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status.", "rationale": "Clay lists rows in two steps (view record ids, then a bulk cell fetch) and returns cells keyed by generated field ids; joining both with the table schema is the only way to get readable rows.", "via": "mcp-command-mirror"},
+			{"name": "AI formula generation with column resolution", "command": "formulas generate", "description": "Turn a natural-language prompt into a Clay formula that references the target table's real columns.", "rationale": "Clay's AI formula endpoint requires the calling user's id and the table's column-name to field-id map; without the map it returns placeholder names that will not resolve against a real table.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Table blueprint export", "insight": "Requires reading table details plus view schema and serializing formula text, action keys, and input bindings that no Clay surface exports."},

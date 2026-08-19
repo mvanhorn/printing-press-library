@@ -83,6 +83,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   clay-pp-cli columns set-formula t_abc f_xyz --formula "{{Company}}" --workspace 1234567
   ```
+- **`formulas generate`** — Turn a natural-language prompt into a Clay formula that references the target table's real columns.
+
+  _Reach for this to draft a formula against a specific table, then apply it with 'columns set-formula'._
+
+  ```bash
+  clay-pp-cli formulas generate --table t_example123 --prompt "combine business name and city" --agent
+  ```
 
 ### Table intelligence
 - **`columns graph`** — Show which columns feed which, resolved from formula field references.
@@ -164,10 +171,6 @@ These capabilities aren't available in any other tool for this API.
 - `clay-pp-cli enrichments params` — Resolve the dynamic parameter schema for an enrichment action
 - `clay-pp-cli enrichments search` — Search the enrichment and provider catalog
 
-**formulas** — Generate Clay formulas from natural language
-
-- `clay-pp-cli formulas <workspaceId>` — Turn a natural-language prompt into a Clay formula
-
 **public** — Clay's documented Public API (requires CLAY_API_KEY, not the browser session)
 
 - `clay-pp-cli public me` — Get the authenticated user and workspace for the public API key
@@ -197,6 +200,7 @@ These capabilities aren't available in any other tool for this API.
 **workspace** — Workspace metadata, permissions, sources, and connected accounts
 
 - `clay-pp-cli workspace get` — Get workspace details
+- `clay-pp-cli workspace me` — Get the authenticated Clay user for the browser session
 - `clay-pp-cli workspace permissions` — List the authenticated user's workspace permissions
 - `clay-pp-cli workspace sources` — List record sources configured in the workspace
 - `clay-pp-cli workspace subroutines` — List saved subroutines (reusable enrichment functions)

@@ -25,6 +25,11 @@ resources:
         description: "Get workspace details"
         params:
           - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+      me:
+        method: GET
+        path: "/me"
+        description: "Get the authenticated Clay user for the browser session"
+        example: "  clay-pp-cli workspace me"
       permissions:
         method: GET
         path: "/workspaces/{workspaceId}/permissions"
@@ -211,20 +216,6 @@ resources:
         description: "Resolve the dynamic parameter schema for an enrichment action"
         params:
           - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
-
-  formulas:
-    description: "Generate Clay formulas from natural language"
-    endpoints:
-      generate:
-        method: POST
-        path: "/workspaces/{workspaceId}/ai-generation/formula"
-        description: "Turn a natural-language prompt into a Clay formula"
-        example: "  clay-pp-cli formulas generate 1234567 --userPromptInput \"uppercase the company name\""
-        params:
-          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
-        body:
-          - {name: userPromptInput, type: string, required: true, description: "Natural-language description of the formula"}
-          - {name: mode, type: string, required: false, default: "basic", description: "Generation mode"}
 
   accounts:
     description: "Connected provider credentials (API keys) in the workspace"

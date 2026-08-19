@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-08-19T00:33:22.706176Z",
+  "generated_at": "2026-08-19T02:09:52.869146Z",
   "printing_press_version": "4.31.0",
   "api_name": "clay",
   "display_name": "Clay",
@@ -15,7 +15,7 @@
   "spec_path": "spec.yaml",
   "spec_format": "internal",
   "spec_source": "sniffed",
-  "spec_checksum": "sha256:a76050116d288cff5bbab4815d28350fa0224ba5466c4e2604b5c02dab12488c",
+  "spec_checksum": "sha256:edc4a5f0ccda230c27b5468bc6fa614b2696b788df3773487e84123504e8bc87",
   "run_id": "20260818-175223-295b07d9",
   "category": "sales-and-crm",
   "description": "The only Clay tool that can build a table, not just read one.",
@@ -95,6 +95,11 @@
       "name": "Row read with column names",
       "command": "tables rows",
       "description": "Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status."
+    },
+    {
+      "name": "AI formula generation with column resolution",
+      "command": "formulas generate",
+      "description": "Turn a natural-language prompt into a Clay formula that references the target table's real columns."
     }
   ],
   "novel_features_built": [
@@ -157,13 +162,18 @@
       "name": "Row read with column names",
       "command": "tables rows",
       "description": "Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status."
+    },
+    {
+      "name": "AI formula generation with column resolution",
+      "command": "formulas generate",
+      "description": "Turn a natural-language prompt into a Clay formula that references the target table's real columns."
     }
   ],
   "verify": {
     "mode": "mock",
     "pass_rate": 100,
-    "passed": 73,
-    "total": 73,
+    "passed": 72,
+    "total": 72,
     "data_pipeline": true,
     "verdict": "PASS"
   },

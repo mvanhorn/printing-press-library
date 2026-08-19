@@ -16,6 +16,7 @@ func newWorkspaceCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newWorkspaceGetCmd(flags))
+	cmd.AddCommand(newWorkspaceMeCmd(flags))
 	cmd.AddCommand(newWorkspacePermissionsCmd(flags))
 	cmd.AddCommand(newWorkspaceSourcesCmd(flags))
 	cmd.AddCommand(newWorkspaceSubroutinesCmd(flags))
