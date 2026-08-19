@@ -1,0 +1,274 @@
+{
+  "api_name": "foodpanda",
+  "base_url": "https://disco.deliveryhero.io",
+  "description": "Every foodpanda restaurant, menu and price in a local database — with cross-restaurant dish search, price history and fee comparison the app cannot do.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "composed",
+    "header": "Authorization",
+    "format": "Bearer {token}",
+    "cookie_domain": "www.foodpanda.pk",
+    "cookies": [
+      "token"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json, text/plain, */*"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "en-PK,en;q=0.9"
+    },
+    {
+      "name": "X-FP-API-KEY",
+      "value": "volo"
+    },
+    {
+      "name": "x-disco-client-id",
+      "value": "web"
+    },
+    {
+      "name": "Origin",
+      "value": "https://www.foodpanda.pk"
+    },
+    {
+      "name": "Referer",
+      "value": "https://www.foodpanda.pk/"
+    }
+  ],
+  "tools": [
+    {
+      "name": "menu_get",
+      "description": "Fetch one vendor with full menu, deals and delivery conditions. Required: vendor-code. Optional: include (default: menus), language-id (default: 1), opening-type (default: delivery) (plus 1 more). Returns the VendorDetail.",
+      "method": "GET",
+      "path": "/api/v5/vendors/{vendor_code}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "vendor-code",
+          "wire_name": "vendor_code",
+          "type": "string",
+          "location": "path",
+          "description": "Vendor code, e.g. pk2v (market-scoped)",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Sections to include: menus, bundles, multiple_discounts"
+        },
+        {
+          "name": "language-id",
+          "wire_name": "language_id",
+          "type": "int",
+          "location": "query",
+          "description": "Language id (1 = English)"
+        },
+        {
+          "name": "opening-type",
+          "wire_name": "opening_type",
+          "type": "string",
+          "location": "query",
+          "description": "delivery or pickup"
+        },
+        {
+          "name": "basket-currency",
+          "wire_name": "basket_currency",
+          "type": "string",
+          "location": "query",
+          "description": "Currency code for prices"
+        }
+      ]
+    },
+    {
+      "name": "reviews_list",
+      "description": "List reviews for a vendor, newest first. Required: vendor-code. Optional: limit (default: 30), offset (default: 0). Returns array of Review.",
+      "method": "GET",
+      "path": "/reviews/vendor/{vendor_code}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "vendor-code",
+          "wire_name": "vendor_code",
+          "type": "string",
+          "location": "path",
+          "description": "Vendor code, e.g. pk2v",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Reviews per page"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "vendors_list",
+      "description": "List vendors near a coordinate, with filters and sorting. Required: latitude, longitude. Optional: country (default: pk), vertical (default: restaurants), sort (plus 6 more). Returns array of Vendor.",
+      "method": "GET",
+      "path": "/listing/api/v1/pandora/vendors",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude of the delivery point",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude of the delivery point",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Market code: pk, bd, sg, my, hk, th"
+        },
+        {
+          "name": "vertical",
+          "type": "string",
+          "location": "query",
+          "description": "Vendor vertical: restaurants or darkstores"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: rating_desc, distance_asc, delivery_time_asc"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Vendors per page (max 48)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "language-id",
+          "wire_name": "language_id",
+          "type": "int",
+          "location": "query",
+          "description": "Language id (1 = English)"
+        },
+        {
+          "name": "configuration",
+          "type": "string",
+          "location": "query",
+          "description": "Listing configuration variant"
+        },
+        {
+          "name": "customer-type",
+          "wire_name": "customer_type",
+          "type": "string",
+          "location": "query",
+          "description": "Customer type segment"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Extra payload sections to include"
+        }
+      ]
+    },
+    {
+      "name": "vendors_search",
+      "description": "Full-text search vendors and dishes near a coordinate. Required: query, latitude, longitude. Optional: country (default: pk), vertical (default: restaurants), limit (default: 48) (plus 4 more). Returns array of Vendor.",
+      "method": "GET",
+      "path": "/listing/api/v1/pandora/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search text. NOTE: this endpoint is fuzzy and never returns empty",
+          "required": true
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude of the delivery point",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude of the delivery point",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Market code: pk, bd, sg, my, hk, th"
+        },
+        {
+          "name": "vertical",
+          "type": "string",
+          "location": "query",
+          "description": "Vendor vertical"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "language-id",
+          "wire_name": "language_id",
+          "type": "int",
+          "location": "query",
+          "description": "Language id (1 = English)"
+        },
+        {
+          "name": "configuration",
+          "type": "string",
+          "location": "query",
+          "description": "Listing configuration variant"
+        },
+        {
+          "name": "customer-type",
+          "wire_name": "customer_type",
+          "type": "string",
+          "location": "query",
+          "description": "Customer type segment"
+        }
+      ]
+    }
+  ]
+}

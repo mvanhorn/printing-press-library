@@ -1,0 +1,19 @@
+{
+  "id": "foodpanda-opt-in-auto-refresh",
+  "summary": "Add opt-in staleness refresh (--refresh-stale / FOODPANDA_AUTO_REFRESH) with a sync_state.last_params column.",
+  "reason": "The CLI reads a local SQLite mirror with no self-healing path. Refresh is geo-scoped, so sync_state gained last_params to record the coordinates a sync used; without it a refresh would mirror a different place than the user synced. Default off so a read command never silently reaches the network.",
+  "files": [
+    "internal/cliutil/freshness.go",
+    "internal/cliutil/freshness_test.go",
+    "internal/cli/auto_refresh.go",
+    "internal/cli/root.go",
+    "internal/cli/sync.go",
+    "internal/store/store.go",
+    "README.md"
+  ],
+  "validated_outcome": "6 new freshness tests pass; scorecard cache_freshness 5/10 -> 10/10; live dogfood full 108/108.",
+  "schema_version": 2,
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260808-044349-820894b7",
+  "base_printing_press_version": "4.30.1"
+}

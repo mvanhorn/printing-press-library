@@ -1,0 +1,480 @@
+name: foodpanda
+description: "Local-first foodpanda catalog CLI: search vendors, pull full menus and prices, compare delivery fees, and mirror it all into SQLite"
+version: "0.1.0"
+category: food-and-dining
+base_url: "https://disco.deliveryhero.io"
+# PerimeterX fronts both hosts. Plain Go HTTP clears it at low volume but starts
+# returning 403 under sustained use; Surf's Chrome TLS fingerprint does not trip it.
+http_transport: browser-chrome
+health_check_path: "/listing/api/v1/pandora/vendors"
+
+# PerimeterX returns a deterministic 403 to bare requests. A realistic browser
+# header set clears it completely (verified: 200 with real payloads).
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+  - name: Accept
+    value: "application/json, text/plain, */*"
+  - name: Accept-Language
+    value: "en-PK,en;q=0.9"
+  - name: X-FP-API-KEY
+    value: "volo"
+  - name: x-disco-client-id
+    value: "web"
+  - name: Origin
+    value: "https://www.foodpanda.pk"
+  - name: Referer
+    value: "https://www.foodpanda.pk/"
+  # NOTE: perseus-* headers are deliberately NOT global.
+  # Verified matrix (2026-08-08):
+  #   disco vendors/search : 200 without perseus AND returns real delivery fees;
+  #                          WITH perseus the dynamic-pricing service returns 0.
+  #   fd-api menu          : 400 "perseus headers are absent" without them.
+  #   reviews / addresses  : 200 either way.
+  # So perseus is attached ONLY to the menu endpoint below. Sending it globally
+  # silently zeroes every delivery fee in the listing.
+
+# Catalog reads need no credentials. Only the customer endpoints do.
+# The `token` cookie is a JWT set by foodpanda on login; `auth login --chrome`
+# imports it and the client composes the Authorization header.
+auth:
+  type: composed
+  header: "Authorization"
+  format: "Bearer {token}"
+  cookie_domain: "www.foodpanda.pk"
+  cookies:
+    - token
+  # Headless equivalent of 'auth login --chrome': supply the same 'token' JWT
+  # directly. Accepts a bare JWT or a full cookie-jar string. Required for CI,
+  # containers and agent sandboxes, which have no desktop Chrome profile.
+  env_vars:
+    - FOODPANDA_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/foodpanda-pp-cli/config.toml"
+
+learn:
+  entity_lookup_seeds:
+    cuisine:
+      - canonical: Biryani
+        aliases: [biriyani, biryani rice, pulao rice]
+      - canonical: Pizza
+        aliases: [pizzas, italian pizza]
+      - canonical: Burgers
+        aliases: [burger, smash burger, zinger]
+      - canonical: BBQ
+        aliases: [bar b q, barbeque, barbecue, tikka]
+      - canonical: Desserts
+        aliases: [dessert, sweets, mithai]
+      - canonical: Cakes & Bakery
+        aliases: [bakery, cake, pastry]
+      - canonical: Beverages
+        aliases: [drinks, juice, shakes]
+      - canonical: Fast Food
+        aliases: [fastfood, quick bites]
+      - canonical: Chinese
+        aliases: [chinese food, indo chinese]
+      - canonical: Pakistani
+        aliases: [desi, local, traditional]
+    city:
+      - canonical: Karachi
+        aliases: [khi, karach]
+      - canonical: Lahore
+        aliases: [lhr, lahor]
+      - canonical: Islamabad
+        aliases: [isb, isl]
+      - canonical: Rawalpindi
+        aliases: [pindi, rwp]
+      - canonical: Faisalabad
+        aliases: [fsd, lyallpur]
+      - canonical: Multan
+        aliases: [mux]
+      - canonical: Peshawar
+        aliases: [pesh]
+  synonyms:
+    "cheapest delivery": "lowest delivery fee"
+    "closest": "nearest"
+    "most recent": "latest"
+  stopwords:
+    - restaurant
+    - food
+    - delivery
+
+resources:
+  vendors:
+    description: "Browse and search foodpanda vendors near a location"
+    endpoints:
+      list:
+        method: GET
+        path: "/listing/api/v1/pandora/vendors"
+        no_auth: true
+        description: "List vendors near a coordinate, with filters and sorting"
+        example: "  foodpanda-pp-cli vendors list --latitude 31.5204 --longitude 74.3587 --sort rating_desc --limit 20"
+        happy_args: "--latitude=31.5204;--longitude=74.3587;--limit=5"
+        params:
+          - name: latitude
+            type: float
+            required: true
+            description: "Latitude of the delivery point"
+          - name: longitude
+            type: float
+            required: true
+            description: "Longitude of the delivery point"
+          - name: country
+            type: string
+            default: "pk"
+            description: "Market code: pk, bd, sg, my, hk, th"
+          - name: vertical
+            type: string
+            default: "restaurants"
+            description: "Vendor vertical: restaurants or darkstores"
+          - name: sort
+            type: string
+            description: "Sort order: rating_desc, distance_asc, delivery_time_asc"
+          - name: limit
+            type: int
+            default: 48
+            description: "Vendors per page (max 48)"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+          - name: language_id
+            flag_name: language-id
+            type: int
+            default: 1
+            description: "Language id (1 = English)"
+          - name: configuration
+            type: string
+            default: "Variant1"
+            description: "Listing configuration variant"
+          - name: customer_type
+            flag_name: customer-type
+            type: string
+            default: "regular"
+            description: "Customer type segment"
+          - name: include
+            type: string
+            default: "characteristics"
+            description: "Extra payload sections to include"
+        response:
+          type: array
+          item: Vendor
+        response_path: data.items
+        pagination:
+          type: offset
+
+      search:
+        method: GET
+        path: "/listing/api/v1/pandora/search"
+        no_auth: true
+        description: "Full-text search vendors and dishes near a coordinate"
+        example: "  foodpanda-pp-cli vendors search --query biryani --latitude 31.5204 --longitude 74.3587"
+        happy_args: "--query=biryani;--latitude=31.5204;--longitude=74.3587;--limit=5"
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Search text. NOTE: this endpoint is fuzzy and never returns empty"
+          - name: latitude
+            type: float
+            required: true
+            description: "Latitude of the delivery point"
+          - name: longitude
+            type: float
+            required: true
+            description: "Longitude of the delivery point"
+          - name: country
+            type: string
+            default: "pk"
+            description: "Market code: pk, bd, sg, my, hk, th"
+          - name: vertical
+            type: string
+            default: "restaurants"
+            description: "Vendor vertical"
+          - name: limit
+            type: int
+            default: 48
+            description: "Results per page"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+          - name: language_id
+            flag_name: language-id
+            type: int
+            default: 1
+            description: "Language id (1 = English)"
+          - name: configuration
+            type: string
+            default: "Variant1"
+            description: "Listing configuration variant"
+          - name: customer_type
+            flag_name: customer-type
+            type: string
+            default: "regular"
+            description: "Customer type segment"
+        response:
+          type: array
+          item: Vendor
+        response_path: data.items
+
+  menu:
+    description: "Full vendor detail including nested menus, products and prices"
+    base_url: "https://pk.fd-api.com"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/v5/vendors/{vendor_code}"
+        no_auth: true
+        description: "Fetch one vendor with full menu, deals and delivery conditions"
+        example: "  foodpanda-pp-cli menu pk2v --json"
+        # Only this endpoint needs perseus; see the root note above.
+        required_headers:
+          - name: perseus-client-id
+            value: "1786146573072.519579439102525090.efuvxeu3"
+          - name: perseus-session-id
+            value: "1786146573072.519579439102525090.efuvxeu3"
+        happy_args: "vendor_code=pk2v"
+        params:
+          - name: vendor_code
+            flag_name: vendor-code
+            type: string
+            required: true
+            positional: true
+            description: "Vendor code, e.g. pk2v (market-scoped)"
+          - name: include
+            type: string
+            default: "menus"
+            description: "Sections to include: menus, bundles, multiple_discounts"
+          - name: language_id
+            flag_name: language-id
+            type: int
+            default: 1
+            description: "Language id (1 = English)"
+          - name: opening_type
+            flag_name: opening-type
+            type: string
+            default: "delivery"
+            description: "delivery or pickup"
+          - name: basket_currency
+            flag_name: basket-currency
+            type: string
+            default: "PKR"
+            description: "Currency code for prices"
+        response:
+          type: object
+          item: VendorDetail
+        response_path: data
+
+  reviews:
+    description: "Customer reviews with per-topic rating breakdown"
+    base_url: "https://reviews-api-pk.fd-api.com"
+    endpoints:
+      list:
+        method: GET
+        path: "/reviews/vendor/{vendor_code}"
+        no_auth: true
+        description: "List reviews for a vendor, newest first"
+        example: "  foodpanda-pp-cli reviews pk2v --limit 20"
+        # Unknown vendor codes return HTTP 200 with an empty list, so an
+        # error-path probe cannot distinguish bad input from no reviews.
+        no_error_path_probe: true
+        happy_args: "vendor_code=pk2v;--limit=5"
+        params:
+          - name: vendor_code
+            flag_name: vendor-code
+            type: string
+            required: true
+            positional: true
+            description: "Vendor code, e.g. pk2v"
+          - name: limit
+            type: int
+            default: 30
+            description: "Reviews per page"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: array
+          item: Review
+        response_path: data
+
+  customers:
+    description: "Customer-scoped reads. These are the only endpoints needing credentials."
+    base_url: "https://pk.fd-api.com"
+    endpoints:
+      addresses:
+        method: GET
+        path: "/api/v5/customers/addresses"
+        description: "List the signed-in customer's saved delivery addresses"
+        example: "  foodpanda-pp-cli addresses"
+        # Needs the composed session credential: 'auth login --chrome' or
+        # FOODPANDA_TOKEN. Unauthenticated callers get HTTP 400
+        # ApiOAuthFailedException, not 401, so the failure reads as a bad
+        # request unless the CLI checks for a credential first.
+        requires_tier: session
+        response:
+          type: array
+          item: Address
+        response_path: data.items
+
+types:
+  Vendor:
+    fields:
+      - name: id
+        type: int
+      - name: code
+        type: string
+      - name: name
+        type: string
+      - name: address
+        type: string
+      - name: rating
+        type: float
+      - name: review_number
+        type: int
+      - name: distance
+        type: float
+      - name: minimum_delivery_fee
+        type: float
+      - name: minimum_order_amount
+        type: float
+      - name: minimum_delivery_time
+        type: int
+      - name: minimum_pickup_time
+        type: int
+      - name: delivery_fee_type
+        type: string
+      - name: service_fee_percentage_amount
+        type: float
+      - name: service_tax_percentage_amount
+        type: float
+      - name: vat_percentage_amount
+        type: float
+      - name: loyalty_percentage_amount
+        type: float
+      - name: budget
+        type: int
+      - name: latitude
+        type: float
+      - name: longitude
+        type: float
+      - name: post_code
+        type: string
+      - name: url_key
+        type: string
+      - name: web_path
+        type: string
+      - name: vertical
+        type: string
+      - name: vertical_segment
+        type: string
+      - name: primary_cuisine_id
+        type: int
+      - name: is_active
+        type: bool
+      - name: is_promoted
+        type: bool
+      - name: is_premium
+        type: bool
+      - name: premium_position
+        type: int
+      - name: vendor_points
+        type: int
+      - name: is_preferred_partner
+        type: bool
+      - name: ncr_pricing_model
+        type: string
+      - name: is_delivery_enabled
+        type: bool
+      - name: is_pickup_enabled
+        type: bool
+      - name: is_new
+        type: bool
+      - name: is_best_in_city
+        type: bool
+      - name: has_delivery_provider
+        type: bool
+      - name: delivery_provider
+        type: string
+      - name: has_online_payment
+        type: bool
+      - name: is_voucher_enabled
+        type: bool
+      - name: customer_type
+        type: string
+      - name: tag
+        type: string
+      - name: hero_image
+        type: string
+      - name: logo
+        type: string
+
+  VendorDetail:
+    fields:
+      - name: id
+        type: int
+      - name: code
+        type: string
+      - name: name
+        type: string
+      - name: address
+        type: string
+      - name: rating
+        type: float
+      - name: review_number
+        type: int
+      - name: minimum_delivery_fee
+        type: float
+      - name: minimum_order_amount
+        type: float
+      - name: delivery_fee
+        type: float
+      - name: original_delivery_fee
+        type: float
+      - name: service_fee
+        type: float
+      - name: small_order_fee
+        type: float
+      - name: small_order_fee_cap
+        type: float
+      - name: delivery_fee_source
+        type: string
+      - name: delivery_fee_type
+        type: string
+      - name: is_busy
+        type: bool
+      - name: is_active
+        type: bool
+      - name: latitude
+        type: float
+      - name: longitude
+        type: float
+      - name: food_license_number
+        type: string
+      - name: vertical
+        type: string
+
+  Review:
+    fields:
+      - name: uuid
+        type: string
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+      - name: text
+        type: string
+      - name: reviewerName
+        type: string
+      - name: reviewerId
+        type: string
+      - name: isAnonymous
+        type: bool
+      - name: likeCount
+        type: int
+      - name: type
+        type: string

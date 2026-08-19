@@ -1,0 +1,51 @@
+version: 2
+project_name: foodpanda-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: foodpanda-pp-cli
+    main: ./cmd/foodpanda-pp-cli
+    binary: foodpanda-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/foodpanda/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: foodpanda-pp-mcp
+    main: ./cmd/foodpanda-pp-mcp
+    binary: foodpanda-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: foodpanda-pp-cli
+    repository:
+      owner: qazmataz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every foodpanda restaurant, menu and price in a local database — with cross-restaurant dish search, price history and fee comparison the app cannot do."
+    install: |
+      bin.install "foodpanda-pp-cli"
+      bin.install "foodpanda-pp-mcp"
