@@ -1,0 +1,751 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "omega-3 improves cardiovascular health",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T08:54:07.823Z"
+  },
+  "rows": [
+    {
+      "claim": "omega-3 improves cardiovascular health",
+      "verdict": "evidence-supports",
+      "consensus_score": 1,
+      "confidence": 0.87,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "studies_analyzed": 62,
+      "supporting": 44,
+      "refuting": 0,
+      "mixed": 0,
+      "inconclusive": 18,
+      "method": "heuristic",
+      "ai_stance": "supports",
+      "ai_confidence": 0.86,
+      "ai_model": "openrouter/free"
+    }
+  ],
+  "response": {
+    "stance_source": "llm:openrouter",
+    "llm_synthesis": {
+      "stance": "supports",
+      "confidence": 0.86,
+      "reasoning": "The body of evidence includes a large meta‑analysis of 86 RCTs showing a significant inverse dose‑response between omega‑3 intake and cardiovascular outcomes, and multiple guideline documents and narrative reviews consistently report that omega‑3 fatty acids reduce cardiovascular risk through anti‑inflammatory, triglyceride‑lowering and plaque‑stabilizing mechanisms. While a few narrative reviews note inconclusive results, the preponderance of higher‑tier human evidence supports a beneficial effect.",
+      "key_evidence": [
+        "Meta‑analysis of 86 RCTs (162,796 participants) found omega‑3 supplementation lowers cardiovascular mortality with a significant dose‑response relationship (study: Omega-3 fatty acids for the primary and secondary prevention of cardiovascular disease).",
+        "2021 ESC Guidelines on cardiovascular disease prevention recommend omega‑3 intake as part of preventive strategies (study: 2021 ESC Guidelines on cardiovascular disease prevention in clinical practice).",
+        "Narrative review of omega‑3 PUFA notes consistent epidemiologic association of higher EPA/DHA intake with lower CVD incidence and highlights anti‑inflammatory and plaque‑stabilizing actions (studies: Omega-3 Polyunsaturated Fatty Acids and Their Health Benefits; Omega-3 fatty acids: a comprehensive review of their role in health and disease; Omega-3 fatty acids and inflammatory processes: from molecules to man).",
+        "ESC/EAS 2019 dyslipidaemia guidelines support lipid modification with omega‑3 to reduce cardiovascular risk (studies: 2019 ESC/EAS Guidelines for the management of dyslipidaemias: lipid modification to reduce cardiovascular risk; 2019 ESC/EAS guidelines for the management of dyslipidaemias: Lipid modification to reduce cardiovascular risk)."
+      ],
+      "excluded_studies": [
+        {
+          "title": "Triglycerides and Cardiovascular Disease",
+          "reason": "off-topic: focuses on triglycerides without omega‑3 intervention"
+        },
+        {
+          "title": "An updated coronary risk profile. A statement for health professionals.",
+          "reason": "off-topic: coronary risk profile, no omega‑3 focus"
+        },
+        {
+          "title": "Health effects of dietary risks in 195 countries, 1990–2017: a systematic analysis for the Global Burden of Disease Study 2017",
+          "reason": "off-topic: general dietary risks, not specific to omega‑3"
+        },
+        {
+          "title": "Ferroptosis: molecular mechanisms and health implications",
+          "reason": "off-topic: ferroptosis mechanism, no omega‑3 or cardiovascular outcome"
+        },
+        {
+          "title": "Impact of Omega-3 Fatty Acids on the Gut Microbiota",
+          "reason": "off-topic: examines gut microbiota, not direct cardiovascular health outcomes"
+        },
+        {
+          "title": "Shared Risk Factors in Cardiovascular Disease and Cancer",
+          "reason": "off-topic: discusses shared risk factors, not omega‑3 effect"
+        },
+        {
+          "title": "Influence of diet on the gut microbiome and implications for human health",
+          "reason": "off-topic: gut microbiome focus, no omega‑3 cardiovascular claim"
+        }
+      ],
+      "model": "openrouter/free"
+    },
+    "divergence": false,
+    "result": {
+      "claim": "omega-3 improves cardiovascular health",
+      "verdict": "evidence-supports",
+      "consensus_score": 1,
+      "confidence": 0.87,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "study_count": 62,
+      "supporting": 44,
+      "refuting": 0,
+      "mixed": 0,
+      "inconclusive": 18,
+      "total_citations": 74044,
+      "stance_method": "heuristic",
+      "relevant_count": 62,
+      "near_unanimous": true,
+      "evidence_guarded": false,
+      "top_supporting": [
+        {
+          "title": "An updated coronary risk profile. A statement for health professionals.",
+          "year": 1991,
+          "doi": "10.1161/01.cir.83.1.356",
+          "cited_by_count": 1865,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "HomeCirculationVol. 83, No. 1An updated coronary risk profile. A statement for health professionals. Free AccessAbstractPDF/EPUBAboutView PDFSections ToolsAdd to favoritesDownload citationsTrack citationsPermissions ShareShare onFacebookTwitterLinked InMendeleyReddit Jump toFree AccessAbstractPDF/EPUBAn updated coronary risk profile. A statement for health professionals. K M Anderson, P W Wilson, P M Odell and W B Kannel K M AndersonK M Anderson Office of Scientific Affairs, American Heart Association, Dallas, TX 75231. , P W WilsonP W Wilson Office of Scientific Affairs, American Heart Association, Dallas, TX 75231. , P M OdellP M Odell Office of Scientific Affairs, American Heart Association, Dallas, TX 75231. and W B KannelW B Kannel Office of Scientific Affairs, American Heart Association, Dallas, TX 75231. Originally published1 Jan 1991https://doi.org/10.1161/01.CIR.83.1.356Circulation. 1991;83:356–362 Previous Back to top Next FiguresReferencesRelatedDetailsCited By Hespe C, Giskes K, Harris M and Peiris D (2022) Findings and lessons learnt implementing a cardiovascular disease quality improvement program in Australian primary care: a mixed method evaluation, BMC Health Services Research, 10.1186/s12913-021-07310-6, 22:1, Online publication date: 1-Dec-2022. Lemke E, Vetter V, Berger N, Banszerus V, König M and Demuth I (2022) Cardiovascular health is associated with the epigenetic clock in the Berlin Aging Study II (BASE-II), Mechanisms of Ageing and Development, 10.10"
+        },
+        {
+          "title": "Factors of Risk in the Development of Coronary Heart Disease—Six-Year Follow-up Experience",
+          "year": 1961,
+          "doi": "10.7326/0003-4819-55-1-33",
+          "cited_by_count": 1825,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.9259999999999999,
+          "abstract": "Article1 July 1961Factors of Risk in the Development of Coronary Heart Disease—Six-Year Follow-up ExperienceThe Framingham StudyWILLIAM B. KANNEL, M.D., THOMAS R. DAWBER, M.D., F.A.C.P., ABRAHAM KAGAN, M.D., F.A.C.P., NICHOLAS REVOTSKIE, M.D., JOSEPH STOKES III, M.D.WILLIAM B. KANNEL, M.D.Search for more papers by this author, THOMAS R. DAWBER, M.D., F.A.C.P.Search for more papers by this author, ABRAHAM KAGAN, M.D., F.A.C.P.Search for more papers by this author, NICHOLAS REVOTSKIE, M.D.Search for more papers by this author, JOSEPH STOKES III, M.D.Search for more papers by this authorAuthor, Article, and Disclosure Informationhttps://doi.org/10.7326/0003-4819-55-1-33 SectionsAboutPDF ToolsAdd to favoritesDownload CitationsTrack CitationsPermissions ShareFacebookTwitterLinkedInRedditEmail ExcerptIncreasingly reliable estimates of the prevalence and incidence of coronary heart disease (CHD) emphasize the importance of this disease as a contemporary health hazard. Cardiovascular disease is now the leading cause of death, with coronary heart disease accounting for two-thirds of all heart disease deaths. While advances in the diagnosis and therapeutic management of CHD have been made in the past decade, no important reduction in morbidity and mortality from CHD has occurred. This is apparent in the relatively slight increase in life expectancy at age 40 which has been achieved in the past several decades, while life expectancy at...References1. DAWBERMOOREMANN TRFEGV: II. Coronary"
+        },
+        {
+          "title": "Omega-3 fatty acids for the primary and secondary prevention of cardiovascular disease",
+          "year": 2018,
+          "doi": "10.1002/14651858.cd003177.pub3",
+          "cited_by_count": 633,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8195652173913044,
+          "abstract": "BACKGROUND: Omega-3 polyunsaturated fatty acids from oily fish (long-chain omega-3 (LCn3)), including eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA)), as well as from plants (alpha-linolenic acid (ALA)) may benefit cardiovascular health. Guidelines recommend increasing omega-3-rich foods, and sometimes supplementation, but recent trials have not confirmed this. OBJECTIVES: To assess the effects of increased intake of fish- and plant-based omega-3 fats for all-cause mortality, cardiovascular events, adiposity and lipids. SEARCH METHODS: We searched CENTRAL, MEDLINE and Embase to February 2019, plus ClinicalTrials.gov and World Health Organization International Clinical Trials Registry to August 2019, with no language restrictions. We handsearched systematic review references and bibliographies and contacted trial authors. SELECTION CRITERIA: We included randomised controlled trials (RCTs) that lasted at least 12 months and compared supplementation or advice to increase LCn3 or ALA intake, or both, versus usual or lower intake. DATA COLLECTION AND ANALYSIS: Two review authors independently assessed trials for inclusion, extracted data and assessed validity. We performed separate random-effects meta-analysis for ALA and LCn3 interventions, and assessed dose-response relationships through meta-regression. MAIN RESULTS: We included 86 RCTs (162,796 participants) in this review update and found that 28 were at low summary risk of bias. Trials were of 12 to 88 months' du"
+        }
+      ],
+      "top_refuting": [],
+      "all_studies": [
+        {
+          "title": "2021 ESC Guidelines on cardiovascular disease prevention in clinical practice",
+          "year": 2021,
+          "doi": "10.1093/eurheartj/ehab484",
+          "cited_by_count": 6384,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The ESC Guidelines represent the views of the ESC and were produced after careful consideration of the scientific and medical knowledge and the evidence available at the time of their publication. The ESC is not responsible in the event of any contradiction, discrepancy and/or ambiguity between the ESC Guidelines and any other official recommendations or guidelines issued by the relevant public health authorities, in particular in relation to good use of healthcare or therapeutic strategies. Health professionals are encouraged to take the ESC Guidelines fully into account when exercising their clinical judgment, as well as in the determination and the implementation of preventive, diagnostic or therapeutic medical strategies; however, the ESC Guidelines do not override, in any way whatsoever, the individual responsibility of health professionals to make appropriate and accurate decisions in consideration of each patient's health condition and in consultation with that patient and, where appropriate and/or necessary, the patient's caregiver. Nor do the ESC Guidelines exempt health professionals from taking into full and careful consideration the relevant official updated recommendations or guidelines issued by the competent public health authorities, in order to manage each patient's case in light of the scientifically accepted data pursuant to their respective ethical and professional obligations. It is also the health professional's responsibility to verify the applicable ru"
+        },
+        {
+          "title": "Omega-3 Polyunsaturated Fatty Acids and Their Health Benefits",
+          "year": 2018,
+          "doi": "10.1146/annurev-food-111317-095850",
+          "cited_by_count": 1358,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Omega-3 polyunsaturated fatty acids (PUFAs) include α-linolenic acid (ALA; 18:3 ω-3), stearidonic acid (SDA; 18:4 ω-3), eicosapentaenoic acid (EPA; 20:5 ω-3), docosapentaenoic acid (DPA; 22:5 ω-3), and docosahexaenoic acid (DHA; 22:6 ω-3). In the past few decades, many epidemiological studies have been conducted on the myriad health benefits of omega-3 PUFAs. In this review, we summarized the structural features, properties, dietary sources, metabolism, and bioavailability of omega-3 PUFAs and their effects on cardiovascular disease, diabetes, cancer, Alzheimer's disease, dementia, depression, visual and neurological development, and maternal and child health. Even though many health benefits of omega-3 PUFAs have been reported in the literature, there are also some controversies about their efficacy and certain benefits to human health."
+        },
+        {
+          "title": "2019 ESC/EAS Guidelines for the management of dyslipidaemias: <i>lipid modification to reduce cardiovascular risk</i>",
+          "year": 2019,
+          "doi": "10.1093/eurheartj/ehz455",
+          "cited_by_count": 9008,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The ESC/EAS Guidelines represent the views of the ESC and EAS, and were produced after careful consideration of the scientific and medical knowledge, and the evidence available at the time of their publication. The ESC and EAS is not responsible in the event of any contradiction, discrepancy, and/or ambiguity between the ESC/EAS Guidelines and any other official recommendations or guidelines issued by the relevant public health authorities, in particular in relation to good use of healthcare or therapeutic strategies. Health professionals are encouraged to take the ESC/EAS Guidelines fully into account when exercising their clinical judgment, as well as in the determination and the implementation of preventive, diagnostic, or therapeutic medical strategies; however, the ESC/EAS Guidelines do not override, in any way whatsoever, the individual responsibility of health professionals to make appropriate and accurate decisions in consideration of each patient's health condition and in consultation with that patient and, where appropriate and/or necessary, the patient's caregiver. Nor do the ESC/EAS Guidelines exempt health professionals from taking into full and careful consideration the relevant official updated recommendations or guidelines issued by the competent public health authorities, in order to manage each patient's case in light of the scientifically accepted data pursuant to their respective ethical and professional obligations. It is also the health professional's re"
+        },
+        {
+          "title": "Beneficial Outcomes of Omega-6 and Omega-3 Polyunsaturated Fatty Acids on Human Health: An Update for 2021",
+          "year": 2021,
+          "doi": "10.3390/nu13072421",
+          "cited_by_count": 990,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.875,
+          "abstract": "Oxidative stress and inflammation have been recognized as important contributors to the risk of chronic non-communicable diseases. Polyunsaturated fatty acids (PUFAs) may regulate the antioxidant signaling pathway and modulate inflammatory processes. They also influence hepatic lipid metabolism and physiological responses of other organs, including the heart. Longitudinal prospective cohort studies demonstrate that there is an association between moderate intake of the omega-6 PUFA linoleic acid and lower risk of cardiovascular diseases (CVDs), most likely as a result of lower blood cholesterol concentration. Current evidence suggests that increasing intake of arachidonic acid (up to 1500 mg/day) has no adverse effect on platelet aggregation and blood clotting, immune function and markers of inflammation, but may benefit muscle and cognitive performance. Many studies show that higher intakes of omega-3 PUFAs, especially eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA), are associated with a lower incidence of chronic diseases characterized by elevated inflammation, including CVDs. This is because of the multiple molecular and cellular actions of EPA and DHA. Intervention trials using EPA + DHA indicate benefit on CVD mortality and a significant inverse linear dose-response relationship has been found between EPA + DHA intake and CVD outcomes. In addition to their antioxidant and anti-inflammatory roles, omega-3 fatty acids are considered to regulate platelet homeost"
+        },
+        {
+          "title": "2019 ESC Guidelines on diabetes, pre-diabetes, and cardiovascular diseases developed in collaboration with the EASD",
+          "year": 2019,
+          "doi": "10.1093/eurheartj/ehz486",
+          "cited_by_count": 4894,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The Guidelines represent the views of the ESC and were produced after careful consideration of the scientific and medical knowledge, and the evidence available at the time of their publication. The ESC and EASD are not responsible in the event of any contradiction, discrepancy, and/or ambiguity between the Guidelines and any other official recommendations or guidelines issued by the relevant public health authorities, in particular in relation to good use of healthcare or therapeutic strategies. Health professionals are encouraged to take the Guidelines fully into account when exercising their clinical judgment, as well as in the determination and the implementation of preventive, diagnostic, or therapeutic medical strategies; however, the Guidelines do not override, in any way whatsoever, the individual responsibility of health professionals to make appropriate and accurate decisions in consideration of each patient's health condition and in consultation with that patient and, where appropriate and/or necessary, the patient's caregiver. Nor do the Guidelines exempt health professionals from taking into full and careful consideration the relevant official updated recommendations or guidelines issued by the competent public health authorities, in order to manage each patient's case in light of the scientifically accepted data pursuant to their respective ethical and professional obligations. It is also the health professional's responsibility to verify the applicable rules and"
+        },
+        {
+          "title": "Omega-3 Fatty Acids and Cardiovascular Disease",
+          "year": 2003,
+          "doi": "10.1161/01.atv.0000057393.97337.ae",
+          "cited_by_count": 594,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Omega-3 fatty acids: a comprehensive review of their role in health and disease",
+          "year": 2009,
+          "doi": "10.1136/pgmj.2008.073338",
+          "cited_by_count": 328,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Omega-3 fatty acids (omega-3 FAs) are essential fatty acids with diverse biological effects in human health and disease. Reduced cardiovascular morbidity and mortality is a well-established benefit of their intake. Dietary supplementation may also benefit patients with dyslipidaemia, atherosclerosis, hypertension, diabetes mellitus, metabolic syndrome, obesity, inflammatory diseases, neurological/ neuropsychiatric disorders and eye diseases. Consumption of omega-3 FAs during pregnancy reduces the risk of premature birth and improves intellectual development of the fetus. Fish, fish oils and some vegetable oils are rich sources of omega-3 FAs. According to the UK Scientific Advisory Committee on Nutrition guidelines (2004), a healthy adult should consume a minimum of two portions of fish a week to obtain the health benefit. This review outlines the health implications, dietary sources, deficiency states and recommended allowances of omega-3 FAs in relation to human nutrition."
+        },
+        {
+          "title": "Omega-3 fatty acids for the primary and secondary prevention of cardiovascular disease",
+          "year": 2018,
+          "doi": "10.1002/14651858.cd003177.pub3",
+          "cited_by_count": 633,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8195652173913044,
+          "abstract": "BACKGROUND: Omega-3 polyunsaturated fatty acids from oily fish (long-chain omega-3 (LCn3)), including eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA)), as well as from plants (alpha-linolenic acid (ALA)) may benefit cardiovascular health. Guidelines recommend increasing omega-3-rich foods, and sometimes supplementation, but recent trials have not confirmed this. OBJECTIVES: To assess the effects of increased intake of fish- and plant-based omega-3 fats for all-cause mortality, cardiovascular events, adiposity and lipids. SEARCH METHODS: We searched CENTRAL, MEDLINE and Embase to February 2019, plus ClinicalTrials.gov and World Health Organization International Clinical Trials Registry to August 2019, with no language restrictions. We handsearched systematic review references and bibliographies and contacted trial authors. SELECTION CRITERIA: We included randomised controlled trials (RCTs) that lasted at least 12 months and compared supplementation or advice to increase LCn3 or ALA intake, or both, versus usual or lower intake. DATA COLLECTION AND ANALYSIS: Two review authors independently assessed trials for inclusion, extracted data and assessed validity. We performed separate random-effects meta-analysis for ALA and LCn3 interventions, and assessed dose-response relationships through meta-regression. MAIN RESULTS: We included 86 RCTs (162,796 participants) in this review update and found that 28 were at low summary risk of bias. Trials were of 12 to 88 months' du"
+        },
+        {
+          "title": "2019 ESC/EAS guidelines for the management of dyslipidaemias: Lipid modification to reduce cardiovascular risk",
+          "year": 2019,
+          "doi": "10.1016/j.atherosclerosis.2019.08.014",
+          "cited_by_count": 4877,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Correction: Volume: 292 Pages: 160-162 DOI: 10.1016/j.atherosclerosis.2019.11.020 Published: JAN 2020"
+        },
+        {
+          "title": "Health Implications of High Dietary Omega-6 Polyunsaturated Fatty Acids",
+          "year": 2012,
+          "doi": "10.1155/2012/539426",
+          "cited_by_count": 878,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Omega-6 (n-6) polyunsaturated fatty acids (PUFA) (e.g., arachidonic acid (AA)) and omega-3 (n-3) PUFA (e.g., eicosapentaenoic acid (EPA)) are precursors to potent lipid mediator signalling molecules, termed \"eicosanoids,\" which have important roles in the regulation of inflammation. In general, eicosanoids derived from n-6 PUFA are proinflammatory while eicosanoids derived from n-3 PUFA are anti-inflammatory. Dietary changes over the past few decades in the intake of n-6 and n-3 PUFA show striking increases in the (n-6) to (n-3) ratio (~15 : 1), which are associated with greater metabolism of the n-6 PUFA compared with n-3 PUFA. Coinciding with this increase in the ratio of (n-6) : (n-3) PUFA are increases in chronic inflammatory diseases such as nonalcoholic fatty liver disease (NAFLD), cardiovascular disease, obesity, inflammatory bowel disease (IBD), rheumatoid arthritis, and Alzheimer's disease (AD). By increasing the ratio of (n-3) : (n-6) PUFA in the Western diet, reductions may be achieved in the incidence of these chronic inflammatory diseases."
+        },
+        {
+          "title": "Omega-3 fatty acids and inflammatory processes: from molecules to man",
+          "year": 2017,
+          "doi": "10.1042/bst20160474",
+          "cited_by_count": 1360,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Inappropriate, excessive or uncontrolled inflammation contributes to a range of human diseases. Inflammation involves a multitude of cell types, chemical mediators and interactions. The present article will describe nutritional and metabolic aspects of omega-6 (n-6) and omega-3 (n-3) fatty acids and explain the roles of bioactive members of those fatty acid families in inflammatory processes. Eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA) are n-3 fatty acids found in oily fish and fish oil supplements. These fatty acids are capable of partly inhibiting many aspects of inflammation including leucocyte chemotaxis, adhesion molecule expression and leucocyte-endothelial adhesive interactions, production of eicosanoids like prostaglandins and leukotrienes from the n-6 fatty acid arachidonic acid and production of pro-inflammatory cytokines. In addition, EPA gives rise to eicosanoids that often have lower biological potency than those produced from arachidonic acid, and EPA and DHA give rise to anti-inflammatory and inflammation resolving mediators called resolvins, protectins and maresins. Mechanisms underlying the anti-inflammatory actions of EPA and DHA include altered cell membrane phospholipid fatty acid composition, disruption of lipid rafts, inhibition of activation of the pro-inflammatory transcription factor nuclear factor κB so reducing expression of inflammatory genes and activation of the anti-inflammatory transcription factor peroxisome proliferator-activat"
+        },
+        {
+          "title": "Role of omega-3 fatty acids in obesity, metabolic syndrome, and cardiovascular diseases: a review of the evidence",
+          "year": 2013,
+          "doi": "10.1007/s13105-013-0265-4",
+          "cited_by_count": 415,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Omega‐3 polyunsaturated fatty acids and inflammatory processes: nutrition or pharmacology?",
+          "year": 2012,
+          "doi": "10.1111/j.1365-2125.2012.04374.x",
+          "cited_by_count": 1332,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA) are n-3 fatty acids found in oily fish and fish oil supplements. These fatty acids are able to inhibit partly a number of aspects of inflammation including leucocyte chemotaxis, adhesion molecule expression and leucocyte-endothelial adhesive interactions, production of eicosanoids like prostaglandins and leukotrienes from the n-6 fatty acid arachidonic acid, production of inflammatory cytokines and T cell reactivity. In parallel, EPA gives rise to eicosanoids that often have lower biological potency than those produced from arachidonioc acid and EPA and DHA give rise to anti-inflammatory and inflammation resolving resolvins and protectins. Mechanisms underlying the anti-inflammatory actions of n-3 fatty acids include altered cell membrane phospholipid fatty acid composition, disruption of lipid rafts, inhibition of activation of the pro-inflammatory transcription factor nuclear factor kappa B so reducing expression of inflammatory genes, activation of the anti-inflammatory transcription factor NR1C3 (i.e. peroxisome proliferator activated receptor γ) and binding to the G protein coupled receptor GPR120. These mechanisms are interlinked. In adult humans, an EPA plus DHA intake greater than 2 g day⁻¹ seems to be required to elicit anti-inflammatory actions, but few dose finding studies have been performed. Animal models demonstrate benefit from n-3 fatty acids in rheumatoid arthritis (RA), inflammatory bowel disease (IB"
+        },
+        {
+          "title": "Triglycerides and Cardiovascular Disease",
+          "year": 2011,
+          "doi": "10.1161/cir.0b013e3182160726",
+          "cited_by_count": 1874,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The American Heart Association makes every effort to avoid any actual or potential conflicts of interest that may arise as a result of an outside relationship or a personal, professional,"
+        },
+        {
+          "title": "An updated coronary risk profile. A statement for health professionals.",
+          "year": 1991,
+          "doi": "10.1161/01.cir.83.1.356",
+          "cited_by_count": 1865,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "HomeCirculationVol. 83, No. 1An updated coronary risk profile. A statement for health professionals. Free AccessAbstractPDF/EPUBAboutView PDFSections ToolsAdd to favoritesDownload citationsTrack citationsPermissions ShareShare onFacebookTwitterLinked InMendeleyReddit Jump toFree AccessAbstractPDF/EPUBAn updated coronary risk profile. A statement for health professionals. K M Anderson, P W Wilson, P M Odell and W B Kannel K M AndersonK M Anderson Office of Scientific Affairs, American Heart Association, Dallas, TX 75231. , P W WilsonP W Wilson Office of Scientific Affairs, American Heart Association, Dallas, TX 75231. , P M OdellP M Odell Office of Scientific Affairs, American Heart Association, Dallas, TX 75231. and W B KannelW B Kannel Office of Scientific Affairs, American Heart Association, Dallas, TX 75231. Originally published1 Jan 1991https://doi.org/10.1161/01.CIR.83.1.356Circulation. 1991;83:356–362 Previous Back to top Next FiguresReferencesRelatedDetailsCited By Hespe C, Giskes K, Harris M and Peiris D (2022) Findings and lessons learnt implementing a cardiovascular disease quality improvement program in Australian primary care: a mixed method evaluation, BMC Health Services Research, 10.1186/s12913-021-07310-6, 22:1, Online publication date: 1-Dec-2022. Lemke E, Vetter V, Berger N, Banszerus V, König M and Demuth I (2022) Cardiovascular health is associated with the epigenetic clock in the Berlin Aging Study II (BASE-II), Mechanisms of Ageing and Development, 10.10"
+        },
+        {
+          "title": "Omega-3 Polyunsaturated Fatty Acid (Fish Oil) Supplementation and the Prevention of Clinical Cardiovascular Disease",
+          "year": 2017,
+          "doi": "10.1161/cir.0000000000000482",
+          "cited_by_count": 625,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Multiple randomized controlled trials (RCTs) have assessed the effects of supplementation with eicosapentaenoic acid plus docosahexaenoic acid (omega-3 polyunsaturated fatty acids, commonly called fish oils) on the occurrence of clinical cardiovascular diseases. Although the effects of supplementation for the primary prevention of clinical cardiovascular events in the general population have not been examined, RCTs have assessed the role of supplementation in secondary prevention among patients with diabetes mellitus and prediabetes, patients at high risk of cardiovascular disease, and those with prevalent coronary heart disease. In this scientific advisory, we take a clinical approach and focus on common indications for omega-3 polyunsaturated fatty acid supplements related to the prevention of clinical cardiovascular events. We limited the scope of our review to large RCTs of supplementation with major clinical cardiovascular disease end points; meta-analyses were considered secondarily. We discuss the features of available RCTs and provide the rationale for our recommendations. We then use existing American Heart Association criteria to assess the strength of the recommendation and the level of evidence. On the basis of our review of the cumulative evidence from RCTs designed to assess the effect of omega-3 polyunsaturated fatty acid supplementation on clinical cardiovascular events, we update prior recommendations for patients with prevalent coronary heart disease, and we"
+        },
+        {
+          "title": "Health effects of dietary risks in 195 countries, 1990–2017: a systematic analysis for the Global Burden of Disease Study 2017",
+          "year": 2019,
+          "doi": "10.1016/s0140-6736(19)30041-8",
+          "cited_by_count": 5806,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: Suboptimal diet is an important preventable risk factor for non-communicable diseases (NCDs); however, its impact on the burden of NCDs has not been systematically evaluated. This study aimed to evaluate the consumption of major foods and nutrients across 195 countries and to quantify the impact of their suboptimal intake on NCD mortality and morbidity. METHODS: By use of a comparative risk assessment approach, we estimated the proportion of disease-specific burden attributable to each dietary risk factor (also referred to as population attributable fraction) among adults aged 25 years or older. The main inputs to this analysis included the intake of each dietary factor, the effect size of the dietary factor on disease endpoint, and the level of intake associated with the lowest risk of mortality. Then, by use of disease-specific population attributable fractions, mortality, and disability-adjusted life-years (DALYs), we calculated the number of deaths and DALYs attributable to diet for each disease outcome. FINDINGS: In 2017, 11 million (95% uncertainty interval [UI] 10-12) deaths and 255 million (234-274) DALYs were attributable to dietary risk factors. High intake of sodium (3 million [1-5] deaths and 70 million [34-118] DALYs), low intake of whole grains (3 million [2-4] deaths and 82 million [59-109] DALYs), and low intake of fruits (2 million [1-4] deaths and 65 million [41-92] DALYs) were the leading dietary risk factors for deaths and DALYs globally and in"
+        },
+        {
+          "title": "Ferroptosis: molecular mechanisms and health implications",
+          "year": 2020,
+          "doi": "10.1038/s41422-020-00441-1",
+          "cited_by_count": 4198,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Cell death can be executed through different subroutines. Since the description of ferroptosis as an iron-dependent form of non-apoptotic cell death in 2012, there has been mounting interest in the process and function of ferroptosis. Ferroptosis can occur through two major pathways, the extrinsic or transporter-dependent pathway and the intrinsic or enzyme-regulated pathway. Ferroptosis is caused by a redox imbalance between the production of oxidants and antioxidants, which is driven by the abnormal expression and activity of multiple redox-active enzymes that produce or detoxify free radicals and lipid oxidation products. Accordingly, ferroptosis is precisely regulated at multiple levels, including epigenetic, transcriptional, posttranscriptional and posttranslational layers. The transcription factor NFE2L2 plays a central role in upregulating anti-ferroptotic defense, whereas selective autophagy may promote ferroptotic death. Here, we review current knowledge on the integrated molecular machinery of ferroptosis and describe how dysregulated ferroptosis is involved in cancer, neurodegeneration, tissue injury, inflammation, and infection."
+        },
+        {
+          "title": "Fatty acids from fish: the anti-inflammatory potential of long-chain omega-3 fatty acids",
+          "year": 2010,
+          "doi": "10.1111/j.1753-4887.2010.00287.x",
+          "cited_by_count": 1105,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Omega-6 (n-6) and omega-3 (n-3) polyunsaturated fatty acids (PUFA) are precursors of potent lipid mediators, termed eicosanoids, which play an important role in the regulation of inflammation. Eicosanoids derived from n-6 PUFAs (e.g., arachidonic acid) have proinflammatory and immunoactive functions, whereas eicosanoids derived from n-3 PUFAs [e.g., eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA)] have anti-inflammatory properties, traditionally attributed to their ability to inhibit the formation of n-6 PUFA-derived eicosanoids. While the typical Western diet has a much greater ratio of n-6 PUFAs compared with n-3 PUFAs, research has shown that by increasing the ratio of n-3 to n-6 fatty acids in the diet, and consequently favoring the production of EPA in the body, or by increasing the dietary intake of EPA and DHA through consumption of fatty fish or fish-oil supplements, reductions may be achieved in the incidence of many chronic diseases that involve inflammatory processes; most notably, these include cardiovascular diseases, inflammatory bowel disease (IBD), cancer, and rheumatoid arthritis, but psychiatric and neurodegenerative illnesses are other examples."
+        },
+        {
+          "title": "Impact of Omega-3 Fatty Acids on the Gut Microbiota",
+          "year": 2017,
+          "doi": "10.3390/ijms18122645",
+          "cited_by_count": 734,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Long-term dietary habits play a crucial role in creating a host-specific gut microbiota community in humans. Despite the many publications about the effects of carbohydrates (prebiotic fibers), the impact of dietary fats, such as omega-3 polyunsaturated fatty acids (PUFAs), on the gut microbiota is less well defined. The few studies completed in adults showed some common changes in the gut microbiota after omega-3 PUFA supplementation. In particular, a decrease in Faecalibacterium, often associated with an increase in the Bacteroidetes and butyrate-producing bacteria belonging to the Lachnospiraceae family, has been observed. Coincidentally, a dysbiosis of these taxa is found in patients with inflammatory bowel disease. Omega-3 PUFAs can exert a positive action by reverting the microbiota composition in these diseases, and increase the production of anti-inflammatory compounds, like short-chain fatty acids. In addition, accumulating evidence in animal model studies indicates that the interplay between gut microbiota, omega-3 fatty acids, and immunity helps to maintain the intestinal wall integrity and interacts with host immune cells. Finally, human and animal studies have highlighted the ability of omega-3 PUFAs to influence the gut–brain axis, acting through gut microbiota composition. From these findings, the importance of the omega-3 connection to the microbiota emerges, encouraging further studies."
+        },
+        {
+          "title": "Emerging Mechanisms of Cardiovascular Protection for the Omega-3 Fatty Acid Eicosapentaenoic Acid",
+          "year": 2020,
+          "doi": "10.1161/atvbaha.119.313286",
+          "cited_by_count": 397,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Patients with well-controlled LDL (low-density lipoprotein) levels still have residual cardiovascular risk associated with elevated triglycerides. Epidemiological studies have shown that elevated fasting triglyceride levels associate independently with incident cardiovascular events, and abundant recent human genetic data support the causality of TGRLs (triglyceride-rich lipoproteins) in atherothrombosis. Omega-3 fatty acids, such as eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA), lower blood triglyceride concentrations but likely exert additional atheroprotective properties at higher doses. Omega-3 fatty acids modulate T-cell differentiation and give rise to various prostaglandins and specialized proresolving lipid mediators that promote resolution of tissue injury and inflammation. The REDUCE-IT (Reduction of Cardiovascular Events with Icosapent Ethyl-Intervention Trial) with an EPA-only formulation lowered a composite of cardiovascular events by 25% in patients with established cardiovascular disease or diabetes mellitus and other cardiovascular risk factors. This clinical benefit likely arises from multiple molecular mechanisms discussed in this review. Indeed, human plaques readily incorporate EPA, which may render them less likely to trigger clinical events. EPA and DHA differ in their effects on membrane structure, rates of lipid oxidation, inflammatory biomarkers, and endothelial function as well as tissue distributions. Trials that have evaluated DHA-cont"
+        },
+        {
+          "title": "Omega-3 Index and Cardiovascular Health",
+          "year": 2014,
+          "doi": "10.3390/nu6020799",
+          "cited_by_count": 149,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Recent large trials with eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA) in the cardiovascular field did not demonstrate a beneficial effect in terms of reductions of clinical endpoints like total mortality, sudden cardiac arrest or other major adverse cardiac events. Pertinent guidelines do not uniformly recommend EPA + DHA for cardiac patients. In contrast, in epidemiologic findings, higher blood levels of EPA + DHA were consistently associated with a lower risk for the endpoints mentioned. Because of low biological and analytical variability, a standardized analytical procedure, a large database and for other reasons, blood levels of EPA + DHA are frequently assessed in erythrocytes, using the HS-Omega-3 Index® methodology. A low Omega-3 Index fulfills the current criteria for a novel cardiovascular risk factor. Neutral results of intervention trials can be explained by issues of bioavailability and trial design that surfaced after the trials were initiated. In the future, incorporating the Omega-3 Index into trial designs by recruiting participants with a low Omega-3 Index and treating them within a pre-specified target range (e.g., 8%-11%), will make more efficient trials possible and provide clearer answers to the questions asked than previously possible."
+        },
+        {
+          "title": "Shared Risk Factors in Cardiovascular Disease and Cancer",
+          "year": 2016,
+          "doi": "10.1161/circulationaha.115.020406",
+          "cited_by_count": 1495,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Cardiovascular disease (CVD) and cancer are the 2 leading causes of death worldwide. Although commonly thought of as 2 separate disease entities, CVD and cancer possess various similarities and possible interactions, including a number of similar risk factors (eg, obesity, diabetes mellitus), suggesting a shared biology for which there is emerging evidence. Although chronic inflammation is an indispensable feature of the pathogenesis and progression of both CVD and cancer, additional mechanisms can be found at their intersection. Therapeutic advances, despite improving longevity, have increased the overlap between these diseases, with millions of cancer survivors now at risk of developing CVD. Cardiac risk factors have a major impact on subsequent treatment-related cardiotoxicity. In this review, we explore the risk factors common to both CVD and cancer, highlighting the major epidemiological studies and potential biological mechanisms that account for them."
+        },
+        {
+          "title": "Influence of diet on the gut microbiome and implications for human health",
+          "year": 2017,
+          "doi": "10.1186/s12967-017-1175-y",
+          "cited_by_count": 2612,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Recent studies have suggested that the intestinal microbiome plays an important role in modulating risk of several chronic diseases, including inflammatory bowel disease, obesity, type 2 diabetes, cardiovascular disease, and cancer. At the same time, it is now understood that diet plays a significant role in shaping the microbiome, with experiments showing that dietary alterations can induce large, temporary microbial shifts within 24 h. Given this association, there may be significant therapeutic utility in altering microbial composition through diet. This review systematically evaluates current data regarding the effects of several common dietary components on intestinal microbiota. We show that consumption of particular types of food produces predictable shifts in existing host bacterial genera. Furthermore, the identity of these bacteria affects host immune and metabolic parameters, with broad implications for human health. Familiarity with these associations will be of tremendous use to the practitioner as well as the patient."
+        },
+        {
+          "title": "Polyunsaturated Fatty Acids and Their Potential Therapeutic Role in Cardiovascular System Disorders—A Review",
+          "year": 2018,
+          "doi": "10.3390/nu10101561",
+          "cited_by_count": 371,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Cardiovascular diseases are described as the leading cause of morbidity and mortality in modern societies. Therefore, the importance of cardiovascular diseases prevention is widely reflected in the increasing number of reports on the topic among the key scientific research efforts of the recent period. The importance of essential fatty acids (EFAs) has been recognized in the fields of cardiac science and cardiac medicine, with the significant effects of various fatty acids having been confirmed by experimental studies. Polyunsaturated fatty acids are considered to be important versatile mediators for improving and maintaining human health over the entire lifespan, however, only the cardiac effect has been extensively documented. Recently, it has been shown that omega-3 fatty acids may play a beneficial role in several human pathologies, such as obesity and diabetes mellitus type 2, and are also associated with a reduced incidence of stroke and atherosclerosis, and decreased incidence of cardiovascular diseases. A reasonable diet and wise supplementation of omega-3 EFAs are essential in the prevention and treatment of cardiovascular diseases prevention and treatment."
+        },
+        {
+          "title": "Omega‐3 Dietary Supplements and the Risk of Cardiovascular Events: A Systematic Review",
+          "year": 2009,
+          "doi": "10.1002/clc.20604",
+          "cited_by_count": 326,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8642857142857143,
+          "abstract": "BACKGROUND: Epidemiologic data suggest that omega-3 fatty acids derived from fish oil reduce cardiovascular disease. The clinical benefit of dietary fish oil supplementation in preventing cardiovascular events in both high and low risk patients is unclear. OBJECTIVE: To assess whether dietary supplements of eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA) decrease cardiovascular events across a spectrum of patients. DATA SOURCES: MEDLINE, Embase, the Cochrane Database of Systematic Reviews, and citation review of relevant primary and review articles. STUDY SELECTION: Prospective, randomized, placebo-controlled clinical trials that evaluated clinical cardiovascular end points (cardiovascular death, sudden death, and nonfatal cardiovascular events) and all-cause mortality in patients randomized to EPA/DHA or placebo. We only included studies that used dietary supplements of EPA/DHA which were administered for at least 1 year. DATA EXTRACTION: Data were abstracted on study design, study size, type and dose of omega-3 supplement, cardiovascular events, all-cause mortality, and duration of follow-up. Studies were grouped according to the risk of cardiovascular events (high risk and moderate risk). Meta-analytic techniques were used to analyze the data. DATA SYNTHESIS: We identified 11 studies that included a total of 39 044 patients. The studies included patients after recent myocardial infarction, those with an implanted cardioverter defibrillator, and patients with hea"
+        },
+        {
+          "title": "Understanding Omega-3 Polyunsaturated Fatty Acids",
+          "year": 2009,
+          "doi": "10.3810/pgm.2009.11.2083",
+          "cited_by_count": 210,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Current intakes of very long-chain omega-3 fatty acids, eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA), are low in most individuals living in Western countries. A good natural source of these fatty acids is seafood, especially oily fish. Fish oil capsules contain these fatty acids also. Very long-chain omega-3 fatty acids are readily incorporated from capsules into transport (blood lipids), functional (cell and tissue), and storage (adipose) pools. This incorporation is dose-dependent and follows a kinetic pattern that is characteristic for each pool. At sufficient levels of incorporation, EPA and DHA influence the physical nature of cell membranes and membrane protein-mediated responses, lipid-mediator generation, cell signaling, and gene expression in many different cell types. Through these mechanisms, EPA and DHA influence cell and tissue physiology and the way cells and tissues respond to external signals. In most cases the effects seen are compatible with improvements in disease biomarker profiles or health-related outcomes. As a result, very long-chain omega-3 fatty acids play a role in achieving optimal health and in protection against disease. Long-chain omega-3 fatty acids not only protect against cardiovascular morbidity but also against mortality. In some conditions, for example rheumatoid arthritis, they may be beneficial as therapeutic agents. On the basis of the recognized health improvements brought about by long-chain omega-3 fatty acids, recommen"
+        },
+        {
+          "title": "An Update on Omega-3 Polyunsaturated Fatty Acids and Cardiovascular Health",
+          "year": 2021,
+          "doi": "10.3390/nu13010204",
+          "cited_by_count": 188,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Interest in the potential cardiovascular (CV) benefits of omega-3 polyunsaturated fatty acids (Ω-3) began in the 1940s and was amplified by a subsequent landmark trial showing reduced CV disease (CVD) risk following acute myocardial infarction. Since that time, however, much controversy has circulated due to discordant results among several studies and even meta-analyses. Then, in 2018, three more large, randomized trials were released-these too with discordant findings regarding the overall benefits of Ω-3 therapy. Interestingly, the trial that used a higher dose (4 g/day highly purified eicosapentaenoic acid (EPA)) found a remarkable, statistically significant reduction in CVD events. It was proposed that insufficient Ω-3 dosing (<1 g/day EPA and docosahexaenoic acid (DHA)), as well as patients aggressively treated with multiple other effective medical therapies, may explain the conflicting results of Ω-3 therapy in controlled trials. We have thus reviewed the current evidence regarding Ω-3 and CV health, put forth potential reasoning for discrepant results in the literature, highlighted critical concepts such as measuring blood levels of Ω-3 with a dedicated Ω-3 index and addressed current recommendations as suggested by health care professional societies and recent significant scientific data."
+        },
+        {
+          "title": "Long-chain omega-3 fatty acids and the brain: a review of the independent and shared effects of EPA, DPA and DHA",
+          "year": 2015,
+          "doi": "10.3389/fnagi.2015.00052",
+          "cited_by_count": 923,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Omega-3 polyunsaturated fatty acids (PUFAs) exhibit neuroprotective properties and represent a potential treatment for a variety of neurodegenerative and neurological disorders. However, traditionally there has been a lack of discrimination between the different omega-3 PUFAs and effects have been broadly accredited to the series as a whole. Evidence for unique effects of eicosapentaenoic acid (EPA), docosahexaenoic acid (DHA) and more recently docosapentaenoic acid (DPA) is growing. For example, beneficial effects in mood disorders have more consistently been reported in clinical trials using EPA; whereas, with neurodegenerative conditions such as Alzheimer's disease, the focus has been on DHA. DHA is quantitatively the most important omega-3 PUFA in the brain, and consequently the most studied, whereas the availability of high purity DPA preparations has been extremely limited until recently, limiting research into its effects. However, there is now a growing body of evidence indicating both independent and shared effects of EPA, DPA and DHA. The purpose of this review is to highlight how a detailed understanding of these effects is essential to improving understanding of their therapeutic potential. The review begins with an overview of omega-3 PUFA biochemistry and metabolism, with particular focus on the central nervous system (CNS), where DHA has unique and indispensable roles in neuronal membranes with levels preserved by multiple mechanisms. This is followed by a revi"
+        },
+        {
+          "title": "Omega-3 Fatty Acids for Cardioprotection",
+          "year": 2008,
+          "doi": "10.4065/83.3.324",
+          "cited_by_count": 250,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Intestinal Microbiota in Cardiovascular Health and Disease",
+          "year": 2019,
+          "doi": "10.1016/j.jacc.2019.03.024",
+          "cited_by_count": 508,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Omega 3-metabolism, absorption, bioavailability and health benefits–A review",
+          "year": 2019,
+          "doi": "10.1016/j.phanu.2019.100162",
+          "cited_by_count": 144,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": ""
+        },
+        {
+          "title": "Development of food-grade nanoemulsions and emulsions for delivery of omega-3 fatty acids: opportunities and obstacles in the food industry",
+          "year": 2014,
+          "doi": "10.1039/c4fo00723a",
+          "cited_by_count": 257,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Consumption of biologically active amounts of omega-3 fatty acids is linked to improved human health, which has partly been attributed to their important role in brain development and cardiovascular health. Western diets are relatively low in omega-3 fatty acids and many consumers turn to supplements or functional foods to increase their intake of these healthy lipids. Fish oil is one of the most widely used sources of omega-3 fatty acid for supplementation and has greater health benefits than plant sources because of its higher concentration of eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA). The incorporation of omega-3 fatty acids into foods and beverages is often challenging due to their low water-solubility, poor oxidative stability, and variable bioavailability. Nanoemulsions offer a promising way to incorporate omega-3 fatty acids into liquid food systems like beverages, dressing, sauces, and dips. Nanoemulsions are colloidal dispersions that contain small oil droplets (r<100 nm) that may be able to overcome many of the challenges of fortifying foods and beverages with omega-3 fatty acids. The composition and fabrication of nanoemulsions can be optimized to increase the chemical and physical stability of oil droplets, as well as to increase the bioavailability of omega-3 fatty acids."
+        },
+        {
+          "title": "The State of US Health, 1990-2010",
+          "year": 2013,
+          "doi": "10.1001/jama.2013.13805",
+          "cited_by_count": 2466,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "IMPORTANCE: Understanding the major health problems in the United States and how they are changing over time is critical for informing national health policy. OBJECTIVES: To measure the burden of diseases, injuries, and leading risk factors in the United States from 1990 to 2010 and to compare these measurements with those of the 34 countries in the Organisation for Economic Co-operation and Development (OECD) countries. DESIGN: We used the systematic analysis of descriptive epidemiology of 291 diseases and injuries, 1160 sequelae of these diseases and injuries, and 67 risk factors or clusters of risk factors from 1990 to 2010 for 187 countries developed for the Global Burden of Disease 2010 Study to describe the health status of the United States and to compare US health outcomes with those of 34 OECD countries. Years of life lost due to premature mortality (YLLs) were computed by multiplying the number of deaths at each age by a reference life expectancy at that age. Years lived with disability (YLDs) were calculated by multiplying prevalence (based on systematic reviews) by the disability weight (based on population-based surveys) for each sequela; disability in this study refers to any short- or long-term loss of health. Disability-adjusted life-years (DALYs) were estimated as the sum of YLDs and YLLs. Deaths and DALYs related to risk factors were based on systematic reviews and meta-analyses of exposure data and relative risks for risk-outcome pairs. Healthy life expecta"
+        },
+        {
+          "title": "Factors of Risk in the Development of Coronary Heart Disease—Six-Year Follow-up Experience",
+          "year": 1961,
+          "doi": "10.7326/0003-4819-55-1-33",
+          "cited_by_count": 1825,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.9259999999999999,
+          "abstract": "Article1 July 1961Factors of Risk in the Development of Coronary Heart Disease—Six-Year Follow-up ExperienceThe Framingham StudyWILLIAM B. KANNEL, M.D., THOMAS R. DAWBER, M.D., F.A.C.P., ABRAHAM KAGAN, M.D., F.A.C.P., NICHOLAS REVOTSKIE, M.D., JOSEPH STOKES III, M.D.WILLIAM B. KANNEL, M.D.Search for more papers by this author, THOMAS R. DAWBER, M.D., F.A.C.P.Search for more papers by this author, ABRAHAM KAGAN, M.D., F.A.C.P.Search for more papers by this author, NICHOLAS REVOTSKIE, M.D.Search for more papers by this author, JOSEPH STOKES III, M.D.Search for more papers by this authorAuthor, Article, and Disclosure Informationhttps://doi.org/10.7326/0003-4819-55-1-33 SectionsAboutPDF ToolsAdd to favoritesDownload CitationsTrack CitationsPermissions ShareFacebookTwitterLinkedInRedditEmail ExcerptIncreasingly reliable estimates of the prevalence and incidence of coronary heart disease (CHD) emphasize the importance of this disease as a contemporary health hazard. Cardiovascular disease is now the leading cause of death, with coronary heart disease accounting for two-thirds of all heart disease deaths. While advances in the diagnosis and therapeutic management of CHD have been made in the past decade, no important reduction in morbidity and mortality from CHD has occurred. This is apparent in the relatively slight increase in life expectancy at age 40 which has been achieved in the past several decades, while life expectancy at...References1. DAWBERMOOREMANN TRFEGV: II. Coronary"
+        },
+        {
+          "title": "The Mediterranean Diet, its Components, and Cardiovascular Disease",
+          "year": 2014,
+          "doi": "10.1016/j.amjmed.2014.10.014",
+          "cited_by_count": 963,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Cardiovascular Risks Associated with Gender and Aging",
+          "year": 2019,
+          "doi": "10.3390/jcdd6020019",
+          "cited_by_count": 1013,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8,
+          "abstract": "The aging and elderly population are particularly susceptible to cardiovascular disease. Age is an independent risk factor for cardiovascular disease (CVD) in adults, but these risks are compounded by additional factors, including frailty, obesity, and diabetes. These factors are known to complicate and enhance cardiac risk factors that are associated with the onset of advanced age. Sex is another potential risk factor in aging adults, given that older females are reported to be at a greater risk for CVD than age-matched men. However, in both men and women, the risks associated with CVD increase with age, and these correspond to an overall decline in sex hormones, primarily of estrogen and testosterone. Despite this, hormone replacement therapies are largely shown to not improve outcomes in older patients and may also increase the risks of cardiac events in older adults. This review discusses current findings regarding the impacts of age and gender on heart disease."
+        },
+        {
+          "title": "Microalgal biofactories: a promising approach towards sustainable omega-3 fatty acid production",
+          "year": 2012,
+          "doi": "10.1186/1475-2859-11-96",
+          "cited_by_count": 628,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Omega-3 fatty acids eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA) provide significant health benefits and this has led to an increased consumption as dietary supplements. Omega-3 fatty acids EPA and DHA are found in animals, transgenic plants, fungi and many microorganisms but are typically extracted from fatty fish, putting additional pressures on global fish stocks. As primary producers, many marine microalgae are rich in EPA (C20:5) and DHA (C22:6) and present a promising source of omega-3 fatty acids. Several heterotrophic microalgae have been used as biofactories for omega-3 fatty acids commercially, but a strong interest in autotrophic microalgae has emerged in recent years as microalgae are being developed as biofuel crops. This paper provides an overview of microalgal biotechnology and production platforms for the development of omega-3 fatty acids EPA and DHA. It refers to implications in current biotechnological uses of microalgae as aquaculture feed and future biofuel crops and explores potential applications of metabolic engineering and selective breeding to accumulate large amounts of omega-3 fatty acids in autotrophic microalgae."
+        },
+        {
+          "title": "Role of omega-3 fatty acids in health and disease",
+          "year": 1993,
+          "doi": "10.1016/s0271-5317(05)80282-9",
+          "cited_by_count": 141,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Nutrition and Cardiovascular Health",
+          "year": 2018,
+          "doi": "10.3390/ijms19123988",
+          "cited_by_count": 333,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Cardiovascular disease (CVD) is the leading cause of death in Western countries, representing almost 30% of all deaths worldwide. Evidence shows the effectiveness of healthy dietary patterns and lifestyles for the prevention of CVD. Furthermore, the rising incidence of CVD over the last 25 years has become a public health priority, especially the prevention of CVD (or cardiovascular events) through lifestyle interventions. Current scientific evidence shows that Western dietary patterns compared to healthier dietary patterns, such as the 'Mediterranean diet' (MeDiet), leads to an excessive production of proinflammatory cytokines associated with a reduced synthesis of anti-inflammatory cytokines. In fact, dietary intervention allows better combination of multiple foods and nutrients. Therefore, a healthy dietary pattern shows a greater magnitude of beneficial effects than the potential effects of a single nutrient supplementation. This review aims to identify potential targets (food patterns, single foods, or individual nutrients) for preventing CVD and quantifies the magnitude of the beneficial effects observed. On the other hand, we analyze the possible mechanisms implicated in this cardioprotective effect."
+        },
+        {
+          "title": "HEALTH BENEFITS OF DOCOSAHEXAENOIC ACID (DHA)",
+          "year": 1999,
+          "doi": "10.1006/phrs.1999.0495",
+          "cited_by_count": 1033,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": ""
+        },
+        {
+          "title": "2021 Canadian Cardiovascular Society Guidelines for the Management of Dyslipidemia for the Prevention of Cardiovascular Disease in Adults",
+          "year": 2021,
+          "doi": "10.1016/j.cjca.2021.03.016",
+          "cited_by_count": 837,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": ""
+        },
+        {
+          "title": "Omega-3 Fatty Acids and Cardiovascular Disease: Are There Benefits?",
+          "year": 2016,
+          "doi": "10.1007/s11936-016-0487-1",
+          "cited_by_count": 188,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.75,
+          "abstract": "OPINION STATEMENT: Early secondary prevention trials of fish and omega-3 polyunsaturated fatty acid (PUFA) capsules reported beneficial effects on cardiovascular disease (CVD) outcomes, including all-cause mortality and sudden cardiac death. These clinical findings, as well as observational and experimental data, demonstrated that omega-3 PUFAs reduced the risk of coronary outcomes and overall mortality and were the basis for recommendations made in the early 2000s to increase omega-3 PUFA intake. In the last 6 years, however, results from both primary and secondary prevention trials have generally failed to show a beneficial effect of omega-3 PUFA supplementation, bringing current recommendations into question. Several possible reasons for these null findings have been proposed, including short treatment periods, relatively low doses of omega-3 PUFAs, small sample sizes, higher background omega-3 intakes, and the concurrent use of modern pharmacotherapy for CVD prevention. At least one of these caveats is being assessed in major clinical trials, with two omega-3 PUFA pharmacological agents being tested at doses of 4 g/day (instead of the more common <1 g/day). These null findings, however, do not necessarily mean that omega-3 PUFAs \"are ineffective\" in general, only that they were not effective in the context in which they were tested. Accordingly, higher intakes of omega-3 PUFAs, either from fatty fish or from supplements, if continued for decades (as the epidemiological da"
+        },
+        {
+          "title": "Metabolism and functional effects of plant-derived omega-3 fatty acids in humans",
+          "year": 2016,
+          "doi": "10.1016/j.plipres.2016.07.002",
+          "cited_by_count": 468,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Effect of omega-3 fatty acids supplementation on endothelial function: A meta-analysis of randomized controlled trials",
+          "year": 2012,
+          "doi": "10.1016/j.atherosclerosis.2012.01.006",
+          "cited_by_count": 224,
+          "design": "meta-analysis",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "The omega-6/omega-3 fatty acid ratio: health implications",
+          "year": 2010,
+          "doi": "10.1051/ocl.2010.0325",
+          "cited_by_count": 191,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Today, Western diets are characterized by a higher omega-6 and a lower omega-3 fatty acid intake, whereas during the Paleolithic period when human’s genetic profile was established, there was a balance between omega-6 and omega-3 fatty acids. Their balance is an important determinant for brain development and in decreasing the risk for coronary heart disease (CHD), hypertension, cancer, diabetes, arthritis, and other autoimmune and possibly neurodegenerative diseases. Both omega-6 and omega-3 fatty acids influence gene expression. Because of single nucleotide polymorphisms (SNPs) in their metabolic pathways, blood levels of omega-6 and omega-3 fatty acids are determined by both endogenous metabolism and dietary intake making the need of balanced dietary intake essential for health and disease prevention. Whether an omega-6/omega-3 ratio of 3:1 to 4:1 could prevent the pathogenesis of many diseases induced by today’s Western diets (), a target of 1:1 to 2:1 appears to be consistent with studies on evolutionary aspects of diet, neurodevelopment, and genetics. A target of omega-6/omega-3 fatty acid ratio of 1:1 to 2:1 appears to be consistent with studies on evolutionary aspects of diet, neurodevelopment and genetics. A balanced ratio of omega-6/omega-3 fatty acids is important for health and in the prevention of CHD and possibly other chronic diseases."
+        },
+        {
+          "title": "Gut microbiota derived metabolites in cardiovascular health and disease",
+          "year": 2018,
+          "doi": "10.1007/s13238-018-0549-0",
+          "cited_by_count": 480,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Trillions of microbes inhabit the human gut, not only providing nutrients and energy to the host from the ingested food, but also producing metabolic bioactive signaling molecules to maintain health and elicit disease, such as cardiovascular disease (CVD). CVD is the leading cause of mortality worldwide. In this review, we presented gut microbiota derived metabolites involved in cardiovascular health and disease, including trimethylamine-N-oxide (TMAO), uremic toxins, short chain fatty acids (SCFAs), phytoestrogens, anthocyanins, bile acids and lipopolysaccharide. These gut microbiota derived metabolites play critical roles in maintaining a healthy cardiovascular function, and if dysregulated, potentially causally linked to CVD. A better understanding of the function and dynamics of gut microbiota derived metabolites holds great promise toward mechanistic predicative CVD biomarker discoveries and precise interventions."
+        },
+        {
+          "title": "(n-3) Fatty Acids and Cardiovascular Health: Are Effects of EPA and DHA Shared or Complementary?",
+          "year": 2012,
+          "doi": "10.3945/jn.111.149633",
+          "cited_by_count": 367,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Omega-3 Fatty Acids for the Management of Hypertriglyceridemia: A Science Advisory From the American Heart Association",
+          "year": 2019,
+          "doi": "10.1161/cir.0000000000000709",
+          "cited_by_count": 474,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Hypertriglyceridemia (triglycerides 200-499 mg/dL) is relatively common in the United States, whereas more severe triglyceride elevations (very high triglycerides, ≥500 mg/dL) are far less frequently observed. Both are becoming increasingly prevalent in the United States and elsewhere, likely driven in large part by growing rates of obesity and diabetes mellitus. In a 2002 American Heart Association scientific statement, the omega-3 fatty acids (n-3 FAs) eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA) were recommended (at a dose of 2-4 g/d) for reducing triglycerides in patients with elevated triglycerides. Since 2002, prescription agents containing EPA+DHA or EPA alone have been approved by the US Food and Drug Administration for treating very high triglycerides; these agents are also widely used for hypertriglyceridemia. The purpose of this advisory is to summarize the lipid and lipoprotein effects resulting from pharmacological doses of n-3 FAs (>3 g/d total EPA+DHA) on the basis of new scientific data and availability of n-3 FA agents. In treatment of very high triglycerides with 4 g/d, EPA+DHA agents reduce triglycerides by ≥30% with concurrent increases in low-density lipoprotein cholesterol, whereas EPA-only did not raise low-density lipoprotein cholesterol in very high triglycerides. When used to treat hypertriglyceridemia, n-3 FAs with EPA+DHA or with EPA-only appear roughly comparable for triglyceride lowering and do not increase low-density lipoprotein c"
+        },
+        {
+          "title": "Dietary sources of omega 3 fatty acids: public health risks and benefits",
+          "year": 2012,
+          "doi": "10.1017/s0007114512001456",
+          "cited_by_count": 279,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Omega 3 fatty acids can be obtained from several sources, and should be added to the daily diet to enjoy a good health and to prevent many diseases. Worldwide, general population use omega-3 fatty acid supplements and enriched foods to get and maintain adequate amounts of these fatty acids. The aim of this paper was to review main scientific evidence regarding the public health risks and benefits of the dietary sources of omega-3 fatty acids. A systematic literature search was performed, and one hundred and forty-five articles were included in the results for their methodological quality. The literature described benefits and risks of algal, fish oil, plant, enriched dairy products, animal-derived food, krill oil, and seal oil omega-3 fatty acids."
+        },
+        {
+          "title": "Vitamin D and cardiovascular health",
+          "year": 2020,
+          "doi": "10.1016/j.clnu.2020.12.025",
+          "cited_by_count": 330,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Cardiovascular Disease Resulting From a Diet and Lifestyle at Odds With Our Paleolithic Genome: How to Become a 21st-Century Hunter-Gatherer",
+          "year": 2004,
+          "doi": "10.4065/79.1.101",
+          "cited_by_count": 285,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Omega-3 Fatty Acids and Skeletal Muscle Health",
+          "year": 2015,
+          "doi": "10.3390/md13116977",
+          "cited_by_count": 202,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Skeletal muscle is a plastic tissue capable of adapting and mal-adapting to physical activity and diet. The response of skeletal muscle to adaptive stimuli, such as exercise, can be modified by the prior nutritional status of the muscle. The influence of nutrition on skeletal muscle has the potential to substantially impact physical function and whole body metabolism. Animal and cell based models show that omega-3 fatty acids, in particular those of marine origin, can influence skeletal muscle metabolism. Furthermore, recent human studies demonstrate that omega-3 fatty acids of marine origin can influence the exercise and nutritional response of skeletal muscle. These studies show that the prior omega-3 status influences not only the metabolic response of muscle to nutrition, but also the functional response to a period of exercise training. Omega-3 fatty acids of marine origin therefore have the potential to alter the trajectory of a number of human diseases including the physical decline associated with aging. We explore the potential molecular mechanisms by which omega-3 fatty acids may act in skeletal muscle, considering the n-3/n-6 ratio, inflammation and lipidomic remodelling as possible mechanisms of action. Finally, we suggest some avenues for further research to clarify how omega-3 fatty acids may be exerting their biological action in skeletal muscle."
+        },
+        {
+          "title": "Omega-3 supplementation and non-alcoholic fatty liver disease: A systematic review and meta-analysis",
+          "year": 2011,
+          "doi": "10.1016/j.jhep.2011.08.018",
+          "cited_by_count": 573,
+          "design": "meta-analysis",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Fish oil and omega-3 fatty acids in cardiovascular disease: do they really work?",
+          "year": 2011,
+          "doi": "10.1093/eurheartj/ehr362",
+          "cited_by_count": 220,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Omega-3 fatty acids, which are found abundantly in fish oil, exert pleiotropic cardiometabolic effects with a diverse range of actions. The results of previous studies raised a lot of interest in the role of fish oil and omega-3 fatty acids in primary and secondary prevention of cardiovascular diseases. The present review will focus on the current clinical uses of omega-3 fatty acids and provide an update on their effects. Since recently published trials in patients with coronary artery diseases or post-myocardial infarction did not show an effect of omega-3 fatty acids on major cardiovascular endpoints, this review will examine the limitations of those data and suggest recommendations for the use of omega-3 fatty acids."
+        },
+        {
+          "title": "Dietary fatty acids and human health",
+          "year": 2000,
+          "doi": "10.1051/animres:2000116",
+          "cited_by_count": 643,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "A considerable amount of evidence has accumulated to support the view that the very long chain omega 3 fatty acids (eicosapentaenoic acid (EPA) and docosahexaenoic acid (DHA)) have beneficial cardiovascular and anti-inflammatory properties and that levels of their consumption are insufficient in most Western diets. More recently, attention has been given to the possibility that the precursor omega-3 PUFA, alpha linolenic acid (ALNA), may share some of the beneficial actions of EPA/DHA on human health. Further research into the metabolism and physiological actions of ALNA, and comparisons with EPA/DHA, is needed before conclusions regarding the optimal amounts and types of omega-3 PUFA for human health can be defined. Conjugated linoleic acid (CLA), which arises as a metabolic by-product of rumen hydrogenation and which is found in foods of animal origin, has been proposed to possess potent health promoting properties, but much of this research has been conducted in experimental animals. There is an urgent need for complementary studies in human volunteers, to confirm the putative anti-carcinogenic, anti-atherogenic, anti-lipogenic and immuno-suppressive properties of CLA."
+        },
+        {
+          "title": "A host-microbiome interaction mediates the opposing effects of omega-6 and omega-3 fatty acids on metabolic endotoxemia",
+          "year": 2015,
+          "doi": "10.1038/srep11276",
+          "cited_by_count": 349,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Metabolic endotoxemia, commonly derived from gut dysbiosis, is a primary cause of chronic low grade inflammation that underlies many chronic diseases. Here we show that mice fed a diet high in omega-6 fatty acids exhibit higher levels of metabolic endotoxemia and systemic low-grade inflammation, while transgenic conversion of tissue omega-6 to omega-3 fatty acids dramatically reduces endotoxemic and inflammatory status. These opposing effects of tissue omega-6 and omega-3 fatty acids can be eliminated by antibiotic treatment and animal co-housing, suggesting the involvement of the gut microbiota. Analysis of gut microbiota and fecal transfer revealed that elevated tissue omega-3 fatty acids enhance intestinal production and secretion of intestinal alkaline phosphatase (IAP), which induces changes in the gut bacteria composition resulting in decreased lipopolysaccharide production and gut permeability, and ultimately, reduced metabolic endotoxemia and inflammation. Our findings uncover an interaction between host tissue fatty acid composition and gut microbiota as a novel mechanism for the anti-inflammatory effect of omega-3 fatty acids. Given the excess of omega-6 and deficiency of omega-3 in the modern Western diet, the differential effects of tissue omega-6 and omega-3 fatty acids on gut microbiota and metabolic endotoxemia provide insight into the etiology and management of today's health epidemics."
+        },
+        {
+          "title": "Evidence-Based Guidelines for Cardiovascular Disease Prevention in Women",
+          "year": 2004,
+          "doi": "10.1161/01.cir.0000114834.85476.81",
+          "cited_by_count": 922,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "S ignificant advances in our knowledge about interventions to prevent cardiovascular disease (CVD) have occurred since publication of the first female-specific recommendations for preventive cardiology in 1999. 1 Despite researchbased gains in the treatment of CVD, it remains the leading killer of women in the United States and in most developed areas of the world. [2] 3] In the United States alone, more than one half million women die of CVD each year, exceeding the number of deaths in men and the next 7 causes of death in women combined. This translates into approximately 1 death every minute. 2 Coronary heart disease (CHD) accounts for the majority of CVD deaths in women, disproportionately afflicts racial and ethnic minorities, and is a prime target for prevention. [1] 2] Because CHD is often fatal, and because nearly two thirds of women who die suddenly have no previously recognized symptoms, it is essential to prevent CHD. 2 Other forms of atherosclerotic/thrombotic CVD, such as cerebrovascular disease and peripheral arterial disease, are critically important in women. Strategies known to reduce the burden of CHD may have substantial benefits for the prevention of noncoronary atherosclerosis, although they have been studied less extensively in some of these settings."
+        },
+        {
+          "title": "Health risks associated with overweight and obesity",
+          "year": 2007,
+          "doi": "10.1111/j.1467-789x.2007.00311.x",
+          "cited_by_count": 741,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.9139999999999999,
+          "abstract": "Overweight and obesity cause or exacerbate a large number of health problems, both independently and in association with other diseases, and are among the most significant contributors to ill health (1–4). The intra-abdominal visceral deposition of adipose tissue, which characterizes upper body – central – obesity (assessed by waist circumference and/or waist : hip ratio) is a major contributor to the development of hypertension, elevated plasma insulin concentrations and insulin resistance, hyperglycaemia and hyperlipidaemia (metabolic syndrome). The concept of the metabolic syndrome refers to the phenomenon of risk-factor clustering – a collection of metabolic traits occurring in the same individual with the clustering presumably reflecting a unifying underlying pathophysiology that requires a holistic approach to their management (5–7). Many of the health risks associated with increasing body weight begin to appear in children and young people. Of great concern is the increasing prevalence of type 2 diabetes and associated medical complications in childhood (8–10). This early onset needs to be reflected by active management and research priorities to reduce the consequential health and economic burdens (11). Evidence from twin, adoption and family studies unequivocally indicates that inherited factors play a major role in the determination of inter-individual differences in fat mass. The identification of genetic variants influencing human fat mass is critical to obesity r"
+        },
+        {
+          "title": "Carotenoids: potential allies of cardiovascular health?",
+          "year": 2015,
+          "doi": "10.3402/fnr.v59.26762",
+          "cited_by_count": 320,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Carotenoids are a class of natural, fat-soluble pigments found principally in plants. They have potential antioxidant biological properties because of their chemical structure and interaction with biological membranes. Epidemiologic studies supported the hypothesis that antioxidants could be used as an inexpensive means of both primary and secondary cardiovascular disease (CVD) prevention. In fact, the oxidation of low-density lipoproteins (LDL) in the vessels plays a key role in the development of atherosclerotic lesions. The resistance of LDL to oxidation is increased by high dietary antioxidant intake, so that carotenoids, as part of food patterns such as the Mediterranean diet, may have beneficial effects on cardiovascular health too. Further properties of carotenoids leading to a potential reduction of cardiovascular risk are represented by lowering of blood pressure, reduction of pro-inflammatory cytokines and markers of inflammation (such as C-reactive protein), and improvement of insulin sensitivity in muscle, liver, and adipose tissues. In addition, recent nutrigenomics studies have focused on the exceptional ability of carotenoids in modulating the expression of specific genes involved in cell metabolism. The aim of this review is to focus attention to this effect of some carotenoids to prevent CVD."
+        },
+        {
+          "title": "Fatty acid composition of nuts – implications for cardiovascular health",
+          "year": 2006,
+          "doi": "10.1017/bjn20061861",
+          "cited_by_count": 307,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8642857142857143,
+          "abstract": "It is well established that, due to their high content of saturated fatty acids (SFA), the intake of meat and meat products is strongly associated with elevated blood cholesterol concentrations and an increased risk of hypertension, diabetes and cardiovascular diseases. Conversely, the intake of foods rich in unsaturated fatty acids, such as those contained in most vegetable fats and oils and oily fish, is associated with improved lipid profiles, a lower potency of intermediate biomarkers of atherosclerosis and lesser incidence of cardiovascular diseases. There are persuasive evidences that dietary substitution of monounsaturated fatty acids (MUFA) or n-6 polyunsaturated fatty acids (PUFA) for SFA lowers blood cholesterol and may have beneficial effects on inflammation, thrombosis, and vascular reactivity. MUFA may have an advantage over PUFA because enrichment of lipoprotein lipids with MUFA increases their resistance to oxidation. Marine n-3 PUFA have a number of anti-atherosclerotic effects, including anti-arrhythmic properties and, at relatively high doses, reduce serum triglycerides. These effects appear to be shared in part by vegetable n-3 PUFA. Nuts are natural foods rich in unsaturated fatty acids; most nuts contain substantial amounts of MUFA, while walnuts are especially rich in both n-6 and n-3 PUFA. Healthy fats in nuts contribute to the beneficial effects of frequent nut intake observed in epidemiological studies (prevention of coronary heart disease, diabetes, "
+        },
+        {
+          "title": "Oxidation of Marine Omega-3 Supplements and Human Health",
+          "year": 2013,
+          "doi": "10.1155/2013/464921",
+          "cited_by_count": 154,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8166666666666667,
+          "abstract": "Marine omega-3 rich oils are used by more than a third of American adults for a wide range of purported benefits including prevention of cardiovascular disease. These oils are highly prone to oxidation to lipid peroxides and other secondary oxidation products. Oxidized oils may have altered biological activity making them ineffective or harmful, though there is also evidence that some beneficial effects of marine oils could be mediated through lipid peroxides. To date, human clinical trials have not reported the oxidative status of the trial oil. This makes it impossible to understand the importance of oxidation to efficacy or harm. However, animal studies show that oxidized lipid products can cause harm. Oxidation of trial oils may be responsible for the conflicting omega-3 trial literature, including the prevention of cardiovascular disease. The oxidative state of an oil can be simply determined by the peroxide value and anisidine value assays. We recommend that all clinical trials investigating omega-3 harms or benefits report the results of these assays; this will enable better understanding of the benefits and harms of omega-3 and the clinical importance of oxidized supplements."
+        }
+      ],
+      "note": "1 off-topic work(s) excluded by relevance gate; near-unanimous result (no refuting or mixed studies) — check that genuine debate was not filtered out"
+    }
+  }
+}

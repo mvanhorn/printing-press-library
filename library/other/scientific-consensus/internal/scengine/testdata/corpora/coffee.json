@@ -1,0 +1,217 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "coffee causes heart disease",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T09:11:02.991Z"
+  },
+  "rows": [
+    {
+      "claim": "coffee causes heart disease",
+      "verdict": "evidence-refutes",
+      "consensus_score": -0.97,
+      "confidence": 0.61,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "studies_analyzed": 11,
+      "supporting": 0,
+      "refuting": 6,
+      "mixed": 1,
+      "inconclusive": 4,
+      "method": "heuristic",
+      "ai_stance": "refutes",
+      "ai_confidence": 0.92,
+      "ai_model": "openrouter/free"
+    }
+  ],
+  "response": {
+    "stance_source": "llm:openrouter",
+    "llm_synthesis": {
+      "stance": "refutes",
+      "confidence": 0.92,
+      "reasoning": "Multiple high-quality cohort studies and meta-analyses consistently show no evidence that coffee causes heart disease, with several demonstrating inverse associations. The 2017 umbrella review of 201 meta-analyses found coffee consumption was more often associated with benefits than harm for cardiovascular outcomes. The 1996 JAMA cohort study on women and the 1999 Scottish Heart Health Study also reported no positive links, with some showing reduced risk. Excluded one study on Parkinson's, which is unrelated to heart disease claims.",
+      "key_evidence": [
+        "2017 umbrella review found coffee linked to lower cardiovascular mortality (HR 0.83)",
+        "1996 JAMA cohort study found no positive association in women",
+        "1999 cohort study showed reduced heart disease risk in men with increased coffee intake",
+        "2017 MEC study in nonwhite populations showed 20% lower mortality with 4+ cups/day"
+      ],
+      "excluded_studies": [
+        {
+          "title": "Frequency of bowel movements and the future risk of Parkinson’s disease",
+          "reason": "Study focuses on Parkinson's disease and bowel habits, not coffee or heart disease"
+        }
+      ],
+      "model": "openrouter/free"
+    },
+    "divergence": false,
+    "result": {
+      "claim": "coffee causes heart disease",
+      "verdict": "evidence-refutes",
+      "consensus_score": -0.97,
+      "confidence": 0.61,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "study_count": 11,
+      "supporting": 0,
+      "refuting": 6,
+      "mixed": 1,
+      "inconclusive": 4,
+      "total_citations": 3766,
+      "stance_method": "heuristic",
+      "relevant_count": 11,
+      "near_unanimous": false,
+      "evidence_guarded": false,
+      "top_supporting": [],
+      "top_refuting": [
+        {
+          "title": "Coffee consumption and health: umbrella review of meta-analyses of multiple health outcomes",
+          "year": 2017,
+          "doi": "10.1136/bmj.j5024",
+          "cited_by_count": 814,
+          "design": "meta-analysis",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "<b>Objectives</b>&nbsp;To evaluate the existing evidence for associations between coffee consumption and multiple health outcomes. <b>Design</b>&nbsp;Umbrella review of the evidence across meta-analyses of observational and interventional studies of coffee consumption and any health outcome. <b>Data sources</b>&nbsp;PubMed, Embase, CINAHL, Cochrane Database of Systematic Reviews, and screening of references. <b>Eligibility criteria for selecting studies</b>&nbsp;Meta-analyses of both observational and interventional studies that examined the associations between coffee consumption and any health outcome in any adult population in all countries and all settings. Studies of genetic polymorphisms for coffee metabolism were excluded. <b>Results</b>&nbsp;The umbrella review identified 201 meta-analyses of observational research with 67 unique health outcomes and 17 meta-analyses of interventional research with nine unique outcomes. Coffee consumption was more often associated with benefit than harm for a range of health outcomes across exposures including high versus low, any versus none, and one extra cup a day. There was evidence of a non-linear association between consumption and some outcomes, with summary estimates indicating largest relative risk reduction at intakes of three to four cups a day versus none, including all cause mortality (relative risk 0.83, 95% confidence interval 0.83 to 0.88), cardiovascular mortality (0.81, 0.72 to 0.90), and cardiovascular disease (0.85,"
+        },
+        {
+          "title": "Association of Coffee Consumption With Total and Cause-Specific Mortality Among Nonwhite Populations",
+          "year": 2017,
+          "doi": "10.7326/m16-2472",
+          "cited_by_count": 305,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: Coffee consumption has been associated with reduced risk for death in prospective cohort studies; however, data in nonwhites are sparse. OBJECTIVE: To examine the association of coffee consumption with risk for total and cause-specific death. DESIGN: The MEC (Multiethnic Cohort), a prospective population-based cohort study established between 1993 and 1996. SETTING: Hawaii and Los Angeles, California. PARTICIPANTS: 185 855 African Americans, Native Hawaiians, Japanese Americans, Latinos, and whites aged 45 to 75 years at recruitment. MEASUREMENTS: Outcomes were total and cause-specific mortality between 1993 and 2012. Coffee intake was assessed at baseline by means of a validated food-frequency questionnaire. RESULTS: 58 397 participants died during 3 195 484 person-years of follow-up (average follow-up, 16.2 years). Compared with drinking no coffee, coffee consumption was associated with lower total mortality after adjustment for smoking and other potential confounders (1 cup per day: hazard ratio [HR], 0.88 [95% CI, 0.85 to 0.91]; 2 to 3 cups per day: HR, 0.82 [CI, 0.79 to 0.86]; ≥4 cups per day: HR, 0.82 [CI, 0.78 to 0.87]; P for trend < 0.001). Trends were similar between caffeinated and decaffeinated coffee. Significant inverse associations were observed in 4 ethnic groups; the association in Native Hawaiians did not reach statistical significance. Inverse associations were also seen in never-smokers, younger participants (<55 years), and those who had not pr"
+        },
+        {
+          "title": "Coffee and tea consumption in the Scottish Heart Health Study follow up: conflicting relations with coronary risk factors, coronary disease, and all cause mortality.",
+          "year": 1999,
+          "doi": "10.1136/jech.53.8.481",
+          "cited_by_count": 199,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "STUDY OBJECTIVE: To relate habitual (cups per day) tea and coffee consumption to conventional coronary risk factors and subsequent risk of coronary heart disease and death. DESIGN: Cohort study. SETTING: Nationwide random population study. PARTICIPANTS: Over 11,000 men and women aged 40-59 who took part in the Scottish Heart Health Study lifestyle and risk factor survey in 1984-87. Participants were followed up to the end of 1993, an average of 7.7 years, for all cause mortality, coronary death, or any major coronary event (death, non-fatal infarction or coronary artery surgery). Cox's proportional hazards regression model was used to estimate the hazard in consumers of tea and coffee relative to the zero consumption group, both before and after correction for other factors. MAIN RESULTS: Coffee and tea consumption showed a strong inverse relation. For many conventional risk factors, coffee showed a weak, but beneficial, gradient with increasing consumption, whereas increasing tea consumption showed the reverse. Increasing coffee consumption was associated with beneficial effects for mortality and coronary morbidity, whereas tea showed the opposite. Adjusting for age and social class had some effect in reducing associations. Multiple adjustment for other risk factors removed the associations for tea and most of those for coffee although there was a residual benefit of coffee consumption in avoiding heart disease among men. CONCLUSIONS: The epidemiological differences shown in"
+        }
+      ],
+      "all_studies": [
+        {
+          "title": "Coffee and tea consumption in the Scottish Heart Health Study follow up: conflicting relations with coronary risk factors, coronary disease, and all cause mortality.",
+          "year": 1999,
+          "doi": "10.1136/jech.53.8.481",
+          "cited_by_count": 199,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "STUDY OBJECTIVE: To relate habitual (cups per day) tea and coffee consumption to conventional coronary risk factors and subsequent risk of coronary heart disease and death. DESIGN: Cohort study. SETTING: Nationwide random population study. PARTICIPANTS: Over 11,000 men and women aged 40-59 who took part in the Scottish Heart Health Study lifestyle and risk factor survey in 1984-87. Participants were followed up to the end of 1993, an average of 7.7 years, for all cause mortality, coronary death, or any major coronary event (death, non-fatal infarction or coronary artery surgery). Cox's proportional hazards regression model was used to estimate the hazard in consumers of tea and coffee relative to the zero consumption group, both before and after correction for other factors. MAIN RESULTS: Coffee and tea consumption showed a strong inverse relation. For many conventional risk factors, coffee showed a weak, but beneficial, gradient with increasing consumption, whereas increasing tea consumption showed the reverse. Increasing coffee consumption was associated with beneficial effects for mortality and coronary morbidity, whereas tea showed the opposite. Adjusting for age and social class had some effect in reducing associations. Multiple adjustment for other risk factors removed the associations for tea and most of those for coffee although there was a residual benefit of coffee consumption in avoiding heart disease among men. CONCLUSIONS: The epidemiological differences shown in"
+        },
+        {
+          "title": "Association of Coffee Drinking with Total and Cause-Specific Mortality",
+          "year": 2012,
+          "doi": "10.1056/nejmoa1112010",
+          "cited_by_count": 602,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "BACKGROUND: Coffee is one of the most widely consumed beverages, but the association between coffee consumption and the risk of death remains unclear. METHODS: We examined the association of coffee drinking with subsequent total and cause-specific mortality among 229,119 men and 173,141 women in the National Institutes of Health-AARP Diet and Health Study who were 50 to 71 years of age at baseline. Participants with cancer, heart disease, and stroke were excluded. Coffee consumption was assessed once at baseline. RESULTS: During 5,148,760 person-years of follow-up between 1995 and 2008, a total of 33,731 men and 18,784 women died. In age-adjusted models, the risk of death was increased among coffee drinkers. However, coffee drinkers were also more likely to smoke, and, after adjustment for tobacco-smoking status and other potential confounders, there was a significant inverse association between coffee consumption and mortality. Adjusted hazard ratios for death among men who drank coffee as compared with those who did not were as follows: 0.99 (95% confidence interval [CI], 0.95 to 1.04) for drinking less than 1 cup per day, 0.94 (95% CI, 0.90 to 0.99) for 1 cup, 0.90 (95% CI, 0.86 to 0.93) for 2 or 3 cups, 0.88 (95% CI, 0.84 to 0.93) for 4 or 5 cups, and 0.90 (95% CI, 0.85 to 0.96) for 6 or more cups of coffee per day (P<0.001 for trend); the respective hazard ratios among women were 1.01 (95% CI, 0.96 to 1.07), 0.95 (95% CI, 0.90 to 1.01), 0.87 (95% CI, 0.83 to 0.92), 0.84 "
+        },
+        {
+          "title": "Effects of Habitual Coffee Consumption on Cardiometabolic Disease, Cardiovascular Health, and All-Cause Mortality",
+          "year": 2013,
+          "doi": "10.1016/j.jacc.2013.06.035",
+          "cited_by_count": 353,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "COFFEE CONSUMPTION AND MORTALITY FROM ISCHEMIC HEART DISEASE AND OTHER CAUSES: RESULTS FROM THE LUTHERAN BROTHERHOOD STUDY, 1966–1978",
+          "year": 1981,
+          "doi": "10.1093/oxfordjournals.aje.a113145",
+          "cited_by_count": 62,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.8300000000000001,
+          "abstract": "Murray, S. S., E. Bjeike, R. W. Gibson and L. M. Schuman (School of Public Health, U. of Minnesota, Minneapolis, MN 55455). Coffee consumption and mortality from Ischemic heart disease and other causes: Results from the Lutheran Brotherhood study, 1966–1978. Am J Epidemiol 1981; 113: 661–7. In this cohort study, 16, 911 men who had completed a mailed dietary questionnaire were followed for 11 ½ years with 721 deaths reported from Ischemic heart disease (IHD) (excluding those reporting on the questionnaire a prior history of angina or other heart conditions). Although no association was found between coffee consumption and mortality from IHD, a negative association between coffee consumption and mortality from diseases other than IHD was found. This negative association, found exclusively in the first four years of follow-up, was observed in deaths from digestive diseases, other than malignancies, and paralysis agitans, which made the greatest contribution to this observed negative association. The negative association appeared to reflect a reduction in coffee consumption related to the disorders in question and not to a protective effect of coffee. It has been suggested that the positive association between coffee consumption and IHD reported in some case-control studies may reflect a decreased consumption among controls rather than an unusually high consumption among cases."
+        },
+        {
+          "title": "Coffee Consumption and the Risk of Coronary Heart Disease and Death",
+          "year": 2000,
+          "doi": "10.1001/archinte.160.22.3393",
+          "cited_by_count": 177,
+          "design": "cross-sectional-study",
+          "stance": "mixed",
+          "stance_confidence": 0.5,
+          "abstract": "OBJECTIVES: To study prospectively the relation of coffee drinking with fatal and nonfatal coronary heart disease (CHD) and all-cause mortality and to perform a cross-sectional analysis at baseline on the association between coffee drinking and CHD risk factors, diagnosed diseases, self-reported symptoms, and use of medicines. METHODS: The study cohort consisted of 20 179 randomly selected eastern Finnish men and women aged 30 to 59 years who participated in a cross-sectional risk factor survey in 1972, 1977, or 1982. Habitual coffee drinking, health behavior, major known CHD risk factors, and medical history were assessed at the baseline examination. Each subject was followed up for 10 years after the survey using the national hospital discharge and death registers. Multivariate analyses were performed by using the Cox proportional hazards model. RESULTS: In men, the risk of nonfatal myocardial infarction was not associated with coffee drinking. The age-adjusted association of coffee drinking was J shaped with CHD mortality and U shaped with all-cause mortality. The highest CHD mortality was found among those who did not drink coffee at all (multivariate adjusted). Also, in women, all-cause mortality decreased by increasing coffee drinking. The prevalence of smoking and the mean level of serum cholesterol increased with increasing coffee drinking. Non-coffee drinkers more often reported a history of various diseases and symptoms, and they also more frequently used several dr"
+        },
+        {
+          "title": "Association of Coffee Consumption With Total and Cause-Specific Mortality Among Nonwhite Populations",
+          "year": 2017,
+          "doi": "10.7326/m16-2472",
+          "cited_by_count": 305,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: Coffee consumption has been associated with reduced risk for death in prospective cohort studies; however, data in nonwhites are sparse. OBJECTIVE: To examine the association of coffee consumption with risk for total and cause-specific death. DESIGN: The MEC (Multiethnic Cohort), a prospective population-based cohort study established between 1993 and 1996. SETTING: Hawaii and Los Angeles, California. PARTICIPANTS: 185 855 African Americans, Native Hawaiians, Japanese Americans, Latinos, and whites aged 45 to 75 years at recruitment. MEASUREMENTS: Outcomes were total and cause-specific mortality between 1993 and 2012. Coffee intake was assessed at baseline by means of a validated food-frequency questionnaire. RESULTS: 58 397 participants died during 3 195 484 person-years of follow-up (average follow-up, 16.2 years). Compared with drinking no coffee, coffee consumption was associated with lower total mortality after adjustment for smoking and other potential confounders (1 cup per day: hazard ratio [HR], 0.88 [95% CI, 0.85 to 0.91]; 2 to 3 cups per day: HR, 0.82 [CI, 0.79 to 0.86]; ≥4 cups per day: HR, 0.82 [CI, 0.78 to 0.87]; P for trend < 0.001). Trends were similar between caffeinated and decaffeinated coffee. Significant inverse associations were observed in 4 ethnic groups; the association in Native Hawaiians did not reach statistical significance. Inverse associations were also seen in never-smokers, younger participants (<55 years), and those who had not pr"
+        },
+        {
+          "title": "Coffee and tea on cardiovascular disease (CVD) prevention",
+          "year": 2021,
+          "doi": "10.1016/j.tcm.2021.08.004",
+          "cited_by_count": 169,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": ""
+        },
+        {
+          "title": "Frequency of bowel movements and the future risk of Parkinson’s disease",
+          "year": 2001,
+          "doi": "10.1212/wnl.57.3.456",
+          "cited_by_count": 830,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "BACKGROUND: Constipation is frequent in PD, although its onset in relation to clinical PD has not been well described. Demonstration that constipation can precede clinical PD could provide important clues to understanding disease progression and etiology. The purpose of this report is to examine the association between the frequency of bowel movements and the future risk of PD. METHODS: Information on the frequency of bowel movements was collected from 1971 to 1974 in 6790 men aged 51 to 75 years without PD in the Honolulu Heart Program. Follow-up for incident PD occurred over a 24-year period. RESULTS: Ninety-six men developed PD an average of 12 years into follow-up. Age-adjusted incidence declined consistently from 18.9/10,000 person-years in men with <1 bowel movement/day to 3.8/10,000 person-years in those with >2/day (p = 0.005). After adjustment for age, pack-years of cigarette smoking, coffee consumption, laxative use, jogging, and the intake of fruits, vegetables, and grains, men with <1 bowel movement/day had a 2.7-fold excess risk of PD versus men with 1/day (95% CI: 1.3, 5.5; p = 0.007). The risk of PD in men with <1 bowel movement/day increased to a 4.1-fold excess when compared with men with 2/day (95% CI: 1.7, 9.6; p = 0.001) and to a 4.5-fold excess versus men with >2/day (95% CI: 1.2, 16.9; p = 0.025). CONCLUSIONS: Findings indicate that infrequent bowel movements are associated with an elevated risk of future PD. Further study is needed to determine whether "
+        },
+        {
+          "title": "Coffee Consumption and Coronary Heart Disease in Women",
+          "year": 1996,
+          "doi": "10.1001/jama.1996.03530300042038",
+          "cited_by_count": 106,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "OBJECTIVE--To assess the relationship between coffee consumption and risk of coronary heart disease (CHD) among women. DESIGN--Prospective cohort study with coffee consumption measured in 1980, 1984, and 1986, and follow-up through 1990. SETTING--Female registered nurses in the United States. PARTICIPANTS--A total of 85,747 US women 34 to 59 years of age in 1980 and without history of CHD, stroke, or cancer. MAIN OUTCOME MEASURE--Ten-year incidence of CHD (defined as nonfatal myocardial infarction or fatal CHD). RESULTS--During 10 years of follow-up we documented 712 cases of CHD. After adjustment for age, smoking, and other CHD risk factors, we found no evidence for any positive association between coffee consumption and risk of subsequent CHD. For women drinking six or more cups of caffeine-containing coffee per day in 1980, the relative risk was 0.95 (95% confidence interval, 0.73 to 1.26) compared with women who did not consume this beverage. Similarly, there was no association when the first 4 years of follow-up were excluded, when nonfatal and fatal CHD end points were examined separately, or when we updated coffee consumption in 1984 or 1986 and examined only CHD during the next 2-year interval. Further, there was no association with caffeine intake from all sources combined or with decaffeinated coffee consumption. CONCLUSIONS--These data indicate that coffee as consumed by US women is not an important cause of CHD."
+        },
+        {
+          "title": "Coffee consumption and health: umbrella review of meta-analyses of multiple health outcomes",
+          "year": 2017,
+          "doi": "10.1136/bmj.j5024",
+          "cited_by_count": 814,
+          "design": "meta-analysis",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "<b>Objectives</b>&nbsp;To evaluate the existing evidence for associations between coffee consumption and multiple health outcomes. <b>Design</b>&nbsp;Umbrella review of the evidence across meta-analyses of observational and interventional studies of coffee consumption and any health outcome. <b>Data sources</b>&nbsp;PubMed, Embase, CINAHL, Cochrane Database of Systematic Reviews, and screening of references. <b>Eligibility criteria for selecting studies</b>&nbsp;Meta-analyses of both observational and interventional studies that examined the associations between coffee consumption and any health outcome in any adult population in all countries and all settings. Studies of genetic polymorphisms for coffee metabolism were excluded. <b>Results</b>&nbsp;The umbrella review identified 201 meta-analyses of observational research with 67 unique health outcomes and 17 meta-analyses of interventional research with nine unique outcomes. Coffee consumption was more often associated with benefit than harm for a range of health outcomes across exposures including high versus low, any versus none, and one extra cup a day. There was evidence of a non-linear association between consumption and some outcomes, with summary estimates indicating largest relative risk reduction at intakes of three to four cups a day versus none, including all cause mortality (relative risk 0.83, 95% confidence interval 0.83 to 0.88), cardiovascular mortality (0.81, 0.72 to 0.90), and cardiovascular disease (0.85,"
+        },
+        {
+          "title": "Coffee consumption and risk of coronary heart disease: A meta-analysis",
+          "year": 2006,
+          "doi": "10.1016/j.numecd.2006.07.013",
+          "cited_by_count": 149,
+          "design": "meta-analysis",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        }
+      ],
+      "note": "15 work(s) excluded by PICO gate (missing intervention [coffe] or outcome [heart disea] in abstract/title)"
+    }
+  }
+}

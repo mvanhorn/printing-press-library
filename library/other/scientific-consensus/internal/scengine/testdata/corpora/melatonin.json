@@ -1,0 +1,370 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "melatonin supplementation improves sleep quality in shift workers",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T08:33:16.186Z"
+  },
+  "rows": [
+    {
+      "claim": "melatonin supplementation improves sleep quality in shift workers",
+      "verdict": "evidence-supports",
+      "consensus_score": 0.84,
+      "confidence": 0.72,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "studies_analyzed": 19,
+      "supporting": 13,
+      "refuting": 1,
+      "mixed": 2,
+      "inconclusive": 3,
+      "method": "heuristic",
+      "ai_stance": "mixed",
+      "ai_confidence": 0.5,
+      "ai_model": "openrouter/free"
+    }
+  ],
+  "response": {
+    "stance_source": "llm:openrouter",
+    "llm_synthesis": {
+      "stance": "mixed",
+      "confidence": 0.5,
+      "reasoning": "The systematic review of melatonin for sleep found no recommendation for use in shift workers due to insufficient evidence, while the meta-analysis of pharmacological interventions for shift work sleep disturbances reported mixed results. Together, the available human evidence does not consistently support that melatonin supplementation improves sleep quality in shift workers.",
+      "key_evidence": [
+        "Systematic review (2014) of 35 RCTs concluded no recommendations for melatonin use in shift workers can be made (weak recommendations only for jet lag and insomnia).",
+        "Meta-analysis (2014) of pharmacological interventions for shift work sleep disturbances reported mixed stance, indicating uncertain effectiveness of included agents such as melatonin."
+      ],
+      "excluded_studies": [
+        {
+          "title": "Melatonin",
+          "reason": "off-topic: general melatonin review, not about shift workers or supplementation"
+        },
+        {
+          "title": "Shift work, sleep, and sleepiness - differences between shift schedules and systems",
+          "reason": "off-topic: about shift schedules, not melatonin"
+        },
+        {
+          "title": "Circadian Rhythm Sleep Disorders: Part I, Basic Principles, Shift Work and Jet Lag Disorders",
+          "reason": "off-topic: discusses shift work disorder treatment but not melatonin supplementation"
+        },
+        {
+          "title": "The Role of Actigraphy in the Evaluation of Sleep Disorders",
+          "reason": "off-topic: about actigraphy, not melatonin"
+        },
+        {
+          "title": "Practice Parameters for the Clinical Evaluation and Treatment of Circadian Rhythm Sleep Disorders",
+          "reason": "off-topic: covers CRSD broadly, not melatonin supplementation for shift workers"
+        },
+        {
+          "title": "Circadian Rhythm Dysregulation and Restoration: The Role of Melatonin",
+          "reason": "off-topic: general melatonin review, not specific to shift workers sleep quality in shift workers"
+        },
+        {
+          "title": "Sleep Quality: A Narrative Review on Nutrition, Stimulants, and Physical Activity as Important Factors",
+          "reason": "off-topic: about nutrition/stimulants, not melatonin"
+        },
+        {
+          "title": "Is Melatonin the Cornucopia of the 21st Century?",
+          "reason": "off-topic: focuses on antioxidant properties, not shift worker sleep"
+        },
+        {
+          "title": "Effects of the endogenous clock and sleep time on melatonin, insulin, glucose and lipid metabolism",
+          "reason": "off-topic: endogenous melatonin metabolism, not supplementation"
+        },
+        {
+          "title": "Exercise-induced oxidative stress and melatonin supplementation: current evidence",
+          "reason": "off-topic: about exercise oxidative stress, not shift workers"
+        },
+        {
+          "title": "Sleep, circadian rhythms, and the pathogenesis of Alzheimer Disease",
+          "reason": "off-topic: about Alzheimer's, not melatonin/shift workers"
+        },
+        {
+          "title": "Increased Melatonin Signaling Is a Risk Factor for Type 2 Diabetes",
+          "reason": "off-topic: about diabetes risk, not sleep"
+        },
+        {
+          "title": "Neurobiology, Pathophysiology, and Treatment of Melatonin Deficiency and Dysfunction",
+          "reason": "off-topic: general melatonin deficiency, not shift workers"
+        },
+        {
+          "title": "Sleep and Metabolism: An Overview",
+          "reason": "off-topic: about sleep-metabolism link, not melatonin"
+        },
+        {
+          "title": "The impact of sleep disorders on glucose metabolism: endocrine and molecular mechanisms",
+          "reason": "off-topic: about glucose metabolism, not melatonin supplementation"
+        },
+        {
+          "title": "Dietary and lifestyle habits and the associated health risks in shift workers",
+          "reason": "off-topic: about diet/lifestyle, not melatonin"
+        },
+        {
+          "title": "Randomised controlled trial of the effects of L-ornithine on stress markers and sleep quality in healthy workers",
+          "reason": "off-topic: about L-ornithine, not melatonin"
+        }
+      ],
+      "model": "openrouter/free"
+    },
+    "divergence": true,
+    "divergence_reason": "direction: heuristic verdict \"evidence-supports\" vs AI stance \"mixed\"",
+    "result": {
+      "claim": "melatonin supplementation improves sleep quality in shift workers",
+      "verdict": "evidence-supports",
+      "consensus_score": 0.84,
+      "confidence": 0.72,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "study_count": 19,
+      "supporting": 13,
+      "refuting": 1,
+      "mixed": 2,
+      "inconclusive": 3,
+      "total_citations": 6639,
+      "stance_method": "heuristic",
+      "relevant_count": 19,
+      "near_unanimous": false,
+      "evidence_guarded": false,
+      "top_supporting": [
+        {
+          "title": "The effectiveness of melatonin for promoting healthy sleep: a rapid evidence assessment of the literature",
+          "year": 2014,
+          "doi": "10.1186/1475-2891-13-106",
+          "cited_by_count": 137,
+          "design": "systematic-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "A systematic review was conducted using Samueli Institute's Rapid Evidence Assessment of the Literature (REAL) process to determine the evidence base for melatonin as an agent to optimize sleep or improve sleep quality, and generalize the results to a military, civilian, or other healthy, active, adult population. Multiple databases were searched yielding 35 randomized controlled trials (RCTs) meeting the review's inclusion criteria, which were assessed for methodological quality as well as for melatonin effectiveness. The majority of included studies were high quality (83.0%). Overall, according to Grading Recommendations, Assessment Development and Evaluation (GRADE) methodology, weak recommendations were made for preventing phase shifts from jet lag, for improving insomnia in both healthy volunteers and individuals with a history of insomnia, and for initiating sleep and/or improving sleep efficacy. Based on the literature to date, no recommendations for use in shift workers or to improve hormonal phase shift changes in healthy people can be made at this time. Larger and longer-duration RCTs utilizing well characterized products are needed to warrant melatonin recommendations in young, healthy adults."
+        },
+        {
+          "title": "Randomised controlled trial of the effects of L-ornithine on stress markers and sleep quality in healthy workers",
+          "year": 2014,
+          "doi": "10.1186/1475-2891-13-53",
+          "cited_by_count": 89,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: L-ornithine is a non-essential, non-protein amino acid. Although L-ornithine is contained in various foods, the amount is usually small.Recently, studies have shown that orally administered L-ornithine reduced the stress response in animals.From these findings, we speculated that L-ornithine may play a role in the relieve of stress and improve sleep and fatigue symptoms in humans. Through a randomised, double-blind, placebo-controlled clinical study, we asked if L-ornithine could be beneficial to stress and sleep in healthy workers. METHOD: Fifty-two apparently healthy Japanese adults who had previously felt slight stress as well as fatigue were recruited to be study participants and were randomly divided into either the L-ornithine (400 mg/day) or placebo group. They orally consumed the respective test substance every day for 8 weeks. Serum was collected for the assessment of cortisol and dehydroepiandrosterone-sulphate (DHEA-S). Perceived mood and quality of sleep were measured by the Profile of Mood States (POMS), Athens Insomnia Scale (AIS), and Ogri-Shirakawa-Azumi sleep inventory MA version (OSA-MA). RESULTS: Serum cortisol levels and the cortisol/DHEA-S ratio were significantly decreased in the L-ornithine group in comparison with the placebo group. Also, anger was reduced and perceived sleep quality was improved in the L-ornithine group. CONCLUSION: L-ornithine supplementation has the potential to relieve stress and improve sleep quality related to fatigue"
+        },
+        {
+          "title": "The Role of Actigraphy in the Evaluation of Sleep Disorders",
+          "year": 1995,
+          "doi": "10.1093/sleep/18.4.288",
+          "cited_by_count": 919,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "This paper, which has been reviewed and approved by the Board of Directors of the American Sleep Disorders Association, provides the background for the Standards of Practice Committee's parameters for the practice of sleep medicine in North America. The growing use of activity-based monitoring (actigraphy) in sleep medicine and sleep research has enriched and challenged traditional sleep-monitoring techniques. This review summarizes the empirical data on the validity of actigraphy in assessing sleep-wake patterns and assessing clinical and control groups ranging in age from infancy to elderly. An overview of sleep-related actigraphic studies is also included. Actigraphy provides useful measures of sleep-wake schedule and sleep quality. The data also suggest that actigraphy, despite its limitations, may be a useful, cost-effective method for assessing specific sleep disorders, such as insomnia and schedule disorders, and for monitoring their treatment process. Methodological issues such as the proper use of actigraphy and possible artifacts have not been systematically addressed in clinical research and practice."
+        }
+      ],
+      "top_refuting": [
+        {
+          "title": "Circadian Rhythm Dysregulation and Restoration: The Role of Melatonin",
+          "year": 2021,
+          "doi": "10.3390/nu13103480",
+          "cited_by_count": 335,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Sleep is an essential component of overall human health but is so tightly regulated that when disrupted can cause or worsen certain ailments. An important part of this process is the presence of the well-known hormone, melatonin. This compound assists in the governing of sleep and circadian rhythms. Previous studies have postulated that dysregulation of melatonin rhythms is the driving force behind sleep and circadian disorders. A computer-aided search spanning the years of 2015-2020 using the search terms melatonin, circadian rhythm, disorder yielded 52 full text articles that were analyzed. We explored the mechanisms behind melatonin dysregulation and how it affects various disorders. Additionally, we examined associated therapeutic treatments including bright light therapy (BLT) and exogenous forms of melatonin. We found that over the past 5 years, melatonin has not been widely investigated in clinical studies thus there remains large gaps in its potential utilization as a therapy."
+        }
+      ],
+      "all_studies": [
+        {
+          "title": "Melatonin",
+          "year": 2006,
+          "doi": "10.1111/j.1742-4658.2006.05322.x",
+          "cited_by_count": 870,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Melatonin is a ubiquitous molecule and widely distributed in nature, with functional activity occurring in unicellular organisms, plants, fungi and animals. In most vertebrates, including humans, melatonin is synthesized primarily in the pineal gland and is regulated by the environmental light/dark cycle via the suprachiasmatic nucleus. Pinealocytes function as 'neuroendocrine transducers' to secrete melatonin during the dark phase of the light/dark cycle and, consequently, melatonin is often called the 'hormone of darkness'. Melatonin is principally secreted at night and is centrally involved in sleep regulation, as well as in a number of other cyclical bodily activities. Melatonin is exclusively involved in signaling the 'time of day' and 'time of year' (hence considered to help both clock and calendar functions) to all tissues and is thus considered to be the body's chronological pacemaker or 'Zeitgeber'. Synthesis of melatonin also occurs in other areas of the body, including the retina, the gastrointestinal tract, skin, bone marrow and in lymphocytes, from which it may influence other physiological functions through paracrine signaling. Melatonin has also been extracted from the seeds and leaves of a number of plants and its concentration in some of this material is several orders of magnitude higher than its night-time plasma value in humans. Melatonin participates in diverse physiological functions. In addition to its timekeeping functions, melatonin is an effective an"
+        },
+        {
+          "title": "Shift work, sleep, and sleepiness - differences between shift schedules and systems",
+          "year": 2010,
+          "doi": "10.5271/sjweh.2900",
+          "cited_by_count": 411,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "In this narrative review, we examined what level of research evidence is available that shift workers' sleep-wake disturbances can be minimized through ergonomic shift scheduling. We classified the pertinent studies conducted on real shift workers in field conditions by the type of shift system and study design (ie, whether the shift systems were modified or not - \"treatment\" versus \"no treatment\"). The results of the observational studies in which no changes to the shift system were made (ie, no treatment) showed that, irrespective of the shift system, night and early-morning shifts and quick returns are associated with short sleep and increases in sleepiness. The same is true for very long shifts (>16 hours) and extremely long weekly working hours (>55 hours). For all categories of shift systems, there was a lack of controlled intervention studies, limiting the possibility to provide solution-focused recommendations for shift scheduling. Most of the controlled intervention studies had been conducted on workers under regular 3-shift systems. These studies suggested that a change from slowly backward-rotating shifts to rapidly forward-rotating shifts is advantageous for alertness and, to some degree, sleep. We also found that a change from an 8- to 12-hour shift system does not necessarily result in impairments in the sleep-wake pattern. The level of research evidence was affected by many of the studies' frequent methodological limitations in measuring sleep and sleepiness. I"
+        },
+        {
+          "title": "Circadian Rhythm Sleep Disorders: Part I, Basic Principles, Shift Work and Jet Lag Disorders",
+          "year": 2007,
+          "doi": "10.1093/sleep/30.11.1460",
+          "cited_by_count": 646,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "OBJECTIVE: This the first of two articles reviewing the scientific literature on the evaluation and treatment of circadian rhythm sleep disorders (CRSDs), employing the methodology of evidence-based medicine. In this first part of this paper, the general principles of circadian biology that underlie clinical evaluation and treatment are reviewed. We then report on the accumulated evidence regarding the evaluation and treatment of shift work disorder (SWD) and jet lag disorder (JLD). METHODS: A set of specific questions relevant to clinical practice were formulated, a systematic literature search was performed, and relevant articles were abstracted and graded. RESULTS: A substantial body of literature has accumulated that provides a rational basis the evaluation and treatment of SWD and JLD. Physiological assessment has involved determination of circadian phase using core body temperature and the timing of melatonin secretion. Behavioral assessment has involved sleep logs, actigraphy and the Morningness-Eveningness Questionnaire (MEQ). Treatment interventions fall into three broad categories: 1) prescribed sleep scheduling, 2) circadian phase shifting (\"resetting the clock\"), and 3) symptomatic treatment using hypnotic and stimulant medications. CONCLUSION: Circadian rhythm science has also pointed the way to rational interventions for the SWD and JLD, and these treatments have been introduced into the practice of sleep medicine with varying degrees of success. More translatio"
+        },
+        {
+          "title": "The Role of Actigraphy in the Evaluation of Sleep Disorders",
+          "year": 1995,
+          "doi": "10.1093/sleep/18.4.288",
+          "cited_by_count": 919,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "This paper, which has been reviewed and approved by the Board of Directors of the American Sleep Disorders Association, provides the background for the Standards of Practice Committee's parameters for the practice of sleep medicine in North America. The growing use of activity-based monitoring (actigraphy) in sleep medicine and sleep research has enriched and challenged traditional sleep-monitoring techniques. This review summarizes the empirical data on the validity of actigraphy in assessing sleep-wake patterns and assessing clinical and control groups ranging in age from infancy to elderly. An overview of sleep-related actigraphic studies is also included. Actigraphy provides useful measures of sleep-wake schedule and sleep quality. The data also suggest that actigraphy, despite its limitations, may be a useful, cost-effective method for assessing specific sleep disorders, such as insomnia and schedule disorders, and for monitoring their treatment process. Methodological issues such as the proper use of actigraphy and possible artifacts have not been systematically addressed in clinical research and practice."
+        },
+        {
+          "title": "Practice Parameters for the Clinical Evaluation and Treatment of Circadian Rhythm Sleep Disorders",
+          "year": 2007,
+          "doi": "10.1093/sleep/30.11.1445",
+          "cited_by_count": 625,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The expanding science of circadian rhythm biology and a growing literature in human clinical research on circadian rhythm sleep disorders (CRSDs) prompted the American Academy of Sleep Medicine (AASM) to convene a task force of experts to write a review of this important topic. Due to the extensive nature of the disorders covered, the review was written in two sections. The first review paper, in addition to providing a general introduction to circadian biology, addresses \"exogenous\" circadian rhythm sleep disorders, including shift work disorder (SWD) and jet lag disorder (JLD). The second review paper addresses the \"endogenous\" circadian rhythm sleep disorders, including advanced sleep phase disorder (ASPD), delayed sleep phase disorder (DSPD), irregular sleep-wake rhythm (ISWR), and the non-24-hour sleep-wake syndrome (nonentrained type) or free-running disorder (FRD). These practice parameters were developed by the Standards of Practice Committee and reviewed and approved by the Board of Directors of the AASM to present recommendations for the assessment and treatment of CRSDs based on the two accompanying comprehensive reviews. The main diagnostic tools considered include sleep logs, actigraphy, the Morningness-Eveningness Questionnaire (MEQ), circadian phase markers, and polysomnography. Use of a sleep log or diary is indicated in the assessment of patients with a suspected circadian rhythm sleep disorder (Guideline). Actigraphy is indicated to assist in evaluation of p"
+        },
+        {
+          "title": "Circadian Rhythm Dysregulation and Restoration: The Role of Melatonin",
+          "year": 2021,
+          "doi": "10.3390/nu13103480",
+          "cited_by_count": 335,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Sleep is an essential component of overall human health but is so tightly regulated that when disrupted can cause or worsen certain ailments. An important part of this process is the presence of the well-known hormone, melatonin. This compound assists in the governing of sleep and circadian rhythms. Previous studies have postulated that dysregulation of melatonin rhythms is the driving force behind sleep and circadian disorders. A computer-aided search spanning the years of 2015-2020 using the search terms melatonin, circadian rhythm, disorder yielded 52 full text articles that were analyzed. We explored the mechanisms behind melatonin dysregulation and how it affects various disorders. Additionally, we examined associated therapeutic treatments including bright light therapy (BLT) and exogenous forms of melatonin. We found that over the past 5 years, melatonin has not been widely investigated in clinical studies thus there remains large gaps in its potential utilization as a therapy."
+        },
+        {
+          "title": "The effectiveness of melatonin for promoting healthy sleep: a rapid evidence assessment of the literature",
+          "year": 2014,
+          "doi": "10.1186/1475-2891-13-106",
+          "cited_by_count": 137,
+          "design": "systematic-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "A systematic review was conducted using Samueli Institute's Rapid Evidence Assessment of the Literature (REAL) process to determine the evidence base for melatonin as an agent to optimize sleep or improve sleep quality, and generalize the results to a military, civilian, or other healthy, active, adult population. Multiple databases were searched yielding 35 randomized controlled trials (RCTs) meeting the review's inclusion criteria, which were assessed for methodological quality as well as for melatonin effectiveness. The majority of included studies were high quality (83.0%). Overall, according to Grading Recommendations, Assessment Development and Evaluation (GRADE) methodology, weak recommendations were made for preventing phase shifts from jet lag, for improving insomnia in both healthy volunteers and individuals with a history of insomnia, and for initiating sleep and/or improving sleep efficacy. Based on the literature to date, no recommendations for use in shift workers or to improve hormonal phase shift changes in healthy people can be made at this time. Larger and longer-duration RCTs utilizing well characterized products are needed to warrant melatonin recommendations in young, healthy adults."
+        },
+        {
+          "title": "Sleep Quality: A Narrative Review on Nutrition, Stimulants, and Physical Activity as Important Factors",
+          "year": 2022,
+          "doi": "10.3390/nu14091912",
+          "cited_by_count": 379,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Sleep is a cyclically occurring, transient, and functional state that is controlled primarily by neurobiological processes. Sleep disorders and insomnia are increasingly being diagnosed at all ages. These are risk factors for depression, mental disorders, coronary heart disease, metabolic syndrome, and/or high blood pressure. A number of factors can negatively affect sleep quality, including the use of stimulants, stress, anxiety, and the use of electronic devices before sleep. A growing body of evidence suggests that nutrition, physical activity, and sleep hygiene can significantly affect the quality of sleep. The aim of this review was to discuss the factors that can affect sleep quality, such as nutrition, stimulants, and physical activity."
+        },
+        {
+          "title": "Is Melatonin the Cornucopia of the 21st Century?",
+          "year": 2020,
+          "doi": "10.3390/antiox9111088",
+          "cited_by_count": 183,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Melatonin, an indoleamine hormone produced and secreted at night by pinealocytes and extra-pineal cells, plays an important role in timing circadian rhythms (24-h internal clock) and regulating the sleep/wake cycle in humans. However, in recent years melatonin has gained much attention mainly because of its demonstrated powerful lipophilic antioxidant and free radical scavenging action. Melatonin has been proven to be twice as active as vitamin E, believed to be the most effective lipophilic antioxidant. Melatonin-induced signal transduction through melatonin receptors promotes the expression of antioxidant enzymes as well as inflammation-related genes. Melatonin also exerts an immunomodulatory action through the stimulation of high-affinity receptors expressed in immunocompetent cells. Here, we reviewed the efficacy, safety and side effects of melatonin supplementation in treating oxidative stress- and/or inflammation-related disorders, such as obesity, cardiovascular diseases, immune disorders, infectious diseases, cancer, neurodegenerative diseases, as well as osteoporosis and infertility."
+        },
+        {
+          "title": "Effects of the endogenous clock and sleep time on melatonin, insulin, glucose and lipid metabolism",
+          "year": 1998,
+          "doi": "10.1677/joe.0.1570443",
+          "cited_by_count": 125,
+          "design": "unclassified",
+          "stance": "mixed",
+          "stance_confidence": 0.5,
+          "abstract": "This study was undertaken to determine whether the internal clock contributes to the hormone and metabolic responses following food, in an experiment designed to dissociate internal clock effects from other factors. Nine female subjects participated. They lived indoors for 31 days with normal time cues, including the natural light: darkness cycle. For 7 days they retired to bed from 0000 h to 0800 h. They then underwent a 26-h 'constant routine' (CR) starting at 0800 h, being seated awake in dim light with hourly 88 Kcal drinks. They then lived on an imposed 27-h day (18 h of wakefulness, 9 h allowed for sleep), for a total of 27 days. A second 26-h CR, starting at 2200 h, was completed. During each CR salivary melatonin and plasma glucose, triacylglycerol (TAG), non-essential fatty acids (NEFA), insulin, gastric inhibitory peptide (GIP) and glucagon-like peptide-1 (GLP-1) were measured hourly. Melatonin and body temperature data indicated no shift in the endogenous clock during the 27-h imposed schedule. Postprandial NEFA, GIP and GLP-1 showed no consistent effects. Glucose, TAG and insulin increased during the night in the first CR. There was a significant effect of both the endogenous clock and sleep for glucose and TAG, but not for insulin. These findings may be relevant to the known increased risk of cardiovascular disease amongst shift workers."
+        },
+        {
+          "title": "Exercise-induced oxidative stress and melatonin supplementation: current evidence",
+          "year": 2021,
+          "doi": "10.1186/s12576-021-00812-2",
+          "cited_by_count": 132,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Melatonin possesses the indoleamine structure and exerts antioxidant and anti-inflammatory actions and other physiological properties. Physical exercise can influence secretion of melatonin. Melatonin is used as a natural supplement among athletes to regulate sleep cycles and protect muscles against oxidative damage. Despite decades of research, there is still a lack of a comprehensive and critical review on melatonin supplementation and physical activity relationship. The aim of this literature review is to examine the antioxidant, anti-inflammatory and other biological functions played by melatonin with reference to the effect of physical exercise on melatonin secretion and the effect of this compound supplementation on exercise-induced oxidative stress in athletes. Evidence shows that intense exercises disturb antioxidant status of competitive athletes, whereas supplementation with melatonin strengthens antioxidant status in trained athletes in various sports as the compound showed high potency in reduction of the oxidative stress and inflammation markers generated during intense and prolonged exercise."
+        },
+        {
+          "title": "Sleep, circadian rhythms, and the pathogenesis of Alzheimer Disease",
+          "year": 2015,
+          "doi": "10.1038/emm.2014.121",
+          "cited_by_count": 532,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Disturbances in the sleep–wake cycle and circadian rhythms are common symptoms of Alzheimer Disease (AD), and they have generally been considered as late consequences of the neurodegenerative processes. Recent evidence demonstrates that sleep–wake and circadian disruption often occur early in the course of the disease and may even precede the development of cognitive symptoms. Furthermore, the sleep–wake cycle appears to regulate levels of the pathogenic amyloid-beta peptide in the brain, and manipulating sleep can influence AD-related pathology in mouse models via multiple mechanisms. Finally, the circadian clock system, which controls the sleep–wake cycle and other diurnal oscillations in mice and humans, may also have a role in the neurodegenerative process. In this review, we examine the current literature related to the mechanisms by which sleep and circadian rhythms might impact AD pathogenesis, and we discuss potential therapeutic strategies targeting these systems for the prevention of AD. The onset and progression of Alzheimer's disease may be associated with sleep cycle disturbance even before cognitive symptoms appear. Alzheimer's disease is a neurodegenerative condition that primarily affects older people, leading to dementia. Disturbed sleep patterns and problems with circadian rhythms, physiological processes which follow a natural 24-hour cycle, are often symptoms of the disease. David Holtzman and co-workers at the Washington University School of Medicine, USA"
+        },
+        {
+          "title": "Increased Melatonin Signaling Is a Risk Factor for Type 2 Diabetes",
+          "year": 2016,
+          "doi": "10.1016/j.cmet.2016.04.009",
+          "cited_by_count": 256,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": ""
+        },
+        {
+          "title": "Pharmacological interventions for sleepiness and sleep disturbances caused by shift work",
+          "year": 2014,
+          "doi": "10.1002/14651858.cd009776.pub2",
+          "cited_by_count": 109,
+          "design": "meta-analysis",
+          "stance": "mixed",
+          "stance_confidence": 0.5285714285714286,
+          "abstract": "BACKGROUND: Shift work results in sleep-wake disturbances, which cause sleepiness during night shifts and reduce sleep length and quality in daytime sleep after the night shift. In its serious form it is also called shift work sleep disorder. Various pharmacological products are used to ameliorate symptoms of sleepiness or poor sleep length and quality. OBJECTIVES: To evaluate the effects of pharmacological interventions to reduce sleepiness or to improve alertness at work and decrease sleep disturbances whilst off work, or both, in workers undertaking shift work in their present job and to assess their cost-effectiveness. SEARCH METHODS: We searched CENTRAL, MEDLINE, EMBASE, PubMed and PsycINFO up to 20 September 2013 and ClinicalTrials.gov up to July 2013. We also screened reference lists of included trials and relevant reviews. SELECTION CRITERIA: We included all eligible randomised controlled trials (RCTs), including cross-over RCTs, of pharmacological products among workers who were engaged in shift work (including night shifts) in their present jobs and who may or may not have had sleep problems. Primary outcomes were sleep length and sleep quality while off work, alertness and sleepiness, or fatigue at work. DATA COLLECTION AND ANALYSIS: Two authors independently selected studies, extracted data and assessed risk of bias in included trials. We performed meta-analyses where appropriate. MAIN RESULTS: We included 15 randomised placebo-controlled trials with 718 participa"
+        },
+        {
+          "title": "Neurobiology, Pathophysiology, and Treatment of Melatonin Deficiency and Dysfunction",
+          "year": 2012,
+          "doi": "10.1100/2012/640389",
+          "cited_by_count": 170,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Melatonin is a highly pleiotropic signaling molecule, which is released as a hormone of the pineal gland predominantly during night. Melatonin secretion decreases during aging. Reduced melatonin levels are also observed in various diseases, such as types of dementia, some mood disorders, severe pain, cancer, and diabetes type 2. Melatonin dysfunction is frequently related to deviations in amplitudes, phasing, and coupling of circadian rhythms. Gene polymorphisms of melatonin receptors and circadian oscillator proteins bear risks for several of the diseases mentioned. A common symptom of insufficient melatonin signaling is sleep disturbances. It is necessary to distinguish between symptoms that are curable by short melatonergic actions and others that require extended actions during night. Melatonin immediate release is already effective, at moderate doses, for reducing difficulties of falling asleep or improving symptoms associated with poorly coupled circadian rhythms, including seasonal affective and bipolar disorders. For purposes of a replacement therapy based on longer-lasting melatonergic actions, melatonin prolonged release and synthetic agonists have been developed. Therapies with melatonin or synthetic melatonergic drugs have to consider that these agents do not only act on the SCN, but also on numerous organs and cells in which melatonin receptors are also expressed."
+        },
+        {
+          "title": "Sleep and Metabolism: An Overview",
+          "year": 2010,
+          "doi": "10.1155/2010/270832",
+          "cited_by_count": 268,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Sleep and its disorders are increasingly becoming important in our sleep deprived society. Sleep is intricately connected to various hormonal and metabolic processes in the body and is important in maintaining metabolic homeostasis. Research shows that sleep deprivation and sleep disorders may have profound metabolic and cardiovascular implications. Sleep deprivation, sleep disordered breathing, and circadian misalignment are believed to cause metabolic dysregulation through myriad pathways involving sympathetic overstimulation, hormonal imbalance, and subclinical inflammation. This paper reviews sleep and metabolism, and how sleep deprivation and sleep disorders may be altering human metabolism."
+        },
+        {
+          "title": "The impact of sleep disorders on glucose metabolism: endocrine and molecular mechanisms",
+          "year": 2015,
+          "doi": "10.1186/s13098-015-0018-3",
+          "cited_by_count": 308,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Modern lifestyle has profoundly modified human sleep habits. Sleep duration has shortened over recent decades from 8 to 6.5 hours resulting in chronic sleep deprivation. Additionally, irregular sleep, shift work and travelling across time zones lead to disruption of circadian rhythms and asynchrony between the master hypothalamic clock and pacemakers in peripheral tissues. Furthermore, obstructive sleep apnea syndrome (OSA), which affects 4 - 15% of the population, is not only characterized by impaired sleep architecture but also by repetitive hemoglobin desaturations during sleep. Epidemiological studies have identified impaired sleep as an independent risk factor for all cause of-, as well as for cardiovascular, mortality/morbidity. More recently, sleep abnormalities were causally linked to impairments in glucose homeostasis, metabolic syndrome and Type 2 Diabetes Mellitus (T2DM). This review summarized current knowledge on the metabolic alterations associated with the most prevalent sleep disturbances, i.e. short sleep duration, shift work and OSA. We have focused on various endocrine and molecular mechanisms underlying the associations between inadequate sleep quality, quantity and timing with impaired glucose tolerance, insulin resistance and pancreatic β-cell dysfunction. Of these mechanisms, the role of the hypothalamic-pituitary-adrenal axis, circadian pacemakers in peripheral tissues, adipose tissue metabolism, sympathetic nervous system activation, oxidative stress "
+        },
+        {
+          "title": "Dietary and lifestyle habits and the associated health risks in shift workers",
+          "year": 2015,
+          "doi": "10.1017/s095442241500013x",
+          "cited_by_count": 145,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8300000000000001,
+          "abstract": "Traditionally only a small proportion of the workforce was engaged in shift work. Changing economic pressures have resulted in increased engagement in shift work, with approximately 17 % of the workforce in Europe engaged in this work pattern. The present narrative review aimed to summarise the data on the effects of shift work on the diet, lifestyle and health of employees, while addressing the barriers to, and opportunities for, improving health among shift workers. Shift work can result in low-quality diet and irregular eating patterns. Adverse health behaviours are also reported; particularly increased smoking and poor sleep patterns. These altered lifestyle habits, in conjunction with disruption to circadian rhythms, can create an unfavourable metabolic phenotype which facilitates the development and progression of chronic disease. Although the data are inconclusive due to issues such as poor study design and inadequate control for confounding factors; shift workers appear to be at increased mental and physical health risk, particularly with regard to non-communicable diseases. Information is lacking on the obstacles to leading a healthier lifestyle while working shifts, and where opportunities lie for intervention and health promotion among this group. In order to provide an informed evidence base to assist shift workers in overcoming associated occupational hazards, this gap must be addressed. This review highlights the unique nutritional issues faced by shift workers,"
+        },
+        {
+          "title": "Randomised controlled trial of the effects of L-ornithine on stress markers and sleep quality in healthy workers",
+          "year": 2014,
+          "doi": "10.1186/1475-2891-13-53",
+          "cited_by_count": 89,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: L-ornithine is a non-essential, non-protein amino acid. Although L-ornithine is contained in various foods, the amount is usually small.Recently, studies have shown that orally administered L-ornithine reduced the stress response in animals.From these findings, we speculated that L-ornithine may play a role in the relieve of stress and improve sleep and fatigue symptoms in humans. Through a randomised, double-blind, placebo-controlled clinical study, we asked if L-ornithine could be beneficial to stress and sleep in healthy workers. METHOD: Fifty-two apparently healthy Japanese adults who had previously felt slight stress as well as fatigue were recruited to be study participants and were randomly divided into either the L-ornithine (400 mg/day) or placebo group. They orally consumed the respective test substance every day for 8 weeks. Serum was collected for the assessment of cortisol and dehydroepiandrosterone-sulphate (DHEA-S). Perceived mood and quality of sleep were measured by the Profile of Mood States (POMS), Athens Insomnia Scale (AIS), and Ogri-Shirakawa-Azumi sleep inventory MA version (OSA-MA). RESULTS: Serum cortisol levels and the cortisol/DHEA-S ratio were significantly decreased in the L-ornithine group in comparison with the placebo group. Also, anger was reduced and perceived sleep quality was improved in the L-ornithine group. CONCLUSION: L-ornithine supplementation has the potential to relieve stress and improve sleep quality related to fatigue"
+        }
+      ]
+    }
+  }
+}

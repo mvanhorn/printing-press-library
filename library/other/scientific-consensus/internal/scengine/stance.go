@@ -2,6 +2,7 @@ package scengine
 
 import (
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -48,16 +49,98 @@ var (
 	claimHarmCues    = regexp.MustCompile(`(?i)\b(caus\w+|increas\w+ (the )?risk|rais\w+ (the )?risk|worsen\w*|lead\w* to|harm\w*|damag\w*|toxic\w*)`)
 	claimBenefitCues = regexp.MustCompile(`(?i)\b(improv\w+|reduc\w+ (the )?risk|lower\w* (the )?risk|prevent\w+|treat\w+|protect\w+|benefi\w+|enhanc\w+|alleviat\w+|boost\w*|cure\w*|effective\b)`)
 
+	// polarityVerbCues locates the split point in a claim for PICOTokens.
+	// Direction-neutral: fires on both harm and benefit verbs so the PICO
+	// gate activates for both claim directions. Used only by PICOTokens in
+	// pico.go — detectClaimDirection keeps using claimHarmCues/claimBenefitCues.
+	polarityVerbCues = regexp.MustCompile(`(?i)\b(caus|improv|reduc|increas|decreas|prevent|lower|rais|protect|worsen|treat|affect|promot|contribut|alleviat)\w*`)
+
 	// Direction cues for harm-asserting claims: generic comparatives whose
-	// trailing window must name a claim content token (see
-	// windowHasClaimToken) before they count, so "greater weight gain" ties
-	// to a weight-gain claim but "greater adherence" does not.
+	// surrounding scope must name the claim's content before they count (see
+	// positiveCueCounts), so "greater weight gain" ties to a weight-gain claim
+	// but "greater adherence" does not.
 	directionUpCues   = regexp.MustCompile(`(?i)\b(significantly\s+)?(greater|higher|elevated|more|increas\w+)\b`)
 	directionDownCues = regexp.MustCompile(`(?i)\b(significantly\s+)?(less|lower|fewer|smaller|reduc\w+|decreas\w+)\b`)
+
+	// negationCues mark a clause as negated. Applied ONLY to a short backward
+	// window before a positive cue (negation scope is local): a sentence-wide
+	// search would silently drop genuine harm findings that merely follow an
+	// unrelated "no" earlier in the same sentence.
+	negationCues = regexp.MustCompile(`(?i)\b(no|not|never|without|lack\w*|fail\w*|against|reject\w*|absence)\b`)
+
+	// framingCues mark a sentence as posing a question, restating someone
+	// else's hypothesis, or describing a public belief — rhetorical framing,
+	// not a reported finding. Applied to the WHOLE enclosing sentence because
+	// framing is a property of the sentence, not of the words next to the cue
+	// ("Objective: To evaluate whether the vaccine increases the risk ...").
+	framingCues = regexp.MustCompile(`(?i)(objective:|\bwhether\b|hypothes\w*|\bconcern\w*|\bbelief\w*|\bmyth\w*|misinformation)`)
 
 	// claimTokenSplit tokenizes a lowercased claim for content-token
 	// extraction (shared with the CLI relevance gate via ClaimContentTokens).
 	claimTokenSplit = regexp.MustCompile(`[^a-z0-9]+`)
+
+	// strongRefutCues (Option C) are syntactically unambiguous refutations of a
+	// causal claim. They are matched against the FULL text and need no pairing:
+	// the phrasing itself names the causal relation ("does not cause", "no
+	// causal link"), so there is nothing left to tie to the claim. The B2
+	// framing gate still applies — "whether vaccines do not cause autism" is a
+	// question, not a refutation.
+	//
+	// Deliberately separate from nullCues: nullCues also feeds the
+	// claim-agnostic baseline used by benefit-asserting claims, where "does not
+	// cause side effects" is not a null result. These fire on the harm branch
+	// only.
+	strongRefutCues = []*regexp.Regexp{
+		regexp.MustCompile(`(?i)\b(?:did|does?|do)\s+not\s+cause\b`),
+		regexp.MustCompile(`(?i)\bdoes?\s+not\s+support\s+(?:a\s+)?causal\b`),
+		regexp.MustCompile(`(?i)\bnot\s+support\s+(?:a\s+)?causal\b`),
+		regexp.MustCompile(`(?i)\bno\s+causal\s+(?:link|association|relationship|evidence)\b`),
+		regexp.MustCompile(`(?i)\black\s+of\s+(?:(?:a|any)\s+)?(?:causal\s+)?association\b`),
+		regexp.MustCompile(`(?i)\bnot\s+associated?\s+with\s+(?:an?\s+)?increased?\s+risk\b`),
+	}
+
+	// metaRefutCues (Option C) are meta-scientific markers: the paper is about
+	// a claim having been withdrawn or disproved. They are far weaker evidence
+	// than strongRefutCues because a paper ARGUING FOR the link can mention a
+	// retraction in its background, so both sides of the claim must appear
+	// within metaRefutRadius bytes of the cue before it counts.
+	metaRefutCues = []*regexp.Regexp{
+		regexp.MustCompile(`(?i)\bevidence\s+(?:strongly\s+)?against\b`),
+		regexp.MustCompile(`(?i)\bfurther\s+evidence\s+against\b`),
+		regexp.MustCompile(`(?i)\brefut(?:e[sd]?|ing|ation)\b`),
+		regexp.MustCompile(`(?i)\bdebunk(?:s|ed|ing)?\b`),
+		regexp.MustCompile(`(?i)\bretract(?:ed|ion|ing)?\b`),
+		regexp.MustCompile(`(?i)\bfraud(?:ulent)?\b`),
+	}
+)
+
+const (
+	// posPairWindow bounds how far from a positive cue the claim's two sides
+	// may sit. Intersected with the enclosing sentence, so it is a cap on an
+	// already sentence-scoped window, never a way to reach across a sentence
+	// boundary.
+	posPairWindow = 120
+
+	// negationLookback is how far back from a positive cue a negation word is
+	// searched for. Deliberately short: "does not increase the risk" must be
+	// caught, "no benefit was seen, but mortality increased" must not be.
+	negationLookback = 25
+
+	// claimStemLen truncates content tokens so inflected forms still match
+	// ("sweeteners" -> "sweet" matches "sweetener").
+	claimStemLen = 5
+
+	// metaRefutRadius is how far either side of a meta refutation cue the
+	// claim's two sides are searched for. Wider than posPairWindow's sentence
+	// clipping because these cues legitimately sit in a title while the claim
+	// terms sit in the subtitle.
+	metaRefutRadius = 80
+
+	// refutationConfidence is the confidence reported when an Option C cue
+	// decides the stance. It matches what a single dominant cue earns from
+	// confidenceFrom, so a decisive refutation is not scored as more certain
+	// than the counting path can justify.
+	refutationConfidence = 0.9
 )
 
 // ClassifyStance scores a single work's title+abstract relative to the claim.
@@ -67,7 +150,7 @@ var (
 // ambiguous claims (including the empty claim) keep the claim-agnostic
 // baseline: stance from the reported finding's polarity. confidence is 0..1.
 func ClassifyStance(title, abstract, claim string) (Stance, float64) {
-	hay := strings.ToLower(title + ". " + abstract)
+	hay := strings.ToLower(normalizeText(title + ". " + abstract))
 	if detectClaimDirection(claim) == claimHarm {
 		return classifyAgainstHarmClaim(hay, claim)
 	}
@@ -152,19 +235,41 @@ func detectClaimDirection(claim string) claimDir {
 }
 
 // classifyAgainstHarmClaim scores a work against a HARM-asserting claim.
-// Reported harm — harm cues, or an upward direction cue whose trailing window
-// names a claim token — supports the claim; null findings, reported benefit,
-// and downward direction cues on a claim token refute it. Window
-// re-inspection is the RE2-safe substitute for lookahead, mirroring
-// increaseHarmContext — do not reintroduce (?!...) here.
+// Reported harm supports the claim; null findings, reported benefit, and
+// downward direction cues on a claim token refute it.
+//
+// The positive side is deliberately much harder to earn than the negative one.
+// A vaccine-safety literature search is saturated with harm VOCABULARY
+// ("adverse event", "toxic", "increased risk") that appears in papers whose
+// actual finding is the opposite, so an ungated positive count reads a corpus
+// of refutations as agreement. Every positive cue must therefore survive four
+// gates (see positiveCueSpans / positiveCueCounts):
+//
+//	dedup   — harmCues and directionUpCues matching the same span count once
+//	framing — cues inside a question/hypothesis/belief sentence are not findings
+//	negation— "does not increase the risk" is not a report of increased risk
+//	pairing — the claim's intervention side AND outcome side must both be in scope
+//
+// Under-counting harm is the safer failure here: it yields inconclusive, not a
+// false confirmation. Window re-inspection is the RE2-safe substitute for
+// lookahead, mirroring increaseHarmContext — do not reintroduce (?!...) here.
 func classifyAgainstHarmClaim(hay, claim string) (Stance, float64) {
 	stems := claimTokenStems(claim)
-	pos := len(harmCues.FindAllString(hay, -1))
-	for _, loc := range directionUpCues.FindAllStringIndex(hay, -1) {
-		if windowHasClaimToken(hay, loc[1], stems) {
+	intervention, outcome := claimSides(claim)
+	// Pairing needs both sides of the claim. When the claim cannot be split
+	// (no polarity verb, or nothing but polarity words on one side) the gate
+	// is disabled and directionUpCues fall back to the original trailing-window
+	// check, so an unsplittable claim degrades to the previous behavior rather
+	// than to silence.
+	paired := len(intervention) > 0 && len(outcome) > 0
+
+	pos := 0
+	for _, sp := range positiveCueSpans(hay, stems, paired) {
+		if positiveCueCounts(hay, sp, intervention, outcome, paired) {
 			pos++
 		}
 	}
+
 	neg := len(nullCues.FindAllString(hay, -1))
 	for _, loc := range directionDownCues.FindAllStringIndex(hay, -1) {
 		if windowHasClaimToken(hay, loc[1], stems) {
@@ -173,13 +278,263 @@ func classifyAgainstHarmClaim(hay, claim string) (Stance, float64) {
 	}
 	// A reported benefit contradicts a harm claim. "increas*" support matches
 	// are direction-ambiguous here and already handled by directionUpCues.
-	for _, m := range supportCues.FindAllString(hay, -1) {
-		if strings.Contains(m, "increas") {
+	// Direction-ambiguous stems are excluded outright: in harm literature
+	// "positive association" and "enhanced" report the association's sign or
+	// magnitude, not a benefit, and "increas*" is already directionUpCues'.
+	// The rest must clear the SAME framing/negation/pairing gates the positive
+	// side clears. Measured on the smoking corpus (26 works, 2026-08-16): the
+	// ungated block produced 16 refuting against 3 supporting, and every one of
+	// those 16 carried nullCues=0 — the refutation came entirely from
+	// "prevention" (13 hits), "improv*" (11) and "benefit*" (6), which a causal
+	// corpus is saturated with precisely BECAUSE the association is real.
+	// Gated: 4 refuting, 6 supporting. Doll & Peto's 40-year cohort stops being
+	// read as a refutation of the claim it established.
+	for _, loc := range supportCues.FindAllStringIndex(hay, -1) {
+		m := hay[loc[0]:loc[1]]
+		if strings.Contains(m, "increas") ||
+			strings.Contains(m, "positive ") ||
+			strings.Contains(m, "enhanc") {
+			continue
+		}
+		sp := cueSpan{loc[0], loc[1]}
+		sentStart, sentEnd := sentenceBounds(hay, sp.start)
+		if framingCues.MatchString(hay[sentStart:sentEnd]) {
+			continue
+		}
+		if negationCues.MatchString(backWindow(hay, sp.start, sentStart)) {
+			continue
+		}
+		if paired && !pairInScope(hay, sp, sentStart, sentEnd, intervention, outcome) {
 			continue
 		}
 		neg++
 	}
+
+	// --- Option C: refutation cues (harm branch only; nullCues untouched) ---
+	//
+	// These run after the counting pass and can override it. That is deliberate
+	// for STRONG cues: "the evidence does not support a causal association" is a
+	// direct answer to the claim, and it must not be outvoted by harm VOCABULARY
+	// counted elsewhere in the same abstract. META cues are gated by pairing
+	// because they describe the controversy, not the finding.
+	if refuted, ok := refutationOverride(hay, intervention, outcome, paired); ok {
+		return refuted, refutationConfidence
+	}
+
 	return stanceFromCounts(pos, neg)
+}
+
+// refutationOverride applies the Option C cue sets. It reports StanceRefuting
+// and true when a refutation cue fires, or false when none does and the caller
+// should fall back to the counting path.
+func refutationOverride(hay string, intervention, outcome []string, paired bool) (Stance, bool) {
+	// STRONG: full text, no pairing required, but the B2 framing gate still
+	// applies — a question that contains the refutation phrasing is not a
+	// refutation. Framing is checked over the whole text here (not per
+	// sentence) because a strong cue overrides the entire counting pass, so it
+	// deserves the more conservative gate.
+	if !framingCues.MatchString(hay) {
+		for _, re := range strongRefutCues {
+			if re.MatchString(hay) {
+				return StanceRefuting, true
+			}
+		}
+	}
+
+	// META: both sides of the claim must sit within metaRefutRadius of the cue.
+	// An unsplittable claim cannot pair, so meta cues are skipped entirely
+	// rather than fired unconditionally.
+	if !paired {
+		return "", false
+	}
+	for _, re := range metaRefutCues {
+		for _, loc := range re.FindAllStringIndex(hay, -1) {
+			if metaRefutPairing(hay, loc[0], intervention, outcome, metaRefutRadius) {
+				return StanceRefuting, true
+			}
+		}
+	}
+	return "", false
+}
+
+// metaRefutPairing reports whether both claim sides appear within radius bytes
+// of pos in hay. The claim sides are stemmed token lists here rather than
+// regexes, matching how pairInScope ties a cue to the claim.
+func metaRefutPairing(hay string, pos int, intervention, outcome []string, radius int) bool {
+	start := pos - radius
+	if start < 0 {
+		start = 0
+	}
+	end := pos + radius
+	if end > len(hay) {
+		end = len(hay)
+	}
+	w := hay[start:end]
+	return containsAnyStem(w, intervention) && containsAnyStem(w, outcome)
+}
+
+// cueSpan is a byte range in the haystack where a positive cue matched.
+type cueSpan struct{ start, end int }
+
+// positiveCueSpans collects every candidate harm-supporting cue occurrence and
+// removes duplicates. harmCues and directionUpCues overlap heavily by design
+// ("increased risk" matches both), and counting the same words twice inflates
+// the positive side past the mixed/dominant threshold in stanceFromCounts.
+// Overlapping spans are therefore collapsed to the longest one.
+func positiveCueSpans(hay string, stems []string, paired bool) []cueSpan {
+	spans := make([]cueSpan, 0, 8)
+	for _, loc := range harmCues.FindAllStringIndex(hay, -1) {
+		spans = append(spans, cueSpan{loc[0], loc[1]})
+	}
+	for _, loc := range directionUpCues.FindAllStringIndex(hay, -1) {
+		// A bare comparative needs a tie to the claim. With a usable claim
+		// split the stricter pair gate in positiveCueCounts supersedes the
+		// trailing-window check; without one it is the only tie available.
+		if !paired && !windowHasClaimToken(hay, loc[1], stems) {
+			continue
+		}
+		spans = append(spans, cueSpan{loc[0], loc[1]})
+	}
+	// Longest-first at equal starts so the collapsed span is the widest match.
+	sort.Slice(spans, func(i, j int) bool {
+		if spans[i].start != spans[j].start {
+			return spans[i].start < spans[j].start
+		}
+		return spans[i].end > spans[j].end
+	})
+	deduped := make([]cueSpan, 0, len(spans))
+	lastEnd := -1
+	for _, sp := range spans {
+		if sp.start < lastEnd {
+			continue // same words as an already-counted cue
+		}
+		deduped = append(deduped, sp)
+		lastEnd = sp.end
+	}
+	return deduped
+}
+
+// positiveCueCounts reports whether one positive cue occurrence is a genuine
+// report of the claimed harm, applying the framing, negation, and pairing
+// gates described on classifyAgainstHarmClaim.
+func positiveCueCounts(hay string, sp cueSpan, intervention, outcome []string, paired bool) bool {
+	sentStart, sentEnd := sentenceBounds(hay, sp.start)
+
+	// Framing: the sentence poses a question or restates a belief.
+	if framingCues.MatchString(hay[sentStart:sentEnd]) {
+		return false
+	}
+	// Negation, local scope: "... does not increase the risk ...".
+	if negationCues.MatchString(backWindow(hay, sp.start, sentStart)) {
+		return false
+	}
+	// Pairing: both sides of the claim must be in scope, so a cue about the
+	// outcome alone ("autism incidence increased sevenfold") or about the
+	// intervention alone ("increase in negative vaccine tweets") is not read
+	// as evidence that the intervention causes the outcome.
+	if paired && !pairInScope(hay, sp, sentStart, sentEnd, intervention, outcome) {
+		return false
+	}
+	return true
+}
+
+// pairInScope reports whether the claim's intervention side and outcome side
+// both appear within posPairWindow of the cue, clipped to the cue's sentence.
+func pairInScope(hay string, sp cueSpan, sentStart, sentEnd int, intervention, outcome []string) bool {
+	lo := sp.start - posPairWindow
+	if lo < sentStart {
+		lo = sentStart
+	}
+	hi := sp.end + posPairWindow
+	if hi > sentEnd {
+		hi = sentEnd
+	}
+	if lo >= hi {
+		return false
+	}
+	win := hay[lo:hi]
+	return containsAnyStem(win, intervention) && containsAnyStem(win, outcome)
+}
+
+// backWindow returns the text immediately before a cue, clipped to the cue's
+// sentence and to negationLookback characters, and advanced to the next word
+// boundary so a truncated word ("cannot" -> "not") cannot fake a negation.
+func backWindow(hay string, at, sentStart int) string {
+	from := at - negationLookback
+	if from < sentStart {
+		from = sentStart
+	}
+	if from < 0 {
+		from = 0
+	}
+	if from > sentStart {
+		if sp := strings.IndexByte(hay[from:at], ' '); sp >= 0 {
+			from += sp
+		} else {
+			from = at
+		}
+	}
+	return hay[from:at]
+}
+
+// sentenceBounds returns the [start, end) range of the sentence containing the
+// byte offset at.
+func sentenceBounds(hay string, at int) (int, int) {
+	if at > len(hay) {
+		at = len(hay)
+	}
+	start := 0
+	for i := at - 1; i > 0; i-- {
+		if isSentenceBreak(hay, i) {
+			start = i + 2
+			break
+		}
+	}
+	if start > at {
+		start = at
+	}
+	end := len(hay)
+	for i := at; i < len(hay); i++ {
+		if isSentenceBreak(hay, i) {
+			end = i + 1
+			break
+		}
+	}
+	return start, end
+}
+
+// isSentenceBreak reports whether hay[i] terminates a sentence: ".", ";", "?"
+// or "!" followed by a space and not preceded by a digit, so decimals and
+// confidence intervals ("0.3 per 10 000", "1.18; p=0.11") stay inside one
+// sentence. ":" is deliberately NOT a break, so a section label stays attached
+// to its clause and framingCues can still see "Objective:".
+func isSentenceBreak(hay string, i int) bool {
+	switch hay[i] {
+	case '.', ';', '?', '!':
+	default:
+		return false
+	}
+	if i+1 >= len(hay) || hay[i+1] != ' ' {
+		return false
+	}
+	if i > 0 && hay[i-1] >= '0' && hay[i-1] <= '9' {
+		return false
+	}
+	return true
+}
+
+// claimSides splits a harm-asserting claim around its polarity verb: the
+// content tokens before it name the intervention ("artificial sweeteners"),
+// the ones after it name the outcome ("weight gain"). Both are stemmed like
+// claimTokenStems. Either side may come back empty — callers must treat that
+// as "cannot pair" rather than "no match".
+func claimSides(claim string) (intervention, outcome []string) {
+	lc := strings.ToLower(claim)
+	loc := claimHarmCues.FindStringIndex(lc)
+	if loc == nil {
+		return nil, nil
+	}
+	return stemTokens(ClaimContentTokens(lc[:loc[0]])), stemTokens(ClaimContentTokens(lc[loc[1]:]))
 }
 
 // windowHasClaimToken reports whether the 40 characters after a direction-cue
@@ -190,9 +545,13 @@ func windowHasClaimToken(hay string, from int, stems []string) bool {
 	if end > len(hay) {
 		end = len(hay)
 	}
-	win := hay[from:end]
-	for _, s := range stems {
-		if strings.Contains(win, s) {
+	return containsAnyStem(hay[from:end], stems)
+}
+
+// containsAnyStem reports whether s contains any of the stems.
+func containsAnyStem(s string, stems []string) bool {
+	for _, st := range stems {
+		if strings.Contains(s, st) {
 			return true
 		}
 	}
@@ -253,13 +612,18 @@ func hasPolarityPrefix(tok string) bool {
 	return false
 }
 
-// claimTokenStems truncates content tokens to their first five characters so
-// inflected forms still match ("sweeteners" -> "sweet" matches "sweetener").
+// claimTokenStems truncates content tokens to their first claimStemLen
+// characters so inflected forms still match ("sweeteners" -> "sweet" matches
+// "sweetener").
 func claimTokenStems(claim string) []string {
-	toks := ClaimContentTokens(claim)
+	return stemTokens(ClaimContentTokens(claim))
+}
+
+// stemTokens truncates tokens in place to claimStemLen characters.
+func stemTokens(toks []string) []string {
 	for i, t := range toks {
-		if len(t) > 5 {
-			toks[i] = t[:5]
+		if len(t) > claimStemLen {
+			toks[i] = t[:claimStemLen]
 		}
 	}
 	return toks

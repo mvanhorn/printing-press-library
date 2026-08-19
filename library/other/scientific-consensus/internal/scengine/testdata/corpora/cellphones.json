@@ -1,0 +1,431 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "cell phones cause brain cancer",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T08:11:19.495Z"
+  },
+  "rows": [
+    {
+      "claim": "cell phones cause brain cancer",
+      "verdict": "evidence-refutes",
+      "consensus_score": -0.62,
+      "confidence": 0.59,
+      "evidence_strength": "moderate",
+      "apex_design": "randomized-controlled-trial",
+      "studies_analyzed": 31,
+      "supporting": 5,
+      "refuting": 14,
+      "mixed": 1,
+      "inconclusive": 11,
+      "method": "heuristic",
+      "ai_stance": "",
+      "ai_confidence": "",
+      "ai_model": ""
+    }
+  ],
+  "response": {
+    "stance_source": "heuristic",
+    "llm_error": "read response: context deadline exceeded",
+    "divergence": false,
+    "result": {
+      "claim": "cell phones cause brain cancer",
+      "verdict": "evidence-refutes",
+      "consensus_score": -0.62,
+      "confidence": 0.59,
+      "evidence_strength": "moderate",
+      "apex_design": "randomized-controlled-trial",
+      "study_count": 31,
+      "supporting": 5,
+      "refuting": 14,
+      "mixed": 1,
+      "inconclusive": 11,
+      "total_citations": 16266,
+      "stance_method": "heuristic",
+      "relevant_count": 31,
+      "near_unanimous": false,
+      "evidence_guarded": false,
+      "top_supporting": [
+        {
+          "title": "Risks to Health and Well-Being From Radio-Frequency Radiation Emitted by Cell Phones and Other Wireless Devices",
+          "year": 2019,
+          "doi": "10.3389/fpubh.2019.00223",
+          "cited_by_count": 197,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "(IARC) reviewed the published literature and categorized RFR as a \"possible\" (Group 2B) human carcinogen. A broad range of adverse human health effects associated with RFR have been reported since the IARC review. In addition, three large-scale carcinogenicity studies in rodents exposed to levels of RFR that mimic lifetime human exposures have shown significantly increased rates of Schwannomas and malignant gliomas, as well as chromosomal DNA damage. Of particular concern are the effects of RFR exposure on the developing brain in children. Compared with an adult male, a cell phone held against the head of a child exposes deeper brain structures to greater radiation doses per unit volume, and the young, thin skull's bone marrow absorbs a roughly 10-fold higher local dose. Experimental and observational studies also suggest that men who keep cell phones in their trouser pockets have significantly lower sperm counts and significantly impaired sperm motility and morphology, including mitochondrial DNA damage. Based on the accumulated evidence, we recommend that IARC re-evaluate its 2011 classification of the human carcinogenicity of RFR, and that WHO complete a systematic review of multiple other health effects such as sperm damage. In the interim, current knowledge provides justification for governments, public health authorities, and physicians/allied health professionals to warn the population that having a cell phone next to the body is harmful, and to support measures to red"
+        },
+        {
+          "title": "Identification of Pancreatic Cancer Stem Cells",
+          "year": 2007,
+          "doi": "10.1158/0008-5472.can-06-2030",
+          "cited_by_count": 3366,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "Emerging evidence has suggested that the capability of a tumor to grow and propagate is dependent on a small subset of cells within a tumor, termed cancer stem cells. Although data have been provided to support this theory in human blood, brain, and breast cancers, the identity of pancreatic cancer stem cells has not been determined. Using a xenograft model in which primary human pancreatic adenocarcinomas were grown in immunocompromised mice, we identified a highly tumorigenic subpopulation of pancreatic cancer cells expressing the cell surface markers CD44, CD24, and epithelial-specific antigen (ESA). Pancreatic cancer cells with the CD44(+)CD24(+)ESA(+) phenotype (0.2-0.8% of pancreatic cancer cells) had a 100-fold increased tumorigenic potential compared with nontumorigenic cancer cells, with 50% of animals injected with as few as 100 CD44(+)CD24(+)ESA(+) cells forming tumors that were histologically indistinguishable from the human tumors from which they originated. The enhanced ability of CD44(+)CD24(+)ESA(+) pancreatic cancer cells to form tumors was confirmed in an orthotopic pancreatic tail injection model. The CD44(+)CD24(+)ESA(+) pancreatic cancer cells showed the stem cell properties of self-renewal, the ability to produce differentiated progeny, and increased expression of the developmental signaling molecule sonic hedgehog. Identification of pancreatic cancer stem cells and further elucidation of the signaling pathways that regulate their growth and survival may"
+        },
+        {
+          "title": "Matrix architecture defines the preferential localization and migration of T cells into the stroma of human lung tumors",
+          "year": 2012,
+          "doi": "10.1172/jci45817",
+          "cited_by_count": 1088,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Appropriate localization and migration of T cells is a prerequisite for antitumor immune surveillance. Studies using fixed tumor samples from human patients have shown that T cells accumulate more efficiently in the stroma than in tumor islets, but the mechanisms by which this occurs are unknown. By combining immunostaining and real-time imaging in viable slices of human lung tumors, we revealed that the density and the orientation of the stromal extracellular matrix likely play key roles in controlling the migration of T cells. Active T cell motility, dependent on chemokines but not on β1 or β2 integrins, was observed in loose fibronectin and collagen regions, whereas T cells migrated poorly in dense matrix areas. Aligned fibers in perivascular regions and around tumor epithelial cell regions dictated the migratory trajectory of T cells and restricted them from entering tumor islets. Consistently, matrix reduction with collagenase increased the ability of T cells to contact cancer cells. Thus, the stromal extracellular matrix influences antitumor immunity by controlling the positioning and migration of T cells. Understanding the mechanisms by which this collagen network is generated has the potential to aid in the development of new therapeutics."
+        }
+      ],
+      "top_refuting": [
+        {
+          "title": "Dexamethasone and supportive care with or without whole brain radiotherapy in treating patients with non-small cell lung cancer with brain metastases unsuitable for resection or stereotactic radiotherapy (QUARTZ): results from a phase 3, non-inferiority, randomised trial",
+          "year": 2016,
+          "doi": "10.1016/s0140-6736(16)30825-x",
+          "cited_by_count": 729,
+          "design": "randomized-controlled-trial",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: Whole brain radiotherapy (WBRT) and dexamethasone are widely used to treat brain metastases from non-small cell lung cancer (NSCLC), although there have been no randomised clinical trials showing that WBRT improves either quality of life or overall survival. Even after treatment with WBRT, the prognosis of this patient group is poor. We aimed to establish whether WBRT could be omitted without a significant effect on survival or quality of life. METHODS: The Quality of Life after Treatment for Brain Metastases (QUARTZ) study is a non-inferiority, phase 3 randomised trial done at 69 UK and three Australian centres. NSCLC patients with brain metastases unsuitable for surgical resection or stereotactic radiotherapy were randomly assigned (1:1) to optimal supportive care (OSC) including dexamethasone plus WBRT (20 Gy in five daily fractions) or OSC alone (including dexamethasone). The dose of dexamethasone was determined by the patients' symptoms and titrated downwards if symptoms improved. Allocation to treatment group was done by a phone call from the hospital to the Medical Research Council Clinical Trials Unit at University College London using a minimisation programme with a random element and stratification by centre, Karnofsky Performance Status (KPS), gender, status of brain metastases, and the status of primary lung cancer. The primary outcome measure was quality-adjusted life-years (QALYs). QALYs were generated from overall survival and patients' weekly compl"
+        },
+        {
+          "title": "Glioblastoma and Other Primary Brain Malignancies in Adults",
+          "year": 2023,
+          "doi": "10.1001/jama.2023.0023",
+          "cited_by_count": 1204,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Importance: Malignant primary brain tumors cause more than 15 000 deaths per year in the United States. The annual incidence of primary malignant brain tumors is approximately 7 per 100 000 individuals and increases with age. Five-year survival is approximately 36%. Observations: Approximately 49% of malignant brain tumors are glioblastomas, and 30% are diffusely infiltrating lower-grade gliomas. Other malignant brain tumors include primary central nervous system (CNS) lymphoma (7%) and malignant forms of ependymomas (3%) and meningiomas (2%). Symptoms of malignant brain tumors include headache (50%), seizures (20%-50%), neurocognitive impairment (30%-40%), and focal neurologic deficits (10%-40%). Magnetic resonance imaging before and after a gadolinium-based contrast agent is the preferred imaging modality for evaluating brain tumors. Diagnosis requires tumor biopsy with consideration of histopathological and molecular characteristics. Treatment varies by tumor type and often includes a combination of surgery, chemotherapy, and radiation. For patients with glioblastoma, the combination of temozolomide with radiotherapy improved survival when compared with radiotherapy alone (2-year survival, 27.2% vs 10.9%; 5-year survival, 9.8% vs 1.9%; hazard ratio [HR], 0.6 [95% CI, 0.5-0.7]; P < .001). In patients with anaplastic oligodendroglial tumors with 1p/19q codeletion, probable 20-year overall survival following radiotherapy without vs with the combination of procarbazine, lomust"
+        },
+        {
+          "title": "Epidemiology of primary brain tumors: Current concepts and review of theliterature",
+          "year": 2002,
+          "doi": "10.1093/neuonc/4.4.278",
+          "cited_by_count": 834,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The purpose of this review is to provide a sufficiently detailed perspective on epidemiologic studies of primary brain tumors to encourage multidisciplinary etiologic and prognostic studies among surgeons, neuro-oncologists, epidemiologists, and molecular scientists. Molecular tumor markers that predict survival and treatment response are being identified with hope of even greater gains in this area from emerging array technologies. Regarding risk factors, studies of inherited susceptibility and constitutive polymorphisms in genes pertinent to carcinogenesis (for example, DNA repair and detoxification genes and mutagen sensitivity) have revealed provocative findings. Inverse associations of the history of allergies with glioma risk observed in 3 large studies and reports of inverse associations of glioma with common infections suggest a possible role of immune factors in glioma genesis or progression. Studies continue to suggest that brain tumors might result from workplace, dietary, and other personal and residential exposures, but studies of cell phone use and power frequency electromagnetic fields have found little to support a causal connection with brain tumors; caveats remain. The only proven causes of brain tumors (that is, rare hereditary syndromes, therapeutic radiation, and immune suppression giving rise to brain lymphomas) account for a small proportion of cases. Progress in understanding primary brain tumors might result from studies of well-defined histologic and"
+        }
+      ],
+      "all_studies": [
+        {
+          "title": "Identification of Pancreatic Cancer Stem Cells",
+          "year": 2007,
+          "doi": "10.1158/0008-5472.can-06-2030",
+          "cited_by_count": 3366,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "Emerging evidence has suggested that the capability of a tumor to grow and propagate is dependent on a small subset of cells within a tumor, termed cancer stem cells. Although data have been provided to support this theory in human blood, brain, and breast cancers, the identity of pancreatic cancer stem cells has not been determined. Using a xenograft model in which primary human pancreatic adenocarcinomas were grown in immunocompromised mice, we identified a highly tumorigenic subpopulation of pancreatic cancer cells expressing the cell surface markers CD44, CD24, and epithelial-specific antigen (ESA). Pancreatic cancer cells with the CD44(+)CD24(+)ESA(+) phenotype (0.2-0.8% of pancreatic cancer cells) had a 100-fold increased tumorigenic potential compared with nontumorigenic cancer cells, with 50% of animals injected with as few as 100 CD44(+)CD24(+)ESA(+) cells forming tumors that were histologically indistinguishable from the human tumors from which they originated. The enhanced ability of CD44(+)CD24(+)ESA(+) pancreatic cancer cells to form tumors was confirmed in an orthotopic pancreatic tail injection model. The CD44(+)CD24(+)ESA(+) pancreatic cancer cells showed the stem cell properties of self-renewal, the ability to produce differentiated progeny, and increased expression of the developmental signaling molecule sonic hedgehog. Identification of pancreatic cancer stem cells and further elucidation of the signaling pathways that regulate their growth and survival may"
+        },
+        {
+          "title": "Non-thermal activation of the hsp27/p38MAPK stress pathway by mobile phone radiation in human endothelial cells: Molecular mechanism for cancer- and blood-brain barrier-related effects",
+          "year": 2002,
+          "doi": "10.1046/j.1432-0436.2002.700207.x",
+          "cited_by_count": 409,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Do Cell Phones Cause Brain Cancer?",
+          "year": 2016,
+          "doi": "10.7312/columbia/9780231166461.003.0004",
+          "cited_by_count": 3,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The possibility that using a cell phone could cause brain cancer first arose in the early 1990s and has been the subject of research since then. Radiofrequency waves used in cellular communications are far too weak to induce cancer by any known mechanism, and most scientific and regulatory bodies have found the evidence for health effects from use of mobile phones to be unconvincing. Nevertheless, positive results, largely from a single group of researchers, and an ambiguous assessment from single agency have kept the controversy alive. New studies are in progress."
+        },
+        {
+          "title": "Dexamethasone and supportive care with or without whole brain radiotherapy in treating patients with non-small cell lung cancer with brain metastases unsuitable for resection or stereotactic radiotherapy (QUARTZ): results from a phase 3, non-inferiority, randomised trial",
+          "year": 2016,
+          "doi": "10.1016/s0140-6736(16)30825-x",
+          "cited_by_count": 729,
+          "design": "randomized-controlled-trial",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: Whole brain radiotherapy (WBRT) and dexamethasone are widely used to treat brain metastases from non-small cell lung cancer (NSCLC), although there have been no randomised clinical trials showing that WBRT improves either quality of life or overall survival. Even after treatment with WBRT, the prognosis of this patient group is poor. We aimed to establish whether WBRT could be omitted without a significant effect on survival or quality of life. METHODS: The Quality of Life after Treatment for Brain Metastases (QUARTZ) study is a non-inferiority, phase 3 randomised trial done at 69 UK and three Australian centres. NSCLC patients with brain metastases unsuitable for surgical resection or stereotactic radiotherapy were randomly assigned (1:1) to optimal supportive care (OSC) including dexamethasone plus WBRT (20 Gy in five daily fractions) or OSC alone (including dexamethasone). The dose of dexamethasone was determined by the patients' symptoms and titrated downwards if symptoms improved. Allocation to treatment group was done by a phone call from the hospital to the Medical Research Council Clinical Trials Unit at University College London using a minimisation programme with a random element and stratification by centre, Karnofsky Performance Status (KPS), gender, status of brain metastases, and the status of primary lung cancer. The primary outcome measure was quality-adjusted life-years (QALYs). QALYs were generated from overall survival and patients' weekly compl"
+        },
+        {
+          "title": "Glioblastoma and Other Primary Brain Malignancies in Adults",
+          "year": 2023,
+          "doi": "10.1001/jama.2023.0023",
+          "cited_by_count": 1204,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Importance: Malignant primary brain tumors cause more than 15 000 deaths per year in the United States. The annual incidence of primary malignant brain tumors is approximately 7 per 100 000 individuals and increases with age. Five-year survival is approximately 36%. Observations: Approximately 49% of malignant brain tumors are glioblastomas, and 30% are diffusely infiltrating lower-grade gliomas. Other malignant brain tumors include primary central nervous system (CNS) lymphoma (7%) and malignant forms of ependymomas (3%) and meningiomas (2%). Symptoms of malignant brain tumors include headache (50%), seizures (20%-50%), neurocognitive impairment (30%-40%), and focal neurologic deficits (10%-40%). Magnetic resonance imaging before and after a gadolinium-based contrast agent is the preferred imaging modality for evaluating brain tumors. Diagnosis requires tumor biopsy with consideration of histopathological and molecular characteristics. Treatment varies by tumor type and often includes a combination of surgery, chemotherapy, and radiation. For patients with glioblastoma, the combination of temozolomide with radiotherapy improved survival when compared with radiotherapy alone (2-year survival, 27.2% vs 10.9%; 5-year survival, 9.8% vs 1.9%; hazard ratio [HR], 0.6 [95% CI, 0.5-0.7]; P < .001). In patients with anaplastic oligodendroglial tumors with 1p/19q codeletion, probable 20-year overall survival following radiotherapy without vs with the combination of procarbazine, lomust"
+        },
+        {
+          "title": "Epidemiology of primary brain tumors: Current concepts and review of theliterature",
+          "year": 2002,
+          "doi": "10.1093/neuonc/4.4.278",
+          "cited_by_count": 834,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The purpose of this review is to provide a sufficiently detailed perspective on epidemiologic studies of primary brain tumors to encourage multidisciplinary etiologic and prognostic studies among surgeons, neuro-oncologists, epidemiologists, and molecular scientists. Molecular tumor markers that predict survival and treatment response are being identified with hope of even greater gains in this area from emerging array technologies. Regarding risk factors, studies of inherited susceptibility and constitutive polymorphisms in genes pertinent to carcinogenesis (for example, DNA repair and detoxification genes and mutagen sensitivity) have revealed provocative findings. Inverse associations of the history of allergies with glioma risk observed in 3 large studies and reports of inverse associations of glioma with common infections suggest a possible role of immune factors in glioma genesis or progression. Studies continue to suggest that brain tumors might result from workplace, dietary, and other personal and residential exposures, but studies of cell phone use and power frequency electromagnetic fields have found little to support a causal connection with brain tumors; caveats remain. The only proven causes of brain tumors (that is, rare hereditary syndromes, therapeutic radiation, and immune suppression giving rise to brain lymphomas) account for a small proportion of cases. Progress in understanding primary brain tumors might result from studies of well-defined histologic and"
+        },
+        {
+          "title": "Apoptosis and cancer: mutations within caspase genes",
+          "year": 2009,
+          "doi": "10.1136/jmg.2009.066944",
+          "cited_by_count": 709,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The inactivation of programmed cell death has profound effects not only on the development but also on the overall integrity of multicellular organisms. Beside developmental abnormalities, it may lead to tumorigenesis, autoimmunity, and other serious health problems. Deregulated apoptosis may also be the leading cause of cancer therapy chemoresistance. Caspase family of cysteinyl-proteases plays the key role in the initiation and execution of programmed cell death. This review gives an overview of the role of caspases, their natural modulators like IAPs, FLIPs, and Smac/Diablo in apoptosis and upon inactivation, and also in cancer development. Besides describing the basic mechanisms governing programmed cell death, a large part of this review is dedicated to previous studies that were focused on screening tumours for mutations within caspase genes as well as their regulators. The last part of this review discusses several emerging treatments that involve modulation of caspases and their regulators. Thus, we also highlight caspase cascade modulating experimental anticancer drugs like cFLIP-antagonist CDDO-Me; cIAP1 antagonists OSU-03012 and ME-BS; and XIAP small molecule antagonists 1396-11, 1396-12, 1396-28, triptolide, AEG35156, survivin/Hsp90 antagonist shephedrin, and some of the direct activators of procaspase-3."
+        },
+        {
+          "title": "Epithelial-mesenchymal transitions: the importance of changing cell state in development and disease",
+          "year": 2009,
+          "doi": "10.1172/jci38019",
+          "cited_by_count": 1369,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The events that convert adherent epithelial cells into individual migratory cells that can invade the extracellular matrix are known collectively as epithelial-mesenchymal transition (EMT). Throughout evolution, the capacity of cells to switch between these two cellular states has been fundamental in the generation of complex body patterns. Here, we review the EMT events that build the embryo and further discuss two prototypical processes governed by EMT in amniotes: gastrulation and neural crest formation. Cells undergo EMT to migrate and colonize distant territories. Not surprisingly, this is also the mechanism used by cancer cells to disperse throughout the body."
+        },
+        {
+          "title": "Brain cancer incidence trends in relation to cellular telephone use in the United States",
+          "year": 2010,
+          "doi": "10.1093/neuonc/noq077",
+          "cited_by_count": 100,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The use of cellular telephones has grown explosively during the past two decades, and there are now more than 279 million wireless subscribers in the United States. If cellular phone use causes brain cancer, as some suggest, the potential public health implications could be considerable. One might expect the effects of such a prevalent exposure to be reflected in general population incidence rates, unless the induction period is very long or confined to very long-term users. To address this issue, we examined temporal trends in brain cancer incidence rates in the United States, using data collected by the Surveillance, Epidemiology, and End Results (SEER) Program. Log-linear models were used to estimate the annual percent change in rates among whites. With the exception of the 20-29-year age group, the trends for 1992-2006 were downward or flat. Among those aged 20-29 years, there was a statistically significant increasing trend between 1992 and 2006 among females but not among males. The recent trend in 20-29-year-old women was driven by a rising incidence of frontal lobe cancers. No increases were apparent for temporal or parietal lobe cancers, or cancers of the cerebellum, which involve the parts of the brain that would be more highly exposed to radiofrequency radiation from cellular phones. Frontal lobe cancer rates also rose among 20-29-year-old males, but the increase began earlier than among females and before cell phone use was highly prevalent. Overall, these inciden"
+        },
+        {
+          "title": "Identification of Cancer Stem Cell–Like Side Population Cells in Human Nasopharyngeal Carcinoma Cell Line",
+          "year": 2007,
+          "doi": "10.1158/0008-5472.can-06-4343",
+          "cited_by_count": 363,
+          "design": "unclassified",
+          "stance": "mixed",
+          "stance_confidence": 0.5,
+          "abstract": "Side population (SP) cells have been isolated from several solid tumors. They lack distinct molecular markers for cancer stem cells (CSC) and increasing evidence suggests that they may play an important role in tumorigenesis and cancer therapy. However, there are no reports about the existence and function of SP cells in nasopharyngeal carcinoma (NPC) cells thus far. In this study, we scanned SP cells from five NPC cell lines and investigated stem cell characteristics, such as proliferation, self-renewal, and differentiation, using SP cells from the widely-used CNE-2 NPC cell line. We observed a strong tumorigenesis ability of SP cells following in vivo transplantation into nonobese diabetic/severe combined immunodeficient mice. Immunofluorescence revealed that cytokine 19 was highly expressed on SP cells. SP cells were found to be more resistant to chemotherapy and radiotherapy and this was related to the ATP-binding cassette half transporter member 2 of G family protein and Smoothened protein expression, respectively. Our results not only showed that SP cells in human NPC cell line CNE-2 had stem cell characteristics in vitro but also showed that they had a strong ability to form tumors in vivo. Importantly, we found the cell marker, cytokine 19, may serve as a potential molecular marker for further characterization of CSC. Taken together, our data shed light on tumorigenesis and therapeutic-resistant mechanisms, which are helpful for developing novel targets for effective "
+        },
+        {
+          "title": "Mammary adipocytes stimulate breast cancer invasion through metabolic remodeling of tumor cells",
+          "year": 2017,
+          "doi": "10.1172/jci.insight.87489",
+          "cited_by_count": 450,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "In breast cancer, a key feature of peritumoral adipocytes is their loss of lipid content observed both in vitro and in human tumors. The free fatty acids (FFAs), released by adipocytes after lipolysis induced by tumor secretions, are transferred and stored in tumor cells as triglycerides in lipid droplets. In tumor cell lines, we demonstrate that FFAs can be released over time from lipid droplets through an adipose triglyceride lipase-dependent (ATGL-dependent) lipolytic pathway. In vivo, ATGL is expressed in human tumors where its expression correlates with tumor aggressiveness and is upregulated by contact with adipocytes. The released FFAs are then used for fatty acid β-oxidation (FAO), an active process in cancer but not normal breast epithelial cells, and regulated by coculture with adipocytes. However, in cocultivated cells, FAO is uncoupled from ATP production, leading to AMPK/acetyl-CoA carboxylase activation, a circle that maintains this state of metabolic remodeling. The increased invasive capacities of tumor cells induced by coculture are completely abrogated by inhibition of the coupled ATGL-dependent lipolysis/FAO pathways. These results show a complex metabolic symbiosis between tumor-surrounding adipocytes and cancer cells that stimulate their invasiveness, highlighting ATGL as a potential therapeutic target to impede breast cancer progression."
+        },
+        {
+          "title": "Brain tumour risk in relation to mobile telephone use: results of the INTERPHONE international case–control study",
+          "year": 2010,
+          "doi": "10.1093/ije/dyq079",
+          "cited_by_count": 645,
+          "design": "case-control-study",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "BACKGROUND: The rapid increase in mobile telephone use has generated concern about possible health risks related to radiofrequency electromagnetic fields from this technology. METHODS: An interview-based case-control study with 2708 glioma and 2409 meningioma cases and matched controls was conducted in 13 countries using a common protocol. RESULTS: A reduced odds ratio (OR) related to ever having been a regular mobile phone user was seen for glioma [OR 0.81; 95% confidence interval (CI) 0.70-0.94] and meningioma (OR 0.79; 95% CI 0.68-0.91), possibly reflecting participation bias or other methodological limitations. No elevated OR was observed > or =10 years after first phone use (glioma: OR 0.98; 95% CI 0.76-1.26; meningioma: OR 0.83; 95% CI 0.61-1.14). ORs were <1.0 for all deciles of lifetime number of phone calls and nine deciles of cumulative call time. In the 10th decile of recalled cumulative call time, > or =1640 h, the OR was 1.40 (95% CI 1.03-1.89) for glioma, and 1.15 (95% CI 0.81-1.62) for meningioma; but there are implausible values of reported use in this group. ORs for glioma tended to be greater in the temporal lobe than in other lobes of the brain, but the CIs around the lobe-specific estimates were wide. ORs for glioma tended to be greater in subjects who reported usual phone use on the same side of the head as their tumour than on the opposite side. CONCLUSIONS: Overall, no increase in risk of glioma or meningioma was observed with use of mobile phones. Ther"
+        },
+        {
+          "title": "Mobile phone radiation causes brain tumors and should be classified as a probable human carcinogen (2A) (Review)",
+          "year": 2015,
+          "doi": "10.3892/ijo.2015.2908",
+          "cited_by_count": 149,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Quickly changing technologies and intensive uses of radiofrequency electromagnetic field (RF-EMF)‑emitting phones pose a challenge to public health. Mobile phone users and uses and exposures to other wireless transmitting devices (WTDs) have increased in the past few years. We consider that CERENAT, a French national study, provides an important addition to the literature evaluating the use of mobile phones and risk of brain tumors. The CERENAT finding of increased risk of glioma is consistent with studies that evaluated use of mobile phones for a decade or longer and corroborate those that have shown a risk of meningioma from mobile phone use. In CERENAT, exposure to RF‑EMF from digitally enhanced cordless telephones (DECTs), used by over half the population of France during the period of this study, was not evaluated. If exposures to DECT phones could have been taken into account, the risks of glioma from mobile phone use in CERENAT are likely to be higher than published. We conclude that radiofrequency fields should be classified as a Group 2A ̔probable̓ human carcinogen under the criteria used by the International Agency for Research on Cancer (Lyon, France). Additional data should be gathered on exposures to mobile and cordless phones, other WTDs, mobile phone base stations and Wi‑Fi routers to evaluate their impact on public health. We advise that the as low as reasonable achievable (ALARA) principle be adopted for uses of this technology, while a major cross‑disciplina"
+        },
+        {
+          "title": "Neural Network Based Brain Tumor Detection Using Wireless Infrared Imaging Sensor",
+          "year": 2019,
+          "doi": "10.1109/access.2018.2883957",
+          "cited_by_count": 230,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Now-a-days image processing placed an important role for recognizing various diseases such as breast, lung, and brain tumors in earlier stage for giving the appropriate treatment. Presently, most cancer diagnosis worked according to the visual examination process with effectively. Human visual reviewing of infinitesimal biopsy pictures is exceptionally tedious, subjective, and conflicting due to between and intra-onlooker varieties. In this manner, the malignancy and it’s compose will be distinguished in a beginning time for finish treatment and fix. This brain tumor classification system using machine learning-based back propagation neural networks (MLBPNN) causes pathologists to enhance the exactness and proficiency in location of threat and to limit the entomb onlooker variety. Moreover, the technique may assist doctors with analyzing the picture cell by utilizing order and bunching calculations by recoloring qualities of the phones. The different picture preparing steps required for disease location from biopsy pictures incorporate procurement, upgrade, and division; include extraction, picture portrayal, characterization, and basic leadership. In this paper, MLBPNN is analyzed with the help of infra-red sensor imaging technology. Then, the computational multifaceted nature of neural distinguishing proof incredibly diminished when the entire framework is deteriorated into a few subsystems. The features are extracted using fractal dimension algorithm and then the most sign"
+        },
+        {
+          "title": "Mobile Phone Radiation Induces Reactive Oxygen Species Production and DNA Damage in Human Spermatozoa In Vitro",
+          "year": 2009,
+          "doi": "10.1371/journal.pone.0006446",
+          "cited_by_count": 453,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: In recent times there has been some controversy over the impact of electromagnetic radiation on human health. The significance of mobile phone radiation on male reproduction is a key element of this debate since several studies have suggested a relationship between mobile phone use and semen quality. The potential mechanisms involved have not been established, however, human spermatozoa are known to be particularly vulnerable to oxidative stress by virtue of the abundant availability of substrates for free radical attack and the lack of cytoplasmic space to accommodate antioxidant enzymes. Moreover, the induction of oxidative stress in these cells not only perturbs their capacity for fertilization but also contributes to sperm DNA damage. The latter has, in turn, been linked with poor fertility, an increased incidence of miscarriage and morbidity in the offspring, including childhood cancer. In light of these associations, we have analyzed the influence of RF-EMR on the cell biology of human spermatozoa in vitro. PRINCIPAL FINDINGS: Purified human spermatozoa were exposed to radio-frequency electromagnetic radiation (RF-EMR) tuned to 1.8 GHz and covering a range of specific absorption rates (SAR) from 0.4 W/kg to 27.5 W/kg. In step with increasing SAR, motility and vitality were significantly reduced after RF-EMR exposure, while the mitochondrial generation of reactive oxygen species and DNA fragmentation were significantly elevated (P<0.001). Furthermore, we also"
+        },
+        {
+          "title": "Matrix architecture defines the preferential localization and migration of T cells into the stroma of human lung tumors",
+          "year": 2012,
+          "doi": "10.1172/jci45817",
+          "cited_by_count": 1088,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Appropriate localization and migration of T cells is a prerequisite for antitumor immune surveillance. Studies using fixed tumor samples from human patients have shown that T cells accumulate more efficiently in the stroma than in tumor islets, but the mechanisms by which this occurs are unknown. By combining immunostaining and real-time imaging in viable slices of human lung tumors, we revealed that the density and the orientation of the stromal extracellular matrix likely play key roles in controlling the migration of T cells. Active T cell motility, dependent on chemokines but not on β1 or β2 integrins, was observed in loose fibronectin and collagen regions, whereas T cells migrated poorly in dense matrix areas. Aligned fibers in perivascular regions and around tumor epithelial cell regions dictated the migratory trajectory of T cells and restricted them from entering tumor islets. Consistently, matrix reduction with collagenase increased the ability of T cells to contact cancer cells. Thus, the stromal extracellular matrix influences antitumor immunity by controlling the positioning and migration of T cells. Understanding the mechanisms by which this collagen network is generated has the potential to aid in the development of new therapeutics."
+        },
+        {
+          "title": "Mobile Phone Use and Brain Tumors in Children and Adolescents: A Multicenter Case-Control Study",
+          "year": 2011,
+          "doi": "10.1093/jnci/djr244",
+          "cited_by_count": 177,
+          "design": "case-control-study",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "BACKGROUND: It has been hypothesized that children and adolescents might be more vulnerable to possible health effects from mobile phone exposure than adults. We investigated whether mobile phone use is associated with brain tumor risk among children and adolescents. METHODS: CEFALO is a multicenter case-control study conducted in Denmark, Sweden, Norway, and Switzerland that includes all children and adolescents aged 7-19 years who were diagnosed with a brain tumor between 2004 and 2008. We conducted interviews, in person, with 352 case patients (participation rate: 83%) and 646 control subjects (participation rate: 71%) and their parents. Control subjects were randomly selected from population registries and matched by age, sex, and geographical region. We asked about mobile phone use and included mobile phone operator records when available. Odds ratios (ORs) for brain tumor risk and 95% confidence intervals (CIs) were calculated using conditional logistic regression models. RESULTS: Regular users of mobile phones were not statistically significantly more likely to have been diagnosed with brain tumors compared with nonusers (OR = 1.36; 95% CI = 0.92 to 2.02). Children who started to use mobile phones at least 5 years ago were not at increased risk compared with those who had never regularly used mobile phones (OR = 1.26, 95% CI = 0.70 to 2.28). In a subset of study participants for whom operator recorded data were available, brain tumor risk was related to the time elapse"
+        },
+        {
+          "title": "Human Glioblastoma–Derived Cancer Stem Cells: Establishment of Invasive Glioma Models and Treatment with Oncolytic Herpes Simplex Virus Vectors",
+          "year": 2009,
+          "doi": "10.1158/0008-5472.can-08-3886",
+          "cited_by_count": 363,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Glioblastoma, the most malignant type of primary brain tumor, is one of the solid cancers where cancer stem cells have been isolated, and studies have suggested resistance of those cells to chemotherapy and radiotherapy. Here, we report the establishment of CSC-enriched cultures derived from human glioblastoma specimens. They grew as neurospheres in serum-free medium with epidermal growth factor and fibroblast growth factor 2, varied in the level of CD133 expression and very efficiently formed highly invasive and/or vascular tumors upon intracerebral implantation into immunodeficient mice. As a novel therapeutic strategy for glioblastoma-derived cancer stem-like cells (GBM-SC), we have tested oncolytic herpes simplex virus (oHSV) vectors. We show that although ICP6 (UL39)-deleted mutants kill GBM-SCs as efficiently as wild-type HSV, the deletion of gamma34.5 significantly attenuated the vectors due to poor replication. However, this was significantly reversed by the additional deletion of alpha47. Infection with oHSV G47Delta (ICP6(-), gamma34.5(-), alpha47(-)) not only killed GBM-SCs but also inhibited their self-renewal as evidenced by the inability of viable cells to form secondary tumor spheres. Importantly, despite the highly invasive nature of the intracerebral tumors generated by GBM-SCs, intratumoral injection of G47Delta significantly prolonged survival. These results for the first time show the efficacy of oHSV against human GBM-SCs, and correlate this cytotoxic pro"
+        },
+        {
+          "title": "Cellular Telephone Use and Risk of Acoustic Neuroma",
+          "year": 2004,
+          "doi": "10.1093/aje/kwh032",
+          "cited_by_count": 202,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Despite limited evidence, cellular telephones have been claimed to cause cancer, especially in the brain. In this Danish study, the authors examined the possible association between use of cellular telephones and development of acoustic neuroma. Between 2000 and 2002, they ascertained 106 incident cases and matched these persons with 212 randomly sampled, population-based controls on age and sex. The data obtained included information on use of cellular telephones from personal interviews, data from medical records, and the results of radiologic examinations. The authors obtained information on socioeconomic factors from Statistics Denmark. The overall estimated relative risk of acoustic neuroma was 0.90 (95% confidence interval: 0.51, 1.57). Use of a cell phone for 10 years or more did not increase acoustic neuroma risk over that of short-term users. Furthermore, tumors did not occur more frequently on the side of the head on which the telephone was typically used, and the size of the tumor did not correlate with the pattern of cell phone use. The results of this prospective, population-based, nationwide study, which included a large number of long-term users of cellular telephones, do not support an association between cell phone use and risk of acoustic neuroma."
+        },
+        {
+          "title": "An Integrated View of Copy Number and Allelic Alterations in the Cancer Genome Using Single Nucleotide Polymorphism Arrays",
+          "year": 2004,
+          "doi": "10.1158/0008-5472.can-03-3308",
+          "cited_by_count": 549,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Changes in DNA copy number contribute to cancer pathogenesis. We now show that high-density single nucleotide polymorphism (SNP) arrays can detect copy number alterations. By hybridizing genomic representations of breast and lung carcinoma cell line and lung tumor DNA to SNP arrays, and measuring locus-specific hybridization intensity, we detected both known and novel genomic amplifications and homozygous deletions in these cancer samples. Moreover, by combining genotyping with SNP quantitation, we could distinguish loss of heterozygosity events caused by hemizygous deletion from those that occur by copy-neutral events. The simultaneous measurement of DNA copy number changes and loss of heterozygosity events by SNP arrays should strengthen our ability to discover cancer-causing genes and to refine cancer diagnosis."
+        },
+        {
+          "title": "Risks to Health and Well-Being From Radio-Frequency Radiation Emitted by Cell Phones and Other Wireless Devices",
+          "year": 2019,
+          "doi": "10.3389/fpubh.2019.00223",
+          "cited_by_count": 197,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "(IARC) reviewed the published literature and categorized RFR as a \"possible\" (Group 2B) human carcinogen. A broad range of adverse human health effects associated with RFR have been reported since the IARC review. In addition, three large-scale carcinogenicity studies in rodents exposed to levels of RFR that mimic lifetime human exposures have shown significantly increased rates of Schwannomas and malignant gliomas, as well as chromosomal DNA damage. Of particular concern are the effects of RFR exposure on the developing brain in children. Compared with an adult male, a cell phone held against the head of a child exposes deeper brain structures to greater radiation doses per unit volume, and the young, thin skull's bone marrow absorbs a roughly 10-fold higher local dose. Experimental and observational studies also suggest that men who keep cell phones in their trouser pockets have significantly lower sperm counts and significantly impaired sperm motility and morphology, including mitochondrial DNA damage. Based on the accumulated evidence, we recommend that IARC re-evaluate its 2011 classification of the human carcinogenicity of RFR, and that WHO complete a systematic review of multiple other health effects such as sperm damage. In the interim, current knowledge provides justification for governments, public health authorities, and physicians/allied health professionals to warn the population that having a cell phone next to the body is harmful, and to support measures to red"
+        },
+        {
+          "title": "MYC-driven accumulation of 2-hydroxyglutarate is associated with breast cancer prognosis",
+          "year": 2013,
+          "doi": "10.1172/jci71180",
+          "cited_by_count": 471,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Metabolic profiling of cancer cells has recently been established as a promising tool for the development of therapies and identification of cancer biomarkers. Here we characterized the metabolomic profile of human breast tumors and uncovered intrinsic metabolite signatures in these tumors using an untargeted discovery approach and validation of key metabolites. The oncometabolite 2-hydroxyglutarate (2HG) accumulated at high levels in a subset of tumors and human breast cancer cell lines. We discovered an association between increased 2HG levels and MYC pathway activation in breast cancer, and further corroborated this relationship using MYC overexpression and knockdown in human mammary epithelial and breast cancer cells. Further analyses revealed globally increased DNA methylation in 2HG-high tumors and identified a tumor subtype with high tissue 2HG and a distinct DNA methylation pattern that was associated with poor prognosis and occurred with higher frequency in African-American patients. Tumors of this subtype had a stem cell-like transcriptional signature and tended to overexpress glutaminase, suggestive of a functional relationship between glutamine and 2HG metabolism in breast cancer. Accordingly, 13C-labeled glutamine was incorporated into 2HG in cells with aberrant 2HG accumulation, whereas pharmacologic and siRNA-mediated glutaminase inhibition reduced 2HG levels. Our findings implicate 2HG as a candidate breast cancer oncometabolite associated with MYC activation "
+        },
+        {
+          "title": "Cellular Phones and Risk of Brain Tumors",
+          "year": 2001,
+          "doi": "10.3322/canjclin.51.2.137",
+          "cited_by_count": 31,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "As cellular telephones are a relatively new technology, we do not yet have long-term follow-up on their possible biological effects. However, the lack of ionizing radiation and the low energy level emitted from cell phones and absorbed by human tissues make it unlikely that these devices cause cancer. Moreover, several well-designed epidemiologic studies find no consistent association between cell phone use and brain cancer. It is impossible to prove that any product or exposure is absolutely safe, especially in the absence of very long-term follow-up. Accordingly, the following summary from the Food and Drug Administration Center for Devices and Radiological Health offers advice to people concerned about their risk: If there is a risk from these products--and at this point we do not know that there is--it is probably very small. But if people are concerned about avoiding even potential risks, there are simple steps they can take to do so. People who must conduct extended conversations in their cars every day could switch to a type of mobile phone that places more distance between their bodies and the source of the RF, since the exposure level drops off dramatically with distance. For example, they could switch to: a mobile phone in which the antenna is located outside the vehicle, a hand-held phone with a built-in antenna connected to a different antenna mounted on the outside of the car or built into a separate package, or a headset with a remote antenna to a mobile phone c"
+        },
+        {
+          "title": "The Controversy about a Possible Relationship between Mobile Phone Use and Cancer",
+          "year": 2008,
+          "doi": "10.1289/ehp.11902",
+          "cited_by_count": 108,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVE: During the last decade, mobile phone use increased to almost 100% prevalence in many countries of the world. Evidence for potential health hazards accumulated in parallel by epidemiologic investigations has raised controversies about the appropriate interpretation and the degree of bias and confounding responsible for reduced or increased risk estimates. DATA SOURCES: Overall, I identified 33 epidemiologic studies in the peer-reviewed literature, most of which (25) were about brain tumors. Two groups have collected data for >or=10 years of mobile phone use: Hardell and colleagues from Sweden and the Interphone group, an international consortium from 13 countries coordinated by the International Agency for Research on Cancer. DATA SYNTHESIS: Combined odds ratios (95% confidence intervals) from these studies for glioma, acoustic neuroma, and meningioma were 1.5 (1.2-1.8); 1.3 (0.95-1.9); and 1.1 (0.8-1.4), respectively. CONCLUSIONS: Methodologic considerations revealed that three important conditions for epidemiologic studies to detect an increased risk are not met: a ) no evidence-based exposure metric is available; b) the observed duration of mobile phone use is generally still too low; c) no evidence-based selection of end points among the grossly different types of neoplasias is possible because of lack of etiologic hypotheses. Concerning risk estimates, selection bias, misclassification bias, and effects of the disease on mobile phone use could have reduced esti"
+        },
+        {
+          "title": "Tumor cells disseminate early, but immunosurveillance limits metastatic outgrowth, in a mouse model of melanoma",
+          "year": 2010,
+          "doi": "10.1172/jci42002",
+          "cited_by_count": 497,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Although metastasis is the leading cause of cancer-related death, it is not clear why some patients with localized cancer develop metastatic disease after complete resection of their primary tumor. Such relapses have been attributed to tumor cells that disseminate early and remain dormant for prolonged periods of time; however, little is known about the control of these disseminated tumor cells. Here, we have used a spontaneous mouse model of melanoma to investigate tumor cell dissemination and immune control of metastatic outgrowth. Tumor cells were found to disseminate throughout the body early in development of the primary tumor, even before it became clinically detectable. The disseminated tumor cells remained dormant for varying periods of time depending on the tissue, resulting in staggered metastatic outgrowth. Dormancy in the lung was associated with reduced proliferation of the disseminated tumor cells relative to the primary tumor. This was mediated, at least in part, by cytostatic CD8+ T cells, since depletion of these cells resulted in faster outgrowth of visceral metastases. Our findings predict that immune responses favoring dormancy of disseminated tumor cells, which we propose to be the seed of subsequent macroscopic metastases, are essential for prolonging the survival of early stage cancer patients and suggest that therapeutic strategies designed to reinforce such immune responses may produce marked benefits in these patients."
+        },
+        {
+          "title": "The pro-metastasis effect of circANKS1B in breast cancer",
+          "year": 2018,
+          "doi": "10.1186/s12943-018-0914-x",
+          "cited_by_count": 350,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: Recent studies indicate that circular RNA (circRNA) plays a pivotal role in cancer progression. Here, we sought to investigate its role in breast cancer. METHODS: CircANKS1B (a circRNA originated from exons 5 to 8 of the ANKS1B gene, hsa_circ_0007294) was identified by RNA-sequencing and validated by qRT-PCR and Sanger sequencing. Clinical breast cancer samples were used to evaluate the expression of circANKS1B and its associations with clinicopathological features and prognosis. Gain- and loss-of-function experiments in cell lines and mouse xenograft models were performed to support clinical findings and elucidate the function and underlying mechanisms of circANKS1B in breast cancer. RESULTS: CircANKS1B was significantly up-regulated in triple-negative breast cancer (TNBC) compared with non-TNBC tissues and cell lines. Increased circANKS1B expression was closely associated with lymph node metastasis and advanced clinical stage and served as an independent risk factor for overall survival of breast cancer patients. Functional studies revealed that circANKS1B promoted breast cancer invasion and metastasis both in vitro and in vivo by inducing epithelial-to-mesenchymal transition (EMT), while had no effect on breast cancer growth. Mechanistically, circANKS1B abundantly sponged miR-148a-3p and miR-152-3p to increase the expression of transcription factor USF1, which could transcriptionally up-regulate TGF-β1 expression, resulting in activating TGF-β1/Smad signaling t"
+        },
+        {
+          "title": "The hematopoietic factor G-CSF is a neuronal ligand that counteracts programmed cell death and drives neurogenesis",
+          "year": 2005,
+          "doi": "10.1172/jci23559",
+          "cited_by_count": 697,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "G-CSF is a potent hematopoietic factor that enhances survival and drives differentiation of myeloid lineage cells, resulting in the generation of neutrophilic granulocytes. Here, we show that G-CSF passes the intact blood-brain barrier and reduces infarct volume in 2 different rat models of acute stroke. G-CSF displays strong anti-apoptotic activity in mature neurons and activates multiple cell survival pathways. Both G-CSF and its receptor are widely expressed by neurons in the CNS, and their expression is induced by ischemia, which suggests an autocrine protective signaling mechanism. Surprisingly, the G-CSF receptor was also expressed by adult neural stem cells, and G-CSF induced neuronal differentiation in vitro. G-CSF markedly improved long-term behavioral outcome after cortical ischemia, while stimulating neural progenitor response in vivo, providing a link to functional recovery. Thus, G-CSF is an endogenous ligand in the CNS that has a dual activity beneficial both in counteracting acute neuronal degeneration and contributing to long-term plasticity after cerebral ischemia. We therefore propose G-CSF as a potential new drug for stroke and neurodegenerative diseases."
+        },
+        {
+          "title": "Parental Exposure to Pesticides and Childhood Brain Cancer: U.S. Atlantic Coast Childhood Brain Cancer Study",
+          "year": 2009,
+          "doi": "10.1289/ehp.0800209",
+          "cited_by_count": 88,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: The etiology of childhood brain cancer remains largely unknown. However, previous studies have yielded suggestive associations with parental pesticide use. OBJECTIVES: We aimed to evaluate parental exposure to pesticides at home and on the job in relation to the occurrence of brain cancer in children. METHODS: We included 526 one-to-one-matched case-control pairs. Brain cancer cases were diagnosed at < 10 years of age, and were identified from statewide cancer registries of four U.S. Atlantic Coast states. We selected controls by random digit dialing. We conducted computer-assisted telephone interviews with mothers. Using information on residential pesticide use and jobs held by fathers during the 2-year period before the child's birth, we assessed potential exposure to insecticides, herbicides, and fungicides. For each job, two raters independently classified the probability and intensity of exposure; 421 pairs were available for final analysis. We calculated odds ratios (ORs) and 95% confidence intervals (CIs) using conditional logistic regression, after adjustment for maternal education. RESULTS: A significant risk of astrocytoma was associated with exposures to herbicides from residential use (OR = 1.9; 95% CI, 1.2-3.0). Combining parental exposures to herbicides from both residential and occupational sources, the elevated risk remained significant (OR = 1.8; 95% CI, 1.1-3.1). We observed little association with primitive neuroectodermal tumors (PNET) for any "
+        },
+        {
+          "title": "Cancer cell proliferation is inhibited by specific modulation frequencies",
+          "year": 2011,
+          "doi": "10.1038/bjc.2011.523",
+          "cited_by_count": 141,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: There is clinical evidence that very low and safe levels of amplitude-modulated electromagnetic fields administered via an intrabuccal spoon-shaped probe may elicit therapeutic responses in patients with cancer. However, there is no known mechanism explaining the anti-proliferative effect of very low intensity electromagnetic fields. METHODS: To understand the mechanism of this novel approach, hepatocellular carcinoma (HCC) cells were exposed to 27.12 MHz radiofrequency electromagnetic fields using in vitro exposure systems designed to replicate in vivo conditions. Cancer cells were exposed to tumour-specific modulation frequencies, previously identified by biofeedback methods in patients with a diagnosis of cancer. Control modulation frequencies consisted of randomly chosen modulation frequencies within the same 100 Hz-21 kHz range as cancer-specific frequencies. RESULTS: The growth of HCC and breast cancer cells was significantly decreased by HCC-specific and breast cancer-specific modulation frequencies, respectively. However, the same frequencies did not affect proliferation of nonmalignant hepatocytes or breast epithelial cells. Inhibition of HCC cell proliferation was associated with downregulation of XCL2 and PLP2. Furthermore, HCC-specific modulation frequencies disrupted the mitotic spindle. CONCLUSION: These findings uncover a novel mechanism controlling the growth of cancer cells at specific modulation frequencies without affecting normal tissues, which"
+        },
+        {
+          "title": "Pooled analysis of case-control studies on malignant brain tumours and the use of mobile and cordless phones including living and deceased subjects",
+          "year": 2011,
+          "doi": "10.3892/ijo.2011.947",
+          "cited_by_count": 153,
+          "design": "case-control-study",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "We studied the association between use of mobile and cordless phones and malignant brain tumours. Pooled analysis was performed of two case-control studies on patients with malignant brain tumours diagnosed during 1997-2003 and matched controls alive at the time of study inclusion and one case-control study on deceased patients and controls diagnosed during the same time period. Cases and controls or relatives to deceased subjects were interviewed using a structured questionnaire. Replies were obtained for 1,251 (85%) cases and 2,438 (84%) controls. The risk increased with latency period and cumulative use in hours for both mobile and cordless phones. Highest risk was found for the most common type of glioma, astrocytoma, yielding in the >10 year latency group for mobile phone use odds ratio (OR) = 2.7, 95% confidence interval (CI) = 1.9-3.7 and cordless phone use OR = 1.8, 95% CI = 1.2-2.9. In a separate analysis, these phone types were independent risk factors for glioma. The risk for astrocytoma was highest in the group with first use of a wireless phone before the age of 20; mobile phone use OR = 4.9, 95% CI = 2.2-11, cordless phone use OR = 3.9, 95% CI = 1.7-8.7. In conclusion, an increased risk was found for glioma and use of mobile or cordless phone. The risk increased with latency time and cumulative use in hours and was highest in subjects with first use before the age of 20."
+        },
+        {
+          "title": "Risk of brain tumours in relation to estimated RF dose from mobile phones: results from five Interphone countries",
+          "year": 2011,
+          "doi": "10.1136/oemed-2011-100155",
+          "cited_by_count": 141,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVES: The objective of this study was to examine the associations of brain tumours with radio frequency (RF) fields from mobile phones. METHODS: Patients with brain tumour from the Australian, Canadian, French, Israeli and New Zealand components of the Interphone Study, whose tumours were localised by neuroradiologists, were analysed. Controls were matched on age, sex and region and allocated the 'tumour location' of their matched case. Analyses included 553 glioma and 676 meningioma cases and 1762 and 1911 controls, respectively. RF dose was estimated as total cumulative specific energy (TCSE; J/kg) absorbed at the tumour's estimated centre taking into account multiple RF exposure determinants. RESULTS: ORs with ever having been a regular mobile phone user were 0.93 (95% CI 0.73 to 1.18) for glioma and 0.80 (95% CI 0.66 to 0.96) for meningioma. ORs for glioma were below 1 in the first four quintiles of TCSE but above 1 in the highest quintile, 1.35 (95% CI 0.96 to 1.90). The OR increased with increasing TCSE 7+ years before diagnosis (p-trend 0.01; OR 1.91, 95% CI 1.05 to 3.47 in the highest quintile). A complementary analysis in which 44 glioma and 135 meningioma cases in the most exposed area of the brain were compared with gliomas and meningiomas located elsewhere in the brain showed increased ORs for tumours in the most exposed part of the brain in those with 10+ years of mobile phone use (OR 2.80, 95% CI 1.13 to 6.94 for glioma). Patterns for meningioma were simil"
+        }
+      ],
+      "note": "1 off-topic work(s) excluded by relevance gate; 19 work(s) excluded by PICO gate (missing intervention [cell phone] or outcome [brain cance] in abstract/title)"
+    }
+  }
+}

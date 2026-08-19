@@ -1,0 +1,367 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "vitamin D reduces respiratory infections",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T09:03:55.333Z"
+  },
+  "rows": [
+    {
+      "claim": "vitamin D reduces respiratory infections",
+      "verdict": "evidence-supports",
+      "consensus_score": 0.98,
+      "confidence": 0.87,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "studies_analyzed": 26,
+      "supporting": 18,
+      "refuting": 0,
+      "mixed": 1,
+      "inconclusive": 7,
+      "method": "heuristic",
+      "ai_stance": "supports",
+      "ai_confidence": 0.86,
+      "ai_model": "openrouter/free"
+    }
+  ],
+  "response": {
+    "stance_source": "llm:openrouter",
+    "llm_synthesis": {
+      "stance": "supports",
+      "confidence": 0.86,
+      "reasoning": "Multiple high-quality meta-analyses and RCTs indicate vitamin D supplementation lowers the risk of acute respiratory infections. A 2017 IPD meta-analysis of 10,933 participants found an adjusted odds ratio of 0.88 (95% CI 0.81–0.96) for ARI, and a 2019 IPD meta-analysis reported similar protective effects. RCTs in Mongolia (rate ratio 0.52) and Vietnam (HR 0.76 for non‑influenza viruses) also showed reduced infection incidence, while a pregnancy/infancy RCT reported fewer primary care visits for ARI.",
+      "key_evidence": [
+        "2017 IPD meta‑analysis (n=10,933) adjusted OR 0.88, 95% CI 0.81–0.96 for ARI",
+        "2019 IPD meta‑analysis (same cohort) reported reduced ARI risk",
+        "Mongolia RCT: vitamin D group ARI rate ratio 0.52 (95% CI 0.31–0.89)",
+        "Vietnam RCT: HR 2018 Vietnam pediatric RCT: HR 0.76 (95% CI 0.61–0.94) for non‑influenza respiratory viruses",
+        "Pregnancy/infancy RCT: higher‑dose group had fewer ARI visits (p=0.004) and median visits 2.5 vs 4 in placebo"
+      ],
+      "excluded_studies": [
+        {
+          "title": "Vitamin D supplementation in children may prevent asthma exacerbation triggered by acute respiratory infection",
+          "reason": "outcome is asthma exacerbation, not respiratory infection incidence"
+        }
+      ],
+      "model": "openrouter/free"
+    },
+    "divergence": false,
+    "result": {
+      "claim": "vitamin D reduces respiratory infections",
+      "verdict": "evidence-supports",
+      "consensus_score": 0.98,
+      "confidence": 0.87,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "study_count": 26,
+      "supporting": 18,
+      "refuting": 0,
+      "mixed": 1,
+      "inconclusive": 7,
+      "total_citations": 20229,
+      "stance_method": "heuristic",
+      "relevant_count": 26,
+      "near_unanimous": false,
+      "evidence_guarded": false,
+      "top_supporting": [
+        {
+          "title": "Vitamin D supplementation to prevent acute respiratory tract infections: systematic review and meta-analysis of individual participant data",
+          "year": 2017,
+          "doi": "10.1136/bmj.i6583",
+          "cited_by_count": 2073,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8642857142857143,
+          "abstract": "<b>Objectives</b>&nbsp;To assess the overall effect of vitamin D supplementation on risk of acute respiratory tract infection, and to identify factors modifying this effect. <b>Design</b>&nbsp;Systematic review and meta-analysis of individual participant data (IPD) from randomised controlled trials. <b>Data sources</b>&nbsp;Medline, Embase, the Cochrane Central Register of Controlled Trials, Web of Science, ClinicalTrials.gov, and the International Standard Randomised Controlled Trials Number registry from inception to December 2015. <b>Eligibility criteria for study selection</b>&nbsp;Randomised, double blind, placebo controlled trials of supplementation with vitamin D<sub>3</sub> or vitamin D<sub>2</sub> of any duration were eligible for inclusion if they had been approved by a research ethics committee and if data on incidence of acute respiratory tract infection were collected prospectively and prespecified as an efficacy outcome. <b>Results</b>&nbsp;25 eligible randomised controlled trials (total 11 321 participants, aged 0 to 95 years) were identified. IPD were obtained for 10 933 (96.6%) participants. Vitamin D supplementation reduced the risk of acute respiratory tract infection among all participants (adjusted odds ratio 0.88, 95% confidence interval 0.81 to 0.96; P for heterogeneity &lt;0.001). In subgroup analysis, protective effects were seen in those receiving daily or weekly vitamin D without additional bolus doses (adjusted odds ratio 0.81, 0.72 to 0.91) but no"
+        },
+        {
+          "title": "Vitamin D and Respiratory Tract Infections: A Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+          "year": 2013,
+          "doi": "10.1371/journal.pone.0065835",
+          "cited_by_count": 432,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: Low levels of 25-OH vitamin D are associated with respiratory tract infection (RTI). However, results from randomized controlled trials are inconclusive. Therefore, we performed a systematic review and meta-analysis to assess the preventive effect of vitamin D supplementation on RTI. METHODS: Randomized, controlled trials of vitamin D for prevention of RTI were used for the analysis. The risks of within-trial and publication bias were assessed. Odds ratios of RTI were pooled using a random-effects model. Heterogeneity was assessed using Cochran's Q and I(2). Meta-regressions and subgroup analyses were used to assess the influence of various factors on trial outcome. The pre-defined review protocol was registered at the PROSPERO international prospective register of systematic reviews, registration number CRD42013003530. FINDINGS: Of 1137 citations retrieved, 11 placebo-controlled studies of 5660 patients were included in the meta-analysis. Overall, vitamin D showed a protective effect against RTI (OR, 0.64; 95% CI, 0.49 to 0.84). There was significant heterogeneity among studies (Cohran's Q p<0.0001, I(2) = 72%). The protective effect was larger in studies using once-daily dosing compared to bolus doses (OR = 0.51 vs OR = 0.86, p = 0.01). There was some evidence that results may have been influenced by publication bias. INTERPRETATION: Results indicate that vitamin D has a protective effect against RTI, and dosing once-daily seems most effective. Due to heterogene"
+        },
+        {
+          "title": "Vitamin D supplementation to prevent acute respiratory infections: individual participant data meta-analysis",
+          "year": 2019,
+          "doi": "10.3310/hta23020",
+          "cited_by_count": 364,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.875,
+          "abstract": "Background Randomised controlled trials (RCTs) exploring the potential of vitamin D to prevent acute respiratory infections have yielded mixed results. Individual participant data (IPD) meta-analysis has the potential to identify factors that may explain this heterogeneity. Objectives To assess the overall effect of vitamin D supplementation on the risk of acute respiratory infections (ARIs) and to identify factors modifying this effect. Data sources MEDLINE, EMBASE, the Cochrane Central Register of Controlled Trials (CENTRAL), Web of Science, ClinicalTrials.gov and the International Standard Randomised Controlled Trials Number (ISRCTN) registry. Study selection Randomised, double-blind, placebo-controlled trials of supplementation with vitamin D 3 or vitamin D 2 of any duration having incidence of acute respiratory infection as a prespecified efficacy outcome were selected. Study appraisal Study quality was assessed using the Cochrane Collaboration Risk of Bias tool to assess sequence generation, allocation concealment, blinding of participants, personnel and outcome assessors, completeness of outcome data, evidence of selective outcome reporting and other potential threats to validity. Results We identified 25 eligible RCTs (a total of 11,321 participants, aged from 0 to 95 years). IPD were obtained for 10,933 out of 11,321 (96.6%) participants. Vitamin D supplementation reduced the risk of ARI among all participants [adjusted odds ratio (aOR) 0.88, 95% confidence interval "
+        }
+      ],
+      "top_refuting": [],
+      "all_studies": [
+        {
+          "title": "Evidence that Vitamin D Supplementation Could Reduce Risk of Influenza and COVID-19 Infections and Deaths",
+          "year": 2020,
+          "doi": "10.3390/nu12040988",
+          "cited_by_count": 1999,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "The world is in the grip of the COVID-19 pandemic. Public health measures that can reduce the risk of infection and death in addition to quarantines are desperately needed. This article reviews the roles of vitamin D in reducing the risk of respiratory tract infections, knowledge about the epidemiology of influenza and COVID-19, and how vitamin D supplementation might be a useful measure to reduce risk. Through several mechanisms, vitamin D can reduce risk of infections. Those mechanisms include inducing cathelicidins and defensins that can lower viral replication rates and reducing concentrations of pro-inflammatory cytokines that produce the inflammation that injures the lining of the lungs, leading to pneumonia, as well as increasing concentrations of anti-inflammatory cytokines. Several observational studies and clinical trials reported that vitamin D supplementation reduced the risk of influenza, whereas others did not. Evidence supporting the role of vitamin D in reducing risk of COVID-19 includes that the outbreak occurred in winter, a time when 25-hydroxyvitamin D (25(OH)D) concentrations are lowest; that the number of cases in the Southern Hemisphere near the end of summer are low; that vitamin D deficiency has been found to contribute to acute respiratory distress syndrome; and that case-fatality rates increase with age and with chronic disease comorbidity, both of which are associated with lower 25(OH)D concentration. To reduce the risk of infection, it is recommen"
+        },
+        {
+          "title": "Vitamin D supplementation to prevent acute respiratory tract infections: systematic review and meta-analysis of individual participant data",
+          "year": 2017,
+          "doi": "10.1136/bmj.i6583",
+          "cited_by_count": 2073,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8642857142857143,
+          "abstract": "<b>Objectives</b>&nbsp;To assess the overall effect of vitamin D supplementation on risk of acute respiratory tract infection, and to identify factors modifying this effect. <b>Design</b>&nbsp;Systematic review and meta-analysis of individual participant data (IPD) from randomised controlled trials. <b>Data sources</b>&nbsp;Medline, Embase, the Cochrane Central Register of Controlled Trials, Web of Science, ClinicalTrials.gov, and the International Standard Randomised Controlled Trials Number registry from inception to December 2015. <b>Eligibility criteria for study selection</b>&nbsp;Randomised, double blind, placebo controlled trials of supplementation with vitamin D<sub>3</sub> or vitamin D<sub>2</sub> of any duration were eligible for inclusion if they had been approved by a research ethics committee and if data on incidence of acute respiratory tract infection were collected prospectively and prespecified as an efficacy outcome. <b>Results</b>&nbsp;25 eligible randomised controlled trials (total 11 321 participants, aged 0 to 95 years) were identified. IPD were obtained for 10 933 (96.6%) participants. Vitamin D supplementation reduced the risk of acute respiratory tract infection among all participants (adjusted odds ratio 0.88, 95% confidence interval 0.81 to 0.96; P for heterogeneity &lt;0.001). In subgroup analysis, protective effects were seen in those receiving daily or weekly vitamin D without additional bolus doses (adjusted odds ratio 0.81, 0.72 to 0.91) but no"
+        },
+        {
+          "title": "Epidemic influenza and vitamin D",
+          "year": 2006,
+          "doi": "10.1017/s0950268806007175",
+          "cited_by_count": 1048,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "In 1981, R. Edgar Hope-Simpson proposed that a 'seasonal stimulus' intimately associated with solar radiation explained the remarkable seasonality of epidemic influenza. Solar radiation triggers robust seasonal vitamin D production in the skin; vitamin D deficiency is common in the winter, and activated vitamin D, 1,25(OH)2D, a steroid hormone, has profound effects on human immunity. 1,25(OH)2D acts as an immune system modulator, preventing excessive expression of inflammatory cytokines and increasing the 'oxidative burst' potential of macrophages. Perhaps most importantly, it dramatically stimulates the expression of potent anti-microbial peptides, which exist in neutrophils, monocytes, natural killer cells, and in epithelial cells lining the respiratory tract where they play a major role in protecting the lung from infection. Volunteers inoculated with live attenuated influenza virus are more likely to develop fever and serological evidence of an immune response in the winter. Vitamin D deficiency predisposes children to respiratory infections. Ultraviolet radiation (either from artificial sources or from sunlight) reduces the incidence of viral respiratory infections, as does cod liver oil (which contains vitamin D). An interventional study showed that vitamin D reduces the incidence of respiratory infections in children. We conclude that vitamin D, or lack of it, may be Hope-Simpson's 'seasonal stimulus'."
+        },
+        {
+          "title": "Effect of Vitamin D supplementation to reduce respiratory infections in children and adolescents in Vietnam: A randomized controlled trial",
+          "year": 2018,
+          "doi": "10.1111/irv.12615",
+          "cited_by_count": 96,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "BACKGROUND: It is uncertain whether vitamin D can reduce respiratory infection. OBJECTIVE: To determine whether vitamin D supplementation reduces influenza and other upper viral respiratory tract infections. METHODS: A total of 1300 healthy children and adolescents between the ages of 3 and 17 years were randomized to vitamin D (14 000 U weekly) or placebo for 8 months in Vietnam. The primary outcome was reverse transcriptase (RT)-PCR-confirmed influenza infection, and the coprimary outcome was multiplex PCR-confirmed non-influenza respiratory viruses. Participants, caregivers, and those assessing outcomes were blinded to group assignment. RESULTS: A total of 650 children and adolescents were randomly assigned to vitamin D and 650 to placebo. The mean baseline serum 25-hydroxyvitamin D levels were 65.7 nmol/L and 65.2 nmol/L in the intervention and placebo groups, respectively, with an increase to 91.8 nmol/L in the vitamin D group and no increase, 64.5 nmol/L, in the placebo group. All 1300 participants randomized contributed to the analysis. We observed RT-PCR-confirmed influenza A or B occurred in 50 children (7.7%) in the vitamin D group and in 43 (6.6%) in the placebo group (hazard ratio [HR]: 1.18, 95% CI: 0.79-1.78). RT-PCR-confirmed non-influenza respiratory virus infection occurred in 146 (22.5%) in the vitamin D group and in 185 (28.5%) in the placebo group (hazard ratio [HR]: 0.76, 95% CI: 0.61-0.94). When considering all respiratory viruses, including influenza, t"
+        },
+        {
+          "title": "Role of vitamin D in preventing of COVID-19 infection, progression and severity",
+          "year": 2020,
+          "doi": "10.1016/j.jiph.2020.06.021",
+          "cited_by_count": 588,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.875,
+          "abstract": "The outbreak of COVID-19 has created a global public health crisis. Little is known about the protective factors of this infection. Therefore, preventive health measures that can reduce the risk of infection, progression and severity are desperately needed. This review discussed the possible roles of vitamin D in reducing the risk of COVID-19 and other acute respiratory tract infections and severity. Moreover, this study determined the correlation of vitamin D levels with COVID-19 cases and deaths in 20 European countries as of 20 May 2020. A significant negative correlation (p=0.033) has been observed between mean vitamin D levels and COVID-19 cases per one million population in European countries. However, the correlation of vitamin D with COVID-19 deaths of these countries was not significant. Some retrospective studies demonstrated a correlation between vitamin D status and COVID-19 severity and mortality, while other studies did not find the correlation when confounding variables are adjusted. Several studies demonstrated the role of vitamin D in reducing the risk of acute viral respiratory tract infections and pneumonia. These include direct inhibition with viral replication or with anti-inflammatory or immunomodulatory ways. In the meta-analysis, vitamin D supplementation has been shown as safe and effective against acute respiratory tract infections. Thus, people who are at higher risk of vitamin D deficiency during this global pandemic should consider taking vitamin "
+        },
+        {
+          "title": "Vitamin D receptor stimulation to reduce acute respiratory distress syndrome (ARDS) in patients with coronavirus SARS-CoV-2 infections",
+          "year": 2020,
+          "doi": "10.1016/j.jsbmb.2020.105719",
+          "cited_by_count": 149,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Vitamin D and Human Health: Lessons from Vitamin D Receptor Null Mice",
+          "year": 2008,
+          "doi": "10.1210/er.2008-0004",
+          "cited_by_count": 1780,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "The vitamin D endocrine system is essential for calcium and bone homeostasis. The precise mode of action and the full spectrum of activities of the vitamin D hormone, 1,25-dihydroxyvitamin D [1,25-(OH)(2)D], can now be better evaluated by critical analysis of mice with engineered deletion of the vitamin D receptor (VDR). Absence of a functional VDR or the key activating enzyme, 25-OHD-1alpha-hydroxylase (CYP27B1), in mice creates a bone and growth plate phenotype that mimics humans with the same congenital disease or severe vitamin D deficiency. The intestine is the key target for the VDR because high calcium intake, or selective VDR rescue in the intestine, restores a normal bone and growth plate phenotype. The VDR is nearly ubiquitously expressed, and almost all cells respond to 1,25-(OH)(2)D exposure; about 3% of the mouse or human genome is regulated, directly and/or indirectly, by the vitamin D endocrine system, suggesting a more widespread function. VDR-deficient mice, but not vitamin D- or 1alpha-hydroxylase-deficient mice, and man develop total alopecia, indicating that the function of the VDR and its ligand is not fully overlapping. The immune system of VDR- or vitamin D-deficient mice is grossly normal but shows increased sensitivity to autoimmune diseases such as inflammatory bowel disease or type 1 diabetes after exposure to predisposing factors. VDR-deficient mice do not have a spontaneous increase in cancer but are more prone to oncogene- or chemocarcinogen-indu"
+        },
+        {
+          "title": "Reduced primary care respiratory infection visits following pregnancy and infancy vitamin D supplementation: a randomised controlled trial",
+          "year": 2014,
+          "doi": "10.1111/apa.12819",
+          "cited_by_count": 82,
+          "design": "randomized-controlled-trial",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "AIM: To determine whether vitamin D supplementation reduces primary care visits for acute respiratory infection (ARI). METHODS: A randomised, double-blind, placebo-controlled trial was conducted in New Zealand and powered to determine the vitamin D dose needed to achieve normal vitamin D status during infancy. Healthy pregnant women, from 27 weeks' gestation to birth, and their infants, from birth to age 6 months, were assigned to placebo or one of the two dosages of daily oral vitamin D3 . Woman/infant pairs were randomised to placebo/placebo, 1000 IU/400 IU or 2000 IU/800 IU. For this ad hoc analysis, the primary care records of enrolled children were audited to age 18 months. RESULTS: Two hundred and sixty pregnant women were randomised to placebo (n = 87), lower-dose (n = 87) or higher-dose (n = 86) vitamin D3 . In comparison with the placebo group (99%), the proportion of children making any ARI visits was smaller in the higher-dose (87%, p = 0.004), but not the lower-dose vitamin D3 group (95%, p = 0.17). The median number of ARI visits/child was less in the higher-dose vitamin D3 group from age 6-18 months (placebo 4, lower dose 3, higher dose 2.5; p = 0.048 for higher-dose vitamin D3 vs. placebo). CONCLUSION: Vitamin D3 supplementation during pregnancy and infancy reduces primary care visits for ARI during early childhood."
+        },
+        {
+          "title": "Vitamin C and Immune Function",
+          "year": 2017,
+          "doi": "10.3390/nu9111211",
+          "cited_by_count": 2005,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Vitamin C is an essential micronutrient for humans, with pleiotropic functions related to its ability to donate electrons. It is a potent antioxidant and a cofactor for a family of biosynthetic and gene regulatory enzymes. Vitamin C contributes to immune defense by supporting various cellular functions of both the innate and adaptive immune system. Vitamin C supports epithelial barrier function against pathogens and promotes the oxidant scavenging activity of the skin, thereby potentially protecting against environmental oxidative stress. Vitamin C accumulates in phagocytic cells, such as neutrophils, and can enhance chemotaxis, phagocytosis, generation of reactive oxygen species, and ultimately microbial killing. It is also needed for apoptosis and clearance of the spent neutrophils from sites of infection by macrophages, thereby decreasing necrosis/NETosis and potential tissue damage. The role of vitamin C in lymphocytes is less clear, but it has been shown to enhance differentiation and proliferation of B- and T-cells, likely due to its gene regulating effects. Vitamin C deficiency results in impaired immunity and higher susceptibility to infections. In turn, infections significantly impact on vitamin C levels due to enhanced inflammation and metabolic requirements. Furthermore, supplementation with vitamin C appears to be able to both prevent and treat respiratory and systemic infections. Prophylactic prevention of infection requires dietary vitamin C intakes that provide"
+        },
+        {
+          "title": "Vitamin D, infections and immunity",
+          "year": 2021,
+          "doi": "10.1007/s11154-021-09679-5",
+          "cited_by_count": 341,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Vitamin D, best known for its role in skeletal health, has emerged as a key regulator of innate immune responses to microbial threat. In immune cells such as macrophages, expression of CYP27B1, the 25-hydroxyvitamin D 1α-hydroxylase, is induced by immune-specific inputs, leading to local production of hormonal 1,25-dihydroxyvitamin D (1,25D) at sites of infection, which in turn directly induces the expression of genes encoding antimicrobial peptides. Vitamin D signaling is active upstream and downstream of pattern recognition receptors, which promote front-line innate immune responses. Moreover, 1,25D stimulates autophagy, which has emerged as a mechanism critical for control of intracellular pathogens such as M. tuberculosis. Strong laboratory and epidemiological evidence links vitamin D deficiency to increased rates of conditions such as dental caries, as well as inflammatory bowel diseases arising from dysregulation of innate immune handling intestinal flora. 1,25D is also active in signaling cascades that promote antiviral innate immunity; 1,25D-induced expression of the antimicrobial peptide CAMP/LL37, originally characterized for its antibacterial properties, is a key component of antiviral responses. Poor vitamin D status is associated with greater susceptibility to viral infections, including those of the respiratory tract. Although the severity of the COVID-19 pandemic has been alleviated in some areas by the arrival of vaccines, it remains important to identify ther"
+        },
+        {
+          "title": "Vitamin D supplementation to prevent acute respiratory infections: individual participant data meta-analysis",
+          "year": 2019,
+          "doi": "10.3310/hta23020",
+          "cited_by_count": 364,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.875,
+          "abstract": "Background Randomised controlled trials (RCTs) exploring the potential of vitamin D to prevent acute respiratory infections have yielded mixed results. Individual participant data (IPD) meta-analysis has the potential to identify factors that may explain this heterogeneity. Objectives To assess the overall effect of vitamin D supplementation on the risk of acute respiratory infections (ARIs) and to identify factors modifying this effect. Data sources MEDLINE, EMBASE, the Cochrane Central Register of Controlled Trials (CENTRAL), Web of Science, ClinicalTrials.gov and the International Standard Randomised Controlled Trials Number (ISRCTN) registry. Study selection Randomised, double-blind, placebo-controlled trials of supplementation with vitamin D 3 or vitamin D 2 of any duration having incidence of acute respiratory infection as a prespecified efficacy outcome were selected. Study appraisal Study quality was assessed using the Cochrane Collaboration Risk of Bias tool to assess sequence generation, allocation concealment, blinding of participants, personnel and outcome assessors, completeness of outcome data, evidence of selective outcome reporting and other potential threats to validity. Results We identified 25 eligible RCTs (a total of 11,321 participants, aged from 0 to 95 years). IPD were obtained for 10,933 out of 11,321 (96.6%) participants. Vitamin D supplementation reduced the risk of ARI among all participants [adjusted odds ratio (aOR) 0.88, 95% confidence interval "
+        },
+        {
+          "title": "Serum 25-Hydroxyvitamin D and the Incidence of Acute Viral Respiratory Tract Infections in Healthy Adults",
+          "year": 2010,
+          "doi": "10.1371/journal.pone.0011088",
+          "cited_by_count": 430,
+          "design": "cohort-study",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: Declining serum concentrations of 25-hydroxyvitamin D seen in the fall and winter as distance increases from the equator may be a factor in the seasonal increased prevalence of influenza and other viral infections. This study was done to determine if serum 25-hydroxyvitamin D concentrations correlated with the incidence of acute viral respiratory tract infections. METHODOLOGY/FINDINGS: In this prospective cohort study serial monthly concentrations of 25-hydroxyvitamin D were measured over the fall and winter 2009-2010 in 198 healthy adults, blinded to the nature of the substance being measured. The participants were evaluated for the development of any acute respiratory tract infections by investigators blinded to the 25-hydroxyvitamin D concentrations. The incidence of infection in participants with different concentrations of vitamin D was determined. One hundred ninety-five (98.5%) of the enrolled participants completed the study. Light skin pigmentation, lean body mass, and supplementation with vitamin D were found to correlate with higher concentrations of 25-hydroxyvitamin D. Concentrations of 38 ng/ml or more were associated with a significant (p<0.0001) two-fold reduction in the risk of developing acute respiratory tract infections and with a marked reduction in the percentages of days ill. CONCLUSIONS/SIGNIFICANCE: Maintenance of a 25-hydroxyvitamin D serum concentration of 38 ng/ml or higher should significantly reduce the incidence of acute viral respir"
+        },
+        {
+          "title": "Vitamin D supplementation to prevent acute respiratory infections: a systematic review and meta-analysis of aggregate data from randomised controlled trials",
+          "year": 2021,
+          "doi": "10.1016/s2213-8587(21)00051-6",
+          "cited_by_count": 500,
+          "design": "meta-analysis",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Optimal Nutritional Status for a Well-Functioning Immune System Is an Important Factor to Protect against Viral Infections",
+          "year": 2020,
+          "doi": "10.3390/nu12041181",
+          "cited_by_count": 927,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Public health practices including handwashing and vaccinations help reduce the spread and impact of infections. Nevertheless, the global burden of infection is high, and additional measures are necessary. Acute respiratory tract infections, for example, were responsible for approximately 2.38 million deaths worldwide in 2016. The role nutrition plays in supporting the immune system is well-established. A wealth of mechanistic and clinical data show that vitamins, including vitamins A, B6, B12, C, D, E, and folate; trace elements, including zinc, iron, selenium, magnesium, and copper; and the omega-3 fatty acids eicosapentaenoic acid and docosahexaenoic acid play important and complementary roles in supporting the immune system. Inadequate intake and status of these nutrients are widespread, leading to a decrease in resistance to infections and as a consequence an increase in disease burden. Against this background the following conclusions are made: (1) supplementation with the above micronutrients and omega-3 fatty acids is a safe, effective, and low-cost strategy to help support optimal immune function; (2) supplementation above the Recommended Dietary Allowance (RDA), but within recommended upper safety limits, for specific nutrients such as vitamins C and D is warranted; and (3) public health officials are encouraged to include nutritional strategies in their recommendations to improve public health."
+        },
+        {
+          "title": "Vitamin D for Health: A Global Perspective",
+          "year": 2013,
+          "doi": "10.1016/j.mayocp.2013.05.011",
+          "cited_by_count": 1297,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Randomized Trial of Vitamin D Supplementation and Risk of Acute Respiratory Infection in Mongolia",
+          "year": 2012,
+          "doi": "10.1542/peds.2011-3029",
+          "cited_by_count": 291,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVE: Observational studies suggest that serum levels of 25-hydroxyvitamin D (25[OH]D) are inversely associated with acute respiratory infections (ARIs). We hypothesized that vitamin D supplementation of children with vitamin D deficiency would lower the risk of ARIs. METHODS: By using cluster randomization, classrooms of 744 Mongolian schoolchildren were randomly assigned to different treatments in winter (January-March). This analysis focused on a subset of 247 children who were assigned to daily ingestion of unfortified regular milk (control; n = 104) or milk fortified with 300 IU of vitamin D(3) (n = 143). This comparison was double-blinded. The primary outcome was the number of parent-reported ARIs over the past 3 months. RESULTS: At baseline, the median serum 25(OH)D level was 7 ng/mL (interquartile range: 5-10 ng/mL). At the end of the trial, follow-up was 99% (n = 244), and the median 25(OH)D levels of children in the control versus vitamin D groups was significantly different (7 vs 19 ng/mL; P < .001). Compared with controls, children receiving vitamin D reported significantly fewer ARIs during the study period (mean: 0.80 vs 0.45; P = .047), with a rate ratio of 0.52 (95% confidence interval: 0.31-0.89). Adjusting for age, gender, and history of wheezing, vitamin D continued to halve the risk of ARI (rate ratio: 0.50 [95% confidence interval: 0.28-0.88]). Similar results were found among children either below or above the median 25(OH)D level at baseline (rate "
+        },
+        {
+          "title": "Vitamin D and Immune Function",
+          "year": 2013,
+          "doi": "10.3390/nu5072502",
+          "cited_by_count": 1136,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Vitamin D metabolizing enzymes and vitamin D receptors are present in many cell types including various immune cells such as antigen-presenting-cells, T cells, B cells and monocytes. In vitro data show that, in addition to modulating innate immune cells, vitamin D also promotes a more tolerogenic immunological status. In vivo data from animals and from human vitamin D supplementation studies have shown beneficial effects of vitamin D on immune function, in particular in the context of autoimmunity. In this review, currently available data are summarized to give an overview of the effects of vitamin D on the immune system in general and on the regulation of inflammatory responses, as well as regulatory mechanisms connected to autoimmune diseases particularly in type 1 diabetes mellitus."
+        },
+        {
+          "title": "Evidence That Vitamin D Supplementation Could Reduce Risk of Influenza and COVID-19 Infections and Deaths",
+          "year": 2020,
+          "doi": "10.20944/preprints202003.0235.v2",
+          "cited_by_count": 311,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "The world is in the grips of the COVID-19 pandemic. Public health measures that can reduce the risk of infection and death in addition to quarantines are desperately needed. This article reviews the roles of vitamin D in reducing risk of respiratory tract infections, knowledge about the epidemiology of influenza and COVID-19, and how vitamin D supplementation might be a useful measure to reduce risk. Through several mechanisms, vitamin D can reduce risk of infections. Those mechanisms include inducing cathelicidins and defensins that can lower viral replication rates and reducing concentrations of pro-inflammatory cytokines that produce the inflammation that injures the lining of the lungs, leading to pneumonia, as well as increase concentrations of anti-inflammatory cytokines. Several observational studies and clinical trials reported that vitamin D supplementation reduced risk of influenza, whereas others did not. Evidence supporting the role of vitamin D in reducing risk of COVID-19 includes that the outbreak occurred in winter, a time when 25-hydroxyvitamin D [25(OH)D] concentrations are lowest; that the number of cases in the Southern Hemisphere near the end of summer are low; that vitamin D deficiency has been found to contribute to acute respiratory distress syndrome, and that case-fatality rates increase with age and with chronic disease comorbidity, both of which are associated with lower 25(OH)D concentration. To reduce risk of infection, it is recommended that peop"
+        },
+        {
+          "title": "Vitamin D deficiency 2.0: an update on the current status worldwide",
+          "year": 2020,
+          "doi": "10.1038/s41430-020-0558-y",
+          "cited_by_count": 1402,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Vitamin C supplementation reduces the incidence of postrace symptoms of upper-respiratory-tract infection in ultramarathon runners",
+          "year": 1993,
+          "doi": "10.1093/ajcn/57.2.170",
+          "cited_by_count": 276,
+          "design": "randomized-controlled-trial",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "A Review of Micronutrients and the Immune System–Working in Harmony to Reduce the Risk of Infection",
+          "year": 2020,
+          "doi": "10.3390/nu12010236",
+          "cited_by_count": 1333,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Immune support by micronutrients is historically based on vitamin C deficiency and supplementation in scurvy in early times. It has since been established that the complex, integrated immune system needs multiple specific micronutrients, including vitamins A, D, C, E, B6, and B12, folate, zinc, iron, copper, and selenium, which play vital, often synergistic roles at every stage of the immune response. Adequate amounts are essential to ensure the proper function of physical barriers and immune cells; however, daily micronutrient intakes necessary to support immune function may be higher than current recommended dietary allowances. Certain populations have inadequate dietary micronutrient intakes, and situations with increased requirements (e.g., infection, stress, and pollution) further decrease stores within the body. Several micronutrients may be deficient, and even marginal deficiency may impair immunity. Although contradictory data exist, available evidence indicates that supplementation with multiple micronutrients with immune-supporting roles may modulate immune function and reduce the risk of infection. Micronutrients with the strongest evidence for immune support are vitamins C and D and zinc. Better design of human clinical studies addressing dosage and combinations of micronutrients in different populations are required to substantiate the benefits of micronutrient supplementation against infection."
+        },
+        {
+          "title": "Modulation of the Immune Response to Respiratory Viruses by Vitamin D",
+          "year": 2015,
+          "doi": "10.3390/nu7064240",
+          "cited_by_count": 494,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "BACKGROUND: Vitamin D deficiency has been shown to be independently associated with increased risk of viral acute respiratory infection (ARI) in a number of observational studies, and meta-analysis of clinical trials of vitamin D supplementation for prevention of ARI has demonstrated protective effects. Several cellular studies have investigated the effects of vitamin D metabolites on immune responses to respiratory viruses, but syntheses of these reports are lacking. SCOPE: In this article, we review the literature reporting results of in vitro experiments investigating immunomodulatory actions of vitamin D metabolites in human respiratory epithelial cells infected with respiratory viruses. KEY FINDINGS: Vitamin D metabolites do not consistently influence replication or clearance of rhinovirus, respiratory syncytial virus (RSV) or influenza A virus in human respiratory epithelial cell culture, although they do modulate expression and secretion of type 1 interferon, chemokines including CXCL8 and CXCL10 and pro-inflammatory cytokines, such as TNF and IL-6. FUTURE RESEARCH: More studies are needed to clarify the effects of vitamin D metabolites on respiratory virus-induced expression of cell surface markers mediating viral entry and bacterial adhesion to respiratory epithelial cells."
+        },
+        {
+          "title": "Vitamin D supplementation in children may prevent asthma exacerbation triggered by acute respiratory infection",
+          "year": 2011,
+          "doi": "10.1016/j.jaci.2010.12.016",
+          "cited_by_count": 274,
+          "design": "randomized-controlled-trial",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Vitamin D3 Supplementation Reduces the Symptoms of Upper Respiratory Tract Infection during Winter Training in Vitamin D-Insufficient Taekwondo Athletes: A Randomized Controlled Trial",
+          "year": 2018,
+          "doi": "10.3390/ijerph15092003",
+          "cited_by_count": 46,
+          "design": "randomized-controlled-trial",
+          "stance": "mixed",
+          "stance_confidence": 0.52,
+          "abstract": "Vitamin D insufficiency may be associated with increased risk of upper respiratory tract infection (URTI) in athletes. This study examined the effects of vitamin D3 supplementation on salivary immune functions and symptoms of URTI in vitamin D-insufficient taekwondo athletes. Twenty-five male taekwondo athletes, aged 19–22 years with vitamin D insufficiency [serum 25-hydroxyvitamin-D concentrations (25(OH)D, 31.3 ± 1.39 nmol/L)], participated in this study. They were randomized to receive 5000 IU/day of vitamin D3 (n = 13) or placebo capsule (n = 12) during 4 weeks of winter training. Blood samples were collected two times (pre- and post-tests) for analyzing serum 25(OH)D concentration while salivary samples were obtained three times (pre-, mid-, and post-tests) for secretory immunoglobulin A (SIgA) and lactoferrin analyses. The symptoms of URTI were reported daily during the intervention. Serum 25(OH)D concentration significantly increased by 255.6% in the vitamin D group, whereas in the placebo group it did not change (p &lt; 0.001). While the significant increase in SIgA was observed in both groups (p &lt; 0.001), elevated salivary lactoferrin level in response to winter training was found only in the placebo group (p = 0.011). The change in serum 25(OH)D concentration was negatively associated with total URTI symptoms (r = −0.435, p = 0.015). Vitamin D3 supplementation may be effective in reducing the symptoms of URTI during winter training in vitamin D-insufficient taekw"
+        },
+        {
+          "title": "Vitamin D and Respiratory Tract Infections: A Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+          "year": 2013,
+          "doi": "10.1371/journal.pone.0065835",
+          "cited_by_count": 432,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: Low levels of 25-OH vitamin D are associated with respiratory tract infection (RTI). However, results from randomized controlled trials are inconclusive. Therefore, we performed a systematic review and meta-analysis to assess the preventive effect of vitamin D supplementation on RTI. METHODS: Randomized, controlled trials of vitamin D for prevention of RTI were used for the analysis. The risks of within-trial and publication bias were assessed. Odds ratios of RTI were pooled using a random-effects model. Heterogeneity was assessed using Cochran's Q and I(2). Meta-regressions and subgroup analyses were used to assess the influence of various factors on trial outcome. The pre-defined review protocol was registered at the PROSPERO international prospective register of systematic reviews, registration number CRD42013003530. FINDINGS: Of 1137 citations retrieved, 11 placebo-controlled studies of 5660 patients were included in the meta-analysis. Overall, vitamin D showed a protective effect against RTI (OR, 0.64; 95% CI, 0.49 to 0.84). There was significant heterogeneity among studies (Cohran's Q p<0.0001, I(2) = 72%). The protective effect was larger in studies using once-daily dosing compared to bolus doses (OR = 0.51 vs OR = 0.86, p = 0.01). There was some evidence that results may have been influenced by publication bias. INTERPRETATION: Results indicate that vitamin D has a protective effect against RTI, and dosing once-daily seems most effective. Due to heterogene"
+        },
+        {
+          "title": "The VITamin D and OmegA-3 TriaL (VITAL): Rationale and design of a large randomized controlled trial of vitamin D and marine omega-3 fatty acid supplements for the primary prevention of cancer and cardiovascular disease",
+          "year": 2011,
+          "doi": "10.1016/j.cct.2011.09.009",
+          "cited_by_count": 555,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": ""
+        }
+      ]
+    }
+  }
+}

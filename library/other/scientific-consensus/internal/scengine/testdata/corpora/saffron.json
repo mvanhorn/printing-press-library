@@ -1,0 +1,210 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "saffron extract reduces symptoms of mild depression",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T08:29:35.390Z"
+  },
+  "rows": [
+    {
+      "claim": "saffron extract reduces symptoms of mild depression",
+      "verdict": "evidence-supports",
+      "consensus_score": 1,
+      "confidence": 0.61,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "studies_analyzed": 12,
+      "supporting": 6,
+      "refuting": 0,
+      "mixed": 0,
+      "inconclusive": 6,
+      "method": "heuristic",
+      "ai_stance": "",
+      "ai_confidence": "",
+      "ai_model": ""
+    }
+  ],
+  "response": {
+    "stance_source": "heuristic",
+    "llm_error": "unparseable synthesis: model output is not valid JSON",
+    "divergence": false,
+    "result": {
+      "claim": "saffron extract reduces symptoms of mild depression",
+      "verdict": "evidence-supports",
+      "consensus_score": 1,
+      "confidence": 0.61,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "study_count": 12,
+      "supporting": 6,
+      "refuting": 0,
+      "mixed": 0,
+      "inconclusive": 6,
+      "total_citations": 1963,
+      "stance_method": "heuristic",
+      "relevant_count": 12,
+      "near_unanimous": true,
+      "evidence_guarded": false,
+      "top_supporting": [
+        {
+          "title": "The Efficacy of Saffron in the Treatment of Mild to Moderate Depression: A Meta-analysis",
+          "year": 2018,
+          "doi": "10.1055/a-0660-9565",
+          "cited_by_count": 108,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Abstract Herbal products, especially Hypericum perforatum extracts, have been widely used as first-line treatments for mild to moderate depression. Recently, several randomized, controlled clinical trials have been conducted to evaluate the efficacy of another plant, saffron (Crocus sativus), in mild to moderate depression. We have carried out a literature review of currently available published randomized, controlled clinical trials to give an up-to-date evaluation of the efficacy of saffron in mild to moderate depression, compared to placebo or routinely used antidepressants. The meta-analysis is reported according to the preferred reporting items for systematic reviews and meta-analyses (PRISMA) guidelines using the PICO (patients, intervention, comparison, outcome) format and was conducted using the statistical programs Comprehensive Meta-analysis and RevMan. PubMed, Embase, the Cochrane Central Register of Controlled Trials, and Web of Science databases were searched for relevant studies. Only placebo or active controlled, randomized clinical studies involving patients suffering from mild to moderate depression and using pharmacological doses of saffron per os were included. Hedgesʼ g was used to calculate effect sizes. Risk of bias was assessed using the Cochrane Collaboration tool, and heterogeneity was tested by both performing the Cochranʼs Q test and calculating Higginsʼ I2 indicator. Eleven randomized trials were included in the qualitative analysis, and nine were "
+        },
+        {
+          "title": "Effect of saffron supplementation on symptoms of depression and anxiety: a systematic review and meta-analysis",
+          "year": 2019,
+          "doi": "10.1093/nutrit/nuz023",
+          "cited_by_count": 97,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "CONTEXT: Saffron (Crocus sativus L.) has gained interest as a potential treatment in psychiatry. OBJECTIVE: This systematic review and meta-analysis sought to investigate the effect of saffron supplementation, as both an adjunctive therapy and monotherapy, on symptoms of depression and anxiety in clinical and general populations compared with pharmacotherapy or placebo. DATA SOURCES: Using the PRISMA guidelines, a systematic literature review of randomized controlled trials was conducted. DATA EXTRACTION: A meta-analysis was conducted to determine treatment effect. Risk of bias was assessed using the Jadad scale. RESULTS: Twenty-three studies were included. Saffron had a large positive effect size when compared with placebo for depressive symptoms (g = 0.99, P < 0.001) and anxiety symptoms (g = 0.95, P < 0.006). Saffron also had a large positive effect size when used as an adjunct to antidepressants for depressive symptoms (g = 1.23, P = 0.028). Egger's regression test found evidence of publication bias. CONCLUSIONS: Saffron could be an effective intervention for symptoms of depression and anxiety; however, due to evidence of publication bias and lack of regional diversity, further trials are required. PROSPERO registration CRD42017070060."
+        },
+        {
+          "title": "Herbal Medicine for Anxiety, Depression and Insomnia",
+          "year": 2015,
+          "doi": "10.2174/1570159x1304150831122734",
+          "cited_by_count": 242,
+          "design": "systematic-review",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "The prevalence and comorbidity of psychiatric disorders such as depression, anxiety and insomnia are very common. These well-known forms of psychiatric disorders have been affecting many people from all around the world. Herb alone, as well as herbal formula, is commonly prescribed for the therapies of mental illnesses. Since various adverse events of western medication exist, the number of people who use herbs to benefit their health is increasing. Over the past decades, the exploration in the area of herbal psychopharmacology has received much attention. Literatures showed a variety of herbal mechanisms of action used for the therapy of depression, anxiety and insomnia, involving reuptake of monoamines, affecting neuroreceptor binding and channel transporter activity, modulating neuronal communication or hypothalamic-pituitary adrenal axis (HPA) etc. Nonetheless, a systematic review on herbal pharmacology in depression, anxiety and insomnia is still lacking. This review has been performed to further identify modes of action of different herbal medicine, and thus provides useful information for the application of herbal medicine."
+        }
+      ],
+      "top_refuting": [],
+      "all_studies": [
+        {
+          "title": "The Efficacy of Saffron in the Treatment of Mild to Moderate Depression: A Meta-analysis",
+          "year": 2018,
+          "doi": "10.1055/a-0660-9565",
+          "cited_by_count": 108,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Abstract Herbal products, especially Hypericum perforatum extracts, have been widely used as first-line treatments for mild to moderate depression. Recently, several randomized, controlled clinical trials have been conducted to evaluate the efficacy of another plant, saffron (Crocus sativus), in mild to moderate depression. We have carried out a literature review of currently available published randomized, controlled clinical trials to give an up-to-date evaluation of the efficacy of saffron in mild to moderate depression, compared to placebo or routinely used antidepressants. The meta-analysis is reported according to the preferred reporting items for systematic reviews and meta-analyses (PRISMA) guidelines using the PICO (patients, intervention, comparison, outcome) format and was conducted using the statistical programs Comprehensive Meta-analysis and RevMan. PubMed, Embase, the Cochrane Central Register of Controlled Trials, and Web of Science databases were searched for relevant studies. Only placebo or active controlled, randomized clinical studies involving patients suffering from mild to moderate depression and using pharmacological doses of saffron per os were included. Hedgesʼ g was used to calculate effect sizes. Risk of bias was assessed using the Cochrane Collaboration tool, and heterogeneity was tested by both performing the Cochranʼs Q test and calculating Higginsʼ I2 indicator. Eleven randomized trials were included in the qualitative analysis, and nine were "
+        },
+        {
+          "title": "Effect of saffron supplementation on symptoms of depression and anxiety: a systematic review and meta-analysis",
+          "year": 2019,
+          "doi": "10.1093/nutrit/nuz023",
+          "cited_by_count": 97,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "CONTEXT: Saffron (Crocus sativus L.) has gained interest as a potential treatment in psychiatry. OBJECTIVE: This systematic review and meta-analysis sought to investigate the effect of saffron supplementation, as both an adjunctive therapy and monotherapy, on symptoms of depression and anxiety in clinical and general populations compared with pharmacotherapy or placebo. DATA SOURCES: Using the PRISMA guidelines, a systematic literature review of randomized controlled trials was conducted. DATA EXTRACTION: A meta-analysis was conducted to determine treatment effect. Risk of bias was assessed using the Jadad scale. RESULTS: Twenty-three studies were included. Saffron had a large positive effect size when compared with placebo for depressive symptoms (g = 0.99, P < 0.001) and anxiety symptoms (g = 0.95, P < 0.006). Saffron also had a large positive effect size when used as an adjunct to antidepressants for depressive symptoms (g = 1.23, P = 0.028). Egger's regression test found evidence of publication bias. CONCLUSIONS: Saffron could be an effective intervention for symptoms of depression and anxiety; however, due to evidence of publication bias and lack of regional diversity, further trials are required. PROSPERO registration CRD42017070060."
+        },
+        {
+          "title": "affron®, a standardised extract from saffron (Crocus sativus L.) for the treatment of youth anxiety and depressive symptoms: A randomised, double-blind, placebo-controlled study",
+          "year": 2018,
+          "doi": "10.1016/j.jad.2018.02.070",
+          "cited_by_count": 64,
+          "design": "randomized-controlled-trial",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Saffron: a natural product with potential pharmaceutical applications",
+          "year": 2015,
+          "doi": "10.1111/jphp.12456",
+          "cited_by_count": 212,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVES: Recently, a great deal of interest has been developed to isolate and investigate novel bioactive components from natural resources with health beneficial effects. Saffron is the dried stigma of Crocus sativus L. and has been used for centuries in traditional medicine mainly for its healing properties, as well as for the treatment of various pathological conditions. Objectives of the present review are to unravel its therapeutic properties and investigate the potential applications of saffron in contemporary therapy of a wide spectrum of diseases and summarize previous and current evidence regarding the biological/pharmacological activities of saffron and its active ingredients and their possible therapeutic uses. KEY FINDINGS: Recent phytochemistry and pharmacological experiments have indicated that crocin and safranal, the major active ingredients of saffron, exert important actions, such as antioxidant, anti-tumor, anti-diabetic, anti-inflammatory and anti-atherosclerotic. Unfortunately, the vast majority of those data derive from in vitro studies, whereas a limited number of in vivo experiments support the aforementioned effects. In addition to studies with mechanistic implications, very few clinical trials provide preliminary evidence of saffron potentiality to alleviate depression and increase cognitive function in patients with Alzheimer's disease. SUMMARY: The history and structural features of saffron constituents are given in the first part of the review,"
+        },
+        {
+          "title": "Saffron: An Old Medicinal Plant and a Potential Novel Functional Food",
+          "year": 2017,
+          "doi": "10.3390/molecules23010030",
+          "cited_by_count": 226,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "L. The main use of saffron is in cooking, due to its ability to impart colour, flavour and aroma to foods and beverages. However, from time immemorial it has also been considered a medicinal plant because it possesses therapeutic properties, as illustrated in paintings found on the island of Santorini, dated 1627 BC. It is included in Catalogues of Medicinal Plants and in the European Pharmacopoeias, being part of a great number of compounded formulas from the 16th to the 20th centuries. The medicinal and pharmaceutical uses of this plant largely disappeared with the advent of synthetic chemistry-produced drugs. However, in recent years there has been growing interest in demonstrating saffron's already known bioactivity, which is attributed to the main components-crocetin and its glycosidic esters, called crocins, and safranal-and to the synergy between the compounds present in the spice. The objective of this work was to provide an updated and critical review of the research on the therapeutic properties of saffron, including activity on the nervous and cardiovascular systems, in the liver, its antidepressant, anxiolytic and antineoplastic properties, as well as its potential use as a functional food or nutraceutical."
+        },
+        {
+          "title": "Clinical Applications of Saffron (Crocus sativus) and its Constituents: A Review",
+          "year": 2014,
+          "doi": "10.1055/s-0034-1375681",
+          "cited_by_count": 166,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8300000000000001,
+          "abstract": "Commonly known as saffron, Crocus sativus L and its active components have shown several useful pharmacological effects such as anticonvulsant, antidepressant, anti-inflammatory, antitumor, radical scavenger effects, learning and memory improving effects, etc. There has been an increasing body of data on saffron use in medical databases within the last 20 years. In the current review, the strengths and weaknesses of some of the clinical trials about different pharmacological effects of saffron will be discussed C. sativus extract has been studied in 8 anti-depressant clinical trials in comparison to placebo or some antidepressant drugs, in which saffron showed effectiveness as an antidepressant drug. Clinical trials on anti-Alzheimer effect of saffron demonstrated that it was more effective than the placebo, and as effective as donepezil. 2 clinical trials on antipruritic and complexion promoter in skin care effects of saffron both confirmed that saffron was more efficient than the placebo. In another clinical trial, it was proved that in addition to the weight loss treatment, saffron could reduce snacking frequency. Clinical trials conducted on women with premenstrual syndrome showed that saffron could reduce suffering symptoms more than the placebo and similar to standard treatments.Furthermore, additional clinical trials on effects of saffron on erection dysfunction, allergies, cardiovascular and immune system as well as its safety, toxicity and human pharmacokinetics are "
+        },
+        {
+          "title": "Traditional and Modern Uses of Saffron (Crocus Sativus)",
+          "year": 2019,
+          "doi": "10.3390/cosmetics6040063",
+          "cited_by_count": 174,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The Aromatic and Medicinal Plants sector has undergone a remarkable evolution, especially during the last decade. The global market is moving more and more towards products of natural origin. Indeed, of the 4200-existing plant in Morocco, 800 are listed as aromatic and medicinal plants. Among these plants, saffron is a source of income for many areas of Morocco. Saffron, the dried stigma of the Crocus sativus flower, is considered among the main terroir products of Morocco. Saffron has accompanied all civilizations, whether for its culinary role, for its quality of dye or its ancestral virtues rooted in folk medicine. This review highlights the main components of saffron, and the pharmacological activities that result from it and make this product a serious therapeutic hope. Then, a classification of uses of saffron was carried out according to its uses, traditional, pharmaceutical, cosmetic and perfumery without forgetting its use a spice incorporated in many dishes around the world."
+        },
+        {
+          "title": "Saffron: The Golden Spice with Therapeutic Properties on Digestive Diseases",
+          "year": 2019,
+          "doi": "10.3390/nu11050943",
+          "cited_by_count": 145,
+          "design": "systematic-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Saffron is a natural compound that has been used for centuries in many parts of the world as a food colorant and additive. It was shown to have the ability to mitigate various disorders through its known anti-inflammatory and anti-oxidant properties. Several studies have shown the effectiveness of saffron in the treatment of various chronic diseases like inflammatory bowel diseases, Alzheimer's, rheumatoid arthritis as well as common malignancies of the colon, stomach, lung, breast, and skin. Modern day drugs generally have unwanted side effects, which led to the current trend to use naturally occurring products with therapeutic properties. In the present review, the objective is to systematically analyze the wealth of information regarding the potential mechanisms of action and the medical use of saffron, the \"golden spice\", especially in digestive diseases. We summarized saffron influence on microbiome, molecular pathways, and inflammation in gastric, colon, liver cancers, and associated inflammations."
+        },
+        {
+          "title": "Tryptophan Metabolism in Depression: A Narrative Review with a Focus on Serotonin and Kynurenine Pathways",
+          "year": 2022,
+          "doi": "10.3390/ijms23158493",
+          "cited_by_count": 324,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Depression is a common and serious disorder, characterized by symptoms like anhedonia, lack of energy, sad mood, low appetite, and sleep disturbances. This disease is very complex and not totally elucidated, in which diverse molecular and biological mechanisms are involved, such as neuroinflammation. There is a high need for the development of new therapies and gaining new insights into this disease is urgent. One important player in depression is the amino acid tryptophan. This amino acid can be metabolized in two important pathways in the context of depression: the serotonin and kynurenine pathways. These metabolic pathways of tryptophan are crucial in several processes that are linked with depression. Indeed, the maintenance of the balance of serotonin and kynurenine pathways is critical for the human physiological homeostasis. Thus, this narrative review aims to explore tryptophan metabolism (particularly in the serotonin and kynurenine pathways) in depression, starting with a global overview about these topics and ending with the focus on these pathways in neuroinflammation, stress, microbiota, and brain-derived neurotrophic factor regulation in this disease. Taken together, this information aims to clarify the metabolism of tryptophan in depression, particularly the serotonin and kynurenine pathways."
+        },
+        {
+          "title": "Herbal Medicine for Anxiety, Depression and Insomnia",
+          "year": 2015,
+          "doi": "10.2174/1570159x1304150831122734",
+          "cited_by_count": 242,
+          "design": "systematic-review",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "The prevalence and comorbidity of psychiatric disorders such as depression, anxiety and insomnia are very common. These well-known forms of psychiatric disorders have been affecting many people from all around the world. Herb alone, as well as herbal formula, is commonly prescribed for the therapies of mental illnesses. Since various adverse events of western medication exist, the number of people who use herbs to benefit their health is increasing. Over the past decades, the exploration in the area of herbal psychopharmacology has received much attention. Literatures showed a variety of herbal mechanisms of action used for the therapy of depression, anxiety and insomnia, involving reuptake of monoamines, affecting neuroreceptor binding and channel transporter activity, modulating neuronal communication or hypothalamic-pituitary adrenal axis (HPA) etc. Nonetheless, a systematic review on herbal pharmacology in depression, anxiety and insomnia is still lacking. This review has been performed to further identify modes of action of different herbal medicine, and thus provides useful information for the application of herbal medicine."
+        },
+        {
+          "title": "The ocular hypotensive effect of saffron extract in primary open angle glaucoma: a pilot study",
+          "year": 2014,
+          "doi": "10.1186/1472-6882-14-399",
+          "cited_by_count": 77,
+          "design": "randomized-controlled-trial",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "BACKGROUND: The progressive nature of glaucoma and its growing incidence make its therapy an important target for research. The role of oxidative damage in the pathogenesis of glaucoma makes antioxidants such as saffron extract an attractive target for potential clinical use. Herein, we evaluate the effect of aqueous saffron extract on intraocular pressure (IOP) in eyes with primary open-angle glaucoma (POAG). METHODS: Thirty-four eyes of 34 clinically stable POAG patients receiving treatment with timolol and dorzolamide eye drops were enrolled in this prospective, comparative, randomized interventional pilot study. Eligible subjects were randomized to receive 30 mg/day aqueous saffron extract orally (17 subjects, 17 eyes) or placebo (17 subjects, 17 eyes) for one month as an adjunct to timolol and dorzolamide. Following treatment, both study groups entered a one-month wash-out period. The main outcome measure was IOP during treatment and after the wash-out period. RESULTS: Mean baseline IOP was 12.9 ± 3.7 versus 14.0 ± 2.5 mmHg in the saffron and control groups, respectively (p = 0.31). After three weeks of treatment, IOP was significantly decreased to 10.9 ± 3.3 mmHg in the saffron group as compared to 13.5 ± 2.3 mmHg in the control group (p = 0.013). At four weeks, IOP was still significantly lower in the saffron group (10.6 ± 3.0 versus 13.8 ± 2.2 mmHg, p = 0.001). At the end of the wash-out period, IOP was 12.9 ± 3.0 in the saffron group versus 14.2 ± 2.0 mmHg in the con"
+        },
+        {
+          "title": "Saffron (Crocus sativus L.): A Source of Nutrients for Health and for the Treatment of Neuropsychiatric and Age-Related Diseases",
+          "year": 2022,
+          "doi": "10.3390/nu14030597",
+          "cited_by_count": 128,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "L.) is a medicinal plant, originally cultivated in the East and Middle East, and later in some Mediterranean countries. Saffron is obtained from the stigmas of the plant. Currently, the use of saffron is undergoing a revival. The medicinal virtues of saffron, its culinary use and its high added value have led to the clarification of its phytochemical profile and its biological and therapeutic characteristics. Saffron is rich in carotenoids and terpenes. The major products of saffron are crocins and crocetin (carotenoids) deriving from zeaxanthin, pirocrocin and safranal, which give it its taste and aroma, respectively. Saffron and its major compounds have powerful antioxidant and anti-inflammatory properties in vitro and in vivo. Anti-tumor properties have also been described. The goal of this review is to present the beneficial effects of saffron and its main constituent molecules on neuropsychiatric diseases (depression, anxiety and schizophrenia) as well as on the most frequent age-related diseases (cardiovascular, ocular and neurodegenerative diseases, as well as sarcopenia). Overall, the phytochemical profile of saffron confers many beneficial virtues on human health and, in particular, on the prevention of age-related diseases, which is a major asset reinforcing the interest for this medicinal plant."
+        }
+      ],
+      "note": "near-unanimous result (no refuting or mixed studies) — check that genuine debate was not filtered out"
+    }
+  }
+}

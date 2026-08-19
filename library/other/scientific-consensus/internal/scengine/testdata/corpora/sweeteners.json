@@ -1,0 +1,177 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "artificial sweeteners cause weight gain",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T08:18:43.298Z"
+  },
+  "rows": [
+    {
+      "claim": "artificial sweeteners cause weight gain",
+      "verdict": "evidence-refutes",
+      "consensus_score": -1,
+      "confidence": 0.58,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "studies_analyzed": 7,
+      "supporting": 0,
+      "refuting": 5,
+      "mixed": 0,
+      "inconclusive": 2,
+      "method": "heuristic",
+      "ai_stance": "refutes",
+      "ai_confidence": 0.85,
+      "ai_model": "openrouter/free"
+    }
+  ],
+  "response": {
+    "stance_source": "llm:openrouter",
+    "llm_synthesis": {
+      "stance": "refutes",
+      "confidence": 0.85,
+      "reasoning": "High-quality evidence from systematic reviews, meta-analyses, and randomized controlled trials indicates that replacing sugar with artificial sweeteners generally results in weight reduction or has no significant effect on body weight. While some animal studies suggest potential metabolic disruptions, human evidence consistently shows that low-calorie sweeteners do not cause weight gain and may assist in weight management.",
+      "key_evidence": [
+        "A meta-analysis of sustained intervention RCTs showed that consumption of low-energy sweeteners led to relatively reduced body weight compared to sugar (-1.35 kg).",
+        "A randomized controlled trial in children demonstrated that replacing sugar-containing beverages with sugar-free versions resulted in significantly less weight gain compared to the sugar group.",
+        "A systematic review of 62 animal studies and 28 human studies found that low-energy sweeteners did not increase body weight in the majority of cases.",
+        "Clinical studies generally report no significant or beneficial effects of artificial sweeteners on body weight and glycemic control."
+      ],
+      "excluded_studies": [
+        {
+          "title": "The artificial sweetener acesulfame potassium affects the gut microbiome and body weight gain in CD-1 mice",
+          "reason": "animal model only"
+        }
+      ],
+      "model": "openrouter/free"
+    },
+    "divergence": false,
+    "result": {
+      "claim": "artificial sweeteners cause weight gain",
+      "verdict": "evidence-refutes",
+      "consensus_score": -1,
+      "confidence": 0.58,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "study_count": 7,
+      "supporting": 0,
+      "refuting": 5,
+      "mixed": 0,
+      "inconclusive": 2,
+      "total_citations": 3578,
+      "stance_method": "heuristic",
+      "relevant_count": 7,
+      "near_unanimous": false,
+      "evidence_guarded": false,
+      "top_supporting": [],
+      "top_refuting": [
+        {
+          "title": "Dietary sugars and body weight: systematic review and meta-analyses of randomised controlled trials and cohort studies",
+          "year": 2012,
+          "doi": "10.1136/bmj.e7492",
+          "cited_by_count": 1650,
+          "design": "meta-analysis",
+          "stance": "refuting",
+          "stance_confidence": 0.8300000000000001,
+          "abstract": "OBJECTIVE: To summarise evidence on the association between intake of dietary sugars and body weight in adults and children. DESIGN: Systematic review and meta-analysis of randomised controlled trials and prospective cohort studies. DATA SOURCES: OVID Medline, Embase, PubMed, Cumulative Index to Nursing and Allied Health Literature, Scopus, and Web of Science (up to December 2011). REVIEW METHODS: Eligible studies reported the intake of total sugars, intake of a component of total sugars, or intake of sugar containing foods or beverages; and at least one measure of body fatness. Minimum duration was two weeks for trials and one year for cohort studies. Trials of weight loss or confounded by additional medical or lifestyle interventions were excluded. Study selection, assessment, validity, data extraction, and analysis were undertaken as specified by the Cochrane Collaboration and the GRADE working group. For trials, we pooled data for weight change using inverse variance models with random effects. We pooled cohort study data where possible to estimate effect sizes, expressed as odds ratios for risk of obesity or β coefficients for change in adiposity per unit of intake. RESULTS: 30 of 7895 trials and 38 of 9445 cohort studies were eligible. In trials of adults with ad libitum diets (that is, with no strict control of food intake), reduced intake of dietary sugars was associated with a decrease in body weight (0.80 kg, 95% confidence interval 0.39 to 1.21; P<0.001); increased"
+        },
+        {
+          "title": "Does low-energy sweetener consumption affect energy intake and body weight? A systematic review, including meta-analyses, of the evidence from human and animal studies",
+          "year": 2015,
+          "doi": "10.1038/ijo.2015.177",
+          "cited_by_count": 347,
+          "design": "meta-analysis",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "By reducing energy density, low-energy sweeteners (LES) might be expected to reduce energy intake (EI) and body weight (BW). To assess the totality of the evidence testing the null hypothesis that LES exposure (versus sugars or unsweetened alternatives) has no effect on EI or BW, we conducted a systematic review of relevant studies in animals and humans consuming LES with ad libitum access to food energy. In 62 of 90 animal studies exposure to LES did not affect or decreased BW. Of 28 reporting increased BW, 19 compared LES with glucose exposure using a specific 'learning' paradigm. Twelve prospective cohort studies in humans reported inconsistent associations between LES use and body mass index (-0.002 kg m(-)(2) per year, 95% confidence interval (CI) -0.009 to 0.005). Meta-analysis of short-term randomized controlled trials (129 comparisons) showed reduced total EI for LES versus sugar-sweetened food or beverage consumption before an ad libitum meal (-94 kcal, 95% CI -122 to -66), with no difference versus water (-2 kcal, 95% CI -30 to 26). This was consistent with EI results from sustained intervention randomized controlled trials (10 comparisons). Meta-analysis of sustained intervention randomized controlled trials (4 weeks to 40 months) showed that consumption of LES versus sugar led to relatively reduced BW (nine comparisons; -1.35 kg, 95% CI -2.28 to -0.42), and a similar relative reduction in BW versus water (three comparisons; -1.24 kg, 95% CI -2.22 to -0.26). Most a"
+        },
+        {
+          "title": "A Trial of Sugar-free or Sugar-Sweetened Beverages and Body Weight in Children",
+          "year": 2012,
+          "doi": "10.1056/nejmoa1203034",
+          "cited_by_count": 818,
+          "design": "randomized-controlled-trial",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: The consumption of beverages that contain sugar is associated with overweight, possibly because liquid sugars do not lead to a sense of satiety, so the consumption of other foods is not reduced. However, data are lacking to show that the replacement of sugar-containing beverages with noncaloric beverages diminishes weight gain. METHODS: We conducted an 18-month trial involving 641 primarily normal-weight children from 4 years 10 months to 11 years 11 months of age. Participants were randomly assigned to receive 250 ml (8 oz) per day of a sugar-free, artificially sweetened beverage (sugar-free group) or a similar sugar-containing beverage that provided 104 kcal (sugar group). Beverages were distributed through schools. At 18 months, 26% of the children had stopped consuming the beverages; the data from children who did not complete the study were imputed. RESULTS: The z score for the body-mass index (BMI, the weight in kilograms divided by the square of the height in meters) increased on average by 0.02 SD units in the sugar-free group and by 0.15 SD units in the sugar group; the 95% confidence interval (CI) of the difference was -0.21 to -0.05. Weight increased by 6.35 kg in the sugar-free group as compared with 7.37 kg in the sugar group (95% CI for the difference, -1.54 to -0.48). The skinfold-thickness measurements, waist-to-height ratio, and fat mass also increased significantly less in the sugar-free group. Adverse events were minor. When we combined measurem"
+        }
+      ],
+      "all_studies": [
+        {
+          "title": "Artificial Sweeteners as a Cause of Obesity: Weight Gain Mechanisms and Current Evidence",
+          "year": 2018,
+          "doi": "10.4236/health.2018.105054",
+          "cited_by_count": 19,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The obesity epidemic gathers growing media attention recently, as overweight and obesity’s prevalence keeps rising. This comes along with an increase in the intake of artificial sweeteners in food products. A causal relationship between the consumption of sweeteners and obesity is so far not clear in the medical literature. This paper describes the development of artificial sweeteners in a historical context. It collects epidemiological and experimental evidence that possibly relates the use of artificial sweeteners with weight gain. Finally, these effects are explained based on the neuroscience of food reward, the possible effects of glucose on the metabolism and the association between sweeteners and gut microbiota."
+        },
+        {
+          "title": "The artificial sweetener acesulfame potassium affects the gut microbiome and body weight gain in CD-1 mice",
+          "year": 2017,
+          "doi": "10.1371/journal.pone.0178426",
+          "cited_by_count": 256,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Artificial sweeteners have been widely used in the modern diet, and their observed effects on human health have been inconsistent, with both beneficial and adverse outcomes reported. Obesity and type 2 diabetes have dramatically increased in the U.S. and other countries over the last two decades. Numerous studies have indicated an important role of the gut microbiome in body weight control and glucose metabolism and regulation. Interestingly, the artificial sweetener saccharin could alter gut microbiota and induce glucose intolerance, raising questions about the contribution of artificial sweeteners to the global epidemic of obesity and diabetes. Acesulfame-potassium (Ace-K), a FDA-approved artificial sweetener, is commonly used, but its toxicity data reported to date are considered inadequate. In particular, the functional impact of Ace-K on the gut microbiome is largely unknown. In this study, we explored the effects of Ace-K on the gut microbiome and the changes in fecal metabolic profiles using 16S rRNA sequencing and gas chromatography-mass spectrometry (GC-MS) metabolomics. We found that Ace-K consumption perturbed the gut microbiome of CD-1 mice after a 4-week treatment. The observed body weight gain, shifts in the gut bacterial community composition, enrichment of functional bacterial genes related to energy metabolism, and fecal metabolomic changes were highly gender-specific, with differential effects observed for males and females. In particular, ace-K increased bo"
+        },
+        {
+          "title": "The Impact of Artificial Sweeteners on Body Weight Control and Glucose Homeostasis",
+          "year": 2021,
+          "doi": "10.3389/fnut.2020.598340",
+          "cited_by_count": 174,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "A poor diet is one of the leading causes for non-communicable diseases. Due to the increasing prevalence of overweight and obesity, there is a strong focus on dietary overconsumption and energy restriction. Many strategies focus on improving energy balance to achieve successful weight loss. One of the strategies to lower energy intake is refraining from sugars and replacing them with artificial sweeteners, which maintain the palatability without ingesting calories. Nevertheless, the safety and health benefits of artificial sweeteners consumption remain a topic of debate within the scientific community and society at large. Notably, artificial sweeteners are metabolized differently from each other due to their different properties. Therefore, the difference in metabolic fate of artificial sweeteners may underlie conflicting findings that have been reported related to their effects on body weight control, glucose homeostasis, and underlying biological mechanisms. Thus, extrapolation of the metabolic effects of a single artificial sweetener to all artificial sweeteners is not appropriate. Although many rodent studies have assessed the metabolic effects of artificial sweeteners, long-term studies in humans are scarce. The majority of clinical studies performed thus far report no significant effects or beneficial effects of artificial sweeteners on body weight and glycemic control, but it should be emphasized that the study duration of most studies was limited. Clearly, further we"
+        },
+        {
+          "title": "Low-calorie sweeteners and body weight and composition: a meta-analysis of randomized controlled trials and prospective cohort studies , ,",
+          "year": 2014,
+          "doi": "10.3945/ajcn.113.082826",
+          "cited_by_count": 314,
+          "design": "meta-analysis",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Does low-energy sweetener consumption affect energy intake and body weight? A systematic review, including meta-analyses, of the evidence from human and animal studies",
+          "year": 2015,
+          "doi": "10.1038/ijo.2015.177",
+          "cited_by_count": 347,
+          "design": "meta-analysis",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "By reducing energy density, low-energy sweeteners (LES) might be expected to reduce energy intake (EI) and body weight (BW). To assess the totality of the evidence testing the null hypothesis that LES exposure (versus sugars or unsweetened alternatives) has no effect on EI or BW, we conducted a systematic review of relevant studies in animals and humans consuming LES with ad libitum access to food energy. In 62 of 90 animal studies exposure to LES did not affect or decreased BW. Of 28 reporting increased BW, 19 compared LES with glucose exposure using a specific 'learning' paradigm. Twelve prospective cohort studies in humans reported inconsistent associations between LES use and body mass index (-0.002 kg m(-)(2) per year, 95% confidence interval (CI) -0.009 to 0.005). Meta-analysis of short-term randomized controlled trials (129 comparisons) showed reduced total EI for LES versus sugar-sweetened food or beverage consumption before an ad libitum meal (-94 kcal, 95% CI -122 to -66), with no difference versus water (-2 kcal, 95% CI -30 to 26). This was consistent with EI results from sustained intervention randomized controlled trials (10 comparisons). Meta-analysis of sustained intervention randomized controlled trials (4 weeks to 40 months) showed that consumption of LES versus sugar led to relatively reduced BW (nine comparisons; -1.35 kg, 95% CI -2.28 to -0.42), and a similar relative reduction in BW versus water (three comparisons; -1.24 kg, 95% CI -2.22 to -0.26). Most a"
+        },
+        {
+          "title": "A Trial of Sugar-free or Sugar-Sweetened Beverages and Body Weight in Children",
+          "year": 2012,
+          "doi": "10.1056/nejmoa1203034",
+          "cited_by_count": 818,
+          "design": "randomized-controlled-trial",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: The consumption of beverages that contain sugar is associated with overweight, possibly because liquid sugars do not lead to a sense of satiety, so the consumption of other foods is not reduced. However, data are lacking to show that the replacement of sugar-containing beverages with noncaloric beverages diminishes weight gain. METHODS: We conducted an 18-month trial involving 641 primarily normal-weight children from 4 years 10 months to 11 years 11 months of age. Participants were randomly assigned to receive 250 ml (8 oz) per day of a sugar-free, artificially sweetened beverage (sugar-free group) or a similar sugar-containing beverage that provided 104 kcal (sugar group). Beverages were distributed through schools. At 18 months, 26% of the children had stopped consuming the beverages; the data from children who did not complete the study were imputed. RESULTS: The z score for the body-mass index (BMI, the weight in kilograms divided by the square of the height in meters) increased on average by 0.02 SD units in the sugar-free group and by 0.15 SD units in the sugar group; the 95% confidence interval (CI) of the difference was -0.21 to -0.05. Weight increased by 6.35 kg in the sugar-free group as compared with 7.37 kg in the sugar group (95% CI for the difference, -1.54 to -0.48). The skinfold-thickness measurements, waist-to-height ratio, and fat mass also increased significantly less in the sugar-free group. Adverse events were minor. When we combined measurem"
+        },
+        {
+          "title": "Dietary sugars and body weight: systematic review and meta-analyses of randomised controlled trials and cohort studies",
+          "year": 2012,
+          "doi": "10.1136/bmj.e7492",
+          "cited_by_count": 1650,
+          "design": "meta-analysis",
+          "stance": "refuting",
+          "stance_confidence": 0.8300000000000001,
+          "abstract": "OBJECTIVE: To summarise evidence on the association between intake of dietary sugars and body weight in adults and children. DESIGN: Systematic review and meta-analysis of randomised controlled trials and prospective cohort studies. DATA SOURCES: OVID Medline, Embase, PubMed, Cumulative Index to Nursing and Allied Health Literature, Scopus, and Web of Science (up to December 2011). REVIEW METHODS: Eligible studies reported the intake of total sugars, intake of a component of total sugars, or intake of sugar containing foods or beverages; and at least one measure of body fatness. Minimum duration was two weeks for trials and one year for cohort studies. Trials of weight loss or confounded by additional medical or lifestyle interventions were excluded. Study selection, assessment, validity, data extraction, and analysis were undertaken as specified by the Cochrane Collaboration and the GRADE working group. For trials, we pooled data for weight change using inverse variance models with random effects. We pooled cohort study data where possible to estimate effect sizes, expressed as odds ratios for risk of obesity or β coefficients for change in adiposity per unit of intake. RESULTS: 30 of 7895 trials and 38 of 9445 cohort studies were eligible. In trials of adults with ad libitum diets (that is, with no strict control of food intake), reduced intake of dietary sugars was associated with a decrease in body weight (0.80 kg, 95% confidence interval 0.39 to 1.21; P<0.001); increased"
+        }
+      ],
+      "note": "1 off-topic work(s) excluded by relevance gate; 7 work(s) excluded by PICO gate (missing intervention [artif sweet] or outcome [weigh gain] in abstract/title)"
+    }
+  }
+}
