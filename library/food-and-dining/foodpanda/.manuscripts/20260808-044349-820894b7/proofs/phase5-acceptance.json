@@ -11,18 +11,18 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "b955898b1b51e7a0eb6294ae8a34597c95314a373b9ec0b6e5ab632bef53cbfa",
+  "source_fingerprint": "d90b86e87e10f78b40fa624c5bb2ec0c7646aa71327b7d2d4972ececb80376e3",
   "source_files": {
     "cmd/foodpanda-pp-cli/main.go": "584b4e97e82f8966cd44d58753b518362dac7129ce2ca7ec1946ac66dfe295df",
     "cmd/foodpanda-pp-mcp/main.go": "03b4a2efa1e4cbe1b2d3ba9dc121d57b5c7643dfe37b65165a9568b9101869a7",
-    "go.mod": "ed08797101847282d825ea4c3f273201aa1475494e0df6159bb6651f6a3baec4",
+    "go.mod": "e4567f8c3fcd23cbda2ac9a8985875f953517b876e2b40119c7bb2c6ad141d83",
     "go.sum": "7a22fe188d983220b9ed1ae01fd09837cfe831153f9193c6cc13a012a84a7149",
     "internal/cache/cache.go": "ff162da8a64ae6b4c3b67a3174b41a8d5b7124b0784c256372e763e582edac70",
     "internal/cli/addresses.go": "d3916d8fcd39040c8a18be7d5efb76a77e95973c55429d6705e3e121f5f0c141",
     "internal/cli/agent_context.go": "b1fe5c43f06f3c440e9d9026d1eca6fc5d4d007e3fa915a74a9ac2039d83c0a4",
     "internal/cli/analytics.go": "7cbec86be1b78e164e86ed7069185c3f49241e586a317981b44a4a346ff53181",
     "internal/cli/api_discovery.go": "3a5382fb7b7433d86379e5a6dc9ef2d5d5557df5c456171115ed604eb20465af",
-    "internal/cli/auth.go": "1092c5ac96a231d83aa16c6e7a27b45a6eaadb2c5a0e632be6b5dff01ef03501",
+    "internal/cli/auth.go": "1afb0aa68123240b16f1e51483806042cac5435664ed749605a65e86457f9f84",
     "internal/cli/auto_refresh.go": "93adedaa9d8e87cd880167d451e4580f23244ae1dafdc9c30c595171c0655ddc",
     "internal/cli/channel_workflow.go": "8e2d591d68852000f8e703d6de549e80d0c9652d540f85b5dbd0bfdf42870e9b",
     "internal/cli/coverage.go": "1b93761e5843969a087d52713a3577e52ea5dde325aedbadd19b3b288a055ffa",

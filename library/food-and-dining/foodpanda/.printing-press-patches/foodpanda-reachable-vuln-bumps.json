@@ -1,7 +1,7 @@
 {
   "id": "foodpanda-reachable-vuln-bumps",
-  "summary": "Bump golang.org/x/text to v0.39.0 and the go directive to 1.26.7 to clear reachable vulnerabilities.",
-  "reason": "govulncheck reported GO-2026-5970 (x/text infinite loop) reachable from learn.JournalInvocation and store.UpsertBatch, plus four reachable stdlib vulns on go1.26.5 including a crypto/tls post-handshake DoS (GO-2026-6090) and net/url quadratic complexity (GO-2026-6218), all fixed in go1.26.6.",
+  "summary": "Bump golang.org/x/text to v0.39.0 and the go directive to 1.26.6 to clear reachable vulnerabilities.",
+  "reason": "govulncheck reported GO-2026-5970 (x/text infinite loop) reachable from learn.JournalInvocation and store.UpsertBatch, plus four reachable stdlib vulns on go1.26.5 including a crypto/tls post-handshake DoS (GO-2026-6090) and net/url quadratic complexity (GO-2026-6218). 1.26.6 is the exact fix floor for all four and matches the library CI toolchain, which runs GOTOOLCHAIN=local and cannot download a newer one.",
   "files": [
     "go.mod",
     "go.sum",

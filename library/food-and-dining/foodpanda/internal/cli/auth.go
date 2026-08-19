@@ -1008,23 +1008,30 @@ func extractViaPycookiecheat(tool cookieTool, domain string, profile chromeProfi
 		cookiePath = filepath.Join(profile.DataDir, profile.Dir, "Cookies")
 	}
 
-	var script string
+	// The URL and cookie path are passed as argv rather than interpolated into
+	// the program text. cookiePath is filesystem-derived (any directory named
+	// "Profile *" under the Chrome data dir is accepted), so a name containing
+	// a quote, backslash or newline would otherwise close the Python string
+	// literal and execute whatever followed it. argv has no quoting context,
+	// which removes the injection class rather than escaping around it.
+	script := `import json, sys
+from pycookiecheat import chrome_cookies
+url = sys.argv[1]
+cookie_file = sys.argv[2] if len(sys.argv) > 2 else None
+if cookie_file:
+    print(json.dumps(chrome_cookies(url, cookie_file=cookie_file)))
+else:
+    print(json.dumps(chrome_cookies(url)))
+`
+
+	scriptArgs := append(append([]string{}, tool.pyArgs...), "-c", script, "https://"+cleanDomain)
 	if cookiePath != "" {
-		// Use forward slashes so Python doesn't interpret backslashes as escapes on Windows
-		safePath := filepath.ToSlash(cookiePath)
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s", cookie_file="%s")))`,
-			cleanDomain, safePath,
-		)
-	} else {
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s")))`,
-			cleanDomain,
-		)
+		// Forward slashes keep the path portable for pycookiecheat on Windows.
+		scriptArgs = append(scriptArgs, filepath.ToSlash(cookiePath))
 	}
 
 	var out bytes.Buffer
-	cmd := exec.Command(tool.pyBin, append(append([]string{}, tool.pyArgs...), "-c", script)...)
+	cmd := exec.Command(tool.pyBin, scriptArgs...)
 	cmd.Stdout = &out
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
