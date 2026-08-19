@@ -28,6 +28,7 @@ func seedOfflineFacts(t *testing.T, home string) {
 		{"performance", "w1", `{"samples":[{"seconds":0,"output":120}],"summary":{"avg_output":120}}`},
 		{"classes", "ride-a", `{"id":"ride-a","title":"Synthetic Ride","instructor":{"name":"Ada"},"duration":1800,"fitness_discipline":"cycling","class_type":"ride","segments":[{"role":"warmup","metric":"cadence","targets":[55,65]},{"role":"effort","metric":"cadence","targets":[65,75]}]}`},
 		{"classes", "ride-c", `{"id":"ride-c","title":"Partial structure","duration":600}`},
+		{"classes", "ride-d", `{"ride":{"id":"ride-d","title":"Detail-fetched, genuinely no segments"},"averages":{}}`},
 		{"filters", "v1", `{"instructors":[{"name":"Ada"}],"disciplines":["cycling"]}`},
 	}
 	for _, item := range seed {
@@ -81,13 +82,34 @@ func TestOfflineQueriesUseOnlyU3FactsAndCaveatGaps(t *testing.T) {
 			t.Fatalf("%v meta=%#v", args, meta)
 		}
 	}
+	// ride-c was synced in catalog list form (no top-level "ride" object):
+	// its missing segments should be caveated as "never detail-fetched,"
+	// not the generic "has no segments" message -- round-11 verification
+	// NEW 1 found the generic message misleading for the common case.
 	got, err := executeOffline(t, home, "offline", "classes", "structure", "ride-c")
 	if err != nil {
 		t.Fatal(err)
 	}
 	partial, _ := json.Marshal(got)
-	if !strings.Contains(string(partial), "no comparable segment list") {
-		t.Fatalf("partial structure not caveated: %s", partial)
+	if !strings.Contains(string(partial), "catalog list form only") {
+		t.Fatalf("list-form structure not caveated as list-form: %s", partial)
+	}
+	if strings.Contains(string(partial), "stored class has no segment list") {
+		t.Fatalf("list-form structure used the genuine-empty caveat instead: %s", partial)
+	}
+	// ride-d was detail-fetched (top-level "ride" object present) but
+	// genuinely has no segments -- this is the real "no segment list"
+	// case, distinct from ride-c's "never fetched" case above.
+	got, err = executeOffline(t, home, "offline", "classes", "structure", "ride-d")
+	if err != nil {
+		t.Fatal(err)
+	}
+	detailEmpty, _ := json.Marshal(got)
+	if !strings.Contains(string(detailEmpty), "stored class has no segment list") {
+		t.Fatalf("detail-form empty structure not caveated as genuinely empty: %s", detailEmpty)
+	}
+	if strings.Contains(string(detailEmpty), "catalog list form only") {
+		t.Fatalf("detail-form empty structure used the list-form caveat instead: %s", detailEmpty)
 	}
 	got, err = executeOffline(t, home, "offline", "classes", "search", "--instructor", "Ada", "--duration-min", "1800", "--duration-max", "1800", "--category", "cycling", "--type", "ride", "--segment-role", "effort", "--segment-count", "2", "--metric", "cadence", "--target-min", "55", "--target-max", "55")
 	if err != nil {

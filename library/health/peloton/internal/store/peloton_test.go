@@ -183,6 +183,50 @@ func TestUpsertWithFacts_UsesCallerSuppliedID(t *testing.T) {
 	}
 }
 
+// TestProviderFactIDsWithField_DistinguishesPresenceFromFieldPresence guards
+// the classes_detail dependent sync's pending-detection: a class synced via
+// the bulk catalog list endpoint already has a "classes" provider_payloads
+// row (so ExistingProviderFactFetchedAt alone would see it as "already
+// fetched" forever), but that row never carries "segments" -- only the
+// per-class detail endpoint's response does. ProviderFactIDsWithField must
+// report presence of the field itself, not presence of any record.
+func TestProviderFactIDsWithField_DistinguishesPresenceFromFieldPresence(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if _, err := s.RecordProviderFact("classes", "list-form", json.RawMessage(`{"id":"list-form","title":"Bulk list item"}`)); err != nil {
+		t.Fatalf("seed list-form: %v", err)
+	}
+	if _, err := s.RecordProviderFact("classes", "detail-form", json.RawMessage(`{"ride":{"id":"detail-form"},"segments":[{"role":"warmup"}]}`)); err != nil {
+		t.Fatalf("seed detail-form: %v", err)
+	}
+	if _, err := s.RecordProviderFact("classes", "detail-form-empty-segments", json.RawMessage(`{"ride":{"id":"detail-form-empty-segments"},"segments":null}`)); err != nil {
+		t.Fatalf("seed detail-form-empty-segments: %v", err)
+	}
+
+	haveSegments, err := s.ProviderFactIDsWithField("classes", "segments")
+	if err != nil {
+		t.Fatalf("ProviderFactIDsWithField: %v", err)
+	}
+	if haveSegments["list-form"] {
+		t.Error("list-form record has no segments key at all but was reported as having one")
+	}
+	if !haveSegments["detail-form"] {
+		t.Error("detail-form record has a real segments array but was reported as missing it")
+	}
+	if haveSegments["detail-form-empty-segments"] {
+		t.Error("detail-form record with segments:null was reported as having a real segments value")
+	}
+
+	if _, err := s.ProviderFactIDsWithField("classes", "not an identifier"); err == nil {
+		t.Error("expected ProviderFactIDsWithField to reject a non-identifier field name")
+	}
+}
+
 // TestRecordProviderFact_AdvancesFetchedAtEvenWhenContentUnchanged guards
 // NEW ISSUE E's --stale-before mechanism from a fourth live post-fix
 // verification sweep: a live-verify run found that refetching a record

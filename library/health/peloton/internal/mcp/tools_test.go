@@ -284,6 +284,62 @@ func TestMCPSearchEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 	}
 }
 
+// TestMCPSearchSelectProjectsTheResultsArray guards round-11 verification
+// NEW 2: the "search" MCP tool builds its own count/results/store_status/
+// resumable envelope by hand (unlike every other tool, which routes through
+// this CLI's printOffline/printOutput* pipeline where --select already
+// worked), and its tool schema never declared a "select" parameter at all
+// -- so passing one was a silent no-op, not an error, returning every field
+// including large nested objects the caller never asked for.
+func TestMCPSearchSelectProjectsTheResultsArray(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.Upsert("classes", "ride-a", []byte(`{"id":"ride-a","title":"Power Zone Endurance","resource_type":"classes","stream_url":"https://example.invalid/big-blob","ride":{"id":"ride-a","instructor":{"name":"Ada"}}}`)); err != nil {
+		t.Fatalf("seeding class: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+
+	result, err := handleSearch(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "Power Zone Endurance", "select": "results.id,results.title"},
+	}})
+	if err != nil {
+		t.Fatalf("handleSearch returned transport error: %v", err)
+	}
+	if result == nil || result.IsError {
+		t.Fatalf("handleSearch IsError = %v, want false", result != nil && result.IsError)
+	}
+	text := mcpTextContent(t, result)
+
+	var envelope struct {
+		Results []map[string]any `json:"results"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must be valid JSON: %v\n%s", err, text)
+	}
+	if len(envelope.Results) != 1 {
+		t.Fatalf("results = %v, want exactly 1 match", envelope.Results)
+	}
+	row := envelope.Results[0]
+	if row["title"] != "Power Zone Endurance" {
+		t.Fatalf("row missing requested field title: %#v", row)
+	}
+	if _, ok := row["stream_url"]; ok {
+		t.Fatalf("--select silently returned an unrequested field: %#v", row)
+	}
+	if _, ok := row["ride"]; ok {
+		t.Fatalf("--select silently returned an unrequested nested field: %#v", row)
+	}
+}
+
 func TestMCPSQLMissingStoreIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
 

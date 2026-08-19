@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcp-search-select-support",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "The MCP \"search\" tool (handleSearch, internal/mcp/tools.go) declares a \"select\" string parameter and, when set, projects it over the assembled count/results/store_status/resumable envelope using the same dotted-path filtering every other command's --select already uses (internal/cli's filterFields, exported for cross-package use as cli.FilterFieldsJSON since search is hand-written rather than routed through printOffline/printOutput*). Any future hand-written MCP tool handler that builds its own response envelope (rather than shelling out to the CLI or using makeAPIHandler) must wire --select the same way if it returns array-shaped data a caller might want to project, or the parameter silently does nothing -- MCP tool handlers don't get --select for free the way cobratree-mirrored and makeAPIHandler-based tools do.",
+  "reason": "Round-11 verification NEW 2: `search \"Power Zone Endurance\" --limit 3 --select results.id,results.title,results.resource_type` returned full records (~15 KB for 3 hits) including full nested ride objects, stream URLs, and rating counts -- a silent no-op rather than an error. Root cause: handleSearch's tool schema never declared a \"select\" parameter at all, so args[\"select\"] was simply never read; the search tool also builds its own count/results/store_status/resumable envelope by hand rather than going through this CLI's printOffline/printOutput* pipeline, which is where --select support normally lives for every other command. The report noted search is the tool most likely to return many large rows, making it the one that most needed projection to work.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestMCPSearchSelectProjectsTheResultsArray seeds a real class record with a large unrequested field (stream_url) and a nested object (ride), calls handleSearch with select=\"results.id,results.title\", and asserts the response contains only the requested fields -- neither the large field nor the nested object survive projection."
+}

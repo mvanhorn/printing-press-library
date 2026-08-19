@@ -35,13 +35,15 @@ func TestExpandSyncResourcesWithDependentsCascadesFromWorkouts(t *testing.T) {
 		want []string
 	}{
 		{"workouts alone cascades to both dependents", []string{"workouts"}, []string{"workouts", "performance", "workout_details"}},
-		{"workouts+classes cascades to both dependents", []string{"workouts", "classes"}, []string{"workouts", "classes", "performance", "workout_details"}},
+		{"workouts+classes cascades to all three dependents", []string{"workouts", "classes"}, []string{"workouts", "classes", "performance", "workout_details", "classes_detail"}},
 		{"already-explicit performance is not duplicated", []string{"workouts", "performance"}, []string{"workouts", "performance", "workout_details"}},
 		{"already-explicit workout_details is not duplicated", []string{"workouts", "workout_details"}, []string{"workouts", "workout_details", "performance"}},
 		{"both explicit dependents are not duplicated", []string{"workouts", "performance", "workout_details"}, []string{"workouts", "performance", "workout_details"}},
 		{"performance alone (no workouts) is left as-is", []string{"performance"}, []string{"performance"}},
 		{"workout_details alone (no workouts) is left as-is", []string{"workout_details"}, []string{"workout_details"}},
-		{"classes alone does not cascade", []string{"classes"}, []string{"classes"}},
+		{"classes alone cascades to classes_detail", []string{"classes"}, []string{"classes", "classes_detail"}},
+		{"already-explicit classes_detail is not duplicated", []string{"classes", "classes_detail"}, []string{"classes", "classes_detail"}},
+		{"classes_detail alone (no classes) is left as-is", []string{"classes_detail"}, []string{"classes_detail"}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

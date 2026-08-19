@@ -91,3 +91,23 @@ func IsVerifyLiveHTTPEnv() bool {
 func IsDogfoodEnv() bool {
 	return os.Getenv(DogfoodEnvVar) == "1"
 }
+
+// MCPShelloutEnvVar is set by the MCP server process (cmd/peloton-pp-mcp)
+// on itself at startup and therefore inherited by every companion CLI
+// subprocess the MCP shellout layer spawns (os/exec's Env stays nil on
+// those calls, and a nil Env means the child inherits the parent's
+// environment). Commands whose unbounded default behavior can exceed an
+// MCP tool call's timeout (e.g. workflow archive's flat classes phase,
+// which has no incremental filter and can run several minutes on a large
+// account) use this to substitute a bounded default when the caller didn't
+// pass an explicit flag -- never to change output shape, only to curtail
+// otherwise-unbounded work. A human running the same command from a shell
+// keeps today's unbounded-by-default behavior.
+const MCPShelloutEnvVar = "PELOTON_MCP_SHELLOUT"
+
+// IsMCPShelloutEnv reports whether the current process was spawned as a
+// companion CLI subprocess by the MCP server's shellout layer. See
+// MCPShelloutEnvVar.
+func IsMCPShelloutEnv() bool {
+	return os.Getenv(MCPShelloutEnvVar) == "1"
+}

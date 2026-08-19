@@ -994,6 +994,15 @@ func unwrapSingleKeyArray(data json.RawMessage) json.RawMessage {
 	return data
 }
 
+// FilterFieldsJSON exports filterFields for the internal/mcp package, whose
+// hand-written tool handlers (e.g. the "search" MCP tool, which builds its
+// own count/results/store_status/resumable envelope rather than going
+// through this package's printOffline/printOutput* pipeline) need the same
+// dotted-path projection --select applies everywhere else in this CLI.
+func FilterFieldsJSON(data json.RawMessage, fields string) json.RawMessage {
+	return filterFields(data, fields)
+}
+
 // filterFields keeps only the specified fields (comma-separated) from JSON objects/arrays.
 // Supports dotted paths like "events.shortName" to descend into nested structures.
 // Arrays are traversed element-wise: "events.shortName" keeps shortName on each event.

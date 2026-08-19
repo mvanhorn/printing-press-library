@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -65,7 +66,13 @@ before it -- classes in particular declares no incremental filter, so a full
 pass paginates every archived class on the account (tens of thousands on a
 long-lived one) and can take several minutes on its own, likely exceeding an
 MCP tool call's timeout. Pass --max-pages too to bound that phase as well;
-re-run archive (the resume cursor persists) to continue.`,
+re-run archive (the resume cursor persists) to continue.
+
+When this command runs as an MCP tool call (as opposed to a direct shell
+invocation), --max-pages defaults to 5 and --max-parents to 500 if left
+unset, so an agent that calls this tool with no arguments still gets a
+bounded, timeout-safe call instead of an unbounded one. Pass either flag
+explicitly to override.`,
 		Example: `  # Archive all resources
   peloton-pp-cli workflow archive
 
@@ -80,6 +87,26 @@ re-run archive (the resume cursor persists) to continue.`,
   # Backfill only records fetched before a known cutoff (e.g. a fix's deploy time)
   peloton-pp-cli workflow archive --stale-before 2026-08-14T09:00:00Z --max-parents 500`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// A caller that never learns about --max-pages/--max-parents
+			// (e.g. an MCP agent invoking this tool with no arguments)
+			// otherwise runs the flat classes phase fully unbounded --
+			// tens of thousands of pages on a long-lived account, several
+			// minutes on its own, reliably exceeding an MCP tool call's
+			// timeout with no partial result. Substitute the same bounded
+			// defaults this command's own Example block recommends, but
+			// only when running as an MCP-spawned subprocess (see
+			// MCPShelloutEnvVar) and only when the caller left the flag
+			// unset -- a human running this from a shell keeps today's
+			// unbounded-by-default behavior, and an explicit flag value
+			// (including 0) always wins.
+			if cliutil.IsMCPShelloutEnv() {
+				if !cmd.Flags().Changed("max-pages") {
+					maxPages = 5
+				}
+				if !cmd.Flags().Changed("max-parents") {
+					maxParents = 500
+				}
+			}
 			syncCmd := newSyncCmd(flags)
 			// Detached from rootCmd (never added via AddCommand), so it
 			// inherits none of rootCmd's error/usage printing config --set

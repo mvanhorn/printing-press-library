@@ -42,6 +42,13 @@ var rideArchivedRedundantFields = []string{"ride_types", "class_types"}
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
+	// Set once, before any tool is registered or called: os/exec inherits
+	// the parent process's environment on every companion CLI subprocess
+	// the shellout layer (cobratree.RegisterAll below) spawns, so this
+	// single Setenv reaches every one of them. See MCPShelloutEnvVar's
+	// doc comment for why commands like `workflow archive` need to know.
+	_ = os.Setenv(cliutil.MCPShelloutEnvVar, "1")
+
 	s.AddTool(
 		mcplib.NewTool("account_show",
 			mcplib.WithDescription("Show the current profile fact. Returns the Profile."),
@@ -168,6 +175,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithString("select", mcplib.Description("Comma-separated dotted field paths to project from the response envelope, e.g. results.id,results.title,results.resource_type. Arrays are traversed element-wise. Reduces token cost when result objects carry large nested fields (stream URLs, rating counts, full nested ride objects) you don't need.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -623,7 +631,22 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
 	}
 
-	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+	envelope := mcpSearchEnvelope(results, storeStatus)
+	// Unlike every shellout-mirrored and makeAPIHandler-based tool, search
+	// is hand-written and builds its own count/results/store_status/
+	// resumable envelope directly as a map -- it never passes through this
+	// CLI's printOffline/printOutput* pipeline, which is where --select
+	// support normally lives. Apply the same projection here so --select
+	// isn't a silent no-op on the one MCP tool most likely to return many
+	// large rows (full nested ride objects, stream URLs, rating counts).
+	if selectFields, ok := args["select"].(string); ok && strings.TrimSpace(selectFields) != "" {
+		raw, marshalErr := json.Marshal(envelope)
+		if marshalErr != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", marshalErr)), nil
+		}
+		return toolResultJSON(cli.FilterFieldsJSON(raw, selectFields))
+	}
+	return toolResultJSON(envelope)
 }
 
 func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {

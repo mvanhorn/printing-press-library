@@ -175,6 +175,38 @@ func (s *Store) ExistingProviderFactFetchedAt(family string) (map[string]time.Ti
 	return fetchedAt, rows.Err()
 }
 
+// ProviderFactIDsWithField returns the set of provider ids within family
+// whose stored payload has a non-null value at the given top-level JSON
+// field. Distinct from ExistingProviderFactFetchedAt's plain presence
+// check: a dependent sync that enriches an already-present record in place
+// (e.g. class detail backfilling "segments"/"target_metrics_data" onto a
+// class that was previously synced only in flat list form, which shares
+// the same "classes" family and provider id) needs to know which already-
+// present records still lack the richer field, not merely which ids exist
+// at all.
+func (s *Store) ProviderFactIDsWithField(family, field string) (map[string]bool, error) {
+	if !validIdentifierRE.MatchString(field) {
+		return nil, fmt.Errorf("ProviderFactIDsWithField: invalid field name %q", field)
+	}
+	rows, err := s.db.Query(
+		fmt.Sprintf(`SELECT provider_id FROM provider_payloads WHERE family=? AND json_extract(payload,'$.%s') IS NOT NULL`, field),
+		family,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	ids := map[string]bool{}
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids[id] = true
+	}
+	return ids, rows.Err()
+}
+
 // ParentIDsTouchedSince returns provider_payloads ids for a family fetched
 // at or after `since`. Dependent syncs use this to scope their
 // parent-keyed fan-out to only the parents a specific sync invocation

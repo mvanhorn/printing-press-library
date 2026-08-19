@@ -127,6 +127,67 @@ func TestWorkflowArchiveBoundingFlagsAccepted(t *testing.T) {
 	}
 }
 
+// TestWorkflowArchiveDefaultsBoundedUnderMCPShelloutEnv guards a round-11
+// live verification finding: --max-pages/--max-parents existing as flags
+// (TestWorkflowArchiveMaxPagesBoundsFlatPhase) isn't enough by itself -- an
+// MCP agent that calls this tool with no arguments (the report's exact
+// repro: `workflow_archive --max-parents 25 --json`, still omitting
+// --max-pages) still hangs on the flat classes phase's unbounded default.
+// When PELOTON_MCP_SHELLOUT is set (as the real MCP server sets it on
+// itself, inherited by every companion CLI subprocess it spawns -- see
+// cliutil.MCPShelloutEnvVar), an unset --max-pages must default to a real
+// bound instead of staying unlimited, using the same never-terminating
+// classes-list fixture TestWorkflowArchiveMaxPagesBoundsFlatPhase drives.
+func TestWorkflowArchiveDefaultsBoundedUnderMCPShelloutEnv(t *testing.T) {
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer restore()
+
+	fullPage := make([]byte, 0, 4096)
+	fullPage = append(fullPage, '[')
+	for i := 0; i < 100; i++ {
+		if i > 0 {
+			fullPage = append(fullPage, ',')
+		}
+		fullPage = append(fullPage, []byte(`{"id":"class-`+strconv.Itoa(i)+`","title":"Ride","duration":1800}`)...)
+	}
+	fullPage = append(fullPage, ']')
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/ride/archived") {
+			_, _ = w.Write(fullPage)
+			return
+		}
+		_, _ = w.Write([]byte(`[]`))
+	}))
+	defer server.Close()
+	t.Setenv("PELOTON_BASE_URL", server.URL)
+	t.Setenv("PELOTON_USER_ID", "u1")
+	t.Setenv(cliutil.MCPShelloutEnvVar, "1")
+	seedValidOAuthBundleForLiveFetchTests(t)
+
+	dbPath := filepath.Join(home, "data", "data.db")
+	root := newRootCmd(&rootFlags{})
+	var out, stderr bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&stderr)
+	// Deliberately no --max-pages/--max-parents: this is the exact call
+	// shape an MCP agent makes when it doesn't know about those flags.
+	root.SetArgs([]string{"workflow", "archive", "--db", dbPath, "--home", home, "--json"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("workflow archive under MCPShelloutEnvVar: %v\nstdout: %s\nstderr: %s", err, out.String(), stderr.String())
+	}
+	if !strings.Contains(out.String(), `"reason":"max_pages_cap_hit"`) {
+		t.Fatalf("expected the flat classes phase to hit a default page bound with no --max-pages passed, got: %s", out.String())
+	}
+	if !strings.Contains(out.String(), "reached --max-pages cap of 5") {
+		t.Fatalf("expected the MCP-shellout default of 5 pages, got: %s", out.String())
+	}
+}
+
 // TestWorkflowArchiveMaxPagesBoundsFlatPhase guards a round-10 live
 // verification finding: --max-parents bounds the per-workout dependent
 // fan-out (performance/workout_details), but nothing bounded the flat

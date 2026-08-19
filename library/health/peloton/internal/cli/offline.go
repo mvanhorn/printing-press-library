@@ -44,7 +44,16 @@ func newOfflineHistoryCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		return printOffline(cmd, flags, map[string]any{"items": payloads(facts), "caveats": caveatIfEmpty(facts, "no recorded workout facts are stored")})
+		value := map[string]any{"items": payloads(facts)}
+		// caveatIfEmpty returns nil (not an empty slice) when there's
+		// nothing to report; only set the key when there's a real caveat
+		// so a caller can test for the key's presence instead of having to
+		// null-check its value too (round-11 verification NEW 3: this used
+		// to always include "caveats": null).
+		if c := caveatIfEmpty(facts, "no recorded workout facts are stored"); c != nil {
+			value["caveats"] = c
+		}
+		return printOffline(cmd, flags, value)
 	}}
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum facts to return; 0 returns all.")
 	return cmd
@@ -103,14 +112,19 @@ func newOfflineIntervalsCmd(flags *rootFlags) *cobra.Command {
 		if rideID == "" {
 			return map[string]any{"workout_id": id, "segments": []any{}}, []string{"workout is not class-based (e.g. a freestyle Just Run/Just Ride/Outdoor session), so it has no associated class structure"}, nil
 		}
-		class, err := offlineFact(cmd, "classes", rideID)
+		// offlineClass, not a direct offlineFact(cmd, "classes", rideID)
+		// call: falls back through "catalog_classes" and, on a
+		// provider_payloads miss, the generic resources table (see
+		// offlineClass's doc comment / CARRIED 4 in the round-11
+		// verification report).
+		class, err := offlineClass(cmd, rideID)
 		if err != nil {
 			return map[string]any{"workout_id": id, "ride_id": rideID, "segments": []any{}}, []string{"stored class structure is unavailable"}, nil
 		}
 		obj := decodePayload(class)
 		segments, ok := objectValue(obj, "segments", "intervals")
 		if !ok {
-			return map[string]any{"workout_id": id, "ride_id": rideID, "segments": []any{}}, []string{"stored class has no comparable segment list"}, nil
+			return map[string]any{"workout_id": id, "ride_id": rideID, "segments": []any{}}, []string{classSegmentsMissingCaveat(obj)}, nil
 		}
 		return map[string]any{"workout_id": id, "ride_id": rideID, "segments": segments}, nil, nil
 	}
@@ -139,7 +153,7 @@ func newOfflineClassesCmd(flags *rootFlags) *cobra.Command {
 		v := decodePayload(f)
 		segments, ok := objectValue(v, "segments", "intervals")
 		if !ok {
-			return map[string]any{"ride_id": id, "segments": []any{}}, []string{"stored class has no comparable segment list"}, nil
+			return map[string]any{"ride_id": id, "segments": []any{}}, []string{classSegmentsMissingCaveat(v)}, nil
 		}
 		return map[string]any{"ride_id": id, "segments": segments}, nil, nil
 	}), newOfflineFiltersCmd(flags))
@@ -305,7 +319,70 @@ func offlineFact(cmd *cobra.Command, family, id string) (store.ProviderFact, err
 // confirmed dead, and removed rather than kept as a defensive no-op per
 // this repo's "don't validate for scenarios that can't happen" convention.
 func offlineClass(cmd *cobra.Command, id string) (store.ProviderFact, error) {
-	return offlineFact(cmd, "classes", id)
+	if f, e := offlineFact(cmd, "classes", id); e == nil {
+		return f, nil
+	}
+	return offlineClassFromResources(cmd, id)
+}
+
+// offlineClassFromResources falls back to the generic resources table --
+// which every synced class lands in via the flat classes list sync -- when
+// neither the "classes" nor "catalog_classes" provider_payloads family has
+// a fact for this id. The two stores can diverge for a small number of ids
+// (CARRIED 4 in the round-11 verification report: 97 ids present in
+// resources but absent from provider_payloads on a real account, each
+// erroring "stored catalog_classes fact not found" -- a family name the
+// caller never asked about, since it's whichever fallback happened to run
+// last). Without this, an id genuinely synced locally reads as "not found"
+// purely because the secondary provider_payloads index missed it.
+func offlineClassFromResources(cmd *cobra.Command, id string) (store.ProviderFact, error) {
+	db, err := openStoreForRead(cmd.Context(), "peloton-pp-cli")
+	if err != nil {
+		return store.ProviderFact{}, fmt.Errorf("opening local database: %w", err)
+	}
+	if db == nil {
+		return store.ProviderFact{}, fmt.Errorf("no local data. Run 'peloton-pp-cli sync' first")
+	}
+	defer db.Close()
+	data, err := db.Get("classes", id)
+	if err != nil {
+		return store.ProviderFact{}, notFoundErr(fmt.Errorf("stored classes fact %q not found", id))
+	}
+	return store.ProviderFact{Family: "classes", ProviderID: id, Payload: data}, nil
+}
+
+// classSegmentsMissingCaveat distinguishes two different reasons a stored
+// class fact has no "segments"/"intervals" field, which otherwise collapse
+// into the same misleading caveat (round-11 verification NEW 1): a class
+// synced only via the bulk catalog list endpoint never carries segments or
+// target_metrics_data at all -- those fields only come from the per-class
+// detail endpoint -- so "no segments" there means "never detail-fetched,"
+// not "this class genuinely has none." A detail-shaped fact (recognizable
+// by its top-level "ride" container -- see nestedIDContainerKeys in
+// internal/store/peloton.go, the same signal the write-through cache uses
+// to resolve a detail response's id) that still lacks segments is the
+// genuine case.
+func classSegmentsMissingCaveat(class any) string {
+	if classIsListForm(class) {
+		return "class was synced in catalog list form only (segments/target metrics are only present after a detail fetch); run `classes structure <ride_id>` live, or `sync --resources classes_detail`, to populate them"
+	}
+	return "stored class has no segment list"
+}
+
+// classIsListForm reports whether a decoded class fact came from the bulk
+// catalog list endpoint (GET /api/v2/ride/archived) rather than the
+// per-class detail endpoint (GET /api/ride/{ride_id}/details). The list
+// endpoint's items are flatter -- title, duration, instructor_id, ratings,
+// stream URLs, pedaling offsets -- and never carry a top-level "ride"
+// object; only the detail endpoint's response nests ride/segments/averages
+// that way.
+func classIsListForm(class any) bool {
+	obj, ok := class.(map[string]any)
+	if !ok {
+		return true
+	}
+	_, hasRide := obj["ride"].(map[string]any)
+	return !hasRide
 }
 
 // offlineClasses returns every locally cached class fact, sorted by id.
@@ -351,7 +428,15 @@ func printOffline(cmd *cobra.Command, flags *rootFlags, value any) error {
 	var caveats json.RawMessage
 	if obj, ok := value.(map[string]any); ok {
 		if c, present := obj["caveats"]; present {
-			if raw, err := json.Marshal(c); err == nil {
+			if raw, err := json.Marshal(c); err == nil && string(raw) != "null" {
+				// A typed-nil slice (e.g. a caller building its own
+				// map literal around caveatIfEmpty's return value)
+				// marshals to the JSON literal "null", not an absent
+				// key -- "present" alone doesn't mean "has a real
+				// value" here. Guarding on the marshaled bytes (rather
+				// than "c != nil", which is always true for a nil
+				// slice boxed in this interface) keeps a null caveats
+				// key from surviving into the response at all.
 				caveats = raw
 			}
 		}
