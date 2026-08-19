@@ -1,0 +1,410 @@
+{
+  "api_name": "psx",
+  "base_url": "https://dps.psx.com.pk",
+  "description": "Every PSX data-portal surface in one Go binary, plus the local price history the exchange itself throws away.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Referer",
+      "value": "https://dps.psx.com.pk/"
+    },
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    }
+  ],
+  "tools": [
+    {
+      "name": "announcements_list",
+      "description": "Search announcements across company, PSX, SECP, NCCPL and CDC streams. Optional: stream (default: C), symbol, query (plus 5 more).",
+      "method": "POST",
+      "path": "/announcements",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "stream",
+          "wire_name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Stream: C companies, E PSX notices, B SECP notices, D NCCPL notices, A CDC notices"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "body",
+          "description": "Filter to one instrument code, e.g. OGDC"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text search across announcement titles"
+        },
+        {
+          "name": "limit",
+          "wire_name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of announcements to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Row offset for pagination"
+        },
+        {
+          "name": "from",
+          "wire_name": "date_from",
+          "type": "string",
+          "location": "body",
+          "description": "Start date filter, YYYY-MM-DD"
+        },
+        {
+          "name": "to",
+          "wire_name": "date_to",
+          "type": "string",
+          "location": "body",
+          "description": "End date filter, YYYY-MM-DD"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Portal page context; leave at the default"
+        }
+      ]
+    },
+    {
+      "name": "board_show",
+      "description": "Trading board for one market and board combination. Required: market, board.",
+      "method": "GET",
+      "path": "/trading-board/{market}/{board}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "path",
+          "description": "Market code: REG regular, ODL odd lot, DFC deliverable futures, SQR square up, CSF cash settled futures",
+          "required": true
+        },
+        {
+          "name": "board",
+          "type": "string",
+          "location": "path",
+          "description": "Board: main, gem (growth), or bnb (bonds and notes)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendar_list",
+      "description": "AGM and EOGM events in a date window. Required: from, to. Returns array of CalendarEvent.",
+      "method": "POST",
+      "path": "/calendar",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Window start date, YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "Window end date, YYYY-MM-DD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "circuit-breakers_list",
+      "description": "Instruments halted by a price circuit breaker, with the limit band and halt state that triggered the suspension.",
+      "method": "GET",
+      "path": "/circuit-breakers",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "company_profile",
+      "description": "Company profile and quote page for an instrument. Required: symbol.",
+      "method": "GET",
+      "path": "/company/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Instrument code, e.g. OGDC",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "company_reports",
+      "description": "Financial report index for an instrument. Required: symbol.",
+      "method": "GET",
+      "path": "/company/reports/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Instrument code, e.g. OGDC",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "debt_list",
+      "description": "TFCs, Sukuks and other debt instruments with coupon, maturity and yields.",
+      "method": "GET",
+      "path": "/debt-market",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "eligible-scrips_list",
+      "description": "Securities eligible for margin trading and margin financing.",
+      "method": "GET",
+      "path": "/eligible-scrips",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "history_get",
+      "description": "Full OHLCV history for a symbol. PSX ignores date parameters and always returns the complete series. Required: symbol.",
+      "method": "POST",
+      "path": "/historical",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "body",
+          "description": "Instrument code, e.g. OGDC",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indices_list",
+      "description": "All PSX indices with current level and change.",
+      "method": "GET",
+      "path": "/indices",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "listings_table",
+      "description": "Listed companies filtered by board and listing status. Required: board, status.",
+      "method": "GET",
+      "path": "/listings-table/{board}/{status}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "board",
+          "type": "string",
+          "location": "path",
+          "description": "Board segment, e.g. main",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "path",
+          "description": "Listing status segment, e.g. nc",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "market_debt_performers",
+      "description": "Most active debt instruments by turnover, covering TFCs, Sukuks and government paper on the bonds board.",
+      "method": "GET",
+      "path": "/debt-performers",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "market_performers",
+      "description": "Top active, gainer and loser tables for the equity market.",
+      "method": "GET",
+      "path": "/performers",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "market_watch",
+      "description": "Whole-market snapshot table: LDCP, open, high, low, current, change, volume.",
+      "method": "GET",
+      "path": "/market-watch",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "payouts_company",
+      "description": "Full payout history for one instrument. Required: symbol.",
+      "method": "POST",
+      "path": "/company/payouts",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "body",
+          "description": "Instrument code, e.g. OGDC",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payouts_list",
+      "description": "Payout history across all instruments. Optional: symbol, limit (default: 25), offset (default: 0).",
+      "method": "POST",
+      "path": "/payouts",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "body",
+          "description": "Filter to one instrument code, e.g. OGDC"
+        },
+        {
+          "name": "limit",
+          "wire_name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of payout rows to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Row offset for pagination"
+        }
+      ]
+    },
+    {
+      "name": "screener_list",
+      "description": "Market cap, price, PE (TTM), dividend yield, free float, 30-day average volume and 1-year change.",
+      "method": "GET",
+      "path": "/screener",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sectors_summary",
+      "description": "Per-sector aggregates: advances, declines, turnover and market cap.",
+      "method": "GET",
+      "path": "/sector-summary/sectorwise",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sectors_top",
+      "description": "Top sectors ranked by traded volume. Returns array of SectorVolume.",
+      "method": "GET",
+      "path": "/data/top-10-sectors",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "symbols_list",
+      "description": "List every listed instrument with sector, ETF and debt flags. Returns array of Symbol.",
+      "method": "GET",
+      "path": "/symbols",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "timeseries_eod",
+      "description": "End-of-day series as [epoch, close, volume, open] tuples. Required: symbol. Returns array.",
+      "method": "GET",
+      "path": "/timeseries/eod/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Instrument or index code, e.g. OGDC or KSE100",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "timeseries_intraday",
+      "description": "Intraday tick series as [epoch, price, volume] tuples (last active session). Required: symbol. Returns array.",
+      "method": "GET",
+      "path": "/timeseries/int/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Instrument or index code, e.g. OGDC or KSE100",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Corporate-action digest",
+      "command": "actions",
+      "description": "See every announcement, payout, AGM date and circuit-breaker event for the symbols you track, in one place."
+    },
+    {
+      "name": "Snapshot delta",
+      "command": "diff",
+      "description": "Show what changed in price, volume and valuation metrics between two synced snapshots."
+    },
+    {
+      "name": "Local watchlist",
+      "command": "watchlist",
+      "description": "Keep a saved symbol set and price it on demand, with change measured from the day you added each name."
+    },
+    {
+      "name": "Baseline-relative anomaly scan",
+      "command": "unusual",
+      "description": "Find names trading abnormally against their own trailing history, not just the day's biggest movers."
+    },
+    {
+      "name": "Sector rotation",
+      "command": "rotation",
+      "description": "Rank sectors by movement over a window and name the constituents that drove each move."
+    },
+    {
+      "name": "Valuation drift",
+      "command": "drift",
+      "description": "Trace one symbol's PE, dividend yield, market cap or free float across time."
+    },
+    {
+      "name": "Futures basis",
+      "command": "basis",
+      "description": "Compare futures-board prices against the regular spot board to see premium or discount per symbol."
+    },
+    {
+      "name": "Regulatory document search",
+      "command": "docs search",
+      "description": "Search PSX regulatory documents, listing guides and notices by keyword, with last-updated dates."
+    }
+  ]
+}

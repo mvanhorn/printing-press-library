@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "psx-remove-dead-helper",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260819-222022-b3c3479a",
+  "base_printing_press_version": "4.31.0",
+  "summary": "Removed the unreferenced generated helper collectionItemsForOutput.",
+  "reason": "The generator emits this helper but nothing in the printed CLI calls it, so dogfood reports it as a dead function and the scorecard's dead-code dimension is capped at 3/5.",
+  "files": ["internal/cli/helpers.go"],
+  "validated_outcome": "dogfood dead_functions: 0 dead; scorecard dead_code 5/5.",
+  "upstream_issue": null
+}

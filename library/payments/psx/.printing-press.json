@@ -1,0 +1,139 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-19T20:14:56.595246Z",
+  "printing_press_version": "4.31.0",
+  "api_name": "psx",
+  "display_name": "Pakistan Stock Exchange",
+  "cli_name": "psx-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:7010bd7b29605ecce60c41deb0d20358e8fb370060cde931b96adb877956144b",
+  "run_id": "20260819-222022-b3c3479a",
+  "category": "payments",
+  "description": "Every PSX data-portal surface in one Go binary, plus the local price history the exchange itself throws away.",
+  "mcp_binary": "psx-pp-mcp",
+  "mcp_tool_count": 22,
+  "mcp_public_tool_count": 22,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Corporate-action digest",
+      "command": "actions",
+      "description": "See every announcement, payout, AGM date and circuit-breaker event for the symbols you track, in one place."
+    },
+    {
+      "name": "Snapshot delta",
+      "command": "diff",
+      "description": "Show what changed in price, volume and valuation metrics between two synced snapshots."
+    },
+    {
+      "name": "Local watchlist",
+      "command": "watchlist",
+      "description": "Keep a saved symbol set and price it on demand, with change measured from the day you added each name."
+    },
+    {
+      "name": "Baseline-relative anomaly scan",
+      "command": "unusual",
+      "description": "Find names trading abnormally against their own trailing history, not just the day's biggest movers."
+    },
+    {
+      "name": "Sector rotation",
+      "command": "rotation",
+      "description": "Rank sectors by movement over a window and name the constituents that drove each move."
+    },
+    {
+      "name": "Valuation drift",
+      "command": "drift",
+      "description": "Trace one symbol's PE, dividend yield, market cap or free float across time."
+    },
+    {
+      "name": "Futures basis",
+      "command": "basis",
+      "description": "Compare futures-board prices against the regular spot board to see premium or discount per symbol."
+    },
+    {
+      "name": "Regulatory document search",
+      "command": "docs search",
+      "description": "Search PSX regulatory documents, listing guides and notices by keyword, with last-updated dates."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Corporate-action digest",
+      "command": "actions",
+      "description": "See every announcement, payout, AGM date and circuit-breaker event for the symbols you track, in one place."
+    },
+    {
+      "name": "Snapshot delta",
+      "command": "diff",
+      "description": "Show what changed in price, volume and valuation metrics between two synced snapshots."
+    },
+    {
+      "name": "Local watchlist",
+      "command": "watchlist",
+      "description": "Keep a saved symbol set and price it on demand, with change measured from the day you added each name."
+    },
+    {
+      "name": "Baseline-relative anomaly scan",
+      "command": "unusual",
+      "description": "Find names trading abnormally against their own trailing history, not just the day's biggest movers."
+    },
+    {
+      "name": "Sector rotation",
+      "command": "rotation",
+      "description": "Rank sectors by movement over a window and name the constituents that drove each move."
+    },
+    {
+      "name": "Valuation drift",
+      "command": "drift",
+      "description": "Trace one symbol's PE, dividend yield, market cap or free float across time."
+    },
+    {
+      "name": "Futures basis",
+      "command": "basis",
+      "description": "Compare futures-board prices against the regular spot board to see premium or discount per symbol."
+    },
+    {
+      "name": "Regulatory document search",
+      "command": "docs search",
+      "description": "Search PSX regulatory documents, listing guides and notices by keyword, with last-updated dates."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 97.05882352941177,
+    "passed": 66,
+    "total": 68,
+    "failed": 2,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 98,
+      "grade": "A",
+      "total": 98
+    }
+  }
+}
