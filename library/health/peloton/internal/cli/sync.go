@@ -2386,6 +2386,18 @@ func planClassDetailSync(db *store.Store, full bool, scopeSince, staleBefore *ti
 	if err != nil {
 		return dependentSyncPlan{}, err
 	}
+	// pelotonNoClassRideID (offline.go) is Peloton's sentinel for
+	// freestyle/non-class workouts (Just Run, Outdoor Running, Just Ride),
+	// not a real class id -- there is no detail endpoint for it and never
+	// will be. Without this exclusion it fetches, fails (a 4xx from GET
+	// /api/ride/<sentinel>/details), and gets logged as a
+	// per_parent_fetch_failed anomaly on every single invocation forever,
+	// and -- since this dependent's pending check is content-based (does
+	// the record carry segments) rather than presence-based -- it can
+	// never be satisfied, so it never drains from the pending set either.
+	// offline_repeat/offline_intervals (workoutDetailRideID) already
+	// exclude this same sentinel for the analogous reason.
+	rideIDs = slices.DeleteFunc(rideIDs, func(id string) bool { return id == pelotonNoClassRideID })
 	if len(rideIDs) == 0 {
 		return dependentSyncPlan{parentTableEmpty: true}, nil
 	}

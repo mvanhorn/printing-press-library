@@ -14,6 +14,60 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/store"
 )
 
+// TestPlanClassDetailSync_ExcludesFreestyleSentinelRideID guards round-13
+// verification NEW E: Peloton's all-zeros sentinel ride id
+// (pelotonNoClassRideID) marks a freestyle/non-class workout (Just Run,
+// Outdoor Running, Just Ride), not a real class -- there is no detail
+// endpoint for it. Without exclusion it fetches, fails, gets logged as a
+// per_parent_fetch_failed anomaly on every single call forever, and --
+// since this dependent's pending check is content-based, not
+// presence-based -- can never be satisfied, so the pending set never
+// drains to zero even once every real class is caught up.
+func TestPlanClassDetailSync_ExcludesFreestyleSentinelRideID(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	seedPlanTestWorkoutsWithRides(t, db, map[string]string{
+		"w1": "ride-a",
+		"w2": pelotonNoClassRideID,
+		"w3": pelotonNoClassRideID,
+	})
+
+	plan, err := planClassDetailSync(db, false, nil, nil, 0)
+	if err != nil {
+		t.Fatalf("planClassDetailSync: %v", err)
+	}
+	if len(plan.ids) != 1 || plan.ids[0] != "ride-a" {
+		t.Fatalf("plan.ids = %v, want exactly [ride-a] (the sentinel must never appear)", plan.ids)
+	}
+}
+
+// TestPlanClassDetailSync_AllFreestyleWorkoutsReportsParentTableEmpty guards
+// the edge case where every synced workout is freestyle: after excluding
+// the sentinel, the candidate set is empty, which must report
+// parentTableEmpty (a legitimate "nothing to do here" state) rather than
+// an error or a false "fully caught up" success.
+func TestPlanClassDetailSync_AllFreestyleWorkoutsReportsParentTableEmpty(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	seedPlanTestWorkoutsWithRides(t, db, map[string]string{"w1": pelotonNoClassRideID})
+
+	plan, err := planClassDetailSync(db, false, nil, nil, 0)
+	if err != nil {
+		t.Fatalf("planClassDetailSync: %v", err)
+	}
+	if !plan.parentTableEmpty {
+		t.Fatal("expected parentTableEmpty=true when every workout is the freestyle sentinel")
+	}
+}
+
 // TestPlanClassDetailSync_ScopesToDistinctRideIDsNotFullCatalog guards the
 // core of round-11 verification NEW 1's fix: classes_detail's fan-out must
 // be over the distinct classes an account holder actually took
