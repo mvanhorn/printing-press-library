@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "clay-pp-cli"
+display_name = "Clay"
+description = "The only Clay tool that can build a table, not just read one."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/clay-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+CLAY_API_KEY = true

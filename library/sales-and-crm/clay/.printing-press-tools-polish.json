@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-08-19T00:09:48.944633Z",
+  "cli_dir": "\u003ccli-dir\u003e/clay-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Accurate as written: this tool lists locally stored client-profile names only, and 'List client profiles' names the action, the scope, and the return shape with nothing omitted. File is a DO-NOT-EDIT generated framework file, so any richer wording must come from the generator template, not a hand-edit that regen would wipe."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Brief but complete for the learn-loop surface: the tool reads rows from the local teach store and 'List recorded learnings' already distinguishes it from the sibling 'recall' search tool an agent would otherwise confuse it with. File is a DO-NOT-EDIT generated framework file; the durable fix belongs in the teach-loop template."
+    }
+  ],
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:691"
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-19T00:33:22.706176Z",
+  "printing_press_version": "4.31.0",
+  "api_name": "clay",
+  "display_name": "Clay",
+  "cli_name": "clay-pp-cli",
+  "creator": {
+    "handle": "adeamos83",
+    "name": "Ade Amos"
+  },
+  "owner": "adeamos83",
+  "printer": "adeamos83",
+  "printer_name": "Ade Amos",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:a76050116d288cff5bbab4815d28350fa0224ba5466c4e2604b5c02dab12488c",
+  "run_id": "20260818-175223-295b07d9",
+  "category": "sales-and-crm",
+  "description": "The only Clay tool that can build a table, not just read one.",
+  "mcp_binary": "clay-pp-mcp",
+  "mcp_tool_count": 31,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Table blueprint export",
+      "command": "blueprint export",
+      "description": "Snapshot a table's entire column graph to portable JSON you can commit to git."
+    },
+    {
+      "name": "Table blueprint apply",
+      "command": "blueprint apply",
+      "description": "Rebuild a captured table design in a new workbook, remapping formula references automatically."
+    },
+    {
+      "name": "Column dependency graph",
+      "command": "columns graph",
+      "description": "Show which columns feed which, resolved from formula field references."
+    },
+    {
+      "name": "Broken-reference doctor",
+      "command": "columns doctor",
+      "description": "Find formulas pointing at deleted columns and columns nothing consumes."
+    },
+    {
+      "name": "Enrichment provider compare",
+      "command": "enrichments compare",
+      "description": "Rank enrichment providers for a job and flag which ones your workspace can actually run today."
+    },
+    {
+      "name": "Table schema diff",
+      "command": "tables diff",
+      "description": "Structurally compare two tables' column graphs, including formulas and enrichment bindings."
+    },
+    {
+      "name": "Enrichment run watch",
+      "command": "watch",
+      "description": "Block until every column's enrichment runs settle, reporting per-column status counts."
+    },
+    {
+      "name": "Cross-table lookup column",
+      "command": "columns link",
+      "description": "Connect two tables by creating a lookup column that pulls the matching row from another table on a join key."
+    },
+    {
+      "name": "Workbook topology graph",
+      "command": "workbooks graph",
+      "description": "Show how every table and CSV source in a workbook feeds the others, with each table's credit estimate."
+    },
+    {
+      "name": "Formula edit in place",
+      "command": "columns set-formula",
+      "description": "Read a column's current formula with references resolved to column names, edit it, and write it back."
+    },
+    {
+      "name": "Typed error surfacing",
+      "command": "errors",
+      "description": "Report why columns failed, combining Clay's structured validation errors with per-column run status counts."
+    },
+    {
+      "name": "Row read with column names",
+      "command": "tables rows",
+      "description": "Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Table blueprint export",
+      "command": "blueprint export",
+      "description": "Snapshot a table's entire column graph to portable JSON you can commit to git."
+    },
+    {
+      "name": "Table blueprint apply",
+      "command": "blueprint apply",
+      "description": "Rebuild a captured table design in a new workbook, remapping formula references automatically."
+    },
+    {
+      "name": "Column dependency graph",
+      "command": "columns graph",
+      "description": "Show which columns feed which, resolved from formula field references."
+    },
+    {
+      "name": "Broken-reference doctor",
+      "command": "columns doctor",
+      "description": "Find formulas pointing at deleted columns and columns nothing consumes."
+    },
+    {
+      "name": "Enrichment provider compare",
+      "command": "enrichments compare",
+      "description": "Rank enrichment providers for a job and flag which ones your workspace can actually run today."
+    },
+    {
+      "name": "Table schema diff",
+      "command": "tables diff",
+      "description": "Structurally compare two tables' column graphs, including formulas and enrichment bindings."
+    },
+    {
+      "name": "Enrichment run watch",
+      "command": "watch",
+      "description": "Block until every column's enrichment runs settle, reporting per-column status counts."
+    },
+    {
+      "name": "Cross-table lookup column",
+      "command": "columns link",
+      "description": "Connect two tables by creating a lookup column that pulls the matching row from another table on a join key."
+    },
+    {
+      "name": "Workbook topology graph",
+      "command": "workbooks graph",
+      "description": "Show how every table and CSV source in a workbook feeds the others, with each table's credit estimate."
+    },
+    {
+      "name": "Formula edit in place",
+      "command": "columns set-formula",
+      "description": "Read a column's current formula with references resolved to column names, edit it, and write it back."
+    },
+    {
+      "name": "Typed error surfacing",
+      "command": "errors",
+      "description": "Report why columns failed, combining Clay's structured validation errors with per-column run status counts."
+    },
+    {
+      "name": "Row read with column names",
+      "command": "tables rows",
+      "description": "Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 73,
+    "total": 73,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 80
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "api_name": "clay",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "agent-plugins",
+      "url": "https://github.com/clay-run/agent-plugins",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 101,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "clay-gtm-cli",
+      "url": "https://github.com/bcharleson/clay-gtm-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 28,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-18T23:20:00Z",
+  "novel_features": [
+    {
+      "name": "Table blueprint export",
+      "command": "blueprint export",
+      "description": "Snapshot a table's entire column graph to portable JSON you can commit to git.",
+      "rationale": "Requires reading table details plus view schema and serializing formula text, action keys, and input bindings that no Clay surface exports.",
+      "example": "clay-pp-cli blueprint export t_abc123 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this when a table design is worth keeping or reviewing; it is the only way to get Clay column configuration into version control.",
+      "group": "Design as code"
+    },
+    {
+      "name": "Table blueprint apply",
+      "command": "blueprint apply",
+      "description": "Rebuild a captured table design in a new workbook, remapping formula references automatically.",
+      "rationale": "Replays a blueprint through table creation and N column creations while rewriting generated field ids so formulas keep resolving.",
+      "example": "clay-pp-cli blueprint apply ./plumbing-austin.json --workbook wb_abc --name 'Plumbing Dallas' --workspace 1234567",
+      "why_it_matters": "Reach for this to clone a proven lead-gen table into a new market without rebuilding columns by hand.",
+      "group": "Design as code"
+    },
+    {
+      "name": "Column dependency graph",
+      "command": "columns graph",
+      "description": "Show which columns feed which, resolved from formula field references.",
+      "rationale": "Formulas embed generated field ids, so the graph only exists after a local join between the formula text and the field mirror.",
+      "example": "clay-pp-cli columns graph t_abc123 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this before deleting or renaming a column, to see what breaks downstream.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Broken-reference doctor",
+      "command": "columns doctor",
+      "description": "Find formulas pointing at deleted columns and columns nothing consumes.",
+      "rationale": "Requires resolving every formula reference against the live field set, which needs the full local column mirror.",
+      "example": "clay-pp-cli columns doctor t_abc123 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this before a large enrichment run so broken formulas do not burn credits.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Enrichment provider compare",
+      "command": "enrichments compare",
+      "description": "Rank enrichment providers for a job and flag which ones your workspace can actually run today.",
+      "rationale": "Joins catalog results and their accuracy/coverage/GDPR labels against the workspace's connected provider accounts.",
+      "example": "clay-pp-cli enrichments compare \"find work email\" --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this when choosing between providers; it is advisory and never spends credits.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Table schema diff",
+      "command": "tables diff",
+      "description": "Structurally compare two tables' column graphs, including formulas and enrichment bindings.",
+      "rationale": "Needs two locally mirrored column graphs and a comparison across type, formula text, and action bindings.",
+      "example": "clay-pp-cli tables diff t_abc123 t_def456 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this to see what drifted between a template table and a copy.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Enrichment run watch",
+      "command": "watch",
+      "description": "Block until every column's enrichment runs settle, reporting per-column status counts.",
+      "rationale": "Requires polling per-field run status and aggregating counts until the table stops changing.",
+      "example": "clay-pp-cli watch t_abc123 --workspace 1234567 --interval 10s --agent",
+      "why_it_matters": "Reach for this in a script after triggering enrichment, instead of polling the UI.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-table lookup column",
+      "command": "columns link",
+      "description": "Connect two tables by creating a lookup column that pulls the matching row from another table on a join key.",
+      "rationale": "Requires building an action column bound to Clay's lookup-row-in-other-table action and resolving the join column's field id in the target table.",
+      "example": "clay-pp-cli columns link t_prospects --from t_citycache --on City --workspace 1234567",
+      "why_it_matters": "Reach for this to wire one table's data into another; it is the scriptable form of Clay's Lookup enrichment.",
+      "group": "Design as code"
+    },
+    {
+      "name": "Workbook topology graph",
+      "command": "workbooks graph",
+      "description": "Show how every table and CSV source in a workbook feeds the others, with each table's credit estimate.",
+      "rationale": "Joins Clay's workbook node/edge graph with the local column mirror so table relationships and cost appear together.",
+      "example": "clay-pp-cli workbooks graph wb_abc123 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this to understand an unfamiliar workbook before changing anything in it.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Formula edit in place",
+      "command": "columns set-formula",
+      "description": "Read a column's current formula with references resolved to column names, edit it, and write it back.",
+      "rationale": "Formulas store generated field ids, so editing safely requires resolving ids to names on read and back to ids on write.",
+      "example": "clay-pp-cli columns set-formula t_abc f_xyz --formula \"{{Company}}\" --workspace 1234567",
+      "why_it_matters": "Reach for this to change a formula without deleting and recreating the column.",
+      "group": "Design as code"
+    },
+    {
+      "name": "Typed error surfacing",
+      "command": "errors",
+      "description": "Report why columns failed, combining Clay's structured validation errors with per-column run status counts.",
+      "rationale": "Clay splits failure information between a typed request-error envelope and per-field run status; neither is useful alone.",
+      "example": "clay-pp-cli errors t_abc123 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this when a column is empty and you need to know whether the request was rejected or the run failed.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Row read with column names",
+      "command": "tables rows",
+      "description": "Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status.",
+      "rationale": "Clay lists rows in two steps (view record ids, then a bulk cell fetch) and returns cells keyed by generated field ids; joining both with the table schema is the only way to get readable rows.",
+      "example": "clay-pp-cli tables rows t_abc123 --status ERROR --limit 20 --agent",
+      "why_it_matters": "Reach for this to see which cells failed and why, without decoding f_ field ids by hand.",
+      "group": "Table intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Table blueprint export",
+      "command": "blueprint export",
+      "description": "Snapshot a table's entire column graph to portable JSON you can commit to git.",
+      "rationale": "Requires reading table details plus view schema and serializing formula text, action keys, and input bindings that no Clay surface exports.",
+      "example": "clay-pp-cli blueprint export t_abc123 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this when a table design is worth keeping or reviewing; it is the only way to get Clay column configuration into version control.",
+      "group": "Design as code"
+    },
+    {
+      "name": "Table blueprint apply",
+      "command": "blueprint apply",
+      "description": "Rebuild a captured table design in a new workbook, remapping formula references automatically.",
+      "rationale": "Replays a blueprint through table creation and N column creations while rewriting generated field ids so formulas keep resolving.",
+      "example": "clay-pp-cli blueprint apply ./plumbing-austin.json --workbook wb_abc --name 'Plumbing Dallas' --workspace 1234567",
+      "why_it_matters": "Reach for this to clone a proven lead-gen table into a new market without rebuilding columns by hand.",
+      "group": "Design as code"
+    },
+    {
+      "name": "Column dependency graph",
+      "command": "columns graph",
+      "description": "Show which columns feed which, resolved from formula field references.",
+      "rationale": "Formulas embed generated field ids, so the graph only exists after a local join between the formula text and the field mirror.",
+      "example": "clay-pp-cli columns graph t_abc123 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this before deleting or renaming a column, to see what breaks downstream.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Broken-reference doctor",
+      "command": "columns doctor",
+      "description": "Find formulas pointing at deleted columns and columns nothing consumes.",
+      "rationale": "Requires resolving every formula reference against the live field set, which needs the full local column mirror.",
+      "example": "clay-pp-cli columns doctor t_abc123 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this before a large enrichment run so broken formulas do not burn credits.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Enrichment provider compare",
+      "command": "enrichments compare",
+      "description": "Rank enrichment providers for a job and flag which ones your workspace can actually run today.",
+      "rationale": "Joins catalog results and their accuracy/coverage/GDPR labels against the workspace's connected provider accounts.",
+      "example": "clay-pp-cli enrichments compare \"find work email\" --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this when choosing between providers; it is advisory and never spends credits.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Table schema diff",
+      "command": "tables diff",
+      "description": "Structurally compare two tables' column graphs, including formulas and enrichment bindings.",
+      "rationale": "Needs two locally mirrored column graphs and a comparison across type, formula text, and action bindings.",
+      "example": "clay-pp-cli tables diff t_abc123 t_def456 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this to see what drifted between a template table and a copy.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Enrichment run watch",
+      "command": "watch",
+      "description": "Block until every column's enrichment runs settle, reporting per-column status counts.",
+      "rationale": "Requires polling per-field run status and aggregating counts until the table stops changing.",
+      "example": "clay-pp-cli watch t_abc123 --workspace 1234567 --interval 10s --agent",
+      "why_it_matters": "Reach for this in a script after triggering enrichment, instead of polling the UI.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-table lookup column",
+      "command": "columns link",
+      "description": "Connect two tables by creating a lookup column that pulls the matching row from another table on a join key.",
+      "rationale": "Requires building an action column bound to Clay's lookup-row-in-other-table action and resolving the join column's field id in the target table.",
+      "example": "clay-pp-cli columns link t_prospects --from t_citycache --on City --workspace 1234567",
+      "why_it_matters": "Reach for this to wire one table's data into another; it is the scriptable form of Clay's Lookup enrichment.",
+      "group": "Design as code"
+    },
+    {
+      "name": "Workbook topology graph",
+      "command": "workbooks graph",
+      "description": "Show how every table and CSV source in a workbook feeds the others, with each table's credit estimate.",
+      "rationale": "Joins Clay's workbook node/edge graph with the local column mirror so table relationships and cost appear together.",
+      "example": "clay-pp-cli workbooks graph wb_abc123 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this to understand an unfamiliar workbook before changing anything in it.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Formula edit in place",
+      "command": "columns set-formula",
+      "description": "Read a column's current formula with references resolved to column names, edit it, and write it back.",
+      "rationale": "Formulas store generated field ids, so editing safely requires resolving ids to names on read and back to ids on write.",
+      "example": "clay-pp-cli columns set-formula t_abc f_xyz --formula \"{{Company}}\" --workspace 1234567",
+      "why_it_matters": "Reach for this to change a formula without deleting and recreating the column.",
+      "group": "Design as code"
+    },
+    {
+      "name": "Typed error surfacing",
+      "command": "errors",
+      "description": "Report why columns failed, combining Clay's structured validation errors with per-column run status counts.",
+      "rationale": "Clay splits failure information between a typed request-error envelope and per-field run status; neither is useful alone.",
+      "example": "clay-pp-cli errors t_abc123 --workspace 1234567 --agent",
+      "why_it_matters": "Reach for this when a column is empty and you need to know whether the request was rejected or the run failed.",
+      "group": "Table intelligence"
+    },
+    {
+      "name": "Row read with column names",
+      "command": "tables rows",
+      "description": "Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status.",
+      "rationale": "Clay lists rows in two steps (view record ids, then a bulk cell fetch) and returns cells keyed by generated field ids; joining both with the table schema is the only way to get readable rows.",
+      "example": "clay-pp-cli tables rows t_abc123 --status ERROR --limit 20 --agent",
+      "why_it_matters": "Reach for this to see which cells failed and why, without decoding f_ field ids by hand.",
+      "group": "Table intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Clay",
+    "headline": "The only Clay tool that can build a table, not just read one.",
+    "value_prop": "Clay's own CLI and MCP stop at reading tables that already exist. This CLI creates tables, adds text, formula, enrichment, and HTTP API columns, and generates formulas from plain language. It also turns a table's column graph into portable JSON with blueprint export, so a proven lead-gen table becomes a file you can commit, diff, and rebuild in a new market.",
+    "auth_narrative": "Clay has two separate credentials and this CLI uses both. Table and column authoring runs against Clay's app API and authenticates with your browser session cookie, so run auth login --chrome while signed in to app.clay.com. The public subcommands use a Public API key from Settings, Account, API keys (beta); set it as CLAY_API_KEY. Neither credential works on the other surface.",
+    "quickstart": [
+      {
+        "command": "clay-pp-cli doctor --dry-run",
+        "comment": "confirm both credentials and API reachability before anything else"
+      },
+      {
+        "command": "clay-pp-cli auth login --chrome",
+        "comment": "import the app.clay.com session cookie that authorizes table authoring"
+      },
+      {
+        "command": "clay-pp-cli workspace get 1234567",
+        "comment": "confirm the workspace id you will pass to authoring commands"
+      },
+      {
+        "command": "clay-pp-cli tables create 1234567 --workbook-id wb_abc --template basic",
+        "comment": "create the table you are about to build columns on"
+      },
+      {
+        "command": "clay-pp-cli columns create 1234567 t_abc --type text --name Company",
+        "comment": "add the first column the enrichments will bind to"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every /v3 command returns 401",
+        "fix": "Your browser session expired. Re-run clay-pp-cli auth login --chrome while signed in to app.clay.com."
+      },
+      {
+        "symptom": "public subcommands return 401 but table commands work",
+        "fix": "CLAY_API_KEY is missing or is a workspace key. Create a Public API key under Settings, Account, API keys (beta)."
+      },
+      {
+        "symptom": "tables_query returns auth_forbidden",
+        "fix": "Structured table query needs Enterprise API table sync. Use tables records instead."
+      },
+      {
+        "symptom": "A formula column returns empty after blueprint apply",
+        "fix": "Run clay-pp-cli columns doctor \u003ctableId\u003e to find formula references that did not remap."
+      }
+    ],
+    "when_to_use": "Use this CLI when the task is to build or reshape a Clay table rather than read one: creating tables, adding columns, wiring formulas, attaching enrichment providers, or configuring HTTP API columns. It is also the right tool for capturing a table design as YAML and reproducing it elsewhere.",
+    "anti_triggers": [
+      "Do not use this CLI to run enrichments across many rows and wait on credits; trigger runs in the Clay app and use watch to observe.",
+      "Do not use this CLI as a general GTM data search tool when Clay's official CLI or MCP is already installed; those cover search and routines better.",
+      "Do not use this CLI against a workspace you do not own; table and column authoring is destructive and runs as your logged-in user."
+    ],
+    "recipes": [
+      {
+        "title": "Capture a proven table as code",
+        "command": "clay-pp-cli blueprint export t_abc123 --agent \u003e plumbing-austin.json",
+        "explanation": "Serializes every column, formula, and enrichment binding into YAML you can commit."
+      },
+      {
+        "title": "Clone that design into a new market",
+        "command": "clay-pp-cli blueprint apply ./plumbing-austin.json --workbook wb_abc --name \"Plumbing Dallas\"",
+        "explanation": "Recreates the table and remaps formula field references to the new column ids."
+      },
+      {
+        "title": "Narrow a verbose table read for an agent",
+        "command": "clay-pp-cli tables get 1234567 t_abc123 --agent --select fields.id,fields.name,fields.type,fields.typeSettings.actionKey",
+        "explanation": "Table detail responses are large; selecting only the field graph keeps agent context small."
+      },
+      {
+        "title": "Find a provider you can actually run",
+        "command": "clay-pp-cli enrichments compare \"find work email\" --agent",
+        "explanation": "Ranks catalog providers and marks the ones your workspace already has credentials for."
+      },
+      {
+        "title": "Check a table before spending credits",
+        "command": "clay-pp-cli columns doctor t_abc123 --agent",
+        "explanation": "Reports formulas referencing deleted columns and columns nothing consumes."
+      }
+    ],
+    "trigger_phrases": [
+      "create a clay table",
+      "add a column in clay",
+      "write a clay formula",
+      "export my clay table design",
+      "clone this clay table",
+      "use clay",
+      "run clay"
+    ]
+  }
+}

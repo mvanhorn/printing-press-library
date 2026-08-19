@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "clay-feedback-example",
+  "applied_at": "2026-08-18",
+  "base_run_id": "20260818-175223-295b07d9",
+  "base_printing_press_version": "4.31.0",
+  "summary": "Add a missing Examples: section to the generated framework feedback command.",
+  "reason": "The generator emits the framework feedback command without an Example, which then fails the generator's own dogfood --live help check. Tracked upstream as cli-printing-press#4242.",
+  "files": [
+    "internal/cli/feedback.go"
+  ],
+  "validated_outcome": "dogfood --live full: feedback help check passes (164/164).",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2512"
+}

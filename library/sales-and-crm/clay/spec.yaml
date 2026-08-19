@@ -1,0 +1,284 @@
+name: clay
+description: "Author Clay tables, columns, formulas, and enrichments from the command line"
+version: "0.1.0"
+base_url: "https://api.clay.com/v3"
+http_transport: standard
+health_check_path: "/workspaces"
+category: sales-and-crm
+
+auth:
+  type: cookie
+  cookies: [claysession]
+  login_url: "https://app.clay.com"
+
+config:
+  format: toml
+  path: "~/.config/clay-pp-cli/config.toml"
+
+resources:
+  workspace:
+    description: "Workspace metadata, permissions, sources, and connected accounts"
+    endpoints:
+      get:
+        method: GET
+        path: "/workspaces/{workspaceId}"
+        description: "Get workspace details"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+      permissions:
+        method: GET
+        path: "/workspaces/{workspaceId}/permissions"
+        description: "List the authenticated user's workspace permissions"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+      sources:
+        method: GET
+        path: "/workspaces/{workspaceId}/sources"
+        description: "List record sources configured in the workspace"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+      subroutines:
+        method: GET
+        path: "/workspaces/{workspaceId}/subroutines"
+        description: "List saved subroutines (reusable enrichment functions)"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+
+  workbooks:
+    description: "Workbooks group related tables"
+    endpoints:
+      create:
+        method: POST
+        path: "/workspaces/{workspaceId}/workbooks"
+        description: "Create a workbook"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+        body:
+          - {name: name, type: string, required: false, description: "Workbook name"}
+      get:
+        method: GET
+        path: "/workspaces/{workspaceId}/workbooks/{workbookId}"
+        description: "Get a workbook"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: workbookId, type: string, required: true, positional: true, description: "Workbook id (wb_...)"}
+      overview:
+        method: GET
+        path: "/workspaces/{workspaceId}/workbooks/{workbookId}/overview"
+        description: "List every table inside a workbook"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: workbookId, type: string, required: true, positional: true, description: "Workbook id (wb_...)"}
+      update:
+        method: PATCH
+        path: "/workspaces/{workspaceId}/workbooks/{workbookId}"
+        description: "Rename or update a workbook"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: workbookId, type: string, required: true, positional: true, description: "Workbook id (wb_...)"}
+        body:
+          - {name: name, type: string, required: false, description: "New workbook name"}
+
+  tables:
+    description: "Create and manage Clay tables"
+    endpoints:
+      create:
+        method: POST
+        path: "/workspaces/{workspaceId}/tables"
+        description: "Create a table inside a workbook"
+        example: "  clay-pp-cli tables create 1234567 --workbookId wb_abc --type spreadsheet --template basic"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+        body:
+          - {name: workbookId, type: string, required: true, description: "Workbook to create the table in (wb_...)"}
+          - {name: type, type: string, required: false, default: "spreadsheet", description: "Table type", enum: [spreadsheet]}
+          - {name: template, type: string, required: false, default: "basic", description: "Table template"}
+      get:
+        method: GET
+        path: "/workspaces/{workspaceId}/tables/{tableId}/details"
+        description: "Get a table with its full field list"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+      update:
+        method: PATCH
+        path: "/workspaces/{workspaceId}/tables/{tableId}"
+        description: "Rename a table or change its settings"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+        body:
+          - {name: name, type: string, required: false, description: "New table name"}
+      count:
+        method: GET
+        path: "/workspaces/{workspaceId}/tables/{tableId}/count"
+        description: "Count records in a table"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+      schema:
+        method: GET
+        path: "/workspaces/{workspaceId}/tables/{tableId}/views/{viewId}/table-schema-v2"
+        description: "Get the column schema for a table view"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+          - {name: viewId, type: string, required: true, positional: true, description: "View id (gv_...)"}
+      runstatus:
+        method: GET
+        path: "/workspaces/{workspaceId}/tables/{tableId}/fields/runstatus"
+        description: "Per-column enrichment run status counts"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+      hydrate:
+        method: POST
+        path: "/workspaces/{workspaceId}/tables/{tableId}/records"
+        description: "Create or hydrate rows, returning each cell with value and run-status metadata"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+      record_ids:
+        method: GET
+        path: "/workspaces/{workspaceId}/tables/{tableId}/views/{viewId}/records/ids"
+        description: "List the ordered record ids for a table view (step 1 of a row read)"
+        example: "  clay-pp-cli tables record-ids 1234567 t_abc gv_abc"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+          - {name: viewId, type: string, required: true, positional: true, description: "View id (gv_...)"}
+      records:
+        method: POST
+        path: "/workspaces/{workspaceId}/tables/{tableId}/bulk-fetch-records"
+        description: "Fetch cell values for specific record ids (step 2 of a row read)"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+        body:
+          - {name: recordIds, type: array, required: true, description: "Record ids (r_...) to fetch cell values for"}
+
+  columns:
+    description: "Create and configure table columns: text, formula, enrichment, and HTTP API"
+    endpoints:
+      create:
+        method: POST
+        path: "/workspaces/{workspaceId}/tables/{tableId}/fields"
+        description: "Add a column to a table"
+        example: "  clay-pp-cli columns create 1234567 t_abc --type text --name Company"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+        body:
+          - {name: type, type: string, required: true, description: "Column type", enum: [text, formula, action, number, date, boolean]}
+          - {name: name, type: string, required: true, description: "Column name"}
+          - {name: activeViewId, type: string, required: false, description: "View the column is added to (gv_...)"}
+      update:
+        method: PATCH
+        path: "/workspaces/{workspaceId}/tables/{tableId}/fields/{fieldId}"
+        description: "Rename or reconfigure an existing column, including changing its formula"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+          - {name: fieldId, type: string, required: true, positional: true, description: "Column id (f_...)"}
+        body:
+          - {name: name, type: string, required: false, description: "New column name"}
+      delete:
+        method: DELETE
+        path: "/workspaces/{workspaceId}/tables/{tableId}/fields/{fieldId}"
+        description: "Delete a column from a table"
+        example: "  clay-pp-cli columns delete 1234567 t_abc f_xyz --dry-run"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: tableId, type: string, required: true, positional: true, description: "Table id (t_...)"}
+          - {name: fieldId, type: string, required: true, positional: true, description: "Column id (f_...)"}
+
+  enrichments:
+    description: "Search Clay's enrichment provider catalog and resolve action parameters"
+    endpoints:
+      search:
+        method: POST
+        path: "/workspaces/{workspaceId}/enrichment-search/query-v2"
+        description: "Search the enrichment and provider catalog"
+        example: "  clay-pp-cli enrichments search 1234567 --userQuery \"find work email\" --limit 10"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+        body:
+          - {name: userQuery, type: string, required: true, description: "Free-text search over enrichment providers"}
+          - {name: limit, type: int, required: false, default: 20, description: "Maximum results"}
+      params:
+        method: POST
+        path: "/workspaces/{workspaceId}/actions/dynamicFields"
+        description: "Resolve the dynamic parameter schema for an enrichment action"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+
+  formulas:
+    description: "Generate Clay formulas from natural language"
+    endpoints:
+      generate:
+        method: POST
+        path: "/workspaces/{workspaceId}/ai-generation/formula"
+        description: "Turn a natural-language prompt into a Clay formula"
+        example: "  clay-pp-cli formulas generate 1234567 --userPromptInput \"uppercase the company name\""
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+        body:
+          - {name: userPromptInput, type: string, required: true, description: "Natural-language description of the formula"}
+          - {name: mode, type: string, required: false, default: "basic", description: "Generation mode"}
+
+  accounts:
+    description: "Connected provider credentials (API keys) in the workspace"
+    endpoints:
+      list:
+        method: GET
+        path: "/workspaces/{workspaceId}/app-accounts"
+        description: "List every connected provider account"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+      by_type:
+        method: GET
+        path: "/workspaces/{workspaceId}/app-accounts/accounts/type/{accountType}"
+        description: "List connected accounts for one provider type"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: accountType, type: string, required: true, positional: true, description: "Provider type, e.g. http-api or clearbit"}
+      get:
+        method: GET
+        path: "/workspaces/{workspaceId}/app-accounts/accounts/{accountId}"
+        description: "Get one connected provider account"
+        params:
+          - {name: workspaceId, type: string, required: true, positional: true, description: "Clay workspace id"}
+          - {name: accountId, type: string, required: true, positional: true, description: "Account id (aa_...)"}
+      provider:
+        method: GET
+        path: "/app-accounts/type/{providerId}"
+        description: "Get auth metadata for a provider type"
+        params:
+          - {name: providerId, type: string, required: true, positional: true, description: "Provider id, e.g. clearbit"}
+
+  public:
+    description: "Clay's documented Public API (requires CLAY_API_KEY, not the browser session)"
+    base_url: "https://api.clay.com/public/v0"
+    endpoints:
+      me:
+        method: GET
+        path: "/me"
+        description: "Get the authenticated user and workspace for the public API key"
+        example: "  clay-pp-cli public me"
+      search_fields:
+        method: GET
+        path: "/search/filters-mode/fields"
+        description: "List filter fields available for a search source type"
+        happy_args: "--source-type=companies"
+        params:
+          - {name: source_type, type: string, required: true, description: "Search source type", enum: [people, companies]}
+      search_create:
+        method: POST
+        path: "/search/filters-mode"
+        description: "Create a GTM database search from structured filters"
+        body:
+          - {name: source_type, type: string, required: true, description: "Search source type", enum: [people, companies]}
+      tables_query:
+        method: POST
+        path: "/tables/query"
+        description: "Run a structured query across Clay tables (Enterprise sync required)"

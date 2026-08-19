@@ -1,0 +1,53 @@
+# Clay docs
+
+> Developer documentation for using Clay from agents, CLIs, APIs, and internal systems.
+
+## Docs
+
+- [Overview](https://developers.clay.com/index.md): Use Clay from agents, terminals, backend services, internal tools, and custom apps.
+- [Quickstart](https://developers.clay.com/quickstart.md): Build with Clay from your coding agent, or call the Clay API from your own applications.
+- [Searches](https://developers.clay.com/searches.md): Find companies and people in Clay's proprietary GTM database.
+- [Search with advanced queries (beta)](https://developers.clay.com/searches/advanced.md): Find Clay companies or people with Clay's advanced search query language.
+- [Search with structured filters](https://developers.clay.com/searches/filters.md): Find Clay companies or people with a JSON filters object.
+- [Routines overview](https://developers.clay.com/routines/index.md): Understand the routine types: Clay-managed functions, custom functions, and Workflows.
+- [Clay-managed functions](https://developers.clay.com/routines/clay-managed-functions.md): Use Clay-provided functions for common enrichment and research jobs.
+- [Custom functions](https://developers.clay.com/routines/custom-functions.md): Run your own reusable Clay logic from agents, the CLI, MCP, or the API.
+- [Workflows (Alpha)](https://developers.clay.com/routines/workflows-alpha.md): Build, edit, run, inspect, and batch-run Clay Workflows from the plugin and CLI.
+- [Routines API](https://developers.clay.com/routines/api.md): Run Clay-managed functions and custom functions through the Public API.
+- [Functions vs. Workflows](https://developers.clay.com/routines/functions-vs-workflows.md): Choose between custom functions and Workflows for reusable Clay logic.
+- [Batch runs](https://developers.clay.com/routines/batch-runs.md): Run routines across many records.
+- [Tables (Enterprise)](https://developers.clay.com/tables.md): Query known Clay tables with structured filters, selected fields, ordering, and pagination.
+- [Run a search, then enrich with a function](https://developers.clay.com/recipes/search-and-enrich.md): Use Searches to find records, then run Clay-managed functions on the results.
+- [Give an agent access to a Clay function](https://developers.clay.com/recipes/agent-function-access.md): Let an agent call Clay-managed or custom functions from its normal workflow.
+- [Encode Clay functions into business systems](https://developers.clay.com/recipes/business-systems.md): Call Clay functions from backend jobs, internal tools, queues, and product workflows.
+- [Build a Workflow (Alpha)](https://developers.clay.com/recipes/build-workflow-alpha.md): Use the Clay plugin and CLI to create, edit, run, and inspect a Workflow.
+- [Use cases](https://developers.clay.com/use-cases/index.md): See the GTM workflows you can run with Clay from a CLI, API, service, or agent.
+- [Enrich leads and accounts](https://developers.clay.com/use-cases/enrich-leads-and-accounts.md): Use Clay to enrich records with contact, company, technology, hiring, funding, and firmographic data.
+- [Search Clay's GTM database](https://developers.clay.com/use-cases/search-gtm-database.md): Use advanced queries to search Clay's proprietary database of companies and people.
+- [Use Clay tables as a database](https://developers.clay.com/use-cases/build-on-tables.md): Build dashboards, internal tools, and interactive apps on top of data that exists in Clay tables.
+- [Run GTM workflows](https://developers.clay.com/use-cases/run-gtm-workflows.md): Embed Clay scoring, routing, research, enrichment waterfalls, and other GTM logic in your systems.
+- [Agent workflows](https://developers.clay.com/use-cases/agent-workflows.md): Use Clay with coding agents, MCP clients, local scripts, and JSON-first automations.
+- [Execution model](https://developers.clay.com/concepts/execution-model.md): Understand the primitives behind Clay routines, searches, tables, runs, and batch jobs.
+- [CLI basics](https://developers.clay.com/concepts/cli-basics.md): Understand the Clay CLI output contract, exit codes, environment variables, and authentication.
+- [Authentication](https://developers.clay.com/public-api/authentication.md): Authenticate requests with a Clay API key.
+- [Pagination](https://developers.clay.com/public-api/pagination.md): Handle paginated collections and stateful result iterators.
+- [Errors](https://developers.clay.com/public-api/errors.md): Understand Clay Public API error responses.
+- [Rate limits](https://developers.clay.com/public-api/rate-limits.md): Understand Clay Public API rate limits and how to handle 429 responses.
+- [Webhooks](https://developers.clay.com/public-api/webhooks.md): Get notified when a routine run finishes, then verify and handle the delivery.
+- [Get the authenticated user](https://developers.clay.com/api-reference/me/get-the-authenticated-user.md): Returns the Clay user and workspace associated with the API key.
+- [Fetch progress and results for a batch run](https://developers.clay.com/api-reference/routines/fetch-progress-and-results-for-a-batch-run.md): Returns current status and results for an asynchronous batch routine run.
+- [Fetch progress and results for a routine run](https://developers.clay.com/api-reference/routines/fetch-progress-and-results-for-a-routine-run.md): Returns current status and paginated results for an asynchronous routine run.
+- [Execute a routine against 1-100 items](https://developers.clay.com/api-reference/routines/execute-a-routine-against-1-100-items.md): Starts an asynchronous routine run for up to 100 input items.
+- [Start an async routine run-batch over an uploaded JSONL file](https://developers.clay.com/api-reference/routines/start-an-async-routine-run-batch-over-an-uploaded-jsonl-file.md): Starts an asynchronous batch routine run over a previously uploaded JSONL file.
+- [Issue a presigned PUT URL for uploading a batch input JSONL](https://developers.clay.com/api-reference/routines/issue-a-presigned-put-url-for-uploading-a-batch-input-jsonl.md): Creates a presigned URL for uploading a JSONL file used by a batch routine run.
+- [Create a search from structured filters](https://developers.clay.com/api-reference/search/create-a-search-from-structured-filters.md): Starts a new Clay search from a source type and structured filter fields.
+- [List the filter fields available for a search source type](https://developers.clay.com/api-reference/search/list-the-filter-fields-available-for-a-search-source-type.md): Returns every filter field accepted by POST /search/filters-mode for the given source type, including each field's type, description, allowed values, and usage guidance. Call this before creating a search to build valid filters.
+- [Run the search iterator and return the next page of results](https://developers.clay.com/api-reference/search/run-the-search-iterator-and-return-the-next-page-of-results.md): Returns the next page of records for an existing filter-mode search.
+- [Create a search from a Clay search query (beta)](https://developers.clay.com/api-reference/search/create-a-search-from-a-clay-search-query-beta.md): Starts a new Clay search from a Clay advanced search query. The source type is detected from the query and returned in the response. Count-mode and jobs queries are not supported.
+- [Get the Clay search query reference (beta)](https://developers.clay.com/api-reference/search/get-the-clay-search-query-reference-beta.md): Returns the Clay search query reference document (markdown), covering the queryable fields and the query grammar. Use it to author a Clay advanced search query before creating a query-mode search.
+- [Run the query-mode iterator and return the next page of results (beta)](https://developers.clay.com/api-reference/search/run-the-query-mode-iterator-and-return-the-next-page-of-results-beta.md): Returns the next page of records for an existing query-mode search.
+- [Run a structured query across one or more tables](https://developers.clay.com/api-reference/tables/run-a-structured-query-across-one-or-more-tables.md): Runs a structured query against Clay table data and returns records with field metadata. Results are paginated: pass the returned cursor back to fetch the next page. Scans return rows in least-recently-updated-first order and reflect writes that land while you paginate — a scan returns every record…
+
+## OpenAPI Specs
+
+- [openapi](https://developers.clay.com/openapi.json)

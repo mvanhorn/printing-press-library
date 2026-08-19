@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "clay-public-api-key-scoping",
+  "applied_at": "2026-08-18",
+  "base_run_id": "20260818-175223-295b07d9",
+  "base_printing_press_version": "4.31.0",
+  "summary": "Send the raw clay-api-key header only on /public/ paths, read from the environment at request time.",
+  "reason": "Clay serves two APIs from one host with two credentials: /v3 authenticates with the claysession browser cookie and /public/v0 with a raw clay-api-key header. Each API rejects the other's credential, and the generated client stamped the key on every request, so all /v3 commands returned 401.",
+  "files": [
+    "internal/client/clay_auth_scope.go",
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "Verified live: /v3 and /public/v0 both authenticate simultaneously with the env key exported.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2512"
+}
