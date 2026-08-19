@@ -11,5 +11,9 @@ func init() {
 		if err == nil && tablesCmd != nil {
 			addNovelCommandIfAbsent(tablesCmd, newNovelTablesRowsCmd(flags))
 		}
+		columnsCmd, _, cErr := root.Find([]string{"columns"})
+		if cErr == nil && columnsCmd != nil {
+			addNovelCommandIfAbsent(columnsCmd, newNovelColumnsRunCmd(flags))
+		}
 	})
 }

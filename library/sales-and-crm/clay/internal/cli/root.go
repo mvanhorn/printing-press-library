@@ -261,6 +261,7 @@ Highlights (not in the official API docs):
   • errors   Report why columns failed, combining Clay's structured validation errors with per-column run status counts.
   • tables rows   Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status.
   • formulas generate   Turn a natural-language prompt into a Clay formula that references the target table's real columns.
+  • columns run   Trigger a run for action columns so their downstream formulas recompute.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'clay-pp-cli doctor' to verify auth and connectivity.

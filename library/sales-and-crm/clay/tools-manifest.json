@@ -73,6 +73,11 @@
       "name": "Row read with column names",
       "command": "tables rows",
       "description": "Read table rows with generated field ids resolved to real column names, optionally filtered by cell run status."
+    },
+    {
+      "name": "AI formula generation with column resolution",
+      "command": "formulas generate",
+      "description": "Turn a natural-language prompt into a Clay formula that references the target table's real columns."
     }
   ]
 }

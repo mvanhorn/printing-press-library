@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-08-19T02:09:52.869146Z",
+  "generated_at": "2026-08-19T05:21:43.227244Z",
   "printing_press_version": "4.31.0",
   "api_name": "clay",
   "display_name": "Clay",
@@ -100,6 +100,11 @@
       "name": "AI formula generation with column resolution",
       "command": "formulas generate",
       "description": "Turn a natural-language prompt into a Clay formula that references the target table's real columns."
+    },
+    {
+      "name": "Column run trigger",
+      "command": "columns run",
+      "description": "Trigger a run for action columns so their downstream formulas recompute."
     }
   ],
   "novel_features_built": [
@@ -167,13 +172,18 @@
       "name": "AI formula generation with column resolution",
       "command": "formulas generate",
       "description": "Turn a natural-language prompt into a Clay formula that references the target table's real columns."
+    },
+    {
+      "name": "Column run trigger",
+      "command": "columns run",
+      "description": "Trigger a run for action columns so their downstream formulas recompute."
     }
   ],
   "verify": {
     "mode": "mock",
     "pass_rate": 100,
-    "passed": 72,
-    "total": 72,
+    "passed": 73,
+    "total": 73,
     "data_pipeline": true,
     "verdict": "PASS"
   },

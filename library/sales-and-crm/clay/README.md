@@ -248,6 +248,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   clay-pp-cli watch t_abc123 --workspace 1234567 --interval 10s --agent
   ```
+- **`columns run`** — Trigger a run for action columns so their downstream formulas recompute.
+
+  _Reach for this after changing a formula or enrichment config; without it the column keeps showing stale values and status polls report settled._
+
+  ```bash
+  clay-pp-cli columns run t_example123 f_example456 --records r_example789 --agent
+  ```
 
 ## Recipes
 
