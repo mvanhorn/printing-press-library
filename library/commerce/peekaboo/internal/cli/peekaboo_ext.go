@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 qazmataz and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored Peekaboo extensions: zero-config guest-token bootstrap,
 // city->coordinate resolution, Google Maps directions helpers, and the shared
 // per-city deal fan-out used by the novel transcendence commands. This file is

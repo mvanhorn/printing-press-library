@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 qazmataz and contributors. Licensed under Apache-2.0. See LICENSE.
 // Novel transcendence command: rank a city's deals by discount percentage.
 // pp:data-source live
 
