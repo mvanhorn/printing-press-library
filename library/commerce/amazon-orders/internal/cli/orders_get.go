@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/spf13/cobra"
@@ -36,7 +37,7 @@ func newOrdersGetCmd(flags *rootFlags) *cobra.Command {
 			htmlRequestParams["orderID"] = args[0]
 			params := map[string]string{}
 			params["orderID"] = args[0]
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "orders", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "orders", false, path, params, nil, args[0])
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -45,6 +46,9 @@ func newOrdersGetCmd(flags *rootFlags) *cobra.Command {
 				detail, perr := parser.ParseOrderDetail(data)
 				if perr != nil {
 					return fmt.Errorf("parsing Amazon order-detail HTML: %w", perr)
+				}
+				if err := validateOrderDetailMatchesRequestedID(args[0], detail); err != nil {
+					return err
 				}
 				if data, err = json.Marshal(detail); err != nil {
 					return fmt.Errorf("marshalling parsed order detail: %w", err)
@@ -90,4 +94,21 @@ func newOrdersGetCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	return cmd
+}
+
+func validateOrderDetailMatchesRequestedID(requested string, detail *parser.OrderDetail) error {
+	if detail == nil || strings.TrimSpace(detail.OrderID) == "" {
+		return fmt.Errorf("Amazon order detail page did not include an order ID for requested order %s", requested)
+	}
+	if detail.OrderID != requested {
+		return fmt.Errorf("Amazon order detail page did not match requested order %s (got %s)", requested, detail.OrderID)
+	}
+	return nil
+}
+
+func validatePageContainsRequestedOrderID(requested string, data []byte) error {
+	if !strings.Contains(string(data), requested) {
+		return fmt.Errorf("Amazon page did not include requested order %s", requested)
+	}
+	return nil
 }

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "sync-reconciles-both-copies-of-a-resource",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Sync is reconciling, not append-only: a crawl that ran to its last page deletes local rows it did not see, and it deletes every copy of them in one transaction, the typed table and the generic resources cache alike. A truncated or incremental crawl deletes nothing.",
+  "reason": "Linear has no deletion feed, so an entity removed upstream is only detectable as an id absent from a complete enumeration. A generated write-through cache keeps a second copy of the shell resources, and reconciling only the typed table leaves the promoted local reads answering with deleted entities. The inverse failure is worse: reconciling against a partial live set, an incremental window or an empty response deletes live work, so those three cases must stay non-pruning.",
+  "files": [
+    "internal/store/prune.go",
+    "internal/store/sync_cursors.go",
+    "internal/cli/sync.go",
+    "internal/cli/sync_extended.go"
+  ],
+  "validated_outcome": "After an entity is deleted upstream and a full sync runs, both 'sync --data-source local' reads of it (typed table and promoted cache) report it gone, and its resources_fts index row goes with it in the same commit; 'sync --incremental' and a --max-pages truncated crawl prune nothing."
+}

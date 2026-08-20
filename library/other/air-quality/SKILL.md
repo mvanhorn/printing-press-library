@@ -29,7 +29,7 @@ This skill drives the `air-quality-pp-cli` binary. **You must verify the CLI is 
 2. Verify: `air-quality-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/air-quality/cmd/air-quality-pp-cli@latest
@@ -37,7 +37,7 @@ go install github.com/mvanhorn/printing-press-library/library/other/air-quality/
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Security note: this module declares `toolchain go1.26.4` so environments with Go toolchain auto-download disabled should install Go 1.26.4 or newer before using the direct `go install` fallback.
+Security note: this module declares `toolchain go1.26.4` so environments with Go toolchain auto-download disabled should install Go 1.26.5 or newer before using the direct `go install` fallback.
 
 ## When To Use
 

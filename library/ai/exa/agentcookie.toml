@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "exa-pp-cli"
+display_name = "Exa"
+description = "Every Exa search API feature, plus local history, spend tracking, and diffing no other Exa tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/exa-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+EXA_API_KEY = true

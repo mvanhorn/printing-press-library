@@ -1,0 +1,139 @@
+{
+  "api_name": "thelancet",
+  "base_url": "https://api.openalex.org",
+  "description": "Search Lancet articles offline and analyze author impact, institutional networks, and editorial trends — powered by the free OpenAlex scholarly graph.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "authors_get",
+      "description": "Get a single author by OpenAlex ID. Required: id. Returns array of AuthorsGetItem.",
+      "method": "GET",
+      "path": "/authors/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex author ID (A...)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "authors_search",
+      "description": "Search authors. Optional: search, filter, per-page (default: 25) (plus 1 more). Returns array of Author.",
+      "method": "GET",
+      "path": "/authors",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Author name search"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "OpenAlex author filter (e.g. last_known_institution.id:I123)"
+        },
+        {
+          "name": "per-page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "sources_get",
+      "description": "Get a journal (source) by ISSN or OpenAlex ID. Required: id. Returns the Source.",
+      "method": "GET",
+      "path": "/sources/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Journal ISSN prefixed with issn: (e.g. issn:0140-6736) or OpenAlex source ID (S...)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "works_get",
+      "description": "Get a single article by OpenAlex ID or DOI. Required: id. Returns array of WorksGetItem.",
+      "method": "GET",
+      "path": "/works/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex work ID (W...) or DOI prefixed with doi: (e.g. doi:10.1016/S0140-6736(23)01234-5)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "works_search",
+      "description": "Search Lancet articles (works). Optional: search, filter, sort (plus 3 more). Returns array of Work.",
+      "method": "GET",
+      "path": "/works",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across title, abstract, and fulltext"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "OpenAlex filter expression. Scope to a journal with primary_location.source.issn:0140-6736, add date bounds with from_publication_date:2023-01-01,to_publication_date:2024-12-31, or open access with is_oa:true."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order for results"
+        },
+        {
+          "name": "per-page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fields to return (reduces payload size)"
+        }
+      ]
+    }
+  ]
+}

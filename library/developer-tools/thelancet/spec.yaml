@@ -1,0 +1,304 @@
+openapi: 3.0.0
+info:
+  title: The Lancet (via OpenAlex)
+  version: 1.0.0
+  description: >
+    Search and analyze The Lancet family of medical journals using the OpenAlex
+    scholarly graph as the data source. OpenAlex is free and requires no
+    authentication, and carries author affiliations, institutions, topics, and
+    citation counts that power offline research analytics.
+  contact:
+    name: OpenAlex API Documentation
+    url: https://docs.openalex.org/
+
+servers:
+  - url: https://api.openalex.org
+    description: OpenAlex API (free, no auth)
+
+security: []
+
+paths:
+  /works:
+    get:
+      operationId: searchWorks
+      summary: Search Lancet articles (works)
+      tags:
+        - works
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Full-text search across title, abstract, and fulltext
+          example: CRISPR gene therapy
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: >
+            OpenAlex filter expression. Scope to a journal with
+            primary_location.source.issn:0140-6736, add date bounds with
+            from_publication_date:2023-01-01,to_publication_date:2024-12-31, or
+            open access with is_oa:true.
+          example: "primary_location.source.issn:0140-6736,from_publication_date:2024-01-01"
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [cited_by_count:desc, publication_date:desc, relevance_score:desc]
+          description: Sort order for results
+        - name: per-page
+          in: query
+          schema:
+            type: integer
+            default: 25
+            maximum: 200
+          description: Results per page (max 200)
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - name: select
+          in: query
+          schema:
+            type: string
+          description: Comma-separated fields to return (reduces payload size)
+          example: id,doi,title,authorships,cited_by_count,publication_date
+      responses:
+        '200':
+          description: Work list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    type: object
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Work'
+
+  /works/{id}:
+    get:
+      operationId: getWork
+      summary: Get a single article by OpenAlex ID or DOI
+      tags:
+        - works
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "OpenAlex work ID (W...) or DOI prefixed with doi: (e.g. doi:10.1016/S0140-6736(23)01234-5)"
+          example: "doi:10.1016/S0140-6736(20)30183-5"
+      responses:
+        '200':
+          description: Work
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Work'
+
+  /authors:
+    get:
+      operationId: searchAuthors
+      summary: Search authors
+      tags:
+        - authors
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Author name search
+          example: Anthony Fauci
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: OpenAlex author filter (e.g. last_known_institution.id:I123)
+        - name: per-page
+          in: query
+          schema:
+            type: integer
+            default: 25
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Author list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    type: object
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Author'
+
+  /authors/{id}:
+    get:
+      operationId: getAuthor
+      summary: Get a single author by OpenAlex ID
+      tags:
+        - authors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: OpenAlex author ID (A...)
+          example: "A5023888391"
+      responses:
+        '200':
+          description: Author
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+
+  /sources/{id}:
+    get:
+      operationId: getSource
+      summary: Get a journal (source) by ISSN or OpenAlex ID
+      tags:
+        - sources
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Journal ISSN prefixed with issn: (e.g. issn:0140-6736) or OpenAlex source ID (S...)"
+          example: "issn:0140-6736"
+      responses:
+        '200':
+          description: Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Source'
+
+components:
+  schemas:
+    Work:
+      type: object
+      properties:
+        id:
+          type: string
+        doi:
+          type: string
+        title:
+          type: string
+        display_name:
+          type: string
+        publication_date:
+          type: string
+        publication_year:
+          type: integer
+        cited_by_count:
+          type: integer
+        is_oa:
+          type: boolean
+        type:
+          type: string
+        authorships:
+          type: array
+          items:
+            type: object
+            properties:
+              author_position:
+                type: string
+              author:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  display_name:
+                    type: string
+              institutions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    display_name:
+                      type: string
+                    country_code:
+                      type: string
+        primary_topic:
+          type: object
+          properties:
+            id:
+              type: string
+            display_name:
+              type: string
+        primary_location:
+          type: object
+          properties:
+            source:
+              type: object
+              properties:
+                id:
+                  type: string
+                display_name:
+                  type: string
+                issn_l:
+                  type: string
+
+    Author:
+      type: object
+      properties:
+        id:
+          type: string
+        display_name:
+          type: string
+        works_count:
+          type: integer
+        cited_by_count:
+          type: integer
+        last_known_institutions:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              display_name:
+                type: string
+
+    Source:
+      type: object
+      properties:
+        id:
+          type: string
+        display_name:
+          type: string
+        issn_l:
+          type: string
+        works_count:
+          type: integer
+        cited_by_count:
+          type: integer
+        host_organization_name:
+          type: string
+
+tags:
+  - name: works
+    description: Search and retrieve Lancet articles
+  - name: authors
+    description: Search and retrieve authors
+  - name: sources
+    description: Journal (source) metadata

@@ -1,0 +1,234 @@
+{
+  "api_name": "faa-registry",
+  "base_url": "https://registry.faa.gov",
+  "description": "Look up any US aircraft by tail number from the terminal — live FAA registry inquiries plus a daily-synced offline copy of the full registry for fleet queries, Mode S hex decoding, and expiration alerts no other tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "aircraft_by-serial",
+      "description": "Find aircraft by manufacturer serial number. Required: serial. Optional: sort.",
+      "method": "GET",
+      "path": "/aircraftinquiry/Search/SerialNumberResult",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "serial",
+          "wire_name": "Serialtxt",
+          "type": "string",
+          "location": "query",
+          "description": "Manufacturer serial number, e.g. 17280005",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "wire_name": "sort_option",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: 1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name"
+        }
+      ]
+    },
+    {
+      "name": "aircraft_lookup",
+      "description": "Look up an aircraft's full registration record by N-number (tail number, with or without the leading N). Required: n-number.",
+      "method": "GET",
+      "path": "/aircraftinquiry/Search/NNumberResult",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "n-number",
+          "wire_name": "NNumberTxt",
+          "type": "string",
+          "location": "query",
+          "description": "US registration N-number, e.g. N172SP (leading N optional)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dealers_search",
+      "description": "Search FAA dealer certificates by dealer name. Required: name.",
+      "method": "GET",
+      "path": "/aircraftinquiry/Search/DealerResult",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "name",
+          "wire_name": "Dealertxt",
+          "type": "string",
+          "location": "query",
+          "description": "Dealer name to search",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_search",
+      "description": "Search the FAA document index by collateral identifier. Required: collateral.",
+      "method": "GET",
+      "path": "/aircraftinquiry/Search/DocumentIndexResult",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "collateral",
+          "wire_name": "Colltxt",
+          "type": "string",
+          "location": "query",
+          "description": "Collateral search text (e.g. serial number or N-number)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "engines_search",
+      "description": "Search the engine reference table by engine manufacturer and model. Required: manufacturer. Optional: model.",
+      "method": "GET",
+      "path": "/aircraftinquiry/Search/EngineReferenceResult",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "manufacturer",
+          "wire_name": "MfrNametxt",
+          "type": "string",
+          "location": "query",
+          "description": "Engine manufacturer name, e.g. LYCOMING",
+          "required": true
+        },
+        {
+          "name": "model",
+          "wire_name": "Modeltxt",
+          "type": "string",
+          "location": "query",
+          "description": "Engine model, e.g. IO-360"
+        }
+      ]
+    },
+    {
+      "name": "models_search",
+      "description": "Search the aircraft model reference by manufacturer and model name, including the number of aircraft assigned to each model code. Required: manufacturer. Optional: model, page.",
+      "method": "GET",
+      "path": "/aircraftinquiry/Search/MakeModelResult",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "manufacturer",
+          "wire_name": "Mfrtxt",
+          "type": "string",
+          "location": "query",
+          "description": "Manufacturer name, e.g. CIRRUS",
+          "required": true
+        },
+        {
+          "name": "model",
+          "wire_name": "Modeltxt",
+          "type": "string",
+          "location": "query",
+          "description": "Model name, e.g. SR22"
+        },
+        {
+          "name": "page",
+          "wire_name": "Page",
+          "type": "string",
+          "location": "query",
+          "description": "Result page number"
+        }
+      ]
+    },
+    {
+      "name": "owners_search",
+      "description": "List all aircraft registered to an owner name (paginated). Required: name. Optional: sort, page.",
+      "method": "GET",
+      "path": "/aircraftinquiry/Search/NameResult",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "name",
+          "wire_name": "nametxt",
+          "type": "string",
+          "location": "query",
+          "description": "Registered owner name, e.g. DELTA AIR LINES",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "wire_name": "sort_option",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: 1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name"
+        },
+        {
+          "name": "page",
+          "wire_name": "Page",
+          "type": "string",
+          "location": "query",
+          "description": "Result page number (results paginate server-side)"
+        }
+      ]
+    },
+    {
+      "name": "regions_by-country",
+      "description": "List US-registered aircraft whose owners are located in a given country. Required: country. Optional: page.",
+      "method": "GET",
+      "path": "/aircraftinquiry/Search/CountryResult",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "wire_name": "Countrytxt",
+          "type": "string",
+          "location": "query",
+          "description": "Country name, e.g. CANADA",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "Page",
+          "type": "string",
+          "location": "query",
+          "description": "Result page number"
+        }
+      ]
+    },
+    {
+      "name": "regions_by-state",
+      "description": "List aircraft registered in a state and county (paginated). Required: state. Optional: county, page.",
+      "method": "GET",
+      "path": "/aircraftinquiry/Search/StateCountyResult",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "state",
+          "wire_name": "StateName",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter state code, e.g. WA",
+          "required": true
+        },
+        {
+          "name": "county",
+          "wire_name": "CountyName",
+          "type": "string",
+          "location": "query",
+          "description": "County name within the state, e.g. KING"
+        },
+        {
+          "name": "page",
+          "wire_name": "Page",
+          "type": "string",
+          "location": "query",
+          "description": "Result page number"
+        }
+      ]
+    }
+  ]
+}

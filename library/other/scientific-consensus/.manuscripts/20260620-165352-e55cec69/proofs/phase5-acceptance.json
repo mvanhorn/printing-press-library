@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "scientific-consensus",
+  "run_id": "20260620-165352-e55cec69",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 93,
+  "tests_passed": 93,
+  "tests_skipped": 96,
+  "auth_context": {
+    "type": "none"
+  }
+}

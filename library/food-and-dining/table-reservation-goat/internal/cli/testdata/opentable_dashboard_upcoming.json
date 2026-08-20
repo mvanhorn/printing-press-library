@@ -1,0 +1,46 @@
+{
+  "diningDashboard": {
+    "upcomingReservations": [
+      {
+        "confirmationNumber": 100100,
+        "confirmationId": 771122,
+        "restaurantId": 111111,
+        "restaurantName": "Synthetic Cross-Field Cafe",
+        "dateTime": "2026-07-18T18:00:00",
+        "partySize": 4,
+        "reservationState": "Upcoming",
+        "isUpcoming": true
+      },
+      {
+        "confirmationNumber": 880011,
+        "confirmationId": 200200,
+        "restaurantId": 222222,
+        "restaurantName": "Synthetic Reservation Trap",
+        "dateTime": "2026-07-19T17:30:00",
+        "partySize": 3,
+        "reservationState": "Upcoming",
+        "isUpcoming": true
+      },
+      {
+        "confirmationNumber": 660033,
+        "confirmationId": 990044,
+        "restaurantId": 456789,
+        "restaurantName": "Fixture <Bistro>",
+        "dateTime": "2026-07-19T19:00:00",
+        "partySize": 2,
+        "reservationState": "Upcoming",
+        "isUpcoming": true
+      },
+      {
+        "confirmationNumber": 771122,
+        "confirmationId": 880011,
+        "restaurantId": 456789,
+        "restaurantName": "Fixture <Bistro>",
+        "dateTime": "2026-07-20T19:00:00",
+        "partySize": 2,
+        "reservationState": "Upcoming",
+        "isUpcoming": true
+      }
+    ]
+  }
+}

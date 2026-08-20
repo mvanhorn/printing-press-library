@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "aol-puglia",
+  "run_id": "20260617-160648",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 8,
+  "tests_passed": 8,
+  "tests_skipped": 0,
+  "auth_context": {
+    "type": "auto-oauth2",
+    "note": "client_credentials token auto-fetched; no user config required"
+  }
+}

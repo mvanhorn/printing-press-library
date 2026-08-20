@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "clickhouse-cloud-basic-auth-persistence",
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260628-001835",
+  "base_printing_press_version": "4.26.0",
+  "summary": "Align persisted credentials and setup instructions with ClickHouse Cloud Basic auth.",
+  "reason": "The official ClickHouse Cloud OpenAPI spec uses Basic auth with an API key id and API key secret. The generated one-token auth command left persisted credentials unable to produce an Authorization header because AuthHeader requires both username and password fields.",
+  "files": [
+    "internal/config/config.go",
+    "internal/cli/auth.go",
+    "internal/cliutil/credentials_test.go",
+    "internal/client/client.go",
+    "internal/cli/doctor.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test, go vet, go build, and cli-printing-press dogfood all pass with Basic-auth credential persistence using key id plus key secret. The legacy single-token SaveCredential helper now fails fast and directs callers to SaveBasicCredentials."
+}

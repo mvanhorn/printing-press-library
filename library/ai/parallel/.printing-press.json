@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-20T15:02:14.175563Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "parallel",
+  "display_name": "Parallel",
+  "cli_name": "parallel-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_url": "https://docs.parallel.ai/public-openapi.json",
+  "spec_path": "product-openapi.enriched.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:7f23d51813e38ae9fee443fb96619684340fd660ff0e68e00e18a46798f30b82",
+  "run_id": "20260720-202045-1a2cb7d8",
+  "category": "ai",
+  "description": "Agent-native Parallel web research with a local SQLite memory no other Parallel CLI keeps.",
+  "mcp_binary": "parallel-pp-mcp",
+  "mcp_tool_count": 39,
+  "mcp_ready": "full",
+  "api_version": "0.1.2",
+  "auth_type": "api_key",
+  "auth_preference": "ApiKeyAuth",
+  "auth_env_vars": [
+    "PARALLEL_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Research session stitch",
+      "command": "session stitch",
+      "description": "Bind search, extract, and task/findall runs into one local session chain for agent resume."
+    },
+    {
+      "name": "Balance-aware run cost guard",
+      "command": "tasks guard",
+      "description": "Refuse Task creates when prepaid balance is below a threshold."
+    },
+    {
+      "name": "Stale monitor event digest",
+      "command": "monitors digest",
+      "description": "Mechanical per-monitor event counts and top titles since a duration window."
+    },
+    {
+      "name": "Cross-run research recall",
+      "command": "research recall",
+      "description": "FTS across local searches, extracts, and task summaries with typed hit IDs."
+    },
+    {
+      "name": "FindAll to Task Group promote",
+      "command": "findall promote",
+      "description": "Turn FindAll candidates into a Task Group enrichment job."
+    },
+    {
+      "name": "Prepaid burn vs runs",
+      "command": "balance burn",
+      "description": "Diff local balance snapshots against local run volume over a window."
+    },
+    {
+      "name": "Task interaction lineage",
+      "command": "tasks lineage",
+      "description": "Print the offline previous_interaction_id follow-up chain for a run."
+    }
+  ]
+}

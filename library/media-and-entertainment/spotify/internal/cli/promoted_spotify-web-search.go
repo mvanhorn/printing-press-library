@@ -22,11 +22,18 @@ func newSpotifyWebSearchPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "spotify-web-search",
-		Short:       "Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks that match a...",
-		Long:        "Shortcut for 'spotify-web-search search'. Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks that match a...",
-		Example:     "  spotify-pp-cli spotify-web-search --q example-value --type example-value",
-		Annotations: map[string]string{"pp:endpoint": "spotify-web-search.search", "pp:method": "GET", "pp:path": "/search", "mcp:read-only": "true"},
+		Short:       "Get Spotify catalog information about albums, artists, playlists, tracks, shows",
+		Long:        "Get Spotify catalog information about albums, artists, playlists, tracks, shows",
+		Example:     "  spotify-pp-cli spotify-web-search --q \"remaster track:Doxy artist:Miles Davis\" --type track",
+		Annotations: map[string]string{"pp:endpoint": "spotify_web_search.search", "pp:method": "GET", "pp:path": "/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with a required flag/body prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only reads fall through so a bare call still executes; positional
+			// commands keep their existing usageErr (exit 2 + JSON envelope).
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("q") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "q")
 			}
@@ -43,7 +50,7 @@ func newSpotifyWebSearchPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeExternal {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-external", flagIncludeExternal, allowedIncludeExternal)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeExternal, "include-external", allowedIncludeExternal)
 				}
 			}
 			c, err := flags.newClient()
@@ -52,23 +59,23 @@ func newSpotifyWebSearchPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/search"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "spotify-web-search", path, map[string]string{
-				"q":                fmt.Sprintf("%v", flagQ),
-				"type":             fmt.Sprintf("%v", flagType),
-				"market":           fmt.Sprintf("%v", flagMarket),
-				"limit":            fmt.Sprintf("%v", flagLimit),
-				"offset":           fmt.Sprintf("%v", flagOffset),
-				"include_external": fmt.Sprintf("%v", flagIncludeExternal),
-			}, nil, flagAll, "offset", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "spotify_web_search", path, map[string]string{
+				"q":                formatCLIParamValue(flagQ),
+				"type":             formatCLIParamValue(flagType),
+				"market":           formatCLIParamValue(flagMarket),
+				"limit":            formatCLIParamValue(flagLimit),
+				"offset":           formatCLIParamValue(flagOffset),
+				"include_external": formatCLIParamValue(flagIncludeExternal),
+			}, nil, flagAll, "offset", "offset", "limit", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -106,7 +113,7 @@ func newSpotifyWebSearchPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagQ, "q", "", "Q")

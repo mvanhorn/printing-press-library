@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-08-04",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "id": "ars-sicilia-leggi-per-legge",
+  "summary": "`leggi cerca` restituisce una riga per legge invece di una per articolo: le righe dell'archivio 201 vengono aggregate per legislatura+atto+data, con `articoli_trovati` e l'elenco degli articoli agganciati dalla ricerca, e `--limit` conta leggi: la paginazione si ferma quando le leggi chieste sono state raccolte (predicato `SearchOptions.StopWhen`, valutato dopo ogni pagina) invece di stimare a priori un budget di righe. Il nuovo flag `--articoli` riporta le righe grezze per articolo.",
+  "reason": "L'archivio 201 e' indicizzato per articolo, quindi una legge di 22 articoli occupava 22 righe e il --limit lo consumavano gli articoli della prima legge: `leggi cerca --legisl 18 --anno 2025 --limit 10` rispondeva con la sola L.R. 1, mentre nel 2025 le leggi sono almeno quattro. Non era un problema di leggibilita' ma una sotto-numerazione silenziosa, indistinguibile da 'nel 2025 c'e' una legge sola': una gap analysis l'aveva infatti letta come 'righe duplicate dal sync'. La chiave di aggregazione include la data perche' 'L.R. 1' si ripete ogni anno e con il solo atto due leggi omonime di anni diversi collasserebbero in una. Quando la finestra di righe si esaurisce prima di raccogliere le leggi chieste, un avviso su stderr lo dichiara invece di restituire un elenco corto in silenzio. La prima versione dell'aggregato traduceva pero' il limite in una finestra fissa di righe (10 per legge) e si fermava li': una stima sbagliata, perche' le prime leggi di ogni anno sono le finanziarie e valgono ~25 righe-articolo l'una. `--anno 2025` rispondeva percio' 4 leggi mentre l'anno ne conta 31, con l'avviso di lettura parziale a dirlo — vero, ma l'utente doveva rimediare a mano alzando --limit. Fermarsi sull'unita' chiesta toglie l'indovinello: le leggi corte costano meno richieste di prima, le lunghe di piu', e il fattore resta solo come tetto di sicurezza (alzato da 10 a 30 righe per legge).",
+  "files": [
+    "internal/cli/leggi_collapse.go",
+    "internal/cli/leggi_collapse_test.go",
+    "internal/cli/leggi_cerca.go",
+    "internal/cli/icaro_helpers.go",
+    "internal/icaroclient/client.go",
+    "internal/icaroclient/stopwhen_test.go"
+  ],
+  "validated_outcome": "`leggi cerca --legisl 18 --anno 2025` (limit default): 10 leggi invece di 1 come prima dell'aggregato e di 4 come con la finestra fissa, senza piu' l'avviso di lettura parziale (14s -> 20.6s: le richieste in piu' si pagano solo dove servivano davvero); `--testo \"legge di stabilita'\"` -> 7 leggi invece di 1; `--limit 30 --anno 2025` -> 29 leggi, fino a L.R. 31 del 22.10.2025; `--testo rifiuti` -> L.R. 9 con i suoi 4 articoli (15,18,26,36) in una riga; `--articoli --limit 10` invariato (10 righe per articolo: il predicato agisce solo sul ramo aggregato). Altri archivi non toccati: il predicato e' nil per tutti, e gli archivi /bd/ ritornano da searchBD prima del loop che lo consulta."
+}

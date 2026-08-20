@@ -1,0 +1,16 @@
+Root:
+  get:
+    tags:
+      - Changelog
+    summary: Get changelogs
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: A list representing the Changelog
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/changelog_schema.yaml'

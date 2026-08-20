@@ -34,11 +34,16 @@ func newRecipesListCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			c, err := openGranolaCache()
+			// PATCH(dual-path-store-read): the store's recipes table is the
+			// only readable copy on a migrated install, where the desktop
+			// cache no longer decrypts. Going through the read seam turns a
+			// hard failure into the 57 recipes that are already local.
+			v, err := openGranolaRead(cmd.Context())
 			if err != nil {
 				return err
 			}
-			recipes := c.RecipesAll()
+			defer v.Close()
+			recipes := v.Recipes()
 			var filtered []granola.Recipe
 			for _, r := range recipes {
 				if source != "" && r.Source != source {
@@ -55,14 +60,19 @@ func newRecipesListCmd(flags *rootFlags) *cobra.Command {
 				}
 				filtered = append(filtered, r)
 			}
+			st := v.staleness("")
 			if topUsage {
 				type ru struct {
 					Recipe granola.Recipe
 					Count  int64
 				}
+				usage := v.RecipesUsage()
 				items := make([]ru, 0, len(filtered))
 				for _, r := range filtered {
-					u := c.RecipesUsage[r.ID]
+					u := usage[r.ID]
+					// TotalCount is the cache's string on both paths, so the
+					// sort below has to rank the parsed integer - "12" is
+					// lexically below "3".
 					var n int64
 					fmt.Sscanf(u.TotalCount, "%d", &n)
 					items = append(items, ru{Recipe: r, Count: n})
@@ -84,7 +94,7 @@ func newRecipesListCmd(flags *rootFlags) *cobra.Command {
 						"usage_count": it.Count,
 					})
 				}
-				return emitJSON(cmd, flags, out)
+				return emitWithStaleness(cmd, flags, "recipes", out, st)
 			}
 			out := make([]map[string]any, 0, len(filtered))
 			for _, r := range filtered {
@@ -96,7 +106,7 @@ func newRecipesListCmd(flags *rootFlags) *cobra.Command {
 					"source":      r.Source,
 				})
 			}
-			return emitJSON(cmd, flags, out)
+			return emitWithStaleness(cmd, flags, "recipes", out, st)
 		},
 	}
 	cmd.Flags().StringVar(&source, "source", "", "public | user | shared")
@@ -121,22 +131,25 @@ func newRecipesDescribeCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 			key := args[0]
-			c, err := openGranolaCache()
+			v, err := openGranolaRead(cmd.Context())
 			if err != nil {
 				return err
 			}
+			defer v.Close()
+			recipes := v.Recipes()
 			var hit *granola.Recipe
-			for i := range c.RecipesAll() {
-				r := c.RecipesAll()[i]
-				if r.Slug == key || r.ID == key {
-					hit = &r
+			for i := range recipes {
+				if recipes[i].Slug == key || recipes[i].ID == key {
+					hit = &recipes[i]
 					break
 				}
 			}
+			// A slug neither path knows about is still a miss. Serving store
+			// data must never soften a not-found into an empty success.
 			if hit == nil {
 				return notFoundErr(fmt.Errorf("recipe %q not found", key))
 			}
-			usage := c.RecipesUsage[hit.ID]
+			usage := v.RecipesUsage()[hit.ID]
 			out := map[string]any{
 				"id":           hit.ID,
 				"slug":         hit.Slug,
@@ -148,6 +161,10 @@ func newRecipesDescribeCmd(flags *rootFlags) *cobra.Command {
 					"count":        usage.TotalCount,
 					"last_used_at": usage.LastUsedAt,
 				},
+			}
+			if st := v.staleness(""); st != nil {
+				writeStalenessNotice(cmd, flags, st)
+				out["staleness"] = st
 			}
 			return emitJSON(cmd, flags, out)
 		},

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "vendor-spec-needs-openapi-31-normalization-before-generate",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "The archived spec is a normalized derivative of Webflow's published OpenAPI 3.1 document, not a byte copy: the generator's parser cannot read valid 3.1 tuple-form items or boolean schemas, so those constructs are rewritten before generation.",
+  "reason": "Webflow publishes a valid OpenAPI 3.1 spec at github.com/webflow/openapi-spec (openapi/v2.yml). The generator's kin-openapi parser rejects two constructs it legitimately contains: tuple-form items (a list of subschemas) in 654 places, and boolean JSON Schemas in 3. Both were rewritten (tuple items to oneOf, booleans to permissive empty schemas) with example, examples, default, and enum subtrees excluded so response-example data keyed `items` was untouched. Two authored changes were also applied: the global security list was reordered so the bearer ApiKey scheme is primary rather than OAuth2, and info.title was set to the brand name because the README template derives the config-path slug from it. A regen must re-apply this normalization; feeding the vendor file directly to generate fails at parse.",
+  "files": ["spec.yaml"],
+  "validated_outcome": "Vendor sha256 begins 69d50609; the shipped normalized spec differs. Generation fails at parse without the rewrite.",
+  "upstream_issue": ""
+}

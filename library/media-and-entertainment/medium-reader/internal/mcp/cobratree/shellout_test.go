@@ -49,17 +49,19 @@ func TestSplitShellArgs(t *testing.T) {
 // flag in the structured args map (instead of the free-form "args"
 // string), the root flags listed in blockedRootFlags must be dropped
 // before they reach exec.CommandContext. A regression here would let a
-// caller redirect --base-url, swap --token, switch --client filesystems, or
-// load a malicious --config.
+// caller redirect --base-url, swap --token, switch --client filesystems,
+// load a malicious --config, or point --cookie-file at an arbitrary file /
+// an attacker-supplied Tier-1 session.
 func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 	in := map[string]any{
-		"args":     "contacts",
-		"base-url": "https://evil.example.com",
-		"client":   "attacker-client",
-		"config":   "/tmp/evil.yaml",
-		"deliver":  "fd:3",
-		"profile":  "attacker",
-		"token":    "stolen-token",
+		"args":        "contacts",
+		"base-url":    "https://evil.example.com",
+		"client":      "attacker-client",
+		"config":      "/tmp/evil.yaml",
+		"cookie-file": "/tmp/attacker-session.json",
+		"deliver":     "fd:3",
+		"profile":     "attacker",
+		"token":       "stolen-token",
 		// Allowed per-command flag passes through.
 		"limit": float64(10),
 	}
@@ -68,7 +70,7 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("cliArgsFromMCP dropped/kept wrong keys: got %v, want %v", got, want)
 	}
-	for _, blocked := range []string{"--base-url", "--client", "--config", "--deliver", "--profile", "--token", "--args"} {
+	for _, blocked := range []string{"--base-url", "--client", "--config", "--cookie-file", "--deliver", "--profile", "--token", "--args"} {
 		for _, tok := range got {
 			if tok == blocked {
 				t.Errorf("blocked flag %q leaked through cliArgsFromMCP", blocked)
@@ -143,6 +145,71 @@ func TestArgsFieldRejectsFlagLikeTokens(t *testing.T) {
 				t.Errorf("guard(%q) blocked = %q, want %q", tc.in, tok, tc.wantBlocked)
 			}
 		})
+	}
+}
+
+// TestNamedPositionalsFor pins the fork's narrow N1 allowlist: only the
+// search-style single-<query> commands surface a named positional; every other
+// command (including the other positional commands, which keep the "args"
+// fallback) returns nil.
+func TestNamedPositionalsFor(t *testing.T) {
+	for _, name := range []string{"search", "corpus"} {
+		got := namedPositionalsFor([]string{name})
+		if len(got) != 1 || got[0].InputName != "query" || !got[0].Required {
+			t.Errorf("namedPositionalsFor(%q) = %+v, want one required 'query'", name, got)
+		}
+	}
+	for _, name := range []string{"read", "feed", "author-archive", "author-compare", "digest", "analytics", ""} {
+		if got := namedPositionalsFor([]string{name}); got != nil {
+			t.Errorf("namedPositionalsFor(%q) = %+v, want nil (keeps args fallback)", name, got)
+		}
+	}
+	if got := namedPositionalsFor(nil); got != nil {
+		t.Errorf("namedPositionalsFor(nil) = %+v, want nil", got)
+	}
+}
+
+// TestPositionalTokensFromMCP covers the argv-construction half of the N1 port:
+// the named "query" is consumed as a bare positional token AND removed from the
+// map so cliArgsFromMCP can never re-emit it as "--query" (the double-emit
+// trap); flag-like values are rejected like the "args" field; and a command with
+// no named positional passes its map through untouched.
+func TestPositionalTokensFromMCP(t *testing.T) {
+	search := namedPositionalsFor([]string{"search"})
+
+	// query consumed as positional, removed from the map, no double-emit.
+	remaining, tokens, rejected := positionalTokensFromMCP(
+		map[string]any{"query": "distributed systems", "json": true}, search)
+	if rejected != "" {
+		t.Fatalf("unexpected rejection: %q", rejected)
+	}
+	if !reflect.DeepEqual(tokens, []string{"distributed systems"}) {
+		t.Fatalf("tokens = %v, want [distributed systems]", tokens)
+	}
+	if _, ok := remaining["query"]; ok {
+		t.Fatal("query must be removed from the map so cliArgsFromMCP cannot re-emit it as --query")
+	}
+	for _, tok := range cliArgsFromMCP(remaining) {
+		if tok == "--query" {
+			t.Fatal("double-emit: --query leaked through cliArgsFromMCP after positional consumption")
+		}
+	}
+
+	// flag-like query is rejected (mirrors the args-field guard).
+	if _, _, rej := positionalTokensFromMCP(map[string]any{"query": "--config=/tmp/x"}, search); rej != "--config=/tmp/x" {
+		t.Fatalf("flag-like positional not rejected: got %q", rej)
+	}
+
+	// blank query yields no token, no error.
+	if _, toks, rej := positionalTokensFromMCP(map[string]any{"query": "  "}, search); rej != "" || toks != nil {
+		t.Fatalf("blank query: tokens=%v rejected=%q, want nil/empty", toks, rej)
+	}
+
+	// no-positional command: map passes through untouched, no tokens.
+	in := map[string]any{"limit": float64(5)}
+	out, toks, rej := positionalTokensFromMCP(in, namedPositionalsFor([]string{"digest"}))
+	if rej != "" || toks != nil || !reflect.DeepEqual(out, in) {
+		t.Fatalf("no-positional passthrough changed: out=%v tokens=%v rejected=%q", out, toks, rej)
 	}
 }
 

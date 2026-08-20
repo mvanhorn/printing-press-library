@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ynab-novel-command-freshness",
+  "applied_at": "2026-08-15",
+  "base_run_id": "20260812-093755-e1ecbcb1",
+  "base_printing_press_version": "4.30.2",
+  "summary": "The three novel financial commands (export balances, accounts reconcile, payees profile) bypass the client's 5-minute response cache on their live fetches, and accounts reconcile documents that its discrepancy-candidate search is limited to YNAB's default one-year transaction lookback.",
+  "reason": "All three commands are declared `pp:data-source live` (remote-only, current-state reads) but originally called the generic c.GetWithHeaders, which transparently serves a cached response up to 5 minutes old — so a user who just made a YNAB change and immediately ran export/reconcile/profile could silently see pre-change numbers with no indication of staleness. Separately, accounts reconcile compares the account's real all-time cleared_balance but only searches the last year of transactions for candidate culprits when --since-date is omitted, so an older discrepancy-causing transaction is silently absent while unrelated recent transactions are presented as the closest match. Both flagged by Greptile PR #1725 review (confidence 3/5, Issues 2 and 3).",
+  "files": [
+    "internal/cli/export_balances.go",
+    "internal/cli/payees_profile.go",
+    "internal/cli/accounts_reconcile.go"
+  ],
+  "validated_outcome": "Switched the four c.GetWithHeaders call sites in these three files to c.GetWithHeadersNoCache (drop-in signature, still writes fresh responses to cache for other readers, just skips serving a stale one). Added a conditional clause to accounts reconcile's result.Note explaining the one-year lookback when --since-date is unset. Verified live: reconcile's note now reads correctly against the real API; go build/vet/test and verify (78/79, same pre-existing unrelated finding) all clean.",
+  "upstream_issue": null
+}

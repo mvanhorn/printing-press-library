@@ -9,8 +9,10 @@ import (
 
 func newFilesCommentsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "comments",
-		Short: "Interact with file comments.",
+		Use:         "comments",
+		Short:       "Interact with file comments.",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFilesCommentsDeleteCmd(flags))

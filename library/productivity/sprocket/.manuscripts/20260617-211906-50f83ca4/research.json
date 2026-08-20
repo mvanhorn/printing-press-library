@@ -1,0 +1,267 @@
+{
+  "api_name": "sprocket",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-17T21:19:06Z",
+  "novel_features": [
+    {
+      "name": "This-week schedule",
+      "command": "week",
+      "description": "Every game and practice for the current week across all your players' teams, in one view.",
+      "rationale": "The dashboard shows one team's calendar at a time; this merges all your players' teams with week-boundary date math.",
+      "example": "sprocket week",
+      "why_it_matters": "Reach for this when asked 'what's on this week' for a family with kids on different teams.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Next event",
+      "command": "next",
+      "description": "The single next upcoming game or practice across all your players' teams: what, when, where, home/away, opponent.",
+      "rationale": "A cross-team min(start) answer no single dashboard screen gives you.",
+      "example": "sprocket next --agent --select clubCalendarEvent.title,clubCalendarEvent.startDate,clubCalendarEvent.opponent,clubCalendarEvent.awayGame",
+      "why_it_matters": "Reach for this for 'when is my kid's next game' or a one-line reminder.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Merged family agenda",
+      "command": "agenda",
+      "description": "Both kids' separate team schedules merged into one chronological agenda over an N-day window.",
+      "rationale": "Joins multiple children's team schedules into one list — impossible in the per-team SPA.",
+      "example": "sprocket agenda --days 14",
+      "why_it_matters": "Reach for this to plan the family's next two weeks in a single sorted list.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Conflict finder",
+      "command": "conflicts",
+      "description": "Flags time overlaps and impossible tight time-plus-location gaps between events across all your players.",
+      "rationale": "A pairwise self-join over events that no single calendar view performs.",
+      "example": "sprocket conflicts --days 14",
+      "why_it_matters": "Reach for this to catch a double-booked Saturday before Saturday morning.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Away-game drive list",
+      "command": "away",
+      "description": "Away games only, location-first, with field, opponent, and date — built for the carpool group chat.",
+      "rationale": "Filters the home/away content pattern and resolves locations into a drive list the dashboard never assembles.",
+      "example": "sprocket away --weeks 4",
+      "why_it_matters": "Reach for this when planning away-game driving or posting a travel list.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "iCal export",
+      "command": "ical",
+      "description": "Emit the merged schedule as an RFC-5545 .ics file for phone-calendar subscription.",
+      "rationale": "No remote endpoint emits calendar files; this synthesizes one from fetched events.",
+      "example": "sprocket ical --days 60",
+      "why_it_matters": "Reach for this to get soccer events into Apple/Google Calendar.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Changed since last check",
+      "command": "since",
+      "description": "What schedule items were added, moved, or cancelled since the last time you ran it.",
+      "rationale": "Diffs a stored prior snapshot against a fresh fetch; the dashboard has no 'what changed' view.",
+      "example": "sprocket since",
+      "why_it_matters": "Reach for this to catch a moved practice or a newly-added game.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Outstanding balance roll-up",
+      "command": "owed",
+      "description": "Total money owed across all your players: registration balances plus overdue invoices, with one number.",
+      "rationale": "Joins registration balances with overdue invoices into a cross-player total that exists in neither API call.",
+      "example": "sprocket owed",
+      "why_it_matters": "Reach for this for 'what do we still owe the club' across multiple kids.",
+      "group": "Money and deadlines"
+    },
+    {
+      "name": "Registration deadline radar",
+      "command": "deadlines",
+      "description": "Open registration programs sorted by how soon they close, flagging ones closing within N days.",
+      "rationale": "Adds close-date math and a threshold flag over the raw open-programs list.",
+      "example": "sprocket deadlines --days 14",
+      "why_it_matters": "Reach for this to avoid missing a registration window.",
+      "group": "Money and deadlines"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "This-week schedule",
+      "command": "week",
+      "description": "Every game and practice for the current week across all your players' teams, in one view.",
+      "rationale": "The dashboard shows one team's calendar at a time; this merges all your players' teams with week-boundary date math.",
+      "example": "sprocket week",
+      "why_it_matters": "Reach for this when asked 'what's on this week' for a family with kids on different teams.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Next event",
+      "command": "next",
+      "description": "The single next upcoming game or practice across all your players' teams: what, when, where, home/away, opponent.",
+      "rationale": "A cross-team min(start) answer no single dashboard screen gives you.",
+      "example": "sprocket next --agent --select clubCalendarEvent.title,clubCalendarEvent.startDate,clubCalendarEvent.opponent,clubCalendarEvent.awayGame",
+      "why_it_matters": "Reach for this for 'when is my kid's next game' or a one-line reminder.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Merged family agenda",
+      "command": "agenda",
+      "description": "Both kids' separate team schedules merged into one chronological agenda over an N-day window.",
+      "rationale": "Joins multiple children's team schedules into one list — impossible in the per-team SPA.",
+      "example": "sprocket agenda --days 14",
+      "why_it_matters": "Reach for this to plan the family's next two weeks in a single sorted list.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Conflict finder",
+      "command": "conflicts",
+      "description": "Flags time overlaps and impossible tight time-plus-location gaps between events across all your players.",
+      "rationale": "A pairwise self-join over events that no single calendar view performs.",
+      "example": "sprocket conflicts --days 14",
+      "why_it_matters": "Reach for this to catch a double-booked Saturday before Saturday morning.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Away-game drive list",
+      "command": "away",
+      "description": "Away games only, location-first, with field, opponent, and date — built for the carpool group chat.",
+      "rationale": "Filters the home/away content pattern and resolves locations into a drive list the dashboard never assembles.",
+      "example": "sprocket away --weeks 4",
+      "why_it_matters": "Reach for this when planning away-game driving or posting a travel list.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "iCal export",
+      "command": "ical",
+      "description": "Emit the merged schedule as an RFC-5545 .ics file for phone-calendar subscription.",
+      "rationale": "No remote endpoint emits calendar files; this synthesizes one from fetched events.",
+      "example": "sprocket ical --days 60",
+      "why_it_matters": "Reach for this to get soccer events into Apple/Google Calendar.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Changed since last check",
+      "command": "since",
+      "description": "What schedule items were added, moved, or cancelled since the last time you ran it.",
+      "rationale": "Diffs a stored prior snapshot against a fresh fetch; the dashboard has no 'what changed' view.",
+      "example": "sprocket since",
+      "why_it_matters": "Reach for this to catch a moved practice or a newly-added game.",
+      "group": "Schedule, the way a parent asks"
+    },
+    {
+      "name": "Outstanding balance roll-up",
+      "command": "owed",
+      "description": "Total money owed across all your players: registration balances plus overdue invoices, with one number.",
+      "rationale": "Joins registration balances with overdue invoices into a cross-player total that exists in neither API call.",
+      "example": "sprocket owed",
+      "why_it_matters": "Reach for this for 'what do we still owe the club' across multiple kids.",
+      "group": "Money and deadlines"
+    },
+    {
+      "name": "Registration deadline radar",
+      "command": "deadlines",
+      "description": "Open registration programs sorted by how soon they close, flagging ones closing within N days.",
+      "rationale": "Adds close-date math and a threshold flag over the raw open-programs list.",
+      "example": "sprocket deadlines --days 14",
+      "why_it_matters": "Reach for this to avoid missing a registration window.",
+      "group": "Money and deadlines"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SPROCKET_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Sprocket Sports",
+    "headline": "Your youth-soccer club's schedule, teams, and dues from the terminal — with merged multi-kid agendas, conflict detection, and iCal export no dashboard gives you.",
+    "value_prop": "Sprocket Sports CLI wraps your club's Sprocket dashboard API so you can answer the questions a parent actually asks: 'when is the next game' (next), 'what's on this week' (week), 'plan the next two weeks for both kids' (agenda), 'any double-bookings' (conflicts), and 'what do we owe' (owed). It merges every one of your players' teams into a single view the per-team web dashboard can't produce, and exports everything to your phone calendar with ical.",
+    "auth_narrative": "Sprocket Sports uses OAuth2/OIDC (Duende IdentityServer at login.sprocketsports.com) and the API takes a Bearer access token. This CLI authenticates with that token: set SPROCKET_TOKEN to the access_token from your logged-in dashboard session. To find it: open your club dashboard in Chrome, open DevTools, go to Application \u003e Session Storage, find the 'oidc.user:...sprocket-sports' entry, and copy its access_token value. Tokens are short-lived (about an hour), so re-copy when commands start returning 401.",
+    "quickstart": [
+      {
+        "command": "sprocket doctor",
+        "comment": "check that your token works and the API is reachable"
+      },
+      {
+        "command": "sprocket next",
+        "comment": "your next game or practice across all your kids' teams"
+      },
+      {
+        "command": "sprocket week",
+        "comment": "this week's full schedule, merged"
+      },
+      {
+        "command": "sprocket agenda --days 14",
+        "comment": "the next two weeks as one family agenda"
+      },
+      {
+        "command": "sprocket away --weeks 4",
+        "comment": "away games with fields for the carpool chat"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Your SPROCKET_TOKEN expired (tokens last about an hour). Re-copy the access_token from your dashboard session — see Authentication."
+      },
+      {
+        "symptom": "'Start date is out of valid range'",
+        "fix": "The calendar API caps a query at ~31 days. Use a smaller --days/--weeks value; next/week/agenda already stay inside the limit."
+      },
+      {
+        "symptom": "Empty schedule even though events exist",
+        "fix": "Confirm the token is for the right club tenant and that you have players assigned to teams: run 'sprocket teams mine'."
+      },
+      {
+        "symptom": "Wrong club's data",
+        "fix": "The base URL defaults to the Jacksonville FC tenant. Set the base URL in the config file to your own club's \u003cclub\u003e.sprocketsports.com host."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs a Sprocket Sports club's schedule, rosters, programs, registrations, or dues — especially merged across multiple children and teams, or as date-math (next game, this week, conflicts, away games) that the per-team web dashboard cannot answer in one view. It is ideal for reminders, carpool and away-game planning, iCal subscriptions, and 'what do we owe' roll-ups.",
+    "anti_triggers": [
+      "Do not use this CLI for league scores or standings — the parent dashboard API does not expose them (they are league-admin level).",
+      "Do not use it for coach or club announcements and messaging — that surface is not available here.",
+      "Do not use it to register, pay, RSVP, or otherwise change anything — v1 is strictly read-only.",
+      "Do not use it for a different club without first pointing the base URL at that club's tenant."
+    ],
+    "recipes": [
+      {
+        "title": "Next game as a one-line reminder",
+        "command": "sprocket next --agent --select clubCalendarEvent.title,clubCalendarEvent.startDate,clubCalendarEvent.opponent,clubCalendarEvent.awayGame",
+        "explanation": "Narrow the deeply-nested event to just the fields a reminder needs; pipe to a text/cron job."
+      },
+      {
+        "title": "Two-week family agenda",
+        "command": "sprocket agenda --days 14",
+        "explanation": "Merge both kids' team schedules into one sorted list for the next two weeks."
+      },
+      {
+        "title": "Away-game drive list for the group chat",
+        "command": "sprocket away --weeks 4",
+        "explanation": "Just the away games, location-first, ready to paste to carpool parents."
+      },
+      {
+        "title": "What do we owe",
+        "command": "sprocket owed",
+        "explanation": "One combined outstanding total across registrations and overdue invoices for all players."
+      },
+      {
+        "title": "Subscribe in your phone calendar",
+        "command": "sprocket ical --days 60",
+        "explanation": "Write 60 days of merged events to an .ics file you can import or host for subscription."
+      }
+    ],
+    "trigger_phrases": [
+      "when is my kid's next game",
+      "this week's soccer schedule",
+      "do we have any schedule conflicts",
+      "away games this month",
+      "what do we owe the soccer club",
+      "use sprocket",
+      "run sprocket"
+    ]
+  }
+}

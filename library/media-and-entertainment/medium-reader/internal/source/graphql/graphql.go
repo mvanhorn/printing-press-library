@@ -27,6 +27,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -60,8 +61,24 @@ const (
 const SearchQuery = `query SearchQuery($query:String!,$pagingOptions:SearchPagingOptions!){search(query:$query){... on Search{posts(pagingOptions:$pagingOptions){__typename ... on SearchCommonResult{pagingInfo{next{page limit}}} ... on SearchPost{items{... on Post{id title firstPublishedAt creator{id name username} latestPublishedVersion}}}}}}}`
 
 // AuthorArchiveQuery is the confirmed inline author-archive query (cursor
-// pagination via paging.from). Kept verbatim from the build spec / probe.
-const AuthorArchiveQuery = `query UA($id:ID!,$paging:PagingOptions!){user(id:$id){id name homepagePostsConnection(paging:$paging,includeDistributedResponses:true){posts{id title firstPublishedAt creator{id username}}pagingInfo{next{from limit}}}}}`
+// pagination via paging.from), widened to also fetch the per-post engagement
+// fields author-compare reports — clapCount, voterCount, readingTime, wordCount,
+// postResponses.count, and tags. These ride along in the same response (zero
+// extra requests) and are anonymous/Tier-0, even for member-locked posts.
+//
+// Widening trades a larger surface for the data: if Medium ever renames/removes
+// one of these fields the server rejects the whole query. AuthorArchive guards
+// against that by falling back to authorArchiveQueryMinimal (below) on a query
+// rejection, so core archiving never breaks — it just loses engagement that run.
+const AuthorArchiveQuery = `query UA($id:ID!,$paging:PagingOptions!){user(id:$id){id name homepagePostsConnection(paging:$paging,includeDistributedResponses:true){posts{id title firstPublishedAt clapCount voterCount readingTime wordCount postResponses{count} tags{normalizedTagSlug} creator{id username}}pagingInfo{next{from limit}}}}}`
+
+// authorArchiveQueryMinimal is the original, minimal author-archive query (only
+// id/title/date/creator). It is the resilient fallback: if the engagement-widened
+// AuthorArchiveQuery is rejected by the server (a changed/removed engagement
+// field), AuthorArchive re-issues this stable subset so mirroring still succeeds.
+// Same operation name ("UA") and variable signature as AuthorArchiveQuery, so the
+// same do() call and variables work unchanged.
+const authorArchiveQueryMinimal = `query UA($id:ID!,$paging:PagingOptions!){user(id:$id){id name homepagePostsConnection(paging:$paging,includeDistributedResponses:true){posts{id title firstPublishedAt creator{id username}}pagingInfo{next{from limit}}}}}`
 
 // Source is the GraphQL implementation of source.Source. It serves Search and
 // AuthorArchive and declares every other capability false (returning
@@ -243,14 +260,32 @@ type archiveResponse struct {
 }
 
 type archivePost struct {
-	ID               string `json:"id"`
-	Title            string `json:"title"`
-	FirstPublishedAt int64  `json:"firstPublishedAt"`
-	Creator          struct {
+	ID               string  `json:"id"`
+	Title            string  `json:"title"`
+	FirstPublishedAt int64   `json:"firstPublishedAt"`
+	ClapCount        int     `json:"clapCount"`
+	VoterCount       int     `json:"voterCount"`
+	ReadingTime      float64 `json:"readingTime"`
+	WordCount        int     `json:"wordCount"`
+	PostResponses    struct {
+		Count int `json:"count"`
+	} `json:"postResponses"`
+	Tags []struct {
+		Slug string `json:"normalizedTagSlug"`
+	} `json:"tags"`
+	Creator struct {
 		ID       string `json:"id"`
 		Username string `json:"username"`
 	} `json:"creator"`
 }
+
+// errGraphQLRejected marks a response that arrived intact (HTTP 200, valid JSON)
+// but carried a GraphQL "errors" block — the server rejected the QUERY itself
+// (e.g. an unknown field after Medium renamed one). It wraps ErrSurfaceUnavailable
+// so existing callers still degrade gracefully, while letting AuthorArchive tell
+// "query rejected" (fall back to the minimal query) apart from a transport/HTTP
+// outage (where no fallback would help).
+var errGraphQLRejected = fmt.Errorf("graphql: query rejected by server (changed/removed field?): %w", source.ErrSurfaceUnavailable)
 
 // ParseAuthorArchive is the pure author-archive-response parser the hermetic
 // tests exercise. It decodes one homepagePostsConnection page into normalized
@@ -265,13 +300,21 @@ func ParseAuthorArchive(body []byte) (items []source.PostSummary, nextFrom strin
 		return nil, "", "", fmt.Errorf("graphql: decoding author-archive response: %w", surfaceErr(e))
 	}
 	if len(r.Errors) > 0 {
-		return nil, "", "", fmt.Errorf("graphql: author-archive returned errors: %s: %w", r.Errors[0].Message, source.ErrSurfaceUnavailable)
+		return nil, "", "", fmt.Errorf("graphql: author-archive returned errors: %s: %w", r.Errors[0].Message, errGraphQLRejected)
 	}
 	u := r.Data.User
 	out := make([]source.PostSummary, 0, len(u.HomepagePostsConnection.Posts))
 	for _, p := range u.HomepagePostsConnection.Posts {
 		if p.ID == "" {
 			continue
+		}
+		// Flatten tag slugs, skipping empties. A minimal-query (fallback)
+		// response has no tags, so this is nil there — fine.
+		var tags []string
+		for _, t := range p.Tags {
+			if t.Slug != "" {
+				tags = append(tags, t.Slug)
+			}
 		}
 		out = append(out, source.PostSummary{
 			ID:          p.ID,
@@ -281,6 +324,12 @@ func ParseAuthorArchive(body []byte) (items []source.PostSummary, nextFrom strin
 			Username:    p.Creator.Username,
 			URL:         articleURL(p.ID),
 			PublishedAt: epochMillis(p.FirstPublishedAt),
+			Tags:        tags,
+			Claps:       p.ClapCount,
+			Voters:      p.VoterCount,
+			Responses:   p.PostResponses.Count,
+			ReadingTime: p.ReadingTime,
+			WordCount:   p.WordCount,
 		})
 	}
 	next := ""
@@ -298,19 +347,40 @@ func ParseAuthorArchive(body []byte) (items []source.PostSummary, nextFrom strin
 func (s *Source) AuthorArchive(ctx context.Context, userID string, max int) ([]source.PostSummary, error) {
 	var all []source.PostSummary
 	from := ""
+	query := AuthorArchiveQuery // engagement-widened; may fall back to the minimal query
 	for i := 0; i < maxArchivePages; i++ {
 		paging := map[string]any{"limit": archivePageLimit}
 		if from != "" {
 			paging["from"] = from
 		}
 		vars := map[string]any{"id": userID, "paging": paging}
-		body, err := s.do(ctx, "UA", AuthorArchiveQuery, vars)
+
+		body, err := s.do(ctx, "UA", query, vars)
 		if err != nil {
 			return nil, err
 		}
 		items, next, _, err := ParseAuthorArchive(body)
 		if err != nil {
-			return nil, err
+			// If the server REJECTED the widened query itself (e.g. Medium
+			// renamed an engagement field), fall back to the stable minimal
+			// query — for this page and every subsequent one — so core
+			// mirroring still succeeds (engagement just comes back zero). This
+			// fires ONLY on a query rejection: a transport/HTTP outage already
+			// returned from do() above, so a real outage is never retried (and
+			// the per-page request count is never doubled). Pages already
+			// fetched before the rejection keep their engagement; only this page
+			// onward degrades — the mix across pages is honest, not all-or-nothing.
+			if errors.Is(err, errGraphQLRejected) && query != authorArchiveQueryMinimal {
+				query = authorArchiveQueryMinimal
+				body, err = s.do(ctx, "UA", query, vars)
+				if err != nil {
+					return nil, err
+				}
+				items, next, _, err = ParseAuthorArchive(body)
+			}
+			if err != nil {
+				return nil, err
+			}
 		}
 		all = append(all, items...)
 		if max > 0 && len(all) >= max {

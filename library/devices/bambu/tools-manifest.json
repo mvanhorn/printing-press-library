@@ -1,0 +1,67 @@
+{
+  "api_name": "bambu",
+  "base_url": "",
+  "description": "Agent-ready Bambu print monitoring with exact plate previews and start/finish payloads.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Bambu-Access-Code",
+    "format": "{BAMBU_SERIAL}",
+    "in": "header",
+    "env_vars": [
+      "BAMBU_SERIAL",
+      "BAMBU_ACCESS_CODE"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BAMBU_SERIAL",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "description": "Bambu printer serial used for discovery filtering, MQTT topics, and certificate identity checks."
+      },
+      {
+        "name": "BAMBU_ACCESS_CODE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Local LAN access code used to authenticate directly to the printer."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "observations_list",
+      "description": "List locally persisted printer observations. Optional: printer, type, since. Returns array of Observation.",
+      "method": "GET",
+      "path": "/observations",
+      "params": [
+        {
+          "name": "printer",
+          "wire_name": "printer_serial",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by configured printer serial.",
+          "aliases": [
+            "serial"
+          ]
+        },
+        {
+          "name": "type",
+          "wire_name": "observation_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by observation type such as status, transition, or job."
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Include observations recorded within this duration or after this timestamp."
+        }
+      ]
+    }
+  ]
+}

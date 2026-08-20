@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "ynab-dead-code-and-annotations",
+  "applied_at": "2026-08-15",
+  "base_run_id": "20260812-093755-e1ecbcb1",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Removed a dead helper function and added missing pp:typed-exit-codes annotations to four parent commands during a /printing-press-polish pass.",
+  "reason": "dogfood flagged collectionItemsForOutput as dead (defined, never called; verified via repo-wide grep). Separately, learnings/playbook/workflow/profile share the exact bare-parent-exit-2 behavior that accounts/categories/category-groups already document via pp:typed-exit-codes, but were missing the annotation verify reads to confirm that behavior is expected.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/profile.go"
+  ],
+  "validated_outcome": "No behavior change since the removed function had zero call sites; the added annotations only affect what verify expects, not runtime behavior. Full go build/vet/test clean afterward.",
+  "upstream_issue": null
+}

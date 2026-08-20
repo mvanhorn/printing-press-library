@@ -3,7 +3,7 @@
 schema_version = 2
 name = "everbee-pp-cli"
 display_name = "EverBee"
-description = "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow."
+description = "Etsy niche research whose scores come with their evidence attached — seeded search, honest confidence, and a local store that turns repeat research into trends."
 project_kind = "cli"
 
 [secrets.file]

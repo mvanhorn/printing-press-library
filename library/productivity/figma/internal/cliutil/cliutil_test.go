@@ -90,8 +90,8 @@ func TestAuthErrorHelpers(t *testing.T) {
 		t.Fatal("unexpected auth classification for non-auth message")
 	}
 
-	got := SanitizeErrorBody("token sk-abcdefghi Bearer abc.def key=secretvalue")
-	if got != "token [REDACTED] [REDACTED] [REDACTED]" {
+	got := SanitizeErrorBody("token sk-abcdefghi Bearer abc.def key=secretvalue token=abc.def-ghi")
+	if got != "token [REDACTED] [REDACTED] [REDACTED] [REDACTED]" {
 		t.Fatalf("SanitizeErrorBody redaction = %q", got)
 	}
 }
@@ -673,6 +673,27 @@ func TestAdaptiveLimiter_FloorsAtHalfRPS(t *testing.T) {
 	}
 	if got := l.Rate(); got < 0.5 {
 		t.Errorf("Rate() after many OnRateLimit = %v, want >= 0.5", got)
+	}
+}
+
+func TestAdaptiveLimiter_DoesNotRaiseSubFloorRateOnRateLimit(t *testing.T) {
+	l := NewAdaptiveLimiter(0.3)
+	startRate := l.Rate()
+	l.OnRateLimit()
+	if got := l.Rate(); got > startRate {
+		t.Errorf("Rate() after OnRateLimit = %v, want <= %v", got, startRate)
+	}
+}
+
+func TestAdaptiveLimiter_DoesNotRampBelowFloorAfterRateLimit(t *testing.T) {
+	l := NewAdaptiveLimiter(0.3)
+	floor := l.Rate()
+	l.OnRateLimit()
+	for i := 0; i < l.rampAfter; i++ {
+		l.OnSuccess()
+	}
+	if got := l.Rate(); got < floor {
+		t.Errorf("Rate() after ramping from rate-limit ceiling = %v, want >= %v", got, floor)
 	}
 }
 

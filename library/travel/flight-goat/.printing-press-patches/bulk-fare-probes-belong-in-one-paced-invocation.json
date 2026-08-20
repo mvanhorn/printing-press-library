@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "bulk-fare-probes-belong-in-one-paced-invocation",
+  "applied_at": "2026-07-31",
+  "base_run_id": "20260712-220852",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Fare matrices (many origin x destination x date probes) run inside the CLI via repeatable --trip with a --pace gap: strictly sequential, one partial-tolerant envelope (ok/error/skipped rows), stop-on-429, per-trip stderr progress when interactive, and hard usage errors for mode mixing (--trip with positionals, --segment, --return, or a negative --pace), a shared-options preflight that rejects invalid --currency/--stops/--class/--sort before any network call, and a dry-run that names the shared filters \u2014 never parallel shell loops, which trigger the per-IP block. Every deterministically invalid --trip must die in preflight as a usage error, never as a search: that includes a route carrying more than one '>' (a multi-leg itinerary is --segment's job, not a junk destination code) and a return date earlier than its departure.",
+  "reason": "A real session needed ~40 probes, fanned them out with shell '&' loops, hit the IP block, and lost the night to hand-rolled retry scripts. Pacing is the CLI's job, and silent mode precedence (multi-city winning over batch, --return silently dropped) produces wrong searches rather than errors. Under an IP budget, any input error that reaches the network is spent budget: per-field format validation is not enough, the grammar has to reject cross-field impossibilities too. doctor and SKILL.md carry the same contract so agents learn it before the first 429.",
+  "files": [
+    "internal/cli/flights_batch.go",
+    "internal/cli/flights_batch_test.go",
+    "internal/cli/primary.go",
+    "internal/cli/doctor.go",
+    "internal/gflights/flights_native.go"
+  ],
+  "validated_outcome": "unit tests cover trip parsing, pacing between trips, stop-on-429 with skipped rows, the all-ok envelope, the human table rendering, and all mode-conflict usage errors (exit 2); preflight and malformed --trip errors smoke-verified at exit 2."
+}

@@ -130,6 +130,14 @@ class ManifestVerifierTest(unittest.TestCase):
 
         self.assertEqual([], verifier.validate(self.cli_dir))
 
+    def test_mcp_command_dir_may_live_in_single_nested_module(self) -> None:
+        shutil.rmtree(self.cli_dir / "cmd")
+        (self.cli_dir / "vzero" / "cmd" / "example-pp-mcp").mkdir(parents=True)
+        self.write_pp()
+        self.write_manifest()
+
+        self.assertEqual([], verifier.validate(self.cli_dir))
+
 
 if __name__ == "__main__":
     unittest.main()

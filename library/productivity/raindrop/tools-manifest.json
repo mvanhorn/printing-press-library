@@ -1,0 +1,1426 @@
+{
+  "api_name": "raindrop",
+  "base_url": "https://api.raindrop.io/rest/v1",
+  "description": "Complete Raindrop.io control plus offline search, safe cleanup, and durable knowledge workflows.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "RAINDROP_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "RAINDROP_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bookmark_transfer_export-bookmarks",
+      "description": "Export bookmarks in various formats. Required: format. Optional: broken (default: false), collection, duplicates (default: false). Returns the new ExportResponse.",
+      "method": "POST",
+      "path": "/export",
+      "params": [
+        {
+          "name": "broken",
+          "type": "bool",
+          "location": "body",
+          "description": "Include broken bookmarks"
+        },
+        {
+          "name": "collection",
+          "type": "int",
+          "location": "body",
+          "description": "Collection ID to export (omit for all bookmarks)"
+        },
+        {
+          "name": "duplicates",
+          "type": "bool",
+          "location": "body",
+          "description": "Include duplicate bookmarks"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Export format",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bookmark_transfer_import-bookmarks",
+      "description": "Import bookmarks from files or external services. Required: file. Optional: collection, format, mode (default: add) (plus 1 more). Returns array of BookmarkTransferImportBookmarksItem.",
+      "method": "POST",
+      "path": "/import",
+      "params": [
+        {
+          "name": "collection",
+          "type": "string",
+          "location": "body",
+          "description": "Collection ID to import into"
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "Bookmarks file to import",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Format of the import file"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Import mode"
+        },
+        {
+          "name": "parse",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to parse content during import"
+        }
+      ]
+    },
+    {
+      "name": "bookmark_transfer_import-from-url",
+      "description": "Import bookmarks from a remote URL hosting a bookmarks file. Required: url. Optional: collection, parse (default: true). Returns the new ImportJobResponse.",
+      "method": "POST",
+      "path": "/import/url",
+      "params": [
+        {
+          "name": "collection-id",
+          "wire_name": "collection.$id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "collection-title",
+          "wire_name": "collection.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "parse",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to parse imported bookmarks"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of bookmarks file to import",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_create",
+      "description": "Creates a new collection with the specified properties. Required: title. Optional: color, description, parent (plus 1 more). Returns the new CollectionItemResponse.",
+      "method": "POST",
+      "path": "/collection",
+      "params": [
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Collection color theme"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Collection description"
+        },
+        {
+          "name": "parent-id",
+          "wire_name": "parent.$id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether collection should be public"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Collection title",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_delete",
+      "description": "Permanently deletes a collection and all its bookmarks. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/collection/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_empty-trash",
+      "description": "Permanently delete all bookmarks in the trash collection. Returns the updated ResultResponse.",
+      "method": "PUT",
+      "path": "/collection/-99/clear",
+      "params": []
+    },
+    {
+      "name": "collection_get",
+      "description": "Retrieves detailed information about a specific collection. Required: id. Returns the CollectionItemResponse.",
+      "method": "GET",
+      "path": "/collection/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_update",
+      "description": "Updates properties of an existing collection. Required: id. Optional: color, description, parent (plus 2 more). Returns the updated CollectionItemResponse.",
+      "method": "PUT",
+      "path": "/collection/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Collection color theme"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Collection description"
+        },
+        {
+          "name": "parent-id",
+          "wire_name": "parent.$id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether collection should be public"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Collection title"
+        }
+      ]
+    },
+    {
+      "name": "collection_merge_collections",
+      "description": "Merge multiple collections into a target collection. Required: id, with. Returns the updated ResultResponse.",
+      "method": "PUT",
+      "path": "/collection/{id}/merge",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "with",
+          "type": "array",
+          "location": "body",
+          "description": "Array of collection IDs to merge into the target",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_sharing_share-collection",
+      "description": "Share a collection with specific users or generate public sharing link. Required: id, level. Optional: emails. Returns array of SharingShareCollectionItem.",
+      "method": "PUT",
+      "path": "/collection/{id}/sharing",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "emails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Email addresses to share with"
+        },
+        {
+          "name": "level",
+          "type": "string",
+          "location": "body",
+          "description": "Sharing permission level",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_stats_get-collection",
+      "description": "Retrieves statistics for a specific collection. Required: id. Returns the CollectionStatsResponse.",
+      "method": "GET",
+      "path": "/collection/{id}/stats",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_get-all",
+      "description": "Retrieves all collections for the authenticated user. Returns array of Collection.",
+      "method": "GET",
+      "path": "/collections",
+      "params": []
+    },
+    {
+      "name": "collections_remove-empty",
+      "description": "Remove all empty collections from the account. Returns the updated CollectionsRemoveEmptyResponse.",
+      "method": "PUT",
+      "path": "/collections/clean",
+      "params": []
+    },
+    {
+      "name": "collections_update-layout",
+      "description": "Update global collection order or expanded state. Optional: expanded, sort. Returns the updated ResultResponse.",
+      "method": "PUT",
+      "path": "/collections",
+      "params": [
+        {
+          "name": "expanded",
+          "type": "bool",
+          "location": "body",
+          "description": "Expanded"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "body",
+          "description": "Sort"
+        }
+      ]
+    },
+    {
+      "name": "collections_childrens_get-child-collections",
+      "description": "Retrieves child collections of a specific parent collection. Required: parentId. Returns array of Collection.",
+      "method": "GET",
+      "path": "/collections/{parentId}/childrens",
+      "params": [
+        {
+          "name": "parentId",
+          "type": "int",
+          "location": "path",
+          "description": "Parent collection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "file_delete",
+      "description": "Delete an uploaded file. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/file/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "File ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "file_get",
+      "description": "Download or retrieve information about an uploaded file. Required: id.",
+      "method": "GET",
+      "path": "/file/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "File ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "filters_get-available",
+      "description": "Returns available filters such as tags, domains, and highlights to refine searches. Required: collectionId.",
+      "method": "GET",
+      "path": "/filters/{collectionId}",
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID, or 0 for all bookmarks",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlights_add-to-bookmark",
+      "description": "Creates a new text highlight for a specific bookmark. Required: raindrop, text. Optional: color (default: yellow), note. Returns the new HighlightItemResponse.",
+      "method": "POST",
+      "path": "/highlights",
+      "params": [
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Highlight color"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Optional note for the highlight"
+        },
+        {
+          "name": "raindrop-id",
+          "wire_name": "raindrop.$id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Highlighted text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlights_delete",
+      "description": "Permanently removes a highlight from a bookmark. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/highlights/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Highlight ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "highlights_get-all",
+      "description": "Retrieves all highlights from a user's bookmarks with pagination. Optional: page (default: 0), perpage (default: 25). Returns array of Highlight.",
+      "method": "GET",
+      "path": "/highlights",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "perpage",
+          "type": "int",
+          "location": "query",
+          "description": "Number of highlights per page (max 50)"
+        }
+      ]
+    },
+    {
+      "name": "highlights_get-by-collection",
+      "description": "Retrieves all highlights from bookmarks in a specific collection. Required: collectionId. Optional: page (default: 0), perpage (default: 25). Returns array of Highlight.",
+      "method": "GET",
+      "path": "/highlights/{collectionId}",
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "perpage",
+          "type": "int",
+          "location": "query",
+          "description": "Number of highlights per page (max 50)"
+        }
+      ]
+    },
+    {
+      "name": "highlights_update",
+      "description": "Modifies an existing highlight's text, note, or color. Required: id. Optional: color, note, text. Returns the updated HighlightItemResponse.",
+      "method": "PUT",
+      "path": "/highlights/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Highlight ID",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Updated highlight color"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Updated note"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Updated highlight text"
+        }
+      ]
+    },
+    {
+      "name": "raindrop_create-bookmark",
+      "description": "Creates a new bookmark with automatic metadata extraction. Required: link. Optional: collection, excerpt, important (default: false) (plus 3 more). Returns the new BookmarkItemResponse.",
+      "method": "POST",
+      "path": "/raindrop",
+      "params": [
+        {
+          "name": "collection-id",
+          "wire_name": "collection.$id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "excerpt",
+          "type": "string",
+          "location": "body",
+          "description": "Bookmark description"
+        },
+        {
+          "name": "important",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether bookmark is important"
+        },
+        {
+          "name": "link",
+          "type": "string",
+          "location": "body",
+          "description": "Bookmark URL",
+          "required": true
+        },
+        {
+          "name": "pleaseParse",
+          "type": "object",
+          "location": "body",
+          "description": "Settings for content parsing"
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of tags"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Bookmark title (auto-extracted if not provided)"
+        }
+      ]
+    },
+    {
+      "name": "raindrop_delete-bookmark",
+      "description": "Moves a bookmark to trash (soft delete). Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/raindrop/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Bookmark ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrop_get-bookmark",
+      "description": "Retrieves detailed information about a specific bookmark. Required: id. Returns the BookmarkItemResponse.",
+      "method": "GET",
+      "path": "/raindrop/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Bookmark ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrop_suggest-for-url",
+      "description": "Suggest tags and collections for a new URL. Required: link. Returns the new SuggestionsResponse.",
+      "method": "POST",
+      "path": "/raindrop/suggest",
+      "params": [
+        {
+          "name": "link",
+          "type": "string",
+          "location": "body",
+          "description": "Link",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrop_update-bookmark",
+      "description": "Updates properties of an existing bookmark. Required: id. Optional: collection, cover, excerpt (plus 5 more). Returns the updated BookmarkItemResponse.",
+      "method": "PUT",
+      "path": "/raindrop/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Bookmark ID",
+          "required": true
+        },
+        {
+          "name": "collection-id",
+          "wire_name": "collection.$id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "cover",
+          "type": "string",
+          "location": "body",
+          "description": "Cover image URL"
+        },
+        {
+          "name": "excerpt",
+          "type": "string",
+          "location": "body",
+          "description": "Bookmark description"
+        },
+        {
+          "name": "important",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether bookmark is important"
+        },
+        {
+          "name": "link",
+          "type": "string",
+          "location": "body",
+          "description": "Bookmark URL"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "User notes"
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of tags"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Bookmark title"
+        }
+      ]
+    },
+    {
+      "name": "raindrop_upload-file",
+      "description": "Upload a file and create a bookmark from it. Required: collectionId, file. Returns the updated BookmarkItemResponse.",
+      "method": "PUT",
+      "path": "/raindrop/file",
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "body",
+          "description": "Collection ID to add the file to",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File to upload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrop_highlights_get-for-bookmark",
+      "description": "Retrieves all text highlights for a given bookmark. Required: id. Returns array of Highlight.",
+      "method": "GET",
+      "path": "/raindrop/{id}/highlights",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Bookmark ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrop_permanent_delete-bookmark",
+      "description": "Permanently deletes a bookmark (cannot be recovered). Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/raindrop/{id}/permanent",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Bookmark ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrop_reminder_delete",
+      "description": "Remove the reminder notification from a bookmark. Required: id. Returns the BookmarkItemResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/raindrop/{id}/reminder",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Bookmark ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrop_reminder_set",
+      "description": "Set or update a reminder notification for a bookmark. Required: id, date. Optional: note. Returns the updated BookmarkItemResponse.",
+      "method": "PUT",
+      "path": "/raindrop/{id}/reminder",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Bookmark ID",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Reminder date and time",
+          "required": true
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Optional reminder note"
+        }
+      ]
+    },
+    {
+      "name": "raindrop_suggest_for-bookmark",
+      "description": "Suggest tags and collections for an existing bookmark. Required: id. Returns the SuggestionsResponse.",
+      "method": "GET",
+      "path": "/raindrop/{id}/suggest",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrops_batch-delete-bookmarks",
+      "description": "Delete multiple bookmarks at once. Required: ids. Returns the ResultResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/raindrops/delete",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of bookmark IDs to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrops_batch-delete-bookmarks-in-collection",
+      "description": "Delete multiple bookmarks in a specific collection or empty trash/collection. Required: id, collectionId. Optional: ids. Returns the ResultResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/raindrops/{collectionId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "collectionId",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of bookmark IDs to delete"
+        }
+      ]
+    },
+    {
+      "name": "raindrops_batch-tag-bookmarks",
+      "description": "Batch operation to add or remove tags from multiple bookmarks. Required: ids, tags. Optional: replace (default: false). Returns the updated ResultResponse.",
+      "method": "PUT",
+      "path": "/raindrops/tags",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of bookmark IDs",
+          "required": true
+        },
+        {
+          "name": "replace",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to replace existing tags or add to them"
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tags to add or remove",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrops_batch-update-bookmarks",
+      "description": "Update multiple bookmarks across all collections. Required: ids. Optional: broken, collection, important (plus 1 more). Returns the updated ResultResponse.",
+      "method": "PUT",
+      "path": "/raindrops/0",
+      "params": [
+        {
+          "name": "broken",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether bookmarks should be marked as broken"
+        },
+        {
+          "name": "collection-id",
+          "wire_name": "collection.$id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of bookmark IDs to update",
+          "required": true
+        },
+        {
+          "name": "important",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether bookmarks should be marked important"
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tags to set on bookmarks"
+        }
+      ]
+    },
+    {
+      "name": "raindrops_batch-update-bookmarks-in-collection",
+      "description": "Update properties of multiple bookmarks in a specific collection at once. Required: id, collectionId, ids. Optional: broken, collection, important (plus 1 more). Returns the updated ResultResponse.",
+      "method": "PUT",
+      "path": "/raindrops/{collectionId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "collectionId",
+          "required": true
+        },
+        {
+          "name": "broken",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether bookmarks should be marked as broken"
+        },
+        {
+          "name": "collection-id-2",
+          "wire_name": "collection.$id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of bookmark IDs to update",
+          "required": true
+        },
+        {
+          "name": "important",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether bookmarks should be marked important"
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tags to set on bookmarks"
+        }
+      ]
+    },
+    {
+      "name": "raindrops_bulk-move-bookmarks",
+      "description": "Move multiple bookmarks to a different collection. Required: collection, ids. Returns the updated ResultResponse.",
+      "method": "PUT",
+      "path": "/raindrops/move",
+      "params": [
+        {
+          "name": "collection-id",
+          "wire_name": "collection.$id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of bookmark IDs to move",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrops_get-all-bookmarks",
+      "description": "Retrieves all bookmarks from all collections with filtering options. Optional: search, sort (default: -created), tag (plus 8 more). Returns array of Bookmark.",
+      "method": "GET",
+      "path": "/raindrops/0",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search query for filtering results"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order for results"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by specific tag"
+        },
+        {
+          "name": "important",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by important flag"
+        },
+        {
+          "name": "duplicates",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by duplicates"
+        },
+        {
+          "name": "broken",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by broken links"
+        },
+        {
+          "name": "notag",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by items without tags"
+        },
+        {
+          "name": "highlight",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by presence of highlights"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by domain"
+        },
+        {
+          "name": "perpage",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        }
+      ]
+    },
+    {
+      "name": "raindrops_get-bookmarks-by-collection",
+      "description": "Retrieves bookmarks from a specific collection with filtering options. Required: id, collectionId. Optional: search, sort (default: -created), tag (plus 8 more). Returns array of Bookmark.",
+      "method": "GET",
+      "path": "/raindrops/{collectionId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search query for filtering results"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order for results"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by specific tag"
+        },
+        {
+          "name": "important",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by important flag"
+        },
+        {
+          "name": "duplicates",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by duplicates"
+        },
+        {
+          "name": "broken",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by broken links"
+        },
+        {
+          "name": "notag",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by items without tags"
+        },
+        {
+          "name": "highlight",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by presence of highlights"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by domain"
+        },
+        {
+          "name": "perpage",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "collectionId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrops_get-multiple-bookmarks",
+      "description": "Retrieves multiple bookmarks by their IDs. Required: ids. Returns array of Bookmark.",
+      "method": "GET",
+      "path": "/raindrops/multiple",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated bookmark IDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrops_get-single-bookmark",
+      "description": "Retrieves comprehensive details about a specific bookmark by ID. Required: id. Returns the BookmarkItemResponse.",
+      "method": "GET",
+      "path": "/raindrops/single",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Bookmark ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raindrops_search",
+      "description": "Search bookmarks with advanced filtering options. Optional: search, collection, tags (plus 7 more). Returns array of Bookmark.",
+      "method": "GET",
+      "path": "/raindrops",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search query for filtering results"
+        },
+        {
+          "name": "collection",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by collection ID"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by tags"
+        },
+        {
+          "name": "createdStart",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by creation date (start)"
+        },
+        {
+          "name": "createdEnd",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by creation date (end)"
+        },
+        {
+          "name": "important",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by important flag"
+        },
+        {
+          "name": "media",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by media type"
+        },
+        {
+          "name": "perpage",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order for results"
+        }
+      ]
+    },
+    {
+      "name": "tags_delete-all",
+      "description": "Delete multiple tags from all bookmarks. Required: tags. Returns the ResultResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/tags/0",
+      "params": [
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of tag names to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_delete-collection",
+      "description": "Delete multiple tags from bookmarks in a specific collection. Required: id, collectionId, tags. Returns the ResultResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/tags/{collectionId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "collectionId",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of tag names to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_get-all",
+      "description": "Retrieves all unique tags used in the user's bookmarks. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "params": []
+    },
+    {
+      "name": "tags_get-all-alt",
+      "description": "Alternative endpoint to retrieve all tags. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags/0",
+      "params": []
+    },
+    {
+      "name": "tags_get-by-collection",
+      "description": "Retrieves all tags used in bookmarks within a specific collection. Required: id, collectionId. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags/{collectionId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "collectionId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_rename-or-merge-all",
+      "description": "Rename or merge tags across all collections. Optional: from, tags, to. Returns the updated ResultResponse.",
+      "method": "PUT",
+      "path": "/tags/0",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Original tag name (for rename operation)"
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of tag names (for merge operation)"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "New tag name"
+        }
+      ]
+    },
+    {
+      "name": "tags_rename-or-merge-collection",
+      "description": "Rename or merge tags within a specific collection. Required: id, collectionId. Optional: from, tags, to. Returns the updated ResultResponse.",
+      "method": "PUT",
+      "path": "/tags/{collectionId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "collectionId",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Original tag name (for rename operation)"
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of tag names (for merge operation)"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "New tag name"
+        }
+      ]
+    },
+    {
+      "name": "user_get-profile",
+      "description": "Retrieves the authenticated user's profile information. Returns the UserProfileResponse.",
+      "method": "GET",
+      "path": "/user",
+      "params": []
+    },
+    {
+      "name": "user_get-stats",
+      "description": "Retrieves account-wide statistics for the authenticated user. Returns array of UserGetStatsItem.",
+      "method": "GET",
+      "path": "/user/stats",
+      "params": []
+    }
+  ]
+}

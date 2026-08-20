@@ -1,0 +1,102 @@
+openapi: 3.0.0
+info:
+  title: Retraction Checker (via Crossref)
+  version: 1.0.0
+  description: >
+    Check whether a scientific paper has been retracted, why, and what current
+    research says about the topic now. Primary source is the Crossref REST API
+    (free, keyless), which embeds Retraction Watch data as structured update
+    records (retraction type, date, source, notice DOI). A secondary OpenAlex
+    source (added via the aggregator pattern under a hand-built command) surfaces
+    more-recent, higher-cited research that may supersede a retracted paper.
+  contact:
+    name: Crossref REST API Documentation
+    url: https://api.crossref.org/swagger-ui/index.html
+category: other
+x-mcp:
+  transport: [stdio, http]
+servers:
+  - url: https://api.crossref.org
+    description: Crossref REST API (free, no auth; polite pool via mailto)
+security: []
+paths:
+  /works:
+    get:
+      operationId: searchWorks
+      summary: Search or filter scholarly works
+      tags: [works]
+      parameters:
+        - name: query
+          in: query
+          schema: {type: string}
+          description: Free-text query across title, author, and metadata
+          example: crispr off-target effects
+        - name: filter
+          in: query
+          schema: {type: string}
+          description: >
+            Crossref filter expression. Use update-type:retraction to list
+            retraction notices, from-update-date:2024-01-01 to bound by update
+            date, or type:journal-article to scope by work type.
+          example: "update-type:retraction,from-update-date:2024-01-01"
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [relevance, updated, published, deposited, is-referenced-by-count]
+          description: Field to sort by
+          example: updated
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+          example: desc
+        - name: rows
+          in: query
+          schema: {type: integer, default: 20, maximum: 1000}
+          description: Number of results to return (max 1000)
+        - name: offset
+          in: query
+          schema: {type: integer, default: 0}
+          description: Result offset for pagination
+        - name: select
+          in: query
+          schema: {type: string}
+          description: Comma-separated fields to return (reduces payload size)
+          example: DOI,title,update-to,update-by,published,type
+        - name: mailto
+          in: query
+          schema: {type: string}
+          description: Contact email for the Crossref polite pool (better rate limits)
+          example: you@example.com
+      responses:
+        '200':
+          description: A list of matching works
+          content:
+            application/json:
+              schema: {type: object}
+  /works/{doi}:
+    get:
+      operationId: getWork
+      summary: Get a single work by DOI
+      tags: [works]
+      parameters:
+        - name: doi
+          in: path
+          required: true
+          schema: {type: string}
+          description: The DOI of the work (e.g. 10.1016/j.micpro.2020.103768)
+          example: 10.1016/j.micpro.2020.103768
+        - name: mailto
+          in: query
+          schema: {type: string}
+          description: Contact email for the Crossref polite pool
+          example: you@example.com
+      responses:
+        '200':
+          description: The work metadata, including retraction update records
+          content:
+            application/json:
+              schema: {type: object}

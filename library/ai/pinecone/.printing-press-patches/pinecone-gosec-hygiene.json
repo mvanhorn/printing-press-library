@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "pinecone-gosec-hygiene",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260813-214420-550eb813",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Gosec hygiene in novel files: explicit close-error discards, 0750 data dir perms, #nosec rationale for intentional file read.",
+  "reason": "Polish security pass cleared all gosec findings in hand-authored novel-feature Go.",
+  "files": ["internal/cli/novel_helpers.go", "internal/cli/check_vectors.go", "internal/cli/coverage.go", "internal/cli/snapshot.go", "internal/cli/usage.go", "internal/cli/prune.go"],
+  "validated_outcome": "gosec reports 0 findings in hand-authored novel files"
+}

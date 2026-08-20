@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "parallel-live-gate-fixes",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260720-202045-1a2cb7d8",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Make publish live dogfood full-level pass with Product API key only.",
+  "reason": "Account OAuth endpoints need tier gating; novel dry-run/error paths and websearch happy-args were failing the publish live gate.",
+  "files": [
+    "internal/cli/tasks_guard.go",
+    "internal/cli/tasks_lineage.go",
+    "internal/cli/findall_promote.go",
+    "internal/cli/promoted_websearch.go",
+    "internal/cli/service_account-get-balance.go",
+    "internal/cli/service_account-list-apps.go",
+    "internal/store/novel.go",
+    "mcp-descriptions.json"
+  ],
+  "validated_outcome": "dogfood --live --level full exit 0; phase5-acceptance status=pass"
+}

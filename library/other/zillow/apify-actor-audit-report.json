@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e\\zillow-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e\\20260729-154530-9310d69c",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

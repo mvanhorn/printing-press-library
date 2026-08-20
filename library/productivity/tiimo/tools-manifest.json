@@ -1,0 +1,544 @@
+{
+  "api_name": "tiimo",
+  "base_url": "https://api.tiimoapp.com",
+  "description": "Your Tiimo plan, finally exportable, queryable, and yours.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {TIIMO_TOKEN}",
+    "env_vars": [
+      "TIIMO_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TIIMO_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "activities_create",
+      "description": "Create an activity on the timeline. Required: profile_id, title, start-time. Optional: description, end-time, duration (plus 5 more). Returns the new Activity.",
+      "method": "POST",
+      "path": "/api/profiles/{profile_id}/activities",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Activity title",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Longer note attached to the activity"
+        },
+        {
+          "name": "start-time",
+          "wire_name": "startTime",
+          "type": "string",
+          "location": "body",
+          "description": "Local start, e.g. 2026-08-14T09:00:00 (no timezone suffix)",
+          "required": true
+        },
+        {
+          "name": "end-time",
+          "wire_name": "endTime",
+          "type": "string",
+          "location": "body",
+          "description": "Local end, e.g. 2026-08-14T09:30:00"
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Duration in SECONDS (1800 = 30 minutes)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Activity type as used by the app"
+        },
+        {
+          "name": "all-day",
+          "wire_name": "isAllDay",
+          "type": "bool",
+          "location": "body",
+          "description": "Treat as an all-day activity"
+        },
+        {
+          "name": "icon-type",
+          "wire_name": "iconType",
+          "type": "string",
+          "location": "body",
+          "description": "Icon kind; UnicodeEmoji means iconId holds a literal emoji"
+        },
+        {
+          "name": "icon",
+          "wire_name": "iconId",
+          "type": "string",
+          "location": "body",
+          "description": "Emoji character when icon-type is UnicodeEmoji"
+        },
+        {
+          "name": "sort-priority",
+          "wire_name": "sortPriority",
+          "type": "int",
+          "location": "body",
+          "description": "Ordering weight within its bucket"
+        }
+      ]
+    },
+    {
+      "name": "activities_delete",
+      "description": "Delete an activity. Required: profile_id, activity_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/profiles/{profile_id}/activities/{activity_id}",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "activity_id",
+          "type": "string",
+          "location": "path",
+          "description": "Activity UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_get",
+      "description": "Get a single activity by ID. Required: profile_id, activity_id. Returns the Activity.",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/activities/{activity_id}",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "activity_id",
+          "type": "string",
+          "location": "path",
+          "description": "Activity UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_list",
+      "description": "List activities in a date window, keyed by day. Required: profile_id, from-date. Optional: to-date. Returns the ActivityDay.",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/activities",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "from-date",
+          "wire_name": "fromDate",
+          "type": "string",
+          "location": "query",
+          "description": "Window start, YYYY-MM-DD. Required by the API.",
+          "required": true
+        },
+        {
+          "name": "to-date",
+          "wire_name": "toDate",
+          "type": "string",
+          "location": "query",
+          "description": "Window end, YYYY-MM-DD. Defaults to the start date."
+        }
+      ]
+    },
+    {
+      "name": "activities_update",
+      "description": "Replace an activity. The API rejects PATCH with 405, so send the full object. Required: profile_id, activity_id. Optional: title, start-time, end-time (plus 2 more). Returns the updated Activity.",
+      "method": "PUT",
+      "path": "/api/profiles/{profile_id}/activities/{activity_id}",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "activity_id",
+          "type": "string",
+          "location": "path",
+          "description": "Activity UUID",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Activity title"
+        },
+        {
+          "name": "start-time",
+          "wire_name": "startTime",
+          "type": "string",
+          "location": "body",
+          "description": "Local start timestamp"
+        },
+        {
+          "name": "end-time",
+          "wire_name": "endTime",
+          "type": "string",
+          "location": "body",
+          "description": "Local end timestamp"
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Duration in seconds"
+        },
+        {
+          "name": "completed-at",
+          "wire_name": "completedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Completion timestamp; set to mark the activity done"
+        }
+      ]
+    },
+    {
+      "name": "calendars_activities",
+      "description": "List imported activities from one linked calendar. These are read-only in Tiimo. Required: profile_id, calendar_id, from-date. Optional: to-date. Returns the ActivityDay.",
+      "method": "GET",
+      "path": "/api/externalCalendar/profiles/{profile_id}/externalCalendars/{calendar_id}/activities",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "calendar_id",
+          "type": "string",
+          "location": "path",
+          "description": "Linked calendar UUID",
+          "required": true
+        },
+        {
+          "name": "from-date",
+          "wire_name": "fromDate",
+          "type": "string",
+          "location": "query",
+          "description": "Window start, YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to-date",
+          "wire_name": "toDate",
+          "type": "string",
+          "location": "query",
+          "description": "Window end, YYYY-MM-DD"
+        }
+      ]
+    },
+    {
+      "name": "calendars_list",
+      "description": "List linked external calendars. Required: profile_id. Returns array of LinkedCalendar.",
+      "method": "GET",
+      "path": "/api/externalCalendar/profiles/{profile_id}/linkedCalendars",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "configuration_get",
+      "description": "Feature flags, locked features, and client configuration. Returns the Configuration.",
+      "method": "GET",
+      "path": "/api/configuration",
+      "params": []
+    },
+    {
+      "name": "profiles_get",
+      "description": "Get a single profile. Required: profile_id. Returns the Profile.",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "profiles_list",
+      "description": "List every profile on the account. Returns array of Profile.",
+      "method": "GET",
+      "path": "/api/profiles",
+      "params": []
+    },
+    {
+      "name": "routines_list",
+      "description": "List routines in a date window. Required: profile_id, from. Optional: to. Returns array of Routine.",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/routines",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Window start, YYYY-MM-DD. Required by the API.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Window end, YYYY-MM-DD"
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List tags. Required: profile_id. Returns array of Tag.",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/tags",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "todo_lists_list",
+      "description": "List to-do lists with their tasks. Required: profile_id. Returns the TodoTaskListEnvelope.",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/todo-task-lists",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "todo_tasks_create",
+      "description": "Create a to-do task. Returns 200 with the created task. Required: profile_id, list-id, title. Optional: notes, duration, icon-type (default: UnicodeEmoji) (plus 1 more).",
+      "method": "POST",
+      "path": "/api/profiles/{profile_id}/todo-tasks",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "list-id",
+          "wire_name": "todoTaskListId",
+          "type": "string",
+          "location": "body",
+          "description": "Target to-do list UUID",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Task title",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text notes"
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Estimated duration in seconds"
+        },
+        {
+          "name": "icon-type",
+          "wire_name": "iconType",
+          "type": "string",
+          "location": "body",
+          "description": "Icon kind"
+        },
+        {
+          "name": "icon",
+          "wire_name": "iconId",
+          "type": "string",
+          "location": "body",
+          "description": "Emoji character when icon-type is UnicodeEmoji"
+        }
+      ]
+    },
+    {
+      "name": "todo_tasks_delete",
+      "description": "Delete a to-do task. Required: profile_id, task_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/profiles/{profile_id}/todo-tasks/{task_id}",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "todo_tasks_get",
+      "description": "Get a single to-do task. Required: profile_id, task_id. Returns the TodoTask.",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/todo-tasks/{task_id}",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "todo_tasks_list",
+      "description": "List to-do tasks. Required: profile_id. Returns array of TodoTask.",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/todo-tasks",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "todo_tasks_update",
+      "description": "Update a to-do task. Note the API updates via the COLLECTION path; item-level PUT returns 405. Required: profile_id, task-id, list-id. Optional: title, checked, checked-at.",
+      "method": "PUT",
+      "path": "/api/profiles/{profile_id}/todo-tasks",
+      "params": [
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "path",
+          "description": "Profile UUID",
+          "required": true
+        },
+        {
+          "name": "task-id",
+          "wire_name": "taskId",
+          "type": "string",
+          "location": "body",
+          "description": "Task UUID being updated",
+          "required": true
+        },
+        {
+          "name": "list-id",
+          "wire_name": "todoTaskListId",
+          "type": "string",
+          "location": "body",
+          "description": "Owning to-do list UUID",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Task title"
+        },
+        {
+          "name": "checked",
+          "wire_name": "isChecked",
+          "type": "bool",
+          "location": "body",
+          "description": "Completion state. To-dos use isChecked, not isCompleted."
+        },
+        {
+          "name": "checked-at",
+          "wire_name": "checkedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Completion timestamp"
+        }
+      ]
+    }
+  ]
+}

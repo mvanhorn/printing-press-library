@@ -63,6 +63,7 @@ func itemRowToPB(item *store.ItemRow, userID string) *pb.ListItem {
 		Identifier:      item.ID,
 		ListId:          item.ListID,
 		Name:            item.Name,
+		ProductUpc:      item.ProductUpc,
 		Quantity:        item.Quantity,
 		Details:         item.Details,
 		Checked:         item.Checked,

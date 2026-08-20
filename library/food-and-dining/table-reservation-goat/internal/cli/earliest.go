@@ -194,7 +194,9 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 			"`HTTPS_PROXY`. Other env knobs: `TRG_OT_CACHE_TTL`, `TRG_OT_THROTTLE_RATE`.",
 		Example: "  table-reservation-goat-pp-cli earliest 'canlis,spinasse,altura' --party 6 --tonight --agent",
 		Annotations: map[string]string{
-			"mcp:read-only": "true",
+			"mcp:read-only":          "true",
+			"pp:no-error-path-probe": "true",
+			"pp:happy-args":          "canlis --party 2 --agent",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -844,6 +846,7 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 			anchorHH := 19
 			anchorMM := 0
 			var bookable []string
+			matchingAvailabilityChunks := countInformativeAvailabilityChunks(avail, restID)
 			for _, ra := range avail {
 				if ra.RestaurantID != restID {
 					continue
@@ -908,7 +911,7 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 				row.Reason = fmt.Sprintf("opentable %s: earliest slot at %s%s", venueLabel, earliestSlotAt, cacheNote)
 			} else {
 				row.Available = false
-				row.Reason = fmt.Sprintf("opentable %s: no open slots in %d-day window for party=%d%s", venueLabel, within, party, cacheNote)
+				row.Reason = openTableNoAvailabilityReason(venueLabel, restID, within, party, matchingAvailabilityChunks, cacheNote)
 			}
 			return row
 		}
@@ -920,6 +923,29 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 		}
 	}
 	return row
+}
+
+// countInformativeAvailabilityChunks counts availability wrappers for the
+// requested restaurant that actually carry day data. A matching wrapper with
+// an empty AvailabilityDays array holds no slot information, so it must not
+// flip the no-availability diagnostic to the "slots present but none
+// available/matching" phrasing.
+func countInformativeAvailabilityChunks(avail []opentable.RestaurantAvailability, restID int) int {
+	count := 0
+	for _, ra := range avail {
+		if ra.RestaurantID != restID || len(ra.AvailabilityDays) == 0 {
+			continue
+		}
+		count++
+	}
+	return count
+}
+
+func openTableNoAvailabilityReason(venueLabel string, restID, within, party, matchingAvailabilityChunks int, cacheNote string) string {
+	if matchingAvailabilityChunks == 0 {
+		return fmt.Sprintf("opentable %s: response contained no availability data for restaurant %d%s", venueLabel, restID, cacheNote)
+	}
+	return fmt.Sprintf("opentable %s: no open slots in %d-day window for party=%d (availability data matched; slots present but none available/matching)%s", venueLabel, within, party, cacheNote)
 }
 
 // resolveEarliestForResy fans out one Availability call per day across the

@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-06-15T03:52:13.756069Z",
+  "cli_dir": "\u003ccli-dir\u003e/techtwitter",
+  "findings": [
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260614-151701-381d1e6b/discovery/monthly.json",
+      "line": 1,
+      "column": 19834,
+      "matched_span": "3253629143",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Twitter/X public CDN profile-banner ID inside an image URL: \"banner_url\":\"https://pbs.twimg.com/profile_banners/3253629143/1709735344/600x200\" — a provider-assigned account/banner identifier, not a customer phone number."
+    }
+  ],
+  "findings_count_before": 0
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "reviews-404-means-missing-domain-not-stale-auth",
+  "applied_at": "2026-07-03",
+  "base_run_id": "20260515-075905",
+  "base_printing_press_version": "4.6.1",
+  "summary": "A reviews-endpoint 404 must lead with 'no Trustpilot review page for this domain - find it with search' and mention stale-build-id second; the search endpoint's 404 (no domain in path) keeps the stale-build-id message, and both retry helpers keep matching the shared error type. All help/MCP text must spell the real command 'reviews-fetch', never 'reviews fetch'.",
+  "reason": "Review pages are keyed by domain, so bare company names and wrong domains 404 constantly; the old 're-run auth login' message sent callers (including the last30days engine) chasing auth failures that were never auth, and the 'reviews fetch' spelling routed agents to the raw build-id passthrough instead of the working reviews-fetch command.",
+  "files": [
+    "internal/trustpilot/transport.go",
+    "internal/trustpilot/transport_test.go",
+    "internal/cli/promoted_reviews.go",
+    "internal/cli/promoted_companies.go",
+    "internal/mcp/tools.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build/vet pass; go test 170 passed incl. new transport error-message contract tests; verify_skill.py all checks pass."
+}

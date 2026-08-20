@@ -1,0 +1,263 @@
+{
+  "api_name": "pinecone",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "pinecone-io/cli",
+      "url": "https://github.com/pinecone-io/cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 22,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@pinecone-database/mcp",
+      "url": "https://github.com/pinecone-io/pinecone-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-13T21:44:20Z",
+  "novel_features": [
+    {
+      "name": "Text query (embed→query pipe)",
+      "command": "text-query",
+      "description": "Search a dense index with a natural-language query — embeds the text via Pinecone Inference, then queries the index — without managing vectors yourself.",
+      "rationale": "Requires chaining the embed endpoint and the per-index query endpoint with host resolution, which no single API call or existing CLI provides.",
+      "example": "pinecone-pp-cli text-query travel-chat-embeddings --text \"visa on arrival for thailand\" --top-k 5 --json",
+      "why_it_matters": "Use when an agent needs semantic retrieval from an index but only has a text query, not a precomputed vector.",
+      "group": "Search that works the way humans think"
+    },
+    {
+      "name": "Index snapshot + diff",
+      "command": "snapshot",
+      "description": "Capture a point-in-time state of any index (per-namespace vector counts, dimension, metric, host) into local SQLite, then diff against prior snapshots to see exactly what changed.",
+      "rationale": "Requires a local time-series store over describe_index_stats and describe output; the Pinecone API has no history endpoint.",
+      "example": "pinecone-pp-cli snapshot travel-chat-embeddings --note weekly",
+      "why_it_matters": "Use when an agent needs to answer \"what changed in this index since last week?\" for drift, growth, or incident review.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale-chunk pruning",
+      "command": "prune",
+      "description": "Find vectors whose local metadata timestamps are older than a threshold and delete them in batches — dry-run by default, with --apply to commit.",
+      "rationale": "Requires joining synced record metadata against live delete-by-ID calls; no API endpoint computes staleness for you.",
+      "example": "pinecone-pp-cli prune travel-chat-embeddings --namespace __default__ --older-than 90d --apply",
+      "why_it_matters": "Use when an agent maintains a long-lived memory store and needs to expire stale chunks without a full resync.",
+      "group": "Memory lifecycle"
+    },
+    {
+      "name": "Cross-index cascade search",
+      "command": "cascade",
+      "description": "Run one semantic query across multiple indexes and merge the ranked results (deduped by vector ID, best score wins) into a single agent-ready list.",
+      "rationale": "Requires orchestrating per-index embed+query flows and merging results locally; the API has no multi-index query endpoint.",
+      "example": "pinecone-pp-cli cascade --indexes travel-chat-embeddings,travel-chat-embeddings-v2 --text \"kyoto itinerary\" --top-k 3 --json",
+      "why_it_matters": "Use when an agent needs to search across several indexes (e.g. prod vs staging, multiple tenants) in one shot.",
+      "group": "Search that works the way humans think"
+    },
+    {
+      "name": "Usage / growth projection",
+      "command": "usage",
+      "description": "Compute vector-count growth and per-namespace distribution shifts from snapshot history, with a projection to a future horizon.",
+      "rationale": "Requires joining local snapshot-history rows across time; no single API call returns historical growth.",
+      "example": "pinecone-pp-cli usage --index travel-chat-embeddings --since 30d --json",
+      "why_it_matters": "Use when an agent needs to forecast index growth or spot a namespace ballooning before it hits quota.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Vector payload validation",
+      "command": "check-vectors",
+      "description": "Validate a vectors JSON file against the index schema — dimension, duplicate/empty IDs, sparse/dense shape — before you upsert and burn write units on a rejected batch.",
+      "rationale": "Requires comparing a parsed payload against the synced index config and live stats; the upsert endpoint fails the whole batch with no pre-check.",
+      "example": "pinecone-pp-cli check-vectors --index travel-chat-embeddings --file vectors.json --json",
+      "why_it_matters": "Use when an agent ingests data and wants to catch dimension or ID errors before a costly rejected batch.",
+      "group": "Memory lifecycle"
+    },
+    {
+      "name": "Backup/restore coverage report",
+      "command": "coverage",
+      "description": "Join backups, backup schedules, and restore jobs into a per-index protection matrix showing which indexes are backed up, scheduled, and restorable.",
+      "rationale": "Requires a cross-entity join across four synced tables; no API endpoint reports protection coverage.",
+      "example": "pinecone-pp-cli coverage --json",
+      "why_it_matters": "Use when an agent audits disaster-recovery posture across an index fleet.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Text query (embed→query pipe)",
+      "command": "text-query",
+      "description": "Search a dense index with a natural-language query — embeds the text via Pinecone Inference, then queries the index — without managing vectors yourself.",
+      "rationale": "Requires chaining the embed endpoint and the per-index query endpoint with host resolution, which no single API call or existing CLI provides.",
+      "example": "pinecone-pp-cli text-query travel-chat-embeddings --text \"visa on arrival for thailand\" --top-k 5 --json",
+      "why_it_matters": "Use when an agent needs semantic retrieval from an index but only has a text query, not a precomputed vector.",
+      "group": "Search that works the way humans think"
+    },
+    {
+      "name": "Index snapshot + diff",
+      "command": "snapshot",
+      "description": "Capture a point-in-time state of any index (per-namespace vector counts, dimension, metric, host) into local SQLite, then diff against prior snapshots to see exactly what changed.",
+      "rationale": "Requires a local time-series store over describe_index_stats and describe output; the Pinecone API has no history endpoint.",
+      "example": "pinecone-pp-cli snapshot travel-chat-embeddings --note weekly",
+      "why_it_matters": "Use when an agent needs to answer \"what changed in this index since last week?\" for drift, growth, or incident review.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale-chunk pruning",
+      "command": "prune",
+      "description": "Find vectors whose local metadata timestamps are older than a threshold and delete them in batches — dry-run by default, with --apply to commit.",
+      "rationale": "Requires joining synced record metadata against live delete-by-ID calls; no API endpoint computes staleness for you.",
+      "example": "pinecone-pp-cli prune travel-chat-embeddings --namespace __default__ --older-than 90d --apply",
+      "why_it_matters": "Use when an agent maintains a long-lived memory store and needs to expire stale chunks without a full resync.",
+      "group": "Memory lifecycle"
+    },
+    {
+      "name": "Cross-index cascade search",
+      "command": "cascade",
+      "description": "Run one semantic query across multiple indexes and merge the ranked results (deduped by vector ID, best score wins) into a single agent-ready list.",
+      "rationale": "Requires orchestrating per-index embed+query flows and merging results locally; the API has no multi-index query endpoint.",
+      "example": "pinecone-pp-cli cascade --indexes travel-chat-embeddings,travel-chat-embeddings-v2 --text \"kyoto itinerary\" --top-k 3 --json",
+      "why_it_matters": "Use when an agent needs to search across several indexes (e.g. prod vs staging, multiple tenants) in one shot.",
+      "group": "Search that works the way humans think"
+    },
+    {
+      "name": "Usage / growth projection",
+      "command": "usage",
+      "description": "Compute vector-count growth and per-namespace distribution shifts from snapshot history, with a projection to a future horizon.",
+      "rationale": "Requires joining local snapshot-history rows across time; no single API call returns historical growth.",
+      "example": "pinecone-pp-cli usage --index travel-chat-embeddings --since 30d --json",
+      "why_it_matters": "Use when an agent needs to forecast index growth or spot a namespace ballooning before it hits quota.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Vector payload validation",
+      "command": "check-vectors",
+      "description": "Validate a vectors JSON file against the index schema — dimension, duplicate/empty IDs, sparse/dense shape — before you upsert and burn write units on a rejected batch.",
+      "rationale": "Requires comparing a parsed payload against the synced index config and live stats; the upsert endpoint fails the whole batch with no pre-check.",
+      "example": "pinecone-pp-cli check-vectors --index travel-chat-embeddings --file vectors.json --json",
+      "why_it_matters": "Use when an agent ingests data and wants to catch dimension or ID errors before a costly rejected batch.",
+      "group": "Memory lifecycle"
+    },
+    {
+      "name": "Backup/restore coverage report",
+      "command": "coverage",
+      "description": "Join backups, backup schedules, and restore jobs into a per-index protection matrix showing which indexes are backed up, scheduled, and restorable.",
+      "rationale": "Requires a cross-entity join across four synced tables; no API endpoint reports protection coverage.",
+      "example": "pinecone-pp-cli coverage --json",
+      "why_it_matters": "Use when an agent audits disaster-recovery posture across an index fleet.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "PINECONE_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Pinecone",
+    "headline": "Every Pinecone API feature, plus local sync, snapshot history, and text-first search no other Pinecone tool has.",
+    "value_prop": "The Pinecone CLI manages indexes, vectors, namespaces, backups, imports, inference, and admin — then goes further: sync index and record metadata into a local SQLite database for offline search, capture snapshot history to diff and project growth, and search by natural language without touching vectors. Agent-native --json/--select/csv output and typed exit codes make it scriptable in CI.",
+    "auth_narrative": "Pinecone uses an API key sent as the `Api-Key` header, with the required `X-Pinecone-Api-Version` header set to the API version (2026-04). Set PINECONE_API_KEY=\u003ckey\u003e or run `pinecone-pp-cli auth set-token`. Data-plane commands target the per-index host, which the CLI resolves automatically from `indexes describe-index` when you pass --index, or via PINECONE_INDEX_HOST.",
+    "quickstart": [
+      {
+        "command": "pinecone-pp-cli doctor --dry-run",
+        "comment": "Verify auth and connectivity without making a request"
+      },
+      {
+        "command": "pinecone-pp-cli indexes list --json --select name,host,dimension",
+        "comment": "List your indexes and their hosts for data-plane targeting"
+      },
+      {
+        "command": "pinecone-pp-cli indexes describe-index travel-chat-embeddings --json --select name,host,dimension",
+        "comment": "Describe an index and resolve its data-plane host"
+      },
+      {
+        "command": "pinecone-pp-cli snapshot travel-chat-embeddings --note weekly",
+        "comment": "Record point-in-time index state for later diffing"
+      },
+      {
+        "command": "pinecone-pp-cli snapshot diff --index travel-chat-embeddings --since 7d",
+        "comment": "See what changed in the index over the last week"
+      },
+      {
+        "command": "pinecone-pp-cli sync --resources indexes",
+        "comment": "Sync index metadata into the local SQLite store"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Missing api-key header",
+        "fix": "Set PINECONE_API_KEY=\u003ckey\u003e or run `pinecone-pp-cli auth set-token \u003ckey\u003e`"
+      },
+      {
+        "symptom": "429 TOO_MANY_REQUESTS (rate limit)",
+        "fix": "Retry with exponential backoff; the CLI honors --rate-limit to pace requests"
+      },
+      {
+        "symptom": "422 unknown field in request body",
+        "fix": "Check the endpoint version header; pass --x-pinecone-api-version 2026-04"
+      },
+      {
+        "symptom": "403 FORBIDDEN (quota/deletion protection)",
+        "fix": "Check plan quota or disable deletion protection on the index"
+      }
+    ],
+    "when_to_use": "Use this CLI when you manage Pinecone indexes and vectors from a terminal or agent: create and scale indexes, ingest and query vectors, run semantic search over text, audit backup coverage, and track index growth over time. It is the right tool for RAG pipelines, embedding workflows, and index fleet administration.",
+    "anti_triggers": [
+      "Do not use this CLI for large bulk imports (10M+ records) — use object-storage import via the Pinecone console or SDK",
+      "Do not use this CLI for real-time streaming ingestion at high throughput — use the Python/Go SDK with gRPC",
+      "Do not use this CLI to manage non-Pinecone vector databases",
+      "Do not use this CLI for integrated-embedding text search on indexes that do not have integrated inference configured"
+    ],
+    "recipes": [
+      {
+        "title": "Semantic search over chat history",
+        "command": "pinecone-pp-cli text-query travel-chat-embeddings --text \"what did the group decide about kyoto\" --top-k 5 --select matches.id,matches.metadata.sender,matches.score",
+        "explanation": "Ask a natural-language question and get scored, deduped hits with metadata — no embedding step"
+      },
+      {
+        "title": "Weekly index health snapshot",
+        "command": "pinecone-pp-cli snapshot travel-chat-embeddings --note weekly \u0026\u0026 pinecone-pp-cli snapshot diff --index travel-chat-embeddings --since 7d",
+        "explanation": "Record index state weekly, then see exactly what changed: vector counts, namespaces, config drift"
+      },
+      {
+        "title": "Stale memory pruning dry-run",
+        "command": "pinecone-pp-cli prune travel-chat-embeddings --namespace __default__ --older-than 90d",
+        "explanation": "Preview which vectors would be deleted by age before committing with --apply"
+      },
+      {
+        "title": "Cascade search across environments",
+        "command": "pinecone-pp-cli cascade --indexes travel-chat-embeddings,travel-chat-embeddings-v2 --text \"trip itinerary\" --top-k 3 --json",
+        "explanation": "Search prod and staging indexes in one call and get a single merged, deduped ranked list"
+      },
+      {
+        "title": "Validate before you upsert",
+        "command": "pinecone-pp-cli check-vectors --index travel-chat-embeddings --file vectors.json --json",
+        "explanation": "Catch dimension and ID errors in a batch before it burns write units on a rejected upsert"
+      },
+      {
+        "title": "Agent-ready index inventory",
+        "command": "pinecone-pp-cli indexes list --json --select name,host,dimension,spec.serverless.region | jq '.results[] | {name, host, dimension, region: .spec.serverless.region}'",
+        "explanation": "Narrow a large response with --select and pipe to jq for a compact inventory"
+      }
+    ],
+    "trigger_phrases": [
+      "query my pinecone index",
+      "upsert vectors into pinecone",
+      "search pinecone embeddings",
+      "check pinecone index health",
+      "what changed in my pinecone index",
+      "use pinecone",
+      "run pinecone"
+    ]
+  }
+}

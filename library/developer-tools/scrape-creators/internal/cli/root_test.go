@@ -7,8 +7,272 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
+
+	"github.com/spf13/cobra"
 )
+
+func TestDeclaredAPISurfaceReachable(t *testing.T) {
+	expected := []string{
+		"account",
+		"account list",
+		"account list-getapiusage",
+		"account list-getdailyusagecount",
+		"account list-getmostusedroutes",
+		"amazon",
+		"apple-music",
+		"apple-music list",
+		"apple-music list-applemusic",
+		"apple-music list-applemusic-2",
+		"apple-music list-applemusic-3",
+		"bluesky",
+		"bluesky list",
+		"bluesky list-profile",
+		"bluesky list-user",
+		"detect-age-gender",
+		"facebook",
+		"facebook create",
+		"facebook create-adlibrary",
+		"facebook list",
+		"facebook list-adlibrary",
+		"facebook list-adlibrary-2",
+		"facebook list-adlibrary-3",
+		"facebook list-adlibrary-4",
+		"facebook list-adlibrary-5",
+		"facebook list-event",
+		"facebook list-events",
+		"facebook list-group",
+		"facebook list-group-2",
+		"facebook list-marketplace",
+		"facebook list-marketplace-2",
+		"facebook list-marketplace-3",
+		"facebook list-post",
+		"facebook list-post-2",
+		"facebook list-post-3",
+		"facebook list-post-4",
+		"facebook list-profile",
+		"facebook list-profile-2",
+		"facebook list-profile-3",
+		"facebook list-profile-4",
+		"facebook list-profile-5",
+		"github",
+		"github list",
+		"github list-trending",
+		"github list-trending-2",
+		"github list-user",
+		"github list-user-2",
+		"github list-user-3",
+		"github list-user-4",
+		"github list-user-5",
+		"github list-user-6",
+		"github list-user-7",
+		"google",
+		"google list",
+		"google list-adlibrary",
+		"google list-company",
+		"google list-search",
+		"instagram",
+		"instagram list",
+		"instagram list-audio",
+		"instagram list-media",
+		"instagram list-post",
+		"instagram list-post-2",
+		"instagram list-post-3",
+		"instagram list-profile",
+		"instagram list-reels",
+		"instagram list-reels-2",
+		"instagram list-search",
+		"instagram list-search-2",
+		"instagram list-search-3",
+		"instagram list-search-4",
+		"instagram list-user",
+		"instagram list-user-2",
+		"instagram list-user-3",
+		"instagram list-user-4",
+		"instagram list-user-5",
+		"instagram list-user-6",
+		"kick",
+		"komi",
+		"kwai",
+		"kwai list",
+		"kwai list-profile",
+		"kwai list-user",
+		"linkbio",
+		"linkedin",
+		"linkedin list",
+		"linkedin list-ads",
+		"linkedin list-company",
+		"linkedin list-company-2",
+		"linkedin list-post",
+		"linkedin list-post-2",
+		"linkedin list-profile",
+		"linkedin list-search",
+		"linkme",
+		"linktree",
+		"pillar",
+		"pinterest",
+		"pinterest list",
+		"pinterest list-pin",
+		"pinterest list-search",
+		"pinterest list-user",
+		"reddit",
+		"reddit create",
+		"reddit list",
+		"reddit list-post",
+		"reddit list-post-2",
+		"reddit list-subreddit",
+		"reddit list-subreddit-2",
+		"reddit list-subreddit-3",
+		"rumble",
+		"rumble list",
+		"rumble list-channel",
+		"rumble list-video",
+		"rumble list-video-2",
+		"rumble list-video-3",
+		"snapchat",
+		"snapchat list",
+		"snapchat list-spotlight",
+		"snapchat list-spotlight-2",
+		"soundcloud",
+		"soundcloud list",
+		"soundcloud list-artist",
+		"soundcloud list-track",
+		"spotify",
+		"spotify list",
+		"spotify list-artist",
+		"spotify list-podcast",
+		"spotify list-podcast-2",
+		"spotify list-search",
+		"spotify list-track",
+		"threads",
+		"threads list",
+		"threads list-profile",
+		"threads list-search",
+		"threads list-search-2",
+		"threads list-user",
+		"tiktok",
+		"tiktok list",
+		"tiktok list-adlibrary",
+		"tiktok list-adlibrary-2",
+		"tiktok list-collection",
+		"tiktok list-creators",
+		"tiktok list-live",
+		"tiktok list-product",
+		"tiktok list-profile",
+		"tiktok list-profile-2",
+		"tiktok list-profile-3",
+		"tiktok list-search",
+		"tiktok list-search-2",
+		"tiktok list-search-3",
+		"tiktok list-search-4",
+		"tiktok list-search-5",
+		"tiktok list-shop",
+		"tiktok list-shop-2",
+		"tiktok list-shop-3",
+		"tiktok list-song",
+		"tiktok list-song-2",
+		"tiktok list-user",
+		"tiktok list-user-2",
+		"tiktok list-user-3",
+		"tiktok list-user-4",
+		"tiktok list-user-5",
+		"tiktok list-video",
+		"tiktok list-video-2",
+		"tiktok list-video-3",
+		"tiktok list-video-4",
+		"truthsocial",
+		"truthsocial list",
+		"truthsocial list-profile",
+		"truthsocial list-user",
+		"twitch",
+		"twitch list",
+		"twitch list-profile",
+		"twitch list-user",
+		"twitch list-user-2",
+		"twitter",
+		"twitter list",
+		"twitter list-community",
+		"twitter list-profile",
+		"twitter list-tweet",
+		"twitter list-tweet-2",
+		"twitter list-usertweets",
+		"youtube",
+		"youtube list",
+		"youtube list-channel",
+		"youtube list-channel-2",
+		"youtube list-channel-3",
+		"youtube list-channel-4",
+		"youtube list-channelvideos",
+		"youtube list-communitypost",
+		"youtube list-playlist",
+		"youtube list-search",
+		"youtube list-search-2",
+		"youtube list-shorts",
+		"youtube list-video",
+		"youtube list-video-2",
+		"youtube list-video-3",
+		"youtube list-video-4",
+		"youtube list-video-5",
+	}
+	actual := make(map[string]struct{}, len(expected))
+	type pendingCommand struct {
+		command *cobra.Command
+		path    string
+	}
+	queue := make([]pendingCommand, 0, len(expected))
+	for _, child := range RootCmd().Commands() {
+		queue = append(queue, pendingCommand{command: child, path: child.Name()})
+	}
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+		actual[current.path] = struct{}{}
+		for _, child := range current.command.Commands() {
+			queue = append(queue, pendingCommand{
+				command: child,
+				path:    strings.TrimSpace(current.path + " " + child.Name()),
+			})
+		}
+	}
+
+	var missing []string
+	for _, commandPath := range expected {
+		if _, ok := actual[commandPath]; !ok {
+			missing = append(missing, commandPath)
+		}
+	}
+	if len(missing) > 0 {
+		t.Fatalf("declared API command paths missing from generated Cobra tree: %s", strings.Join(missing, ", "))
+	}
+}
+
+func TestNoDuplicateCommandNames(t *testing.T) {
+	type pendingCommand struct {
+		command *cobra.Command
+		path    string
+	}
+	queue := []pendingCommand{}
+	queue = append(queue, pendingCommand{command: RootCmd(), path: ""})
+	var duplicates []string
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+		seen := map[string]struct{}{}
+		for _, child := range current.command.Commands() {
+			childPath := strings.TrimSpace(current.path + " " + child.Name())
+			if _, exists := seen[child.Name()]; exists {
+				duplicates = append(duplicates, childPath)
+			} else {
+				seen[child.Name()] = struct{}{}
+			}
+			queue = append(queue, pendingCommand{command: child, path: childPath})
+		}
+	}
+	if len(duplicates) > 0 {
+		t.Fatalf("generated Cobra tree contains duplicate sibling command names: %s", strings.Join(duplicates, ", "))
+	}
+}
 
 // TestIsCobraUsageError covers the six pre-RunE error shapes Cobra and
 // pflag can produce before any user RunE runs. Each must be detected so
@@ -135,10 +399,16 @@ func TestFilterFields(t *testing.T) {
 			want:   `{"projects":[{"id":"a"}]}`,
 		},
 		{
-			name:   "flat object no match returns empty (no array fallback)",
+			name:   "flat object no match preserves input",
 			input:  `{"a":1,"b":2}`,
 			fields: "c",
-			want:   `{}`,
+			want:   `{"a":1,"b":2}`,
+		},
+		{
+			name:   "unknown selector preserves nested array objects",
+			input:  `{"items":[{"id":"a","name":"Alpha"},{"id":"b","name":"Beta"}]}`,
+			fields: "missing",
+			want:   `{"items":[{"id":"a","name":"Alpha"},{"id":"b","name":"Beta"}]}`,
 		},
 		{
 			// Null pagination cursors are common envelope metadata.
@@ -152,12 +422,11 @@ func TestFilterFields(t *testing.T) {
 		},
 		{
 			// Without a real array sibling the envelope fallback does not
-			// fire, so a flat object whose only "extra" key is null still
-			// returns {} for a non-matching selector.
-			name:   "flat object with null sibling no match returns empty",
+			// fire, but an invalid selector still preserves the input.
+			name:   "flat object with null sibling no match preserves input",
 			input:  `{"a":1,"b":null}`,
 			fields: "c",
-			want:   `{}`,
+			want:   `{"a":1,"b":null}`,
 		},
 		{
 			// Multiple array siblings at the same level each receive the
@@ -169,16 +438,13 @@ func TestFilterFields(t *testing.T) {
 			want:   `{"events":[{"id":"e1"}],"speakers":[{"id":"s1"}]}`,
 		},
 		{
-			// Envelope fallback is intentionally one level deep. A nested
-			// object envelope like {"data":{"items":[...]}} surfaces no
-			// array at the outer level, so the fallback does not fire and
-			// the result is the empty-object that flat-no-match would
-			// produce. Pins the boundary so a future deeper-walk change
-			// is an explicit decision, not an accident.
-			name:   "nested object envelope returns empty (one-level only)",
+			// Generic object descent supports type-keyed envelopes such as
+			// {"data":{"items":[...]}} while keeping the fail-closed
+			// behavior for objects with no collection below them.
+			name:   "nested object envelope descends into collection",
 			input:  `{"data":{"items":[{"id":"a","other":"y"}]}}`,
 			fields: "id",
-			want:   `{}`,
+			want:   `{"data":{"items":[{"id":"a"}]}}`,
 		},
 	}
 	for _, tc := range cases {

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-18T13:32:08.780935Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "sprocket",
+  "display_name": "Sprocket Sports",
+  "cli_name": "sprocket-pp-cli",
+  "creator": {
+    "handle": "stellato",
+    "name": "Greg Stellato"
+  },
+  "owner": "stellato",
+  "printer": "stellato",
+  "printer_name": "Greg Stellato",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:dc5b25f06a16239af61d81e0b2c6a0593799f9afd718f83445a5d5965934b509",
+  "run_id": "20260617-211906-50f83ca4",
+  "category": "productivity",
+  "description": "Your youth-soccer club's schedule, teams, and dues from the terminal — with merged multi-kid agendas, conflict detection, and iCal export no dashboard gives you.",
+  "mcp_binary": "sprocket-pp-mcp",
+  "mcp_tool_count": 19,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SPROCKET_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "This-week schedule",
+      "command": "week",
+      "description": "Every game and practice for the current week across all your players' teams, in one view."
+    },
+    {
+      "name": "Next event",
+      "command": "next",
+      "description": "The single next upcoming game or practice across all your players' teams: what, when, where, home/away, opponent."
+    },
+    {
+      "name": "Merged family agenda",
+      "command": "agenda",
+      "description": "Both kids' separate team schedules merged into one chronological agenda over an N-day window."
+    },
+    {
+      "name": "Conflict finder",
+      "command": "conflicts",
+      "description": "Flags time overlaps and impossible tight time-plus-location gaps between events across all your players."
+    },
+    {
+      "name": "Away-game drive list",
+      "command": "away",
+      "description": "Away games only, location-first, with field, opponent, and date — built for the carpool group chat."
+    },
+    {
+      "name": "iCal export",
+      "command": "ical",
+      "description": "Emit the merged schedule as an RFC-5545 .ics file for phone-calendar subscription."
+    },
+    {
+      "name": "Changed since last check",
+      "command": "since",
+      "description": "What schedule items were added, moved, or cancelled since the last time you ran it."
+    },
+    {
+      "name": "Outstanding balance roll-up",
+      "command": "owed",
+      "description": "Total money owed across all your players: registration balances plus overdue invoices, with one number."
+    },
+    {
+      "name": "Registration deadline radar",
+      "command": "deadlines",
+      "description": "Open registration programs sorted by how soon they close, flagging ones closing within N days."
+    }
+  ]
+}

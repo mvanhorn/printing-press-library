@@ -710,15 +710,19 @@ func newTranscriptsExportCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var vaultPath string
 	var outputFile string
+	var fileFlag string
 
 	cmd := &cobra.Command{
 		Use:   "export <id>",
 		Short: "Export a transcript as markdown to a file or vault path",
 		Long: `Export a transcript as formatted markdown. Use --vault to write to a directory
-using the auto-generated filename: YYYY-MM-DD_<sanitized-title>.md`,
+using the auto-generated filename: YYYY-MM-DD_<sanitized-title>.md
+
+Use --output (-o) or its alias --file to write to an explicit file path.`,
 		Example: strings.Trim(`
   fireflies-pp-cli transcripts export abc123 --vault ~/vaults/VBT/Projects/1_Active/Ryder/transcripts/
-  fireflies-pp-cli transcripts export abc123 --output ./meeting-notes.md`, "\n"),
+  fireflies-pp-cli transcripts export abc123 --output ./meeting-notes.md
+  fireflies-pp-cli transcripts export abc123 --file /tmp/dennis_1on1.md --agent`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -754,7 +758,15 @@ using the auto-generated filename: YYYY-MM-DD_<sanitized-title>.md`,
 
 			md := renderTranscriptMarkdown(&t)
 
+			// --file is an alias for --output; the two are mutually exclusive
+			// (enforced below), so at most one is set here.
 			dest := outputFile
+			if dest == "" {
+				dest = fileFlag
+			}
+			if dest != "" {
+				dest = expandHome(dest)
+			}
 			if dest == "" && vaultPath != "" {
 				vaultPath = expandHome(vaultPath)
 				if err := os.MkdirAll(vaultPath, 0o755); err != nil {
@@ -778,7 +790,11 @@ using the auto-generated filename: YYYY-MM-DD_<sanitized-title>.md`,
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	cmd.Flags().StringVar(&vaultPath, "vault", "", "Directory to write markdown (filename auto-generated as YYYY-MM-DD_title.md)")
-	cmd.Flags().StringVar(&outputFile, "output", "", "Explicit output file path")
+	cmd.Flags().StringVarP(&outputFile, "output", "o", "", "Explicit output file path")
+	cmd.Flags().StringVar(&fileFlag, "file", "", "Explicit output file path (alias for --output)")
+	// --file is an alias for --output; rejecting both together avoids silently
+	// discarding one path.
+	cmd.MarkFlagsMutuallyExclusive("output", "file")
 	return cmd
 }
 

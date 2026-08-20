@@ -1,0 +1,143 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-14T12:01:32.547689708Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "raindrop",
+  "display_name": "Raindrop Io",
+  "cli_name": "raindrop-pp-cli",
+  "creator": {
+    "handle": "srijits",
+    "name": "srijits"
+  },
+  "owner": "srijits",
+  "printer": "srijits",
+  "printer_name": "srijits",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:3aec2c1fc997eb46c8e4fdd4dfa2b69d63561393cf938ba8445c19abbea5663c",
+  "run_id": "20260814-120132",
+  "category": "productivity",
+  "description": "Complete Raindrop.io control plus offline search, safe cleanup, and durable knowledge workflows.",
+  "mcp_binary": "raindrop-pp-mcp",
+  "mcp_tool_count": 54,
+  "mcp_ready": "full",
+  "api_version": "1.0.4",
+  "auth_type": "bearer_token",
+  "auth_preference": "BearerAuth",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Offline Library",
+      "command": "sync",
+      "description": "Mirror bookmarks, collections, tags and highlights for instant offline search."
+    },
+    {
+      "name": "Inbox Review",
+      "command": "inbox review",
+      "description": "Process Unsorted bookmarks in resumable, bounded review sessions."
+    },
+    {
+      "name": "Change History",
+      "command": "changes",
+      "description": "Show field-level bookmark changes between sync snapshots."
+    },
+    {
+      "name": "Tag Health",
+      "command": "tag health",
+      "description": "Discover case variants, near-duplicates, singleton tags and merge candidates."
+    },
+    {
+      "name": "Duplicate Plans",
+      "command": "duplicates plan",
+      "description": "Choose canonical bookmarks while preserving tags, notes and highlights."
+    },
+    {
+      "name": "Revisit Queue",
+      "command": "revisit",
+      "description": "Resurface useful forgotten bookmarks without repeating recent suggestions."
+    },
+    {
+      "name": "Related Bookmarks",
+      "command": "related",
+      "description": "Find explainable related bookmarks offline using text, tags and domains."
+    },
+    {
+      "name": "Highlight Digests",
+      "command": "highlights digest",
+      "description": "Create deduplicated Markdown or JSONL study digests from highlights."
+    },
+    {
+      "name": "Durable Triage",
+      "command": "workflow status",
+      "description": "Run crash-safe bounded triage queues with retry and manual-review states."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline Library",
+      "command": "sync",
+      "description": "Mirror bookmarks, collections, tags and highlights for instant offline search."
+    },
+    {
+      "name": "Inbox Review",
+      "command": "inbox review",
+      "description": "Process Unsorted bookmarks in resumable, bounded review sessions."
+    },
+    {
+      "name": "Change History",
+      "command": "changes",
+      "description": "Show field-level bookmark changes between sync snapshots."
+    },
+    {
+      "name": "Tag Health",
+      "command": "tag health",
+      "description": "Discover case variants, near-duplicates, singleton tags and merge candidates."
+    },
+    {
+      "name": "Duplicate Plans",
+      "command": "duplicates plan",
+      "description": "Choose canonical bookmarks while preserving tags, notes and highlights."
+    },
+    {
+      "name": "Revisit Queue",
+      "command": "revisit",
+      "description": "Resurface useful forgotten bookmarks without repeating recent suggestions."
+    },
+    {
+      "name": "Related Bookmarks",
+      "command": "related",
+      "description": "Find explainable related bookmarks offline using text, tags and domains."
+    },
+    {
+      "name": "Highlight Digests",
+      "command": "highlights digest",
+      "description": "Create deduplicated Markdown or JSONL study digests from highlights."
+    },
+    {
+      "name": "Durable Triage",
+      "command": "workflow status",
+      "description": "Run crash-safe bounded triage queues with retry and manual-review states."
+    }
+  ],
+  "scorecard": {
+    "steinberger": {
+      "percentage": 97,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 97
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

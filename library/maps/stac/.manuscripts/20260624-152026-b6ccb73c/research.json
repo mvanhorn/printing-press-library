@@ -1,0 +1,322 @@
+{
+  "api_name": "stac",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "pystac-client",
+      "url": "https://github.com/stac-utils/pystac-client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 380,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rustac",
+      "url": "https://github.com/stac-utils/rustac",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 240,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "eodag",
+      "url": "https://github.com/CS-SI/eodag",
+      "language": "Python",
+      "install_method": "",
+      "stars": 600,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "stactools",
+      "url": "https://github.com/stac-utils/stactools",
+      "language": "Python",
+      "install_method": "",
+      "stars": 280,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "stac-mcp",
+      "url": "https://github.com/Wayfinder-Foundry/stac-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 12,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-stac",
+      "url": "https://github.com/planetlabs/go-stac",
+      "language": "Go",
+      "install_method": "",
+      "stars": 180,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-24T15:25:00Z",
+  "novel_features": [
+    {
+      "name": "Least-cloudy scene",
+      "command": "scenes best",
+      "description": "Pick the single clearest scene over an area and date range.",
+      "rationale": "Combines the query-filter extension with a client-side cloud-cover ranking fallback for providers whose server-side sort is unreliable; no existing Go tool does this.",
+      "example": "stac-pp-cli scenes best --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-06-30 --agent",
+      "why_it_matters": "Reach for this when an agent needs the one best image for an AOI, not a list to sift through.",
+      "group": "Scene selection"
+    },
+    {
+      "name": "Cloud-cover histogram",
+      "command": "clouds",
+      "description": "Show the cloud-cover distribution over an area and date range.",
+      "rationale": "Backed by the real /aggregate cloud_cover_frequency endpoint rather than locally computed counts.",
+      "example": "stac-pp-cli clouds --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-08-31 --agent",
+      "why_it_matters": "Use before downloading to judge how cloudy a window is without pulling any imagery.",
+      "group": "Scene selection"
+    },
+    {
+      "name": "Coverage check",
+      "command": "coverage",
+      "description": "Answer whether data exists over an area and when, with a temporal summary.",
+      "rationale": "Uses numberMatched (limit=1) plus the real /aggregate datetime_min/max/frequency, joining counts the API does not return in one call.",
+      "example": "stac-pp-cli coverage --collection landsat-c2-l2 --bbox -122.5,37.7,-122.3,37.9 --datetime 2023-01-01/2024-12-31 --agent",
+      "why_it_matters": "Reach for this to confirm an AOI has usable data before planning an analysis.",
+      "group": "Coverage and time"
+    },
+    {
+      "name": "Scene timeline",
+      "command": "timeline",
+      "description": "Build a per-date time series of scenes for change detection.",
+      "rationale": "Requires deduping overlapping acquisitions by relative orbit and grid tile in the local store so each date contributes one observation.",
+      "example": "stac-pp-cli timeline --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30 --max-cloud 30 --agent",
+      "why_it_matters": "Use to assemble a clean observation series for NDVI or change detection.",
+      "group": "Coverage and time"
+    },
+    {
+      "name": "Temporal gaps",
+      "command": "gaps",
+      "description": "Find missing acquisition windows over an area versus expected revisit.",
+      "rationale": "Time-windowed diff of scene dates against an expected revisit interval that no single API call provides.",
+      "example": "stac-pp-cli gaps --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30 --revisit-days 5 --agent",
+      "why_it_matters": "Reach for this to spot coverage holes before relying on a time series.",
+      "group": "Coverage and time"
+    },
+    {
+      "name": "Watch new scenes",
+      "command": "watch",
+      "description": "Report scenes published over an area since the last check.",
+      "rationale": "Diffs a live search against seen item IDs persisted in the local SQLite store; impossible without local state.",
+      "example": "stac-pp-cli watch --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --agent",
+      "why_it_matters": "Use to monitor an AOI for fresh imagery across runs.",
+      "group": "Coverage and time"
+    },
+    {
+      "name": "Asset URL resolution",
+      "command": "assets",
+      "description": "Resolve an item's band and asset download URLs, provider-aware.",
+      "rationale": "Maps common band names (red/nir/swir/visual) across providers and prefers cloud-optimized GeoTIFFs over JPEG2000 twins.",
+      "example": "stac-pp-cli assets S2A_10SEG_20240622_0_L2A --collection sentinel-2-l2a --bands red,green,blue,nir --agent",
+      "why_it_matters": "Reach for this to get ready-to-download band URLs without parsing the raw item JSON.",
+      "group": "Assets and analysis"
+    },
+    {
+      "name": "Compare collections",
+      "command": "compare",
+      "description": "Compare two collections over the same area and date range.",
+      "rationale": "Cross-source join of matched counts and cloud statistics for two collections that the API exposes only one collection at a time.",
+      "example": "stac-pp-cli compare sentinel-2-l2a landsat-c2-l2 --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30 --agent",
+      "why_it_matters": "Use to choose between sensors (e.g. Sentinel-2 vs Landsat) for an AOI.",
+      "group": "Assets and analysis"
+    },
+    {
+      "name": "xarray stack snippet",
+      "command": "stack-snippet",
+      "description": "Emit a ready-to-paste stackstac/odc-stac Python snippet for matched scenes.",
+      "rationale": "Composes real matched item hrefs into a runnable analysis snippet, bridging CLI discovery into a Python data cube.",
+      "example": "stac-pp-cli stack-snippet --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-06-30 --bands red,green,blue,nir",
+      "why_it_matters": "Reach for this to jump from scene discovery straight into an xarray workflow.",
+      "group": "Assets and analysis"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Least-cloudy scene",
+      "command": "scenes best",
+      "description": "Pick the single clearest scene over an area and date range.",
+      "rationale": "Combines the query-filter extension with a client-side cloud-cover ranking fallback for providers whose server-side sort is unreliable; no existing Go tool does this.",
+      "example": "stac-pp-cli scenes best --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-06-30 --agent",
+      "why_it_matters": "Reach for this when an agent needs the one best image for an AOI, not a list to sift through.",
+      "group": "Scene selection"
+    },
+    {
+      "name": "Cloud-cover histogram",
+      "command": "clouds",
+      "description": "Show the cloud-cover distribution over an area and date range.",
+      "rationale": "Backed by the real /aggregate cloud_cover_frequency endpoint rather than locally computed counts.",
+      "example": "stac-pp-cli clouds --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-08-31 --agent",
+      "why_it_matters": "Use before downloading to judge how cloudy a window is without pulling any imagery.",
+      "group": "Scene selection"
+    },
+    {
+      "name": "Coverage check",
+      "command": "coverage",
+      "description": "Answer whether data exists over an area and when, with a temporal summary.",
+      "rationale": "Uses numberMatched (limit=1) plus the real /aggregate datetime_min/max/frequency, joining counts the API does not return in one call.",
+      "example": "stac-pp-cli coverage --collection landsat-c2-l2 --bbox -122.5,37.7,-122.3,37.9 --datetime 2023-01-01/2024-12-31 --agent",
+      "why_it_matters": "Reach for this to confirm an AOI has usable data before planning an analysis.",
+      "group": "Coverage and time"
+    },
+    {
+      "name": "Scene timeline",
+      "command": "timeline",
+      "description": "Build a per-date time series of scenes for change detection.",
+      "rationale": "Requires deduping overlapping acquisitions by relative orbit and grid tile in the local store so each date contributes one observation.",
+      "example": "stac-pp-cli timeline --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30 --max-cloud 30 --agent",
+      "why_it_matters": "Use to assemble a clean observation series for NDVI or change detection.",
+      "group": "Coverage and time"
+    },
+    {
+      "name": "Temporal gaps",
+      "command": "gaps",
+      "description": "Find missing acquisition windows over an area versus expected revisit.",
+      "rationale": "Time-windowed diff of scene dates against an expected revisit interval that no single API call provides.",
+      "example": "stac-pp-cli gaps --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30 --revisit-days 5 --agent",
+      "why_it_matters": "Reach for this to spot coverage holes before relying on a time series.",
+      "group": "Coverage and time"
+    },
+    {
+      "name": "Watch new scenes",
+      "command": "watch",
+      "description": "Report scenes published over an area since the last check.",
+      "rationale": "Diffs a live search against seen item IDs persisted in the local SQLite store; impossible without local state.",
+      "example": "stac-pp-cli watch --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --agent",
+      "why_it_matters": "Use to monitor an AOI for fresh imagery across runs.",
+      "group": "Coverage and time"
+    },
+    {
+      "name": "Asset URL resolution",
+      "command": "assets",
+      "description": "Resolve an item's band and asset download URLs, provider-aware.",
+      "rationale": "Maps common band names (red/nir/swir/visual) across providers and prefers cloud-optimized GeoTIFFs over JPEG2000 twins.",
+      "example": "stac-pp-cli assets S2A_10SEG_20240622_0_L2A --collection sentinel-2-l2a --bands red,green,blue,nir --agent",
+      "why_it_matters": "Reach for this to get ready-to-download band URLs without parsing the raw item JSON.",
+      "group": "Assets and analysis"
+    },
+    {
+      "name": "Compare collections",
+      "command": "compare",
+      "description": "Compare two collections over the same area and date range.",
+      "rationale": "Cross-source join of matched counts and cloud statistics for two collections that the API exposes only one collection at a time.",
+      "example": "stac-pp-cli compare sentinel-2-l2a landsat-c2-l2 --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30 --agent",
+      "why_it_matters": "Use to choose between sensors (e.g. Sentinel-2 vs Landsat) for an AOI.",
+      "group": "Assets and analysis"
+    },
+    {
+      "name": "xarray stack snippet",
+      "command": "stack-snippet",
+      "description": "Emit a ready-to-paste stackstac/odc-stac Python snippet for matched scenes.",
+      "rationale": "Composes real matched item hrefs into a runnable analysis snippet, bridging CLI discovery into a Python data cube.",
+      "example": "stac-pp-cli stack-snippet --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-06-30 --bands red,green,blue,nir",
+      "why_it_matters": "Reach for this to jump from scene discovery straight into an xarray workflow.",
+      "group": "Assets and analysis"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "STAC",
+    "headline": "The first Go single-binary STAC CLI: every search filter the Python tools have, plus an offline cache, scene ranking, coverage, and asset resolution no other STAC tool offers.",
+    "value_prop": "stac-pp-cli searches any STAC API (default: AWS Earth Search) for satellite imagery with full bbox/datetime/intersects/cloud-cover filtering, then goes beyond every existing tool: a local SQLite cache powers offline search, `coverage`, `timeline`, `gaps`, and `watch`; `scenes best` ranks for the clearest image with a client-side fallback; and `assets` resolves provider-aware band download URLs. Agent-native by default with --json, --select, and a typed MCP surface.",
+    "quickstart": [
+      {
+        "command": "stac-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI is healthy and the STAC endpoint is reachable (no auth needed)."
+      },
+      {
+        "command": "stac-pp-cli collections get",
+        "comment": "List the collections the active STAC endpoint serves."
+      },
+      {
+        "command": "stac-pp-cli scenes best --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-06-30",
+        "comment": "Find the single clearest Sentinel-2 scene over San Francisco in June 2024."
+      },
+      {
+        "command": "stac-pp-cli coverage --collection landsat-c2-l2 --bbox -122.5,37.7,-122.3,37.9 --datetime 2023-01-01/2024-12-31",
+        "comment": "Check whether Landsat covers the AOI and over what time span."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Search returns items ignoring my --filter CQL2 expression",
+        "fix": "Earth Search does not implement CQL2; use --max-cloud / --query which compile to the supported query extension. Run 'stac-pp-cli conformance' to see what the active provider supports."
+      },
+      {
+        "symptom": "sortby returns a 400 from the server",
+        "fix": "Some providers reject server-side sort; 'scenes best' falls back to client-side cloud-cover ranking automatically."
+      },
+      {
+        "symptom": "A local command returns [] with a 'no local mirror' hint",
+        "fix": "Run 'stac-pp-cli sync --resources items' first to populate the offline store."
+      }
+    ],
+    "when_to_use": "Use stac-pp-cli when an agent or analyst needs to discover satellite imagery (Sentinel-2, Landsat, Sentinel-1, NAIP, Copernicus DEM) from a STAC API, pick the clearest scene over an area, check temporal coverage, or resolve band download URLs. It is ideal for scripting EO discovery and for agent workflows that need bounded, structured output instead of verbose GeoJSON.",
+    "anti_triggers": [
+      "Downloading or reprojecting the actual raster pixels (use rasterio, gdal, or stackstac/odc-stac after resolving URLs with 'assets')",
+      "Authoring or validating static STAC catalogs (use stactools or go-stac)",
+      "Tiling or rendering imagery for a web map (use titiler)"
+    ],
+    "recipes": [
+      {
+        "title": "Clearest scene this season",
+        "command": "stac-pp-cli scenes best --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-09-30",
+        "explanation": "Ranks scenes by cloud cover and returns the single best one with its band URLs."
+      },
+      {
+        "title": "Trim a verbose search for an agent",
+        "command": "stac-pp-cli items get-search --collections sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-06-30 --agent --select 'features.id,features.properties.eo:cloud_cover,features.properties.datetime'",
+        "explanation": "Pairs --agent with --select dotted paths to return only id, cloud cover, and datetime from the deeply nested item response."
+      },
+      {
+        "title": "Is there any data here?",
+        "command": "stac-pp-cli coverage --collection sentinel-2-l2a --bbox 2.2,48.8,2.4,48.9 --datetime 2024-01-01/2024-12-31",
+        "explanation": "Returns the matched count and temporal min/max/frequency so you know if an AOI is worth analyzing."
+      },
+      {
+        "title": "Build a clean time series",
+        "command": "stac-pp-cli timeline --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30 --max-cloud 30",
+        "explanation": "One low-cloud observation per date, deduped by orbit and tile, ready for change detection."
+      },
+      {
+        "title": "Get band download URLs",
+        "command": "stac-pp-cli assets S2A_10SEG_20240622_0_L2A --collection sentinel-2-l2a --bands red,green,blue,nir",
+        "explanation": "Resolves the cloud-optimized GeoTIFF URLs for the requested bands."
+      }
+    ],
+    "trigger_phrases": [
+      "find a satellite image of",
+      "least cloudy scene over",
+      "what sentinel-2 imagery is available for",
+      "check coverage for this area",
+      "get the band URLs for this scene",
+      "use stac",
+      "run stac"
+    ]
+  }
+}

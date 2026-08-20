@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "substack-reader-pp-mcp",
+  "display_name": "Substack Reader",
+  "version": "0.1.0",
+  "description": "Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/substack-reader-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/substack-reader-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

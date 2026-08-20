@@ -34,17 +34,17 @@
     {
       "name": "Subaccount spend matrix",
       "command": "subaccount-spend",
-      "description": "One CSV with every subaccount's last-month spend pivoted across SMS, MMS, voice, and recording categories \u2014 the agency-billing report nobody else ships."
+      "description": "One CSV with every subaccount's last-month spend pivoted across SMS, MMS, voice, and recording categories — the agency-billing report nobody else ships."
     },
     {
       "name": "Call timeline stitch",
       "command": "call-trace",
-      "description": "Given a CallSid, return everything that happened on that call: metadata, recordings, transcriptions, conference participation \u2014 in one structured output."
+      "description": "Given a CallSid, return everything that happened on that call: metadata, recordings, transcriptions, conference participation — in one structured output."
     },
     {
       "name": "TCPA opt-out reconciliation",
       "command": "opt-out-violations",
-      "description": "Find numbers that texted STOP/UNSUBSCRIBE/END/QUIT and any messages your account sent to them afterwards \u2014 the TCPA exposure check the Twilio API has no resource for."
+      "description": "Find numbers that texted STOP/UNSUBSCRIBE/END/QUIT and any messages your account sent to them afterwards — the TCPA exposure check the Twilio API has no resource for."
     },
     {
       "name": "Message status funnel",
@@ -59,7 +59,7 @@
     {
       "name": "Idle number reclamation",
       "command": "idle-numbers",
-      "description": "Phone numbers you are paying for but have not used to send or receive in N days \u2014 with the dollar amount you are wasting per month."
+      "description": "Phone numbers you are paying for but have not used to send or receive in N days — with the dollar amount you are wasting per month."
     },
     {
       "name": "Webhook orphan audit",
@@ -79,12 +79,12 @@
     {
       "name": "Sync watermark inspector",
       "command": "sync-status",
-      "description": "Last sync timestamp and row count per resource in the local store \u2014 so you know how fresh every other analytic command is."
+      "description": "Last sync timestamp and row count per resource in the local store — so you know how fresh every other analytic command is."
     },
     {
       "name": "Live failure tail",
       "command": "tail-messages",
-      "description": "Stream new messages with a status filter as they happen \u2014 twilio-pp-cli's --follow that twilio-cli does not ship."
+      "description": "Stream new messages with a status filter as they happen — twilio-pp-cli's --follow that twilio-cli does not ship."
     }
   ],
   "printer": "CleverAI-ZH",

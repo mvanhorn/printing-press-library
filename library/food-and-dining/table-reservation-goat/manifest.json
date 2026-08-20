@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "table-reservation-goat-pp-mcp",
   "display_name": "Table Reservation GOAT",
-  "version": "4.2.0",
-  "description": "Table Reservation GOAT API surface as MCP tools.",
+  "version": "0.1.0",
+  "description": "One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations",
   "author": {
     "name": "CLI Printing Press"
   },

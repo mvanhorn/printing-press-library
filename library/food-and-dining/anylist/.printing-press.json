@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "generated_at": "2026-05-18T10:10:11.574635Z",
   "printing_press_version": "4.6.1",
   "api_name": "anylist",
@@ -18,7 +18,7 @@
   "category": "food-and-dining",
   "description": "AnyList shopping, recipes, meal planning, and local grocery automation CLI.",
   "mcp_binary": "anylist-pp-mcp",
-  "mcp_tool_count": 43,
+  "mcp_tool_count": 44,
   "mcp_ready": "full",
   "api_version": "0.1.0",
   "auth_type": "bearer_token",
@@ -70,6 +70,11 @@
       "name": "Cross-List Item Search",
       "command": "item search",
       "description": "Find any item across all your shopping lists at once — shows which list it's on and whether it's checked."
+    },
+    {
+      "name": "Barcode Product Lookup",
+      "command": "items lookup --barcode",
+      "description": "Resolve a UPC/EAN through AnyList's product catalog before adding it, including canonical name, package size, and catalog thumbnail."
     },
     {
       "name": "Sync Cache Staleness Check",

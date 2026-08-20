@@ -1,0 +1,306 @@
+{
+  "api_name": "openipa",
+  "base_url": "https://www.indicepa.gov.it",
+  "description": "CLI per l'Indice delle Pubbliche Amministrazioni (IPA) — ricerca enti, AOO, UO, PEC, fatturazione elettronica e ordini elettronici",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "AUTH_ID",
+    "in": "query",
+    "env_vars": [
+      "IPA_auth_id"
+    ],
+    "env_var_specs": [
+      {
+        "name": "IPA_auth_id",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "aoo_get",
+      "description": "AOO di un ente con filtro opzionale per codice AOO. Required: codice. Optional: aoo. Returns array of AOO.",
+      "method": "POST",
+      "path": "/ws/WS08AOOCServices/api/WS08_AOOC",
+      "params": [
+        {
+          "name": "codice",
+          "wire_name": "COD_AMM",
+          "type": "string",
+          "location": "body",
+          "description": "Codice IPA dell'ente",
+          "required": true
+        },
+        {
+          "name": "aoo",
+          "wire_name": "COD_AOO",
+          "type": "string",
+          "location": "body",
+          "description": "Codice AOO opzionale (filtra su una AOO specifica)"
+        }
+      ]
+    },
+    {
+      "name": "aoo_list",
+      "description": "Lista delle AOO di un ente. Required: codice. Returns array of AOO.",
+      "method": "POST",
+      "path": "/ws/WS02AOOServices/api/WS02_AOO",
+      "params": [
+        {
+          "name": "codice",
+          "wire_name": "COD_AMM",
+          "type": "string",
+          "location": "body",
+          "description": "Codice IPA dell'ente",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cerca_email",
+      "description": "Trova entità IPA (AMM/AOO/UO) associate a un indirizzo email. Required: email. Returns array of EntitaEmail.",
+      "method": "POST",
+      "path": "/ws/WS07EMAILServices/api/WS07_EMAIL",
+      "params": [
+        {
+          "name": "email",
+          "wire_name": "EMAIL",
+          "type": "string",
+          "location": "body",
+          "description": "Indirizzo email da cercare nell'anagrafica IPA",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domicilio_aoo",
+      "description": "Domicilio digitale attivo di una AOO. Required: codice-aoo. Returns array of DomicilioDigitale.",
+      "method": "POST",
+      "path": "/ws/WS09DOMDIGAOOServices/api/WS09_DOMDIGAOO",
+      "params": [
+        {
+          "name": "codice-aoo",
+          "wire_name": "COD_AOO",
+          "type": "string",
+          "location": "body",
+          "description": "Codice AOO (es. 'agid_aoo')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domicilio_cf",
+      "description": "Domicilio digitale di un ente per codice fiscale. Required: cf. Returns array of DomicilioDigitaleCF.",
+      "method": "POST",
+      "path": "/ws/WS23DOMDIGCFServices/api/WS23_DOM_DIG_CF",
+      "params": [
+        {
+          "name": "cf",
+          "wire_name": "CF",
+          "type": "string",
+          "location": "body",
+          "description": "Codice fiscale dell'ente",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domicilio_email",
+      "description": "Cerca entità IPA tramite indirizzo domicilio digitale (PEC). Required: pec. Returns array of DomicilioDigitale.",
+      "method": "POST",
+      "path": "/ws/WS13DOMDIGServices/api/WS13_DOM_DIG",
+      "params": [
+        {
+          "name": "pec",
+          "wire_name": "DOMICILIO DIGITALE",
+          "type": "string",
+          "location": "body",
+          "description": "Indirizzo PEC o domicilio digitale da cercare",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domicilio_storico-aoo",
+      "description": "Storico domicili digitali di una AOO (inclusi cessati). Required: codice-aoo. Returns array of DomicilioDigitaleStorico.",
+      "method": "POST",
+      "path": "/ws/WS11DOMDIGSTORAOOServices/api/WS11_DOM_DIG_STOR_AOO",
+      "params": [
+        {
+          "name": "codice-aoo",
+          "wire_name": "COD_AOO",
+          "type": "string",
+          "location": "body",
+          "description": "Codice AOO",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domicilio_storico-uo",
+      "description": "Storico domicili digitali di una UO (inclusi cessati). Required: codice-uni. Returns array of DomicilioDigitaleStorico.",
+      "method": "POST",
+      "path": "/ws/WS12DOMDIGSTOROUServices/api/WS12_DOM_DIG_STOR_OU",
+      "params": [
+        {
+          "name": "codice-uni",
+          "wire_name": "COD_UNI_OU",
+          "type": "string",
+          "location": "body",
+          "description": "Codice univoco UO",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domicilio_uo",
+      "description": "Domicilio digitale attivo di una UO per codice univoco. Required: codice-uni. Returns array of DomicilioDigitale.",
+      "method": "POST",
+      "path": "/ws/WS10DOMDIGOUServices/api/WS10_DOM_DIG_OU",
+      "params": [
+        {
+          "name": "codice-uni",
+          "wire_name": "COD_UNI_OU",
+          "type": "string",
+          "location": "body",
+          "description": "Codice univoco UO",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "enti_cerca",
+      "description": "Cerca enti per nome o descrizione. Required: nome. Returns array of EnteRisultato.",
+      "method": "POST",
+      "path": "/ws/WS16DESAMMServices/api/WS16_DES_AMM",
+      "params": [
+        {
+          "name": "nome",
+          "wire_name": "DESCR",
+          "type": "string",
+          "location": "body",
+          "description": "Parte del nome dell'ente da cercare (es. 'comune di Roma')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "enti_get",
+      "description": "Dati anagrafici completi di un ente per codice IPA. Required: codice. Returns array of Ente.",
+      "method": "POST",
+      "path": "/ws/WS05AMMServices/api/WS05_AMM",
+      "params": [
+        {
+          "name": "codice",
+          "wire_name": "COD_AMM",
+          "type": "string",
+          "location": "body",
+          "description": "Codice IPA dell'ente (es. 'agid', 'r_sicili', 'c_h501')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fatturazione_cf",
+      "description": "Uffici destinatari fattura elettronica per codice fiscale ente. Required: cf. Returns array of SFE_CF.",
+      "method": "POST",
+      "path": "/ws/WS01SFECFServices/api/WS01_SFE_CF",
+      "params": [
+        {
+          "name": "cf",
+          "wire_name": "CF",
+          "type": "string",
+          "location": "body",
+          "description": "Codice fiscale dell'ente destinatario (es. '97735020584')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fatturazione_ente",
+      "description": "Canali SFE attivi di un ente per codice IPA. Required: codice. Returns array of CanaleSFE.",
+      "method": "POST",
+      "path": "/ws/WS04SFEServices/api/WS04_SFE",
+      "params": [
+        {
+          "name": "codice",
+          "wire_name": "COD_AMM",
+          "type": "string",
+          "location": "body",
+          "description": "Codice IPA dell'ente",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "nso_cf",
+      "description": "Nodi NSO per codice fiscale ente. Required: cf. Returns array of NSO_CF.",
+      "method": "POST",
+      "path": "/ws/WS14NSOCFServices/api/WS14_NSO_CF",
+      "params": [
+        {
+          "name": "cf",
+          "wire_name": "CF",
+          "type": "string",
+          "location": "body",
+          "description": "Codice fiscale dell'ente",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "nso_ente",
+      "description": "Canali NSO attivi di un ente per codice IPA. Required: codice. Returns array of CanaleNSO.",
+      "method": "POST",
+      "path": "/ws/WS15NSOServices/api/WS15_NSO",
+      "params": [
+        {
+          "name": "codice",
+          "wire_name": "COD_AMM",
+          "type": "string",
+          "location": "body",
+          "description": "Codice IPA dell'ente",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "uo_get",
+      "description": "Dettagli di una singola UO per codice univoco. Required: codice-uni. Returns the new UODettaglio.",
+      "method": "POST",
+      "path": "/ws/WS06OUCODUNIServices/api/WS06_OU_COD_UNI",
+      "params": [
+        {
+          "name": "codice-uni",
+          "wire_name": "COD_UNI_OU",
+          "type": "string",
+          "location": "body",
+          "description": "Codice univoco dell'Unità Organizzativa (es. '4D3J7X')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "uo_list",
+      "description": "Lista delle UO di un ente. Required: codice. Returns array of UO.",
+      "method": "POST",
+      "path": "/ws/WS03OUServices/api/WS03_OU",
+      "params": [
+        {
+          "name": "codice",
+          "wire_name": "COD_AMM",
+          "type": "string",
+          "location": "body",
+          "description": "Codice IPA dell'ente",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

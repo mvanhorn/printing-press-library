@@ -1,0 +1,49 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-18T19:54:50.596132Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "cpsc-recalls",
+  "display_name": "Cpsc Recall Retrieval",
+  "cli_name": "cpsc-recalls-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "Avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "Avanderheyde",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ae281f295daf3fa42d031bad06e2bc055c406f346f280cba0a97f545e7a871ed",
+  "run_id": "20260717-002908-7b05abc1",
+  "category": "other",
+  "description": "Turn CPSC recall records into bounded inventory candidates, change observations, hazard composition tables, and actionable source packets without overstating fuzzy matches.",
+  "mcp_binary": "cpsc-recalls-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Evidence-preserving inventory check",
+      "command": "inventory-check",
+      "description": "Screen a bounded CSV inventory against CPSC product fields and expose exact identifiers and token-overlap evidence for every candidate."
+    },
+    {
+      "name": "Brand/product change watch",
+      "command": "watch changes",
+      "description": "Compare a bounded brand or product recall observation with its prior local snapshot and report new or materially changed records."
+    },
+    {
+      "name": "Hazard pulse",
+      "command": "hazard-pulse",
+      "description": "Flatten recent hazard, remedy, injury, and product relationships while keeping recall counts distinct from incident rates."
+    },
+    {
+      "name": "Actionable recall packet",
+      "command": "packet",
+      "description": "Join one recall's affected products, remedy, contact, images, incidents, and official URL into an action packet."
+    }
+  ]
+}

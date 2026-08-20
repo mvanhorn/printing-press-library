@@ -87,6 +87,32 @@ func TestExitCode_UsageError_WrappedAsCode2(t *testing.T) {
 	}
 }
 
+func TestRootDryRunJSONFallbackIsStructured(t *testing.T) {
+	t.Parallel()
+
+	flags := &rootFlags{}
+	cmd := newRootCmd(flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetArgs([]string{
+		"collections", "add", "--collection", "example-value",
+		"--dry-run", "--json",
+	})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v", err)
+	}
+	var payload struct {
+		DryRun bool   `json:"dry_run"`
+		Status string `json:"status"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+		t.Fatalf("unmarshal output: %v\n%s", err, out.String())
+	}
+	if !payload.DryRun || payload.Status != "preview" {
+		t.Fatalf("payload = %#v, want dry-run preview", payload)
+	}
+}
+
 func TestAuthLoginDoesNotExposePasswordFlag(t *testing.T) {
 	t.Parallel()
 

@@ -1,9 +1,13 @@
 {
   "api_name": "spotify",
   "base_url": "https://api.spotify.com/v1",
-  "description": "You can use Spotify's Web API to discover music and podcasts, manage your Spotify library, control audio playback, and much more. Browse our available Web API endpoints using the sidebar at left, or via the navigation bar on top of this page on smaller screens.\n\nIn order to make successful Web API requests your app will need a valid access token. One can be obtained through \u003ca href=\"https://developer.spotify.com/documentation/general/guides/authorization-guide/\"\u003eOAuth 2.0\u003c/a\u003e.\n\nThe base URI for all Web API requests is `https://api.spotify.com/v1`.\n\nNeed help? See our \u003ca href=\"https://developer.spotify.com/documentation/web-api/guides/\"\u003eWeb API guides\u003c/a\u003e for more information, or visit the \u003ca href=\"https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer\"\u003eSpotify for Developers community forum\u003c/a\u003e to ask questions and connect with other developers.",
+  "description": "You can use Spotify's Web API to discover music and podcasts, manage your Spotify library, control audio playback",
   "mcp_ready": "full",
   "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
   "auth": {
     "type": "bearer_token",
     "header": "Authorization",
@@ -18,7 +22,8 @@
         "sensitive": true,
         "inferred": true
       }
-    ]
+    ],
+    "key_url": "https://developer.spotify.com/documentation/general/guides/authorization-guide/"
   },
   "required_headers": [],
   "tools": [
@@ -45,7 +50,7 @@
     },
     {
       "name": "albums_get-multiple",
-      "description": "Get Spotify catalog information for multiple albums identified by their Spotify IDs. Required: ids. Optional: market. Returns the AlbumsGetMultipleResponse.",
+      "description": "Get Spotify catalog information for multiple albums identified by their Spotify IDs. Required: ids. Optional: market. Returns array of AlbumObject.",
       "method": "GET",
       "path": "/albums",
       "params": [
@@ -114,7 +119,7 @@
     },
     {
       "name": "artists_get-multiple",
-      "description": "Get Spotify catalog information for several artists based on their Spotify IDs. Required: ids. Returns the ArtistsGetMultipleResponse.",
+      "description": "Get Spotify catalog information for several artists based on their Spotify IDs. Required: ids. Returns array of ArtistObject.",
       "method": "GET",
       "path": "/artists",
       "params": [
@@ -168,7 +173,7 @@
     },
     {
       "name": "artists_related-artists_get-an-artists",
-      "description": "Get Spotify catalog information about artists similar to a given artist. Similarity is based on analysis of the Spotify community's listening history. Required: id. Returns the RelatedArtistsGetAnArtistsResponse.",
+      "description": "Get Spotify catalog information about artists similar to a given artist. Similarity is based on analysis of the Spotify community's listening history. Required: id. Returns array of ArtistObject.",
       "method": "GET",
       "path": "/artists/{id}/related-artists",
       "params": [
@@ -183,7 +188,7 @@
     },
     {
       "name": "artists_top-tracks_get-an-artists",
-      "description": "Get Spotify catalog information about an artist's top tracks by country. Required: id. Optional: market. Returns the TopTracksGetAnArtistsResponse.",
+      "description": "Get Spotify catalog information about an artist's top tracks by country. Required: id. Optional: market. Returns array of TrackObject.",
       "method": "GET",
       "path": "/artists/{id}/top-tracks",
       "params": [
@@ -234,7 +239,7 @@
     },
     {
       "name": "audio-features_get-several",
-      "description": "Get audio features for multiple tracks based on their Spotify IDs. Required: ids. Returns the AudioFeaturesGetSeveralResponse.",
+      "description": "Get audio features for multiple tracks based on their Spotify IDs. Required: ids. Returns array of AudioFeaturesObject.",
       "method": "GET",
       "path": "/audio-features",
       "params": [
@@ -270,7 +275,7 @@
     },
     {
       "name": "audiobooks_get-multiple",
-      "description": "Get Spotify catalog information for several audiobooks identified by their Spotify IDs. Audiobooks are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: ids. Optional: market. Returns the AudiobooksGetMultipleResponse.",
+      "description": "Get Spotify catalog information for several audiobooks identified by their Spotify IDs. Audiobooks are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: ids. Optional: market. Returns array of AudiobookObject.",
       "method": "GET",
       "path": "/audiobooks",
       "params": [
@@ -351,7 +356,7 @@
     },
     {
       "name": "browse_get-a-category",
-      "description": "Get a single category used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab). Required: category_id. Optional: locale. Returns the CategoryObject.",
+      "description": "Get a single category used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab). Required: category_id. Optional: locale. Returns array of ImageObject.",
       "method": "GET",
       "path": "/browse/categories/{category_id}",
       "params": [
@@ -465,7 +470,7 @@
     },
     {
       "name": "chapters_get-several",
-      "description": "Get Spotify catalog information for several audiobook chapters identified by their Spotify IDs. Chapters are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: ids. Optional: market. Returns the ChaptersGetSeveralResponse.",
+      "description": "Get Spotify catalog information for several audiobook chapters identified by their Spotify IDs. Chapters are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: ids. Optional: market. Returns array of ChapterObject.",
       "method": "GET",
       "path": "/chapters",
       "params": [
@@ -507,7 +512,7 @@
     },
     {
       "name": "episodes_get-multiple",
-      "description": "Get Spotify catalog information for several episodes based on their Spotify IDs. Required: ids. Optional: market. Returns the EpisodesGetMultipleResponse.",
+      "description": "Get Spotify catalog information for several episodes based on their Spotify IDs. Required: ids. Optional: market. Returns array of EpisodeObject.",
       "method": "GET",
       "path": "/episodes",
       "params": [
@@ -528,7 +533,7 @@
     },
     {
       "name": "markets_get-available",
-      "description": "Get the list of markets where Spotify is available. Returns the MarketsGetAvailableResponse.",
+      "description": "Get the list of markets where Spotify is available. Returns array of string.",
       "method": "GET",
       "path": "/markets",
       "params": []
@@ -668,7 +673,7 @@
     },
     {
       "name": "me_create-playlist",
-      "description": "Create a playlist for the current Spotify user. (The playlist will be empty until you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).) Each user is generally limited to a maximum of 11000 playlists. Required: name. Optional: collaborative, description, public. Returns the new PlaylistObject.",
+      "description": "Create a playlist for the current Spotify user. (The playlist will be empty until you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).) Each user is generally limited to a maximum of 11000 playlists. Required: name. Optional: collaborative, description, public. Returns array of ImageObject.",
       "method": "POST",
       "path": "/me/playlists",
       "params": [
@@ -701,7 +706,7 @@
     },
     {
       "name": "me_follow-artists-users",
-      "description": "Add the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: type, ids.",
+      "description": "Add the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: type, ids, ids-2.",
       "method": "PUT",
       "path": "/me/following",
       "params": [
@@ -717,6 +722,14 @@
           "type": "string",
           "location": "query",
           "description": "Ids",
+          "required": true
+        },
+        {
+          "name": "ids-2",
+          "wire_name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the artist or user [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `{ids:['74ASZWbe4lXaubB36ztrGX', '08td7MxkoHQkXnWAYD8d6Q']}`. A maximum of 50 IDs can be sent in one request. _**Note**: if the `ids` parameter is present in the query string, any IDs listed here in the body will be ignored._",
           "required": true
         }
       ]
@@ -743,14 +756,14 @@
     },
     {
       "name": "me_get-a-users-available-devices",
-      "description": "Get information about a user’s available Spotify Connect devices. Some device models are not supported and will not be listed in the API response. Returns the MeGetAUsersAvailableDevicesResponse.",
+      "description": "Get information about a user’s available Spotify Connect devices. Some device models are not supported and will not be listed in the API response. Returns array of DeviceObject.",
       "method": "GET",
       "path": "/me/player/devices",
       "params": []
     },
     {
       "name": "me_get-current-users-profile",
-      "description": "Get detailed profile information about the current user (including the current user's username). Returns the PrivateUserObject.",
+      "description": "Get detailed profile information about the current user (including the current user's username). Returns array of ImageObject.",
       "method": "GET",
       "path": "/me",
       "params": []
@@ -804,7 +817,7 @@
     },
     {
       "name": "me_get-queue",
-      "description": "Get the list of objects that make up the user's queue. Returns the QueueObject.",
+      "description": "Get the list of objects that make up the user's queue. Returns array of MeGetQueueItem.",
       "method": "GET",
       "path": "/me/player/queue",
       "params": []
@@ -1041,7 +1054,7 @@
     },
     {
       "name": "me_remove-albums-user",
-      "description": "Remove one or more albums from the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Destructive.",
+      "description": "Remove one or more albums from the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Optional: ids-2. Destructive.",
       "method": "DELETE",
       "path": "/me/albums",
       "params": [
@@ -1051,6 +1064,13 @@
           "location": "query",
           "description": "Ids",
           "required": true
+        },
+        {
+          "name": "ids-2",
+          "wire_name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids)."
         }
       ]
     },
@@ -1071,7 +1091,7 @@
     },
     {
       "name": "me_remove-episodes-user",
-      "description": "Remove one or more episodes from the current user's library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Destructive.",
+      "description": "Remove one or more episodes from the current user's library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Optional: ids-2. Destructive.",
       "method": "DELETE",
       "path": "/me/episodes",
       "params": [
@@ -1081,6 +1101,13 @@
           "location": "query",
           "description": "Ids",
           "required": true
+        },
+        {
+          "name": "ids-2",
+          "wire_name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). A maximum of 50 items can be specified in one request. _**Note**: if the `ids` parameter is present in the query string, any IDs listed here in the body will be ignored._"
         }
       ]
     },
@@ -1101,7 +1128,7 @@
     },
     {
       "name": "me_remove-shows-user",
-      "description": "Delete one or more shows from current Spotify user's library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Optional: market. Destructive.",
+      "description": "Delete one or more shows from current Spotify user's library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Optional: market, ids-2. Destructive.",
       "method": "DELETE",
       "path": "/me/shows",
       "params": [
@@ -1117,12 +1144,19 @@
           "type": "string",
           "location": "query",
           "description": "Market"
+        },
+        {
+          "name": "ids-2",
+          "wire_name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the [Spotify IDs](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids). A maximum of 50 items can be specified in one request. *Note: if the `ids` parameter is present in the query string, any IDs listed here in the body will be ignored.*"
         }
       ]
     },
     {
       "name": "me_remove-tracks-user",
-      "description": "Remove one or more tracks from the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Destructive.",
+      "description": "Remove one or more tracks from the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Optional: ids-2. Destructive.",
       "method": "DELETE",
       "path": "/me/tracks",
       "params": [
@@ -1132,12 +1166,19 @@
           "location": "query",
           "description": "Ids",
           "required": true
+        },
+        {
+          "name": "ids-2",
+          "wire_name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids)."
         }
       ]
     },
     {
       "name": "me_save-albums-user",
-      "description": "Save one or more albums to the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids.",
+      "description": "Save one or more albums to the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids. Optional: ids-2.",
       "method": "PUT",
       "path": "/me/albums",
       "params": [
@@ -1147,6 +1188,13 @@
           "location": "query",
           "description": "Ids",
           "required": true
+        },
+        {
+          "name": "ids-2",
+          "wire_name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids)."
         }
       ]
     },
@@ -1167,7 +1215,7 @@
     },
     {
       "name": "me_save-episodes-user",
-      "description": "Save one or more episodes to the current user's library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids.",
+      "description": "Save one or more episodes to the current user's library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids, ids-2.",
       "method": "PUT",
       "path": "/me/episodes",
       "params": [
@@ -1176,6 +1224,14 @@
           "type": "string",
           "location": "query",
           "description": "Ids",
+          "required": true
+        },
+        {
+          "name": "ids-2",
+          "wire_name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). A maximum of 50 items can be specified in one request. _**Note**: if the `ids` parameter is present in the query string, any IDs listed here in the body will be ignored._",
           "required": true
         }
       ]
@@ -1197,7 +1253,7 @@
     },
     {
       "name": "me_save-shows-user",
-      "description": "Save one or more shows to current Spotify user's library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids.",
+      "description": "Save one or more shows to current Spotify user's library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids. Optional: ids-2.",
       "method": "PUT",
       "path": "/me/shows",
       "params": [
@@ -1207,6 +1263,13 @@
           "location": "query",
           "description": "Ids",
           "required": true
+        },
+        {
+          "name": "ids-2",
+          "wire_name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the [Spotify IDs](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids). A maximum of 50 items can be specified in one request. *Note: if the `ids` parameter is present in the query string, any IDs listed here in the body will be ignored.*"
         }
       ]
     },
@@ -1218,16 +1281,16 @@
       "params": [
         {
           "name": "ids",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
-          "description": "A JSON array of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `['4iV5W9uYEdYUVa79Axb7Rh', '1301WleyT98MSxVHPZCA6M']`\u003cbr/\u003eA maximum of 50 items can be specified in one request. _**Note**: if the `timestamped_ids` is present in the body, any IDs listed in the query parameters (deprecated) or the `ids` field in the body will be ignored._",
+          "description": "A JSON array of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `['4iV5W9uYEdYUVa79Axb7Rh', '1301WleyT98MSxVHPZCA6M']` A maximum of 50 items can be specified in one request. _**Note**: if the `timestamped_ids` is present in the body, any IDs listed in the query parameters (deprecated) or the `ids` field in the body will be ignored._",
           "required": true
         },
         {
           "name": "timestamped_ids",
           "type": "array",
           "location": "body",
-          "description": "A JSON array of objects containing track IDs with their corresponding timestamps. Each object must include a track ID and an `added_at` timestamp. This allows you to specify when tracks were added to maintain a specific chronological order in the user's library.\u003cbr/\u003eA maximum of 50 items can be specified in one request. _**Note**: if the `timestamped_ids` is present in the body, any IDs listed in the query parameters (deprecated) or the `ids` field in the body will be ignored._"
+          "description": "A JSON array of objects containing track IDs with their corresponding timestamps. Each object must include a track ID and an `added_at` timestamp. This allows you to specify when tracks were added to maintain a specific chronological order in the user's library. A maximum of 50 items can be specified in one request. _**Note**: if the `timestamped_ids` is present in the body, any IDs listed in the query parameters (deprecated) or the `ids` field in the body will be ignored._"
         }
       ]
     },
@@ -1354,7 +1417,7 @@
         },
         {
           "name": "uris",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Optional. A JSON array of the Spotify track URIs to play. For example: `{'uris': ['spotify:track:4iV5W9uYEdYUVa79Axb7Rh', 'spotify:track:1301WleyT98MSxVHPZCA6M']}`"
         }
@@ -1389,22 +1452,22 @@
       "params": [
         {
           "name": "device_ids",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
-          "description": "A JSON array containing the ID of the device on which playback should be started/transferred.\u003cbr/\u003eFor example:`{device_ids:['74ASZWbe4lXaubB36ztrGX']}`\u003cbr/\u003e_**Note**: Although an array is accepted, only a single device_id is currently supported. Supplying more than one will return `400 Bad Request`_",
+          "description": "A JSON array containing the ID of the device on which playback should be started/transferred. For example:`{device_ids:['74ASZWbe4lXaubB36ztrGX']}` _**Note**: Although an array is accepted, only a single device_id is currently supported. Supplying more than one will return `400 Bad Request`_",
           "required": true
         },
         {
           "name": "play",
           "type": "bool",
           "location": "body",
-          "description": "**true**: ensure playback happens on new device.\u003cbr/\u003e**false** or not provided: keep the current playback state."
+          "description": "**true**: ensure playback happens on new device. **false** or not provided: keep the current playback state."
         }
       ]
     },
     {
       "name": "me_unfollow-artists-users",
-      "description": "Remove the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: type, ids. Destructive.",
+      "description": "Remove the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: type, ids. Optional: ids-2. Destructive.",
       "method": "DELETE",
       "path": "/me/following",
       "params": [
@@ -1421,6 +1484,13 @@
           "location": "query",
           "description": "Ids",
           "required": true
+        },
+        {
+          "name": "ids-2",
+          "wire_name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the artist or user [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `{ids:['74ASZWbe4lXaubB36ztrGX', '08td7MxkoHQkXnWAYD8d6Q']}`. A maximum of 50 IDs can be sent in one request. _**Note**: if the `ids` parameter is present in the query string, any IDs listed here in the body will be ignored._"
         }
       ]
     },
@@ -1441,7 +1511,7 @@
           "name": "collaborative",
           "type": "bool",
           "location": "body",
-          "description": "If `true`, the playlist will become collaborative and other users will be able to modify the playlist in their Spotify client. \u003cbr/\u003e _**Note**: You can only set `collaborative` to `true` on non-public playlists._"
+          "description": "If `true`, the playlist will become collaborative and other users will be able to modify the playlist in their Spotify client. _**Note**: You can only set `collaborative` to `true` on non-public playlists._"
         },
         {
           "name": "description",
@@ -1465,7 +1535,7 @@
     },
     {
       "name": "playlists_get",
-      "description": "Get a playlist owned by a Spotify user. Required: playlist_id. Optional: market, fields, additional_types. Returns the PlaylistObject.",
+      "description": "Get a playlist owned by a Spotify user. Required: playlist_id. Optional: market, fields, additional_types. Returns array of ImageObject.",
       "method": "GET",
       "path": "/playlists/{playlist_id}",
       "params": [
@@ -1585,7 +1655,7 @@
     },
     {
       "name": "playlists_items_add-to-playlist",
-      "description": "Add one or more items to a user's playlist. Required: playlist_id. Optional: position, uris. Returns the new ItemsAddToPlaylistResponse.",
+      "description": "Add one or more items to a user's playlist. Required: playlist_id. Optional: position, uris, position-2 (plus 1 more). Returns the new ItemsAddToPlaylistResponse.",
       "method": "POST",
       "path": "/playlists/{playlist_id}/items",
       "params": [
@@ -1607,6 +1677,20 @@
           "type": "string",
           "location": "query",
           "description": "Uris"
+        },
+        {
+          "name": "position-2",
+          "wire_name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "The position to insert the items, a zero-based index. For example, to insert the items in the first position: `position=0` ; to insert the items in the third position: `position=2`. If omitted, the items will be appended to the playlist. Items are added in the order they appear in the uris array. For example: `{'uris': ['spotify:track:4iV5W9uYEdYUVa79Axb7Rh','spotify:track:1301WleyT98MSxVHPZCA6M'], 'position': 3}`"
+        },
+        {
+          "name": "uris-2",
+          "wire_name": "uris",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the [Spotify URIs](/documentation/web-api/concepts/spotify-uris-ids) to add. For example: `{'uris': ['spotify:track:4iV5W9uYEdYUVa79Axb7Rh','spotify:track:1301WleyT98MSxVHPZCA6M', 'spotify:episode:512ojhOuo1ktJprKbVcKyQ']}` A maximum of 100 items can be added in one request. _**Note**: if the `uris` parameter is present in the query string, any URIs listed here in the body will be ignored._"
         }
       ]
     },
@@ -1685,7 +1769,7 @@
     },
     {
       "name": "playlists_items_reorder-or-replace-playlists",
-      "description": "Either reorder or replace items in a playlist depending on the request's parameters. To reorder items, include `range_start`, `insert_before`, `range_length` and `snapshot_id` in the request's body. To replace items, include `uris` as either a query parameter or in the request's body. Replacing items in a playlist will overwrite its existing items. This operation can be used for replacing or clearing items in a playlist. \u003cbr/\u003e **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters. These operations can't be applied together in a single request. Required: playlist_id. Optional: uris, insert_before, range_length (plus 2 more). Returns the updated ItemsReorderOrReplacePlaylistsResponse.",
+      "description": "Either reorder or replace items in a playlist depending on the request's parameters. To reorder items, include `range_start`, `insert_before`, `range_length` and `snapshot_id` in the request's body. To replace items, include `uris` as either a query parameter or in the request's body. Replacing items in a playlist will overwrite its existing items. This operation can be used for replacing or clearing items in a playlist. **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters. These operations can't be applied together in a single request. Required: playlist_id. Optional: uris, insert_before, range_length (plus 3 more). Returns the updated ItemsReorderOrReplacePlaylistsResponse.",
       "method": "PUT",
       "path": "/playlists/{playlist_id}/items",
       "params": [
@@ -1706,13 +1790,13 @@
           "name": "insert_before",
           "type": "int",
           "location": "body",
-          "description": "The position where the items should be inserted.\u003cbr/\u003eTo reorder the items to the end of the playlist, simply set _insert_before_ to the position after the last item.\u003cbr/\u003eExamples:\u003cbr/\u003eTo reorder the first item to the last position in a playlist with 10 items, set _range_start_ to 0, and _insert_before_ to 10.\u003cbr/\u003eTo reorder the last item in a playlist with 10 items to the start of the playlist, set _range_start_ to 9, and _insert_before_ to 0."
+          "description": "The position where the items should be inserted. To reorder the items to the end of the playlist, simply set _insert_before_ to the position after the last item. Examples: To reorder the first item to the last position in a playlist with 10 items, set _range_start_ to 0, and _insert_before_ to 10. To reorder the last item in a playlist with 10 items to the start of the playlist, set _range_start_ to 9, and _insert_before_ to 0."
         },
         {
           "name": "range_length",
           "type": "int",
           "location": "body",
-          "description": "The amount of items to be reordered. Defaults to 1 if not set.\u003cbr/\u003eThe range of items to be reordered begins from the _range_start_ position, and includes the _range_length_ subsequent items.\u003cbr/\u003eExample:\u003cbr/\u003eTo move the items at index 9-10 to the start of the playlist, _range_start_ is set to 9, and _range_length_ is set to 2."
+          "description": "The amount of items to be reordered. Defaults to 1 if not set. The range of items to be reordered begins from the _range_start_ position, and includes the _range_length_ subsequent items. Example: To move the items at index 9-10 to the start of the playlist, _range_start_ is set to 9, and _range_length_ is set to 2."
         },
         {
           "name": "range_start",
@@ -1725,12 +1809,19 @@
           "type": "string",
           "location": "body",
           "description": "The playlist's snapshot ID against which you want to make the changes."
+        },
+        {
+          "name": "uris-2",
+          "wire_name": "uris",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Uris"
         }
       ]
     },
     {
       "name": "playlists_tracks_add-to-playlist",
-      "description": "**Deprecated:** Use [Add Items to Playlist](/documentation/web-api/reference/add-items-to-playlist) instead. Add one or more items to a user's playlist. Required: playlist_id. Optional: position, uris. Returns the new TracksAddToPlaylistResponse.",
+      "description": "**Deprecated:** Use [Add Items to Playlist](/documentation/web-api/reference/add-items-to-playlist) instead. Add one or more items to a user's playlist. Required: playlist_id. Optional: position, uris, position-2 (plus 1 more). Returns the new TracksAddToPlaylistResponse.",
       "method": "POST",
       "path": "/playlists/{playlist_id}/tracks",
       "params": [
@@ -1752,6 +1843,20 @@
           "type": "string",
           "location": "query",
           "description": "Uris"
+        },
+        {
+          "name": "position-2",
+          "wire_name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "The position to insert the items, a zero-based index. For example, to insert the items in the first position: `position=0` ; to insert the items in the third position: `position=2`. If omitted, the items will be appended to the playlist. Items are added in the order they appear in the uris array. For example: `{'uris': ['spotify:track:4iV5W9uYEdYUVa79Axb7Rh','spotify:track:1301WleyT98MSxVHPZCA6M'], 'position': 3}`"
+        },
+        {
+          "name": "uris-2",
+          "wire_name": "uris",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A JSON array of the [Spotify URIs](/documentation/web-api/concepts/spotify-uris-ids) to add. For example: `{'uris': ['spotify:track:4iV5W9uYEdYUVa79Axb7Rh','spotify:track:1301WleyT98MSxVHPZCA6M', 'spotify:episode:512ojhOuo1ktJprKbVcKyQ']}` A maximum of 100 items can be added in one request. _**Note**: if the `uris` parameter is present in the query string, any URIs listed here in the body will be ignored._"
         }
       ]
     },
@@ -1830,7 +1935,7 @@
     },
     {
       "name": "playlists_tracks_reorder-or-replace-playlists",
-      "description": "**Deprecated:** Use [Update Playlist Items](/documentation/web-api/reference/reorder-or-replace-playlists-items) instead. Either reorder or replace items in a playlist depending on the request's parameters. To reorder items, include `range_start`, `insert_before`, `range_length` and `snapshot_id` in the request's body. To replace items, include `uris` as either a query parameter or in the request's body. Replacing items in a playlist will overwrite its existing items. This operation can be used for replacing or clearing items in a playlist. \u003cbr/\u003e **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters. These operations can't be applied together in a single request. Required: playlist_id. Optional: uris, insert_before, range_length (plus 2 more). Returns the updated TracksReorderOrReplacePlaylistsResponse.",
+      "description": "**Deprecated:** Use [Update Playlist Items](/documentation/web-api/reference/reorder-or-replace-playlists-items) instead. Either reorder or replace items in a playlist depending on the request's parameters. To reorder items, include `range_start`, `insert_before`, `range_length` and `snapshot_id` in the request's body. To replace items, include `uris` as either a query parameter or in the request's body. Replacing items in a playlist will overwrite its existing items. This operation can be used for replacing or clearing items in a playlist. **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters. These operations can't be applied together in a single request. Required: playlist_id. Optional: uris, insert_before, range_length (plus 3 more). Returns the updated TracksReorderOrReplacePlaylistsResponse.",
       "method": "PUT",
       "path": "/playlists/{playlist_id}/tracks",
       "params": [
@@ -1851,13 +1956,13 @@
           "name": "insert_before",
           "type": "int",
           "location": "body",
-          "description": "The position where the items should be inserted.\u003cbr/\u003eTo reorder the items to the end of the playlist, simply set _insert_before_ to the position after the last item.\u003cbr/\u003eExamples:\u003cbr/\u003eTo reorder the first item to the last position in a playlist with 10 items, set _range_start_ to 0, and _insert_before_ to 10.\u003cbr/\u003eTo reorder the last item in a playlist with 10 items to the start of the playlist, set _range_start_ to 9, and _insert_before_ to 0."
+          "description": "The position where the items should be inserted. To reorder the items to the end of the playlist, simply set _insert_before_ to the position after the last item. Examples: To reorder the first item to the last position in a playlist with 10 items, set _range_start_ to 0, and _insert_before_ to 10. To reorder the last item in a playlist with 10 items to the start of the playlist, set _range_start_ to 9, and _insert_before_ to 0."
         },
         {
           "name": "range_length",
           "type": "int",
           "location": "body",
-          "description": "The amount of items to be reordered. Defaults to 1 if not set.\u003cbr/\u003eThe range of items to be reordered begins from the _range_start_ position, and includes the _range_length_ subsequent items.\u003cbr/\u003eExample:\u003cbr/\u003eTo move the items at index 9-10 to the start of the playlist, _range_start_ is set to 9, and _range_length_ is set to 2."
+          "description": "The amount of items to be reordered. Defaults to 1 if not set. The range of items to be reordered begins from the _range_start_ position, and includes the _range_length_ subsequent items. Example: To move the items at index 9-10 to the start of the playlist, _range_start_ is set to 9, and _range_length_ is set to 2."
         },
         {
           "name": "range_start",
@@ -1870,6 +1975,13 @@
           "type": "string",
           "location": "body",
           "description": "The playlist's snapshot ID against which you want to make the changes."
+        },
+        {
+          "name": "uris-2",
+          "wire_name": "uris",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Uris"
         }
       ]
     },
@@ -2165,7 +2277,7 @@
     },
     {
       "name": "recommendations_get-genres",
-      "description": "Retrieve a list of available genres seed parameter values for [recommendations](/documentation/web-api/reference/get-recommendations). Returns the RecommendationsGetGenresResponse.",
+      "description": "Retrieve a list of available genres seed parameter values for [recommendations](/documentation/web-api/reference/get-recommendations). Returns array of string.",
       "method": "GET",
       "path": "/recommendations/available-genre-seeds",
       "params": []
@@ -2193,7 +2305,7 @@
     },
     {
       "name": "shows_get-multiple",
-      "description": "Get Spotify catalog information for several shows based on their Spotify IDs. Required: ids. Optional: market. Returns the ShowsGetMultipleResponse.",
+      "description": "Get Spotify catalog information for several shows based on their Spotify IDs. Required: ids. Optional: market. Returns array of SimplifiedShowObject.",
       "method": "GET",
       "path": "/shows",
       "params": [
@@ -2246,8 +2358,8 @@
       ]
     },
     {
-      "name": "spotify-search_search",
-      "description": "Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks that match a keyword string. Audiobooks are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: q, type. Optional: market, limit (default: 5), offset (default: 0) (plus 1 more). Returns the SpotifySearchSearchResponse.",
+      "name": "spotify_web_search_search",
+      "description": "Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks that match a keyword string. Audiobooks are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: q, type. Optional: market, limit (default: 5), offset (default: 0) (plus 1 more). Returns the SpotifyWebSearchSearchResponse.",
       "method": "GET",
       "path": "/search",
       "params": [
@@ -2314,7 +2426,7 @@
     },
     {
       "name": "tracks_get-several",
-      "description": "Get Spotify catalog information for multiple tracks based on their Spotify IDs. Required: ids. Optional: market. Returns the TracksGetSeveralResponse.",
+      "description": "Get Spotify catalog information for multiple tracks based on their Spotify IDs. Required: ids. Optional: market. Returns array of TrackObject.",
       "method": "GET",
       "path": "/tracks",
       "params": [
@@ -2335,7 +2447,7 @@
     },
     {
       "name": "users_get-profile",
-      "description": "Get public profile information about a Spotify user. Required: user_id. Returns the PublicUserObject.",
+      "description": "Get public profile information about a Spotify user. Required: user_id. Returns array of ImageObject.",
       "method": "GET",
       "path": "/users/{user_id}",
       "params": [
@@ -2350,7 +2462,7 @@
     },
     {
       "name": "users_playlists_create-for-user",
-      "description": "**Deprecated**: Use [Create Playlist](/documentation/web-api/reference/create-playlist) instead. Create a playlist for a Spotify user. (The playlist will be empty until you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).) Each user is generally limited to a maximum of 11000 playlists. Required: user_id, name. Optional: collaborative, description, public. Returns the new PlaylistObject.",
+      "description": "**Deprecated**: Use [Create Playlist](/documentation/web-api/reference/create-playlist) instead. Create a playlist for a Spotify user. (The playlist will be empty until you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).) Each user is generally limited to a maximum of 11000 playlists. Required: user_id, name. Optional: collaborative, description, public. Returns array of ImageObject.",
       "method": "POST",
       "path": "/users/{user_id}/playlists",
       "params": [

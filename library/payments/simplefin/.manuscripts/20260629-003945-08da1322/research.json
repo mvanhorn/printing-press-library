@@ -1,0 +1,316 @@
+{
+  "api_name": "simplefin",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "simplefin_rust",
+      "url": "https://github.com/csells/simplefin_rust",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "money",
+      "url": "https://github.com/arjungandhi/money",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "simplefin-cli",
+      "url": "https://github.com/jeeftor/simplefin-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 12,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "simplefin-python",
+      "url": "https://github.com/chrishas35/simplefin-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sfin2ledger",
+      "url": "https://github.com/simplefin/sfin2ledger",
+      "language": "Python",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "finance-reconcile-mcp",
+      "url": "https://github.com/nalyDzzz/finance-reconcile-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-29T07:55:24Z",
+  "novel_features": [
+    {
+      "name": "Net worth + trajectory",
+      "command": "networth",
+      "description": "Total net worth across every institution, with a balance trajectory over time no bank app can show.",
+      "rationale": "Requires summing balances across all connections in the local store and joining a balance-snapshot time series the protocol never returns.",
+      "example": "simplefin-pp-cli networth --trend --agent",
+      "why_it_matters": "Reach for this when an agent needs a single cross-institution net-worth number or its trend; no single /accounts call gives history.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cash flow analysis",
+      "command": "cashflow",
+      "description": "Income vs outflow by month and top-spend merchants across all accounts.",
+      "rationale": "GROUP BY month and signed-amount aggregation over the local transaction store, spanning institutions a single bank view can't.",
+      "example": "simplefin-pp-cli cashflow --month --agent --select month,income,outflow,net",
+      "why_it_matters": "Use for spending/income rollups; the API returns raw transactions, not aggregates.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recurring/subscription detection",
+      "command": "recurring",
+      "description": "Surfaces subscriptions and regular obligations by detecting repeated payees with regular cadence.",
+      "rationale": "Interval-pattern detection over the local store across all institutions at once; not an API capability.",
+      "example": "simplefin-pp-cli recurring --min-occurrences 3 --agent",
+      "why_it_matters": "Use to find recurring charges hiding across multiple accounts before they surprise the user.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Holdings gain/loss",
+      "command": "portfolio",
+      "description": "Investment positions with market value vs cost basis and total gain/loss across brokerages.",
+      "rationale": "Computes market_value minus cost_basis per holding from the local holding table; almost no SimpleFIN tool implements holdings at all.",
+      "example": "simplefin-pp-cli portfolio --gain --agent",
+      "why_it_matters": "Use for portfolio gain/loss; the ecosystem-wide gap means this data is otherwise invisible.",
+      "group": "Differentiators nobody else has"
+    },
+    {
+      "name": "Rules-based categorization",
+      "command": "categorize",
+      "description": "Assigns categories to transactions with deterministic keyword/regex rules (the protocol has none).",
+      "rationale": "SimpleFIN ships zero categories; local rules fill the gap without depending on an LLM or external service.",
+      "example": "simplefin-pp-cli categorize --apply --agent",
+      "why_it_matters": "Run before cashflow to get category breakdowns; deterministic and offline.",
+      "group": "Differentiators nobody else has"
+    },
+    {
+      "name": "Ledger/plaintext export",
+      "command": "export",
+      "description": "Exports the local ledger to ledger, beancount, csv, or qif for plaintextaccounting tools.",
+      "rationale": "Serializes the local transaction store into accounting formats SimpleFIN can't emit.",
+      "example": "simplefin-pp-cli export --format beancount --since 90d",
+      "why_it_matters": "Use to bridge into Beancount/Ledger/GnuCash workflows.",
+      "group": "Differentiators nobody else has"
+    },
+    {
+      "name": "Content-based dedup",
+      "command": "reconcile",
+      "description": "Finds and merges duplicate transactions created by SimpleFIN's unstable, mirrored IDs using content hashing.",
+      "rationale": "Hashes amount+date+normalized description over the local store; fixes the protocol's own #1 defect that breaks every importer.",
+      "example": "simplefin-pp-cli reconcile --agent",
+      "why_it_matters": "Run after sync to detect duplicate charges that ID-based dedup misses.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recent activity since last check",
+      "command": "since",
+      "description": "What's new across all accounts since a date or your last sync — new transactions and balance changes, neutrally framed.",
+      "rationale": "Diffs the local store against a point in time across every institution; the API only returns point-in-time state, not 'what changed'.",
+      "example": "simplefin-pp-cli since 7d --agent",
+      "why_it_matters": "Use for a quick 'what happened lately' digest across accounts without scanning every transaction.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Net worth + trajectory",
+      "command": "networth",
+      "description": "Total net worth across every institution, with a balance trajectory over time no bank app can show.",
+      "rationale": "Requires summing balances across all connections in the local store and joining a balance-snapshot time series the protocol never returns.",
+      "example": "simplefin-pp-cli networth --trend --agent",
+      "why_it_matters": "Reach for this when an agent needs a single cross-institution net-worth number or its trend; no single /accounts call gives history.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cash flow analysis",
+      "command": "cashflow",
+      "description": "Income vs outflow by month and top-spend merchants across all accounts.",
+      "rationale": "GROUP BY month and signed-amount aggregation over the local transaction store, spanning institutions a single bank view can't.",
+      "example": "simplefin-pp-cli cashflow --month --agent --select month,income,outflow,net",
+      "why_it_matters": "Use for spending/income rollups; the API returns raw transactions, not aggregates.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recurring/subscription detection",
+      "command": "recurring",
+      "description": "Surfaces subscriptions and regular obligations by detecting repeated payees with regular cadence.",
+      "rationale": "Interval-pattern detection over the local store across all institutions at once; not an API capability.",
+      "example": "simplefin-pp-cli recurring --min-occurrences 3 --agent",
+      "why_it_matters": "Use to find recurring charges hiding across multiple accounts before they surprise the user.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Holdings gain/loss",
+      "command": "portfolio",
+      "description": "Investment positions with market value vs cost basis and total gain/loss across brokerages.",
+      "rationale": "Computes market_value minus cost_basis per holding from the local holding table; almost no SimpleFIN tool implements holdings at all.",
+      "example": "simplefin-pp-cli portfolio --gain --agent",
+      "why_it_matters": "Use for portfolio gain/loss; the ecosystem-wide gap means this data is otherwise invisible.",
+      "group": "Differentiators nobody else has"
+    },
+    {
+      "name": "Rules-based categorization",
+      "command": "categorize",
+      "description": "Assigns categories to transactions with deterministic keyword/regex rules (the protocol has none).",
+      "rationale": "SimpleFIN ships zero categories; local rules fill the gap without depending on an LLM or external service.",
+      "example": "simplefin-pp-cli categorize --apply --agent",
+      "why_it_matters": "Run before cashflow to get category breakdowns; deterministic and offline.",
+      "group": "Differentiators nobody else has"
+    },
+    {
+      "name": "Ledger/plaintext export",
+      "command": "export",
+      "description": "Exports the local ledger to ledger, beancount, csv, or qif for plaintextaccounting tools.",
+      "rationale": "Serializes the local transaction store into accounting formats SimpleFIN can't emit.",
+      "example": "simplefin-pp-cli export --format beancount --since 90d",
+      "why_it_matters": "Use to bridge into Beancount/Ledger/GnuCash workflows.",
+      "group": "Differentiators nobody else has"
+    },
+    {
+      "name": "Content-based dedup",
+      "command": "reconcile",
+      "description": "Finds and merges duplicate transactions created by SimpleFIN's unstable, mirrored IDs using content hashing.",
+      "rationale": "Hashes amount+date+normalized description over the local store; fixes the protocol's own #1 defect that breaks every importer.",
+      "example": "simplefin-pp-cli reconcile --agent",
+      "why_it_matters": "Run after sync to detect duplicate charges that ID-based dedup misses.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recent activity since last check",
+      "command": "since",
+      "description": "What's new across all accounts since a date or your last sync — new transactions and balance changes, neutrally framed.",
+      "rationale": "Diffs the local store against a point in time across every institution; the API only returns point-in-time state, not 'what changed'.",
+      "example": "simplefin-pp-cli since 7d --agent",
+      "why_it_matters": "Use for a quick 'what happened lately' digest across accounts without scanning every transaction.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SIMPLEFIN_ACCESS_URL"
+  },
+  "narrative": {
+    "display_name": "SimpleFIN",
+    "headline": "Pull every bank, card, and brokerage account through SimpleFIN into a local SQLite ledger — with net worth, cash flow, recurring-charge detection, and holdings gain/loss no single bank app can show.",
+    "value_prop": "Every existing SimpleFIN tool is an importer into someone else's app. This is a CLI and a local database you own: sync once (rate-limit aware), then run cross-institution analytics offline. networth tracks your trajectory over time, recurring surfaces hidden subscriptions, portfolio computes holdings gain/loss the ecosystem ignores, and export bridges into Beancount/Ledger.",
+    "auth_narrative": "SimpleFIN has no API key. You claim a base64 Setup Token to receive an Access URL (https://user:pass@host/simplefin) that bakes in HTTP Basic credentials and the server host. Run 'simplefin-pp-cli auth claim \u003csetup-token\u003e' once (or set SIMPLEFIN_ACCESS_URL); the access URL is stored chmod 600 and never logged. A reusable public demo token is available at beta-bridge.simplefin.org/info/developers for testing.",
+    "quickstart": [
+      {
+        "command": "simplefin-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms the binary and config before you connect."
+      },
+      {
+        "command": "simplefin-pp-cli sync --since 90d",
+        "comment": "Pull all institutions into the local store (one call, rate-limit aware)."
+      },
+      {
+        "command": "simplefin-pp-cli networth --trend",
+        "comment": "See total net worth across every account and its trajectory."
+      },
+      {
+        "command": "simplefin-pp-cli recurring --min-occurrences 3",
+        "comment": "Surface subscriptions hiding across accounts."
+      },
+      {
+        "command": "simplefin-pp-cli cashflow --month --agent",
+        "comment": "Monthly income-vs-outflow as structured JSON for agents."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 from sync or accounts",
+        "fix": "The access URL was revoked or is wrong. Re-claim: simplefin-pp-cli auth claim \u003cnew-setup-token\u003e."
+      },
+      {
+        "symptom": "Too many requests / token disabled",
+        "fix": "SimpleFIN allows ~24 requests/day. Avoid scripted loops; one sync pulls all accounts. Run simplefin-pp-cli doctor to see quota guidance."
+      },
+      {
+        "symptom": "Transactions missing before yesterday",
+        "fix": "Pass a window: simplefin-pp-cli sync --since 90d. A single call is capped at 90 days; the local store accumulates history across syncs."
+      },
+      {
+        "symptom": "Duplicate transactions after sync",
+        "fix": "SimpleFIN reuses/mirrors transaction IDs. Run simplefin-pp-cli reconcile to detect content-duplicate charges."
+      }
+    ],
+    "when_to_use": "Use this CLI when you want programmatic, offline, cross-institution access to your own financial data: balances, transactions, holdings, net worth, cash flow, and subscription detection. It is ideal for cron jobs, agent workflows, and plaintextaccounting pipelines where you want a local SQLite database you control rather than a hosted budgeting app.",
+    "anti_triggers": [
+      "Do not use this CLI to move money, pay bills, or transfer funds — SimpleFIN is strictly read-only.",
+      "Do not use it to connect a bank for the first time in a browser — that is the SimpleFIN Bridge's /create web flow; this CLI consumes the resulting token.",
+      "Do not use it as a budgeting app UI — for full budgeting use Actual Budget or Lunch Money, which can consume SimpleFIN too."
+    ],
+    "recipes": [
+      {
+        "title": "First connect and net worth",
+        "command": "simplefin-pp-cli auth claim \u003csetup-token\u003e \u0026\u0026 simplefin-pp-cli sync --since 90d \u0026\u0026 simplefin-pp-cli networth",
+        "explanation": "Claim once, pull 90 days into the store, then see cross-institution net worth."
+      },
+      {
+        "title": "Agent-friendly cash flow",
+        "command": "simplefin-pp-cli cashflow --month --agent --select month,income,outflow,net",
+        "explanation": "Narrow the nested response to just the fields an agent needs."
+      },
+      {
+        "title": "Find subscriptions",
+        "command": "simplefin-pp-cli recurring --min-occurrences 3 --json",
+        "explanation": "List recurring charges seen 3+ times across all accounts."
+      },
+      {
+        "title": "Portfolio gain/loss",
+        "command": "simplefin-pp-cli portfolio --gain --agent",
+        "explanation": "Holdings market value vs cost basis across every brokerage."
+      },
+      {
+        "title": "Export to Beancount",
+        "command": "simplefin-pp-cli export --format beancount --since 90d",
+        "explanation": "Bridge the local ledger into a plaintextaccounting workflow."
+      }
+    ],
+    "trigger_phrases": [
+      "what's my net worth",
+      "check my account balances",
+      "find my subscriptions",
+      "how much did I spend this month",
+      "show my portfolio gain",
+      "sync my bank accounts",
+      "use simplefin",
+      "run simplefin"
+    ]
+  }
+}

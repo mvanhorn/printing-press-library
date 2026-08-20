@@ -1,0 +1,262 @@
+{
+  "api_name": "1688",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "oxylabs/1688-scraper",
+      "url": "https://github.com/oxylabs/1688-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jeff2go/1688-Crawler",
+      "url": "https://github.com/jeff2go/1688-Crawler",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "krautsdubisq1g/1688-product-search-scraper",
+      "url": "https://github.com/krautsdubisq1g/1688-product-search-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-12T08:30:00Z",
+  "novel_features": [
+    {
+      "name": "Factory-confidence rank + label",
+      "command": "factory-find",
+      "description": "Rank wholesale offers by how likely the seller is the real factory, not a reseller, and label each trader / likely-factory / verified-factory.",
+      "rationale": "Combines factory-inspection flags, the 深度验厂 service tag, reorder rate, and supplier trade scores in one local ranking — signals that exist per-offer but no scraper ranks together.",
+      "example": "1688-pp-cli factory-find 蓝牙耳机 --top 10 --json",
+      "why_it_matters": "Reach for this when an agent must pick a manufacturer over a middleman among dozens of near-identical listings.",
+      "group": "Sourcing signals competitors don't rank"
+    },
+    {
+      "name": "Repurchase-rate leaderboard",
+      "command": "repurchase-top",
+      "description": "Rank synced offers and suppliers by 回头率 (buyer reorder rate), with a minimum-transaction floor to suppress low-volume noise.",
+      "rationale": "Reorder rate is the most trust-predictive 1688 field; competitors expose it raw but never as a first-class ranking, and it only means something once enough transactions back it.",
+      "example": "1688-pp-cli repurchase-top 手机壳 --min-tx 100 --json",
+      "why_it_matters": "Use it to surface suppliers buyers actually come back to, instead of trusting a one-off star rating.",
+      "group": "Sourcing signals competitors don't rank"
+    },
+    {
+      "name": "Price / repurchase / transaction drift",
+      "command": "drift",
+      "description": "Show how an offer's price, reorder rate, and 30-day transaction count moved across your stored snapshots.",
+      "rationale": "Requires a local snapshot history keyed by synced_at that only a persistent store has; every competing scraper is stateless and can never answer 'did this move since last week?'.",
+      "example": "1688-pp-cli drift 手机壳 --json",
+      "why_it_matters": "Reach for this before a reorder to see whether a 'limited-time' price actually dropped or a supplier's reliability is trending down.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-supplier SKU compare",
+      "command": "compare",
+      "description": "Render a side-by-side table of price, MOQ, tier, reorder rate, transactions, factory flags, and trade scores for several offers of the same product.",
+      "rationale": "Joins offers and suppliers in the local store across N offer IDs; no stateless scraper does cross-offer joins.",
+      "example": "1688-pp-cli compare 927875250705 836112681124 --json",
+      "why_it_matters": "Use it to make the final buy decision between a handful of shortlisted suppliers in one view.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Supplier reliability rollup",
+      "command": "supplier-report",
+      "description": "Aggregate one shop across all its stored offers: trade-service scores, average reorder rate, total transactions, verification badges, offer count, and price range.",
+      "rationale": "Rolls up a supplier's full footprint from synced history; the per-offer scraper view never aggregates a shop across its catalog.",
+      "example": "1688-pp-cli supplier-report b2b-2850655109d72ea --json",
+      "why_it_matters": "Reach for this to vet or audit a supplier before committing volume, instead of judging from one listing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Saved-query watch (poll-once delta)",
+      "command": "watch",
+      "description": "Re-run a saved search, store a fresh snapshot, and print only what changed since last run: price and reorder-rate moves plus newly appeared offers and suppliers.",
+      "rationale": "The diff-since-last-run is only possible with persisted prior snapshots; stateless scrapers re-fetch from zero every time.",
+      "example": "1688-pp-cli watch 手机壳 --json",
+      "why_it_matters": "Use it on a schedule to catch new entrants and price moves in a category without re-reading the whole result set.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Province price-spread",
+      "command": "region-spread",
+      "description": "Group stored offers for a keyword by Chinese province and report min, median, and max price plus transaction count per region.",
+      "rationale": "Aggregates the per-offer province field across the local store to expose cheaper sourcing geographies no single API call surfaces.",
+      "example": "1688-pp-cli region-spread 手机壳 --json",
+      "why_it_matters": "Reach for this to spot whether a product is meaningfully cheaper out of one manufacturing cluster before narrowing suppliers.",
+      "group": "Sourcing signals competitors don't rank"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Factory-confidence rank + label",
+      "command": "factory-find",
+      "description": "Rank wholesale offers by how likely the seller is the real factory, not a reseller, and label each trader / likely-factory / verified-factory.",
+      "rationale": "Combines factory-inspection flags, the 深度验厂 service tag, reorder rate, and supplier trade scores in one local ranking — signals that exist per-offer but no scraper ranks together.",
+      "example": "1688-pp-cli factory-find 蓝牙耳机 --top 10 --json",
+      "why_it_matters": "Reach for this when an agent must pick a manufacturer over a middleman among dozens of near-identical listings.",
+      "group": "Sourcing signals competitors don't rank"
+    },
+    {
+      "name": "Repurchase-rate leaderboard",
+      "command": "repurchase-top",
+      "description": "Rank synced offers and suppliers by 回头率 (buyer reorder rate), with a minimum-transaction floor to suppress low-volume noise.",
+      "rationale": "Reorder rate is the most trust-predictive 1688 field; competitors expose it raw but never as a first-class ranking, and it only means something once enough transactions back it.",
+      "example": "1688-pp-cli repurchase-top 手机壳 --min-tx 100 --json",
+      "why_it_matters": "Use it to surface suppliers buyers actually come back to, instead of trusting a one-off star rating.",
+      "group": "Sourcing signals competitors don't rank"
+    },
+    {
+      "name": "Price / repurchase / transaction drift",
+      "command": "drift",
+      "description": "Show how an offer's price, reorder rate, and 30-day transaction count moved across your stored snapshots.",
+      "rationale": "Requires a local snapshot history keyed by synced_at that only a persistent store has; every competing scraper is stateless and can never answer 'did this move since last week?'.",
+      "example": "1688-pp-cli drift 手机壳 --json",
+      "why_it_matters": "Reach for this before a reorder to see whether a 'limited-time' price actually dropped or a supplier's reliability is trending down.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-supplier SKU compare",
+      "command": "compare",
+      "description": "Render a side-by-side table of price, MOQ, tier, reorder rate, transactions, factory flags, and trade scores for several offers of the same product.",
+      "rationale": "Joins offers and suppliers in the local store across N offer IDs; no stateless scraper does cross-offer joins.",
+      "example": "1688-pp-cli compare 927875250705 836112681124 --json",
+      "why_it_matters": "Use it to make the final buy decision between a handful of shortlisted suppliers in one view.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Supplier reliability rollup",
+      "command": "supplier-report",
+      "description": "Aggregate one shop across all its stored offers: trade-service scores, average reorder rate, total transactions, verification badges, offer count, and price range.",
+      "rationale": "Rolls up a supplier's full footprint from synced history; the per-offer scraper view never aggregates a shop across its catalog.",
+      "example": "1688-pp-cli supplier-report b2b-2850655109d72ea --json",
+      "why_it_matters": "Reach for this to vet or audit a supplier before committing volume, instead of judging from one listing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Saved-query watch (poll-once delta)",
+      "command": "watch",
+      "description": "Re-run a saved search, store a fresh snapshot, and print only what changed since last run: price and reorder-rate moves plus newly appeared offers and suppliers.",
+      "rationale": "The diff-since-last-run is only possible with persisted prior snapshots; stateless scrapers re-fetch from zero every time.",
+      "example": "1688-pp-cli watch 手机壳 --json",
+      "why_it_matters": "Use it on a schedule to catch new entrants and price moves in a category without re-reading the whole result set.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Province price-spread",
+      "command": "region-spread",
+      "description": "Group stored offers for a keyword by Chinese province and report min, median, and max price plus transaction count per region.",
+      "rationale": "Aggregates the per-offer province field across the local store to expose cheaper sourcing geographies no single API call surfaces.",
+      "example": "1688-pp-cli region-spread 手机壳 --json",
+      "why_it_matters": "Reach for this to spot whether a product is meaningfully cheaper out of one manufacturing cluster before narrowing suppliers.",
+      "group": "Sourcing signals competitors don't rank"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "1688",
+    "headline": "The free, offline, agent-native 1688 wholesale sourcing CLI — keyword search with the signals the web UI buries (回头率 reorder rate, factory-verified status, supplier trade scores, price drift), persisted to a local store no scraper tracks over time.",
+    "value_prop": "Search 1688.com's China-domestic wholesale catalog and get structured offers (tiered price, MOQ, supplier, region, transaction volume) for free, with no paid scraper API and no API key. Every search persists to a local SQLite store, so `drift` shows how prices and reorder rates moved since last week, `factory-find` ranks real manufacturers above resellers, and `supplier-report` rolls up a shop's full reliability footprint. Read-only sourcing research.",
+    "quickstart": [
+      {
+        "command": "1688-pp-cli doctor --dry-run",
+        "comment": "health check; confirms the mtop endpoint is reachable, no key needed"
+      },
+      {
+        "command": "1688-pp-cli search 手机壳 --limit 10",
+        "comment": "live wholesale search (translate English terms to Chinese first for rich results)"
+      },
+      {
+        "command": "1688-pp-cli sync 手机壳",
+        "comment": "persist the result set into the local store to build drift history"
+      },
+      {
+        "command": "1688-pp-cli factory-find 手机壳 --top 10",
+        "comment": "rank likely real factories above resellers"
+      },
+      {
+        "command": "1688-pp-cli drift 手机壳",
+        "comment": "after a later sync, see which offers moved on price or reorder rate"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns very few or zero results for an English keyword",
+        "fix": "1688's corpus is Mandarin; translate the term to Simplified Chinese (e.g. 'phone case' -\u003e 手机壳) and retry"
+      },
+      {
+        "symptom": "FAIL_SYS_TOKEN_EMPTY or FAIL_SYS_TOKEN_EXPIRED from the API",
+        "fix": "the signed-request token expired; the client re-bootstraps automatically on the next call, so just retry once"
+      },
+      {
+        "symptom": "requests blocked or punished (action=deny) from a cloud/CI host",
+        "fix": "Alibaba blocks data-center IPs (cloud_ip_bl); run from a residential IP or a residential proxy, not a cloud egress"
+      },
+      {
+        "symptom": "a transcendence command returns an empty result",
+        "fix": "run 'sync \u003ckeyword\u003e' first to populate the local store; drift/compare/region-spread read stored data, not the live API"
+      }
+    ],
+    "when_to_use": "Use this CLI for read-only sourcing research on 1688.com: searching the China-domestic wholesale catalog, comparing offers on price/MOQ/reliability, distinguishing factories from resellers, and tracking how prices and reorder rates change over time. It is the right tool when an agent needs structured, scriptable wholesale data without a paid scraper subscription.",
+    "anti_triggers": [
+      "Do not use this CLI for Alibaba.com international listings; that is a different site and API",
+      "Do not use it to place orders, add to cart, or contact suppliers; it is strictly read-only",
+      "Do not use it for Taobao/Tmall consumer retail listings",
+      "Do not use it expecting rich results from English keywords; 1688 is a Mandarin marketplace, translate first"
+    ],
+    "recipes": [
+      {
+        "title": "Find verified factories for a product",
+        "command": "1688-pp-cli factory-find 蓝牙耳机 --top 10 --json",
+        "explanation": "Ranks likely manufacturers above traders using factory flags, reorder rate, and trade scores."
+      },
+      {
+        "title": "Narrow a verbose search payload for an agent",
+        "command": "1688-pp-cli search 手机壳 --agent --select offers.title,offers.price_cny,offers.repurchase_rate,offers.supplier_name",
+        "explanation": "Search responses are large and nested; --select pulls only the fields an agent needs so it does not burn context."
+      },
+      {
+        "title": "Compare shortlisted suppliers head to head",
+        "command": "1688-pp-cli compare 927875250705 836112681124 --json",
+        "explanation": "Side-by-side price/MOQ/reorder/factory signals for specific offers you already synced."
+      },
+      {
+        "title": "Check price and reorder-rate drift before a reorder",
+        "command": "1688-pp-cli drift 手机壳 --json",
+        "explanation": "Diffs the latest stored snapshot against prior ones so you see real movement, not marketing 'limited-time' labels."
+      },
+      {
+        "title": "Rank suppliers by buyer reorder rate",
+        "command": "1688-pp-cli repurchase-top 手机壳 --min-tx 100 --json",
+        "explanation": "Surfaces shops buyers actually come back to, ignoring low-volume noise."
+      }
+    ],
+    "trigger_phrases": [
+      "search 1688 for",
+      "find a factory on 1688 for",
+      "wholesale price on 1688 for",
+      "who is the cheapest supplier on 1688 for",
+      "compare 1688 suppliers for",
+      "use 1688",
+      "run 1688"
+    ]
+  }
+}

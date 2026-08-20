@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "booksy",
+  "cli_name": "booksy-pp-cli",
+  "version": "2026.8.2",
+  "released_at": "2026-08-19T09:15:30Z",
+  "source_commit": "45623085ac8da3c63ce7f1c4fc2a9c49ac613ed5",
+  "printing_press_version": "4.30.3",
+  "run_id": "20260818-170717-f70dff69",
+  "changes": [
+    {
+      "title": "feat(booksy): verify book --confirm payload + add cancel command",
+      "pr": 1754,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1754",
+      "commit": "45623085ac8da3c63ce7f1c4fc2a9c49ac613ed5"
+    }
+  ]
+}

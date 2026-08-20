@@ -1,0 +1,35 @@
+{
+  "manifest_version": "0.3",
+  "name": "notebooklm-pp-mcp",
+  "display_name": "Gemini Notebook (NotebookLM)",
+  "version": "0.2.0",
+  "description": "Unofficial Go CLI and agent surface for Gemini Notebook — notebooks, sources, chat, Studio artifacts, and research via batchexecute RPC with Chrome session auth.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/notebooklm-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/notebooklm-pp-mcp",
+      "args": [],
+      "env": {
+        "NOTEBOOKLM_COOKIE": "${user_config.notebooklm_cookie}"
+      }
+    }
+  },
+  "user_config": {
+    "notebooklm_cookie": {
+      "type": "string",
+      "title": "NOTEBOOKLM_COOKIE",
+      "description": "Google session cookie header for NotebookLM (from auth login --chrome or browser DevTools).",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": ["darwin", "linux", "win32"]
+  }
+}

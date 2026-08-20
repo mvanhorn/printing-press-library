@@ -84,7 +84,7 @@ type moduleGetter interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 }
 
-func newModuleCmd(flags *rootFlags) *cobra.Command {
+func newNovelModuleCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "module",
 		Short: "Module-membership helpers: cache enrichment (sync) and assign-on-create.",
@@ -159,9 +159,109 @@ func localModules(db *store.Store, projectFilter, workspaceID string) ([]moduleR
 		if err := rows.Scan(&m.id, &m.projectID, &m.name); err != nil {
 			return nil, err
 		}
+		// PATCH(engine-4.27): dependent resources (modules) now store a
+		// NUL-composite parent-keyed storage id ("<id>\x00<projects_id>"). The
+		// enrichment builds API paths (/projects/{p}/modules/{id}/module-issues/)
+		// and module_issues junction rows from m.id, and downstream consumers
+		// (module_of / MCP) expect the BARE API id — strip the composite suffix
+		// so a NUL byte never leaks into a URL or a junction key.
+		m.id = store.BareResourceID(m.id)
 		out = append(out, m)
 	}
 	return out, rows.Err()
+}
+
+// moduleNameKey pairs a project with a bare module id. modules rows are stored
+// under a NUL-composite key, so the parent has to travel alongside the bare id
+// to identify a module unambiguously; the "/" separator keeps this lookup key
+// visibly distinct from an actual storage id.
+func moduleNameKey(projectID, moduleID string) string {
+	return projectID + "/" + moduleID
+}
+
+// moduleNamesByBareID reads module display names keyed by bare module id and,
+// when the parent is known, by moduleNameKey(project, module).
+//
+// PATCH(engine-4.27 NUL-composite id): modules are a dependent resource, so
+// `modules.id` in the store is `<uuid>\x00<projects_id>` while module_issues
+// junction rows carry the BARE uuid (localModules strips the suffix before the
+// insert). A SQL `JOIN ... ON modules.id = module_issues.module_id` therefore
+// never matches and every name comes back empty. The mapping is built in Go for
+// the same reason as the enrichment's storedByBare map: SQLite string funcs
+// mis-handle the embedded NUL (see store.BareResourceID).
+func moduleNamesByBareID(db *store.Store) (map[string]string, error) {
+	rows, err := db.Query(`SELECT id, COALESCE(projects_id, ''), COALESCE(json_extract(data, '$.name'), '') FROM modules`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	names := map[string]string{}
+	for rows.Next() {
+		var storageID, projectID, name string
+		if err := rows.Scan(&storageID, &projectID, &name); err != nil {
+			return nil, err
+		}
+		bare := store.BareResourceID(storageID)
+		if projectID != "" {
+			names[moduleNameKey(projectID, bare)] = name
+		}
+		// Bare-id fallback for junction rows written without a project (the
+		// column is nullable) — a module uuid is unique across projects.
+		if _, seen := names[bare]; !seen {
+			names[bare] = name
+		}
+	}
+	return names, rows.Err()
+}
+
+// modRef is one module an issue belongs to, as reported by `module of`.
+type modRef struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// modulesForIssue resolves the modules an issue belongs to from the local
+// junction table, ordered by name then id.
+func modulesForIssue(db *store.Store, issueID string) ([]modRef, error) {
+	rows, err := db.Query(`SELECT module_id, COALESCE(project_id, '') FROM module_issues WHERE issue_id = ?`, issueID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	type link struct{ moduleID, projectID string }
+	var links []link
+	for rows.Next() {
+		var l link
+		if err := rows.Scan(&l.moduleID, &l.projectID); err != nil {
+			return nil, err
+		}
+		links = append(links, l)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	if len(links) == 0 {
+		return nil, nil
+	}
+	names, err := moduleNamesByBareID(db)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]modRef, 0, len(links))
+	for _, l := range links {
+		name, ok := names[moduleNameKey(l.projectID, l.moduleID)]
+		if !ok {
+			name = names[l.moduleID]
+		}
+		out = append(out, modRef{ID: l.moduleID, Name: name})
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Name != out[j].Name {
+			return out[i].Name < out[j].Name
+		}
+		return out[i].ID < out[j].ID
+	})
+	return out, nil
 }
 
 // moduleEnrichResult summarizes one enrichment pass.
@@ -189,7 +289,10 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 	}
 	res.Modules = len(modules)
 
-	pg := determinePaginationDefaults()
+	// PATCH(engine-4.27): determinePaginationDefaults is now per-resource; the
+	// module-issues endpoint's defaults match the old global default
+	// (cursor/per_page/100) the novel enrichment relied on.
+	pg := determinePaginationDefaults("modules/modules_module_issues")
 	issueToModules := map[string][]string{}
 
 	tx, err := db.DB().Begin()
@@ -286,12 +389,52 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 		}
 	}
 
+	// PATCH(engine-4.27 NUL-composite id): the reprinted dependent sync stores
+	// projects_issues rows under a NUL-composite storage id (`<uuid>\x00<parent>`),
+	// while the module-issues API returns bare uuids. Map each bare id back to its
+	// stored key before the per-issue UPDATE, or `WHERE id = <bare>` matches zero
+	// rows and no issue is patched. The mapping is built in Go — SQLite string
+	// funcs mis-handle the embedded NUL (see store.BareResourceID) — and scoped
+	// exactly like the reset above so another workspace's issues are never read.
+	storedByBare := map[string]string{}
+	idSQL := `SELECT id FROM projects_issues`
+	var idArgs []any
+	if projectFilter != "" {
+		idSQL += ` WHERE projects_id = ?`
+		idArgs = append(idArgs, projectFilter)
+	} else if workspaceID != "" {
+		idSQL += ` WHERE projects_id IN (SELECT id FROM projects WHERE workspace = ?)`
+		idArgs = append(idArgs, workspaceID)
+	}
+	idRows, qerr := tx.Query(idSQL, idArgs...)
+	if qerr != nil {
+		return res, fmt.Errorf("reading issue ids: %w", qerr)
+	}
+	for idRows.Next() {
+		var sid string
+		if err := idRows.Scan(&sid); err != nil {
+			idRows.Close()
+			return res, fmt.Errorf("scanning issue id: %w", err)
+		}
+		storedByBare[store.BareResourceID(sid)] = sid
+	}
+	idRows.Close()
+	if err := idRows.Err(); err != nil {
+		return res, fmt.Errorf("iterating issue ids: %w", err)
+	}
+
 	for issueID, mods := range issueToModules {
 		sort.Strings(mods)
 		blob, _ := json.Marshal(uniqueStrings(mods))
+		storedID, ok := storedByBare[issueID]
+		if !ok {
+			// The API linked an issue that isn't cached locally (e.g. filtered
+			// out of this sync's scope); nothing to patch.
+			continue
+		}
 		r, uerr := tx.Exec(
 			`UPDATE projects_issues SET data = json_set(data, '$.module_ids', json(?)) WHERE id = ?`,
-			string(blob), issueID,
+			string(blob), storedID,
 		)
 		if uerr != nil {
 			return res, fmt.Errorf("patching issue %s: %w", issueID, uerr)
@@ -474,27 +617,9 @@ func newModuleOfCmd(flags *rootFlags) *cobra.Command {
 			if err := ensureModuleIssuesTable(db); err != nil {
 				return fmt.Errorf("preparing module_issues table: %w", err)
 			}
-			rows, err := db.Query(`
-				SELECT mi.module_id, COALESCE(json_extract(m.data, '$.name'), '')
-				FROM module_issues mi
-				LEFT JOIN modules m ON m.id = mi.module_id
-				WHERE mi.issue_id = ?
-				ORDER BY 2`, args[0])
+			out, err := modulesForIssue(db, args[0])
 			if err != nil {
 				return err
-			}
-			defer rows.Close()
-			type modRef struct {
-				ID   string `json:"id"`
-				Name string `json:"name"`
-			}
-			var out []modRef
-			for rows.Next() {
-				var r modRef
-				if err := rows.Scan(&r.ID, &r.Name); err != nil {
-					return err
-				}
-				out = append(out, r)
 			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				return flags.printJSON(cmd, map[string]any{"issue": args[0], "modules": out})
@@ -534,7 +659,7 @@ cache (module_issues) if the issue store is present.`,
 				return usageErr(fmt.Errorf("--name is required"))
 			}
 			// The global --workspace flag tops the precedence chain and overrides
-			// the positional <slug>; effectiveSlug returns flags.workspace when set,
+			// the positional <slug>; effectiveSlug returns novelWorkspace when set,
 			// otherwise the (required) positional arg.
 			slug = effectiveSlug(flags, slug)
 			c, err := flags.newClient()
@@ -665,8 +790,8 @@ cache (module_issues) if the issue store is present.`,
 func effectiveSlug(flags *rootFlags, localSlug string) string {
 	slug := ""
 	switch {
-	case flags.workspace != "":
-		slug = flags.workspace
+	case novelWorkspace != "":
+		slug = novelWorkspace
 	case localSlug != "":
 		slug = localSlug
 	default:

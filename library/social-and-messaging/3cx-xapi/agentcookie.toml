@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "3cx-xapi-pp-cli"
+display_name = "3CX"
+description = "Every 3CX Configuration API (XAPI) object in one Go binary, with a local mirror of your whole PBX, offline search, config diffing, and cross-entity auditing no 3CX tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/3cx-xapi-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+TCX_CLIENT_ID = true
+TCX_CLIENT_SECRET = true

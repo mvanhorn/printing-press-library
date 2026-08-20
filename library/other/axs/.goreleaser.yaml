@@ -1,0 +1,51 @@
+version: 2
+project_name: axs-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: axs-pp-cli
+    main: ./cmd/axs-pp-cli
+    binary: axs-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/axs/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: axs-pp-mcp
+    main: ./cmd/axs-pp-mcp
+    binary: axs-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: axs-pp-cli
+    repository:
+      owner: stellato
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every SRAM AXS feature from the terminal, plus a local database, offline search"
+    install: |
+      bin.install "axs-pp-cli"
+      bin.install "axs-pp-mcp"

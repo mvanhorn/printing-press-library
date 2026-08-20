@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "bonusly-mcp-loopback-and-go-floor",
+  "applied_at": "2026-08-18",
+  "base_run_id": "20260810-153232-4e95f81e",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Bind the MCP HTTP transport to loopback-only by default instead of all interfaces, and bump go.mod's go directive to meet the public library's repo-wide floor (1.26.6).",
+  "reason": "Two issues surfaced by the public-library PR's own CI/review after opening PR #1748: (1) Greptile flagged a P1 security finding -- cmd/bonusly-pp-mcp/main.go's defaultHTTPAddr was \":7777\", which Go's http.ListenAndServe binds to all interfaces; the registered MCP tools include credential-backed recognition create/update/delete with no caller-authentication middleware, so any network peer that could reach the port could invoke them using the host user's stored Bonusly credentials. Confirmed this is a systemic pattern in the generator template (clockify and raindrop, both already published, have the identical \":7777\" all-interfaces default), but scoped this fix to bonusly's own copy since that's what this PR controls; flagging the template-level fix as a deferred upstream item below. (2) The library's supply-chain scan CI job hard-fails any module whose go.mod go directive is below the repo-wide floor (1.26.6); this module had go 1.26.5 with a separate toolchain go1.26.6 line (from the earlier bonusly-endpoint-fixes/govulncheck work), which satisfied local govulncheck but not this specific floor check. Consolidated to a single `go 1.26.6` line.",
+  "files": [
+    "cmd/bonusly-pp-mcp/main.go",
+    "go.mod"
+  ],
+  "validated_outcome": "go build/go vet clean with go1.26.6. Manually verified the fix satisfies Greptile's own stated remediation options (\"authenticates callers OR defaults to a loopback-only listener\") by choosing the loopback default; --addr flag help text now documents the security tradeoff for anyone who explicitly overrides it.",
+  "deferred_to_upstream": [
+    {
+      "feature": "MCP HTTP transport template should default to a loopback-only bind address, or require an explicit --allow-remote-mcp-http style acknowledgement before binding to all interfaces",
+      "reason": "clockify-pp-cli and raindrop-pp-cli, both already published in this library, generate the identical all-interfaces \":7777\" default with no caller authentication. This is a generator-template-level security gap, not specific to bonusly -- every printed CLI with a credential-backed MCP tool surface and HTTP transport support likely has the same exposure. Worth a follow-up PR against cli-printing-press itself and potentially a retroactive fix across already-published CLIs."
+    }
+  ]
+}

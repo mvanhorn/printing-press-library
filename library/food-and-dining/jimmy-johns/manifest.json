@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "jimmy-johns-pp-mcp",
   "display_name": "Jimmy John's",
-  "version": "4.2.2",
+  "version": "0.1.0",
   "description": "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.",
   "author": {
     "name": "CLI Printing Press"

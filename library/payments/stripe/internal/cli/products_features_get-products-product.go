@@ -34,10 +34,12 @@ func newProductsFeaturesGetProductsProductCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/products/{product}/features"
-			if len(args) < 4 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("product is required\nUsage: %s <%s>", cmd.CommandPath(), "product"))
 			}
-			path = replacePathParam(path, "product", args[3])
+			path = replacePathParam(path, "product", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "features", path, map[string]string{
 				"ending_before":  fmt.Sprintf("%v", flagEndingBefore),
 				"expand":         fmt.Sprintf("%v", flagExpand),

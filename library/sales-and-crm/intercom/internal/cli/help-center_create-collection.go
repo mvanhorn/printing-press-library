@@ -14,7 +14,7 @@ import (
 
 func newHelpCenterCreateCollectionCmd(flags *rootFlags) *cobra.Command {
 	var bodyDescription string
-	var bodyHelpCenterId int
+	var bodyHelpCenterId string
 	var bodyName string
 	var bodyParentId string
 	var bodyTranslatedContentArDescription string
@@ -138,19 +138,36 @@ func newHelpCenterCreateCollectionCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli help-center create-collection --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "help-center.create-collection", "pp:method": "POST", "pp:path": "/help_center/collections"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("name") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "name")
 				}
 			}
+			path := "/help_center/collections"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/help_center/collections"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -162,18 +179,19 @@ func newHelpCenterCreateCollectionCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyDescription != "" {
-					body["description"] = bodyDescription
+					bodyMap["description"] = bodyDescription
 				}
-				if bodyHelpCenterId != 0 {
-					body["help_center_id"] = bodyHelpCenterId
+				if bodyHelpCenterId != "" {
+					bodyMap["help_center_id"] = bodyHelpCenterId
 				}
 				if bodyName != "" {
-					body["name"] = bodyName
+					bodyMap["name"] = bodyName
 				}
 				if bodyParentId != "" {
-					body["parent_id"] = bodyParentId
+					bodyMap["parent_id"] = bodyParentId
 				}
 				{
 					nestedTranslatedContent := map[string]any{}
@@ -736,7 +754,7 @@ func newHelpCenterCreateCollectionCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 					if len(nestedTranslatedContent) > 0 {
-						body["translated_content"] = nestedTranslatedContent
+						bodyMap["translated_content"] = nestedTranslatedContent
 					}
 				}
 			}
@@ -807,6 +825,9 @@ func newHelpCenterCreateCollectionCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -845,7 +866,11 @@ func newHelpCenterCreateCollectionCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
@@ -877,7 +902,7 @@ func newHelpCenterCreateCollectionCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&bodyDescription, "description", "", "The description of the collection.")
-	cmd.Flags().IntVar(&bodyHelpCenterId, "help-center-id", 0, "The id of the help center where the collection will be created.")
+	cmd.Flags().StringVar(&bodyHelpCenterId, "help-center-id", "", "The id of the help center where the collection will be created.")
 	cmd.Flags().StringVar(&bodyName, "name", "", "The name of the collection. For multilingual collections, this will be the name of the default language's content.")
 	cmd.Flags().StringVar(&bodyParentId, "parent-id", "", "The id of the parent collection. If `null` then it will be created as the first level collection.")
 	cmd.Flags().StringVar(&bodyTranslatedContentArDescription, "translated-content-ar-description", "", "The description of the collection. Only available for collections.")

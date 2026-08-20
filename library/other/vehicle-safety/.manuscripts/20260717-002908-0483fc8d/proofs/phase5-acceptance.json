@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "vehicle-safety",
+  "run_id": "20260717-002908-0483fc8d",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 113,
+  "tests_passed": 113,
+  "tests_skipped": 60,
+  "auth_context": {
+    "type": "none"
+  }
+}

@@ -95,6 +95,17 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					report["auth"] = "configured"
 					report["auth_source"] = cfg.AuthSource
 				}
+
+				// PATCH(omdb-key-in-config-like-tmdb) — OMDb is optional, so
+				// this is reported but never failed on.
+				if cfg.OmdbKey() != "" {
+					report["omdb"] = "configured"
+					report["omdb_source"] = cfg.OmdbSource()
+				} else {
+					report["omdb"] = "not configured (optional)"
+					report["omdb_hint"] = "movie-goat-pp-cli auth set-omdb-token <token>"
+					report["omdb_key_url"] = "http://www.omdbapi.com/apikey.aspx"
+				}
 			}
 
 			// Check auth environment variables

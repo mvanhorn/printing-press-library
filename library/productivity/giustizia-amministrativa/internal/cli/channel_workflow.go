@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/store"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {

@@ -18,6 +18,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
@@ -93,7 +94,7 @@ func newQueueFromSavedCmd(flags *rootFlags) *cobra.Command {
 			}
 			queued := 0
 			for _, uri := range plan {
-				_, _, err := c.Post("/me/player/queue?uri="+uri, nil)
+				_, _, err := c.Post(context.Background(), "/me/player/queue?uri="+uri, nil)
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}

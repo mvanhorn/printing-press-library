@@ -25,7 +25,7 @@ func seedArticle(t *testing.T, s source.PostSummary, art *source.Article) string
 		t.Fatalf("open store: %v", err)
 	}
 	defer db.Close()
-	raw, err := json.Marshal(buildArchiveRecord(s, art, s.Username))
+	raw, err := json.Marshal(buildArchiveRecord(s, art, s.Username, s.Username))
 	if err != nil {
 		t.Fatalf("marshal record: %v", err)
 	}

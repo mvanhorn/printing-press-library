@@ -1,7 +1,7 @@
 {
   "api_name": "scrape-creators",
   "base_url": "https://api.scrapecreators.com",
-  "description": "Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform joins, and ad-library diffing no other Scrape Creators tool ships.",
+  "description": "Every Scrape Creators endpoint across 28 platforms, with credit-aware comment mining and a local corpus no other Scrape Creators tool has.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "mcp": {
@@ -103,6 +103,87 @@
       ]
     },
     {
+      "name": "apple-music_list",
+      "description": "Retrieves public Apple Music album details, including title, artist, artwork, release info, tracks, and more by the artist. Optional: id, url.",
+      "method": "GET",
+      "path": "/v1/apple-music/album",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Apple Music album id. If you'd prefer to use the URL instead, you can use the url parameter instead."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Apple Music album URL. If you'd prefer to use the id instead, you can use the id parameter instead."
+        }
+      ]
+    },
+    {
+      "name": "apple-music_list-applemusic",
+      "description": "Retrieves public Apple Music artist details, including artwork, editorial notes, top songs, albums, music videos, playlists, and related sections. Optional: id, url.",
+      "method": "GET",
+      "path": "/v1/apple-music/artist",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Apple Music artist id. If you'd prefer to use the URL instead, you can use the url parameter instead."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Apple Music artist URL. If you'd prefer to use the id instead, you can use the id parameter instead."
+        }
+      ]
+    },
+    {
+      "name": "apple-music_list-applemusic-2",
+      "description": "Searches Apple Music and returns public result sections for artists, albums, songs, playlists, stations, and music videos. Use type=song, album, artist, playlist, or all. Required: query. Optional: type.",
+      "method": "GET",
+      "path": "/v1/apple-music/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type to return. Use all, song, album, artist, playlist, station, music_video, or radio_episode."
+        }
+      ]
+    },
+    {
+      "name": "apple-music_list-applemusic-3",
+      "description": "Retrieves public Apple Music song details by id or URL. Album track URLs with an i= song id are supported. Optional: id, url.",
+      "method": "GET",
+      "path": "/v1/apple-music/track",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Apple Music song id. Some songs have standalone song URLs; for album tracks, use the url parameter."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Apple Music song URL or album track URL."
+        }
+      ]
+    },
+    {
       "name": "bluesky_list",
       "description": "Fetches a single Bluesky post by URL, returning the post's record text, author info, embed content, replyCount, repostCount, likeCount, and quoteCount. Also includes a replies array with threaded reply posts. Required: url.",
       "method": "GET",
@@ -168,6 +249,155 @@
       ]
     },
     {
+      "name": "facebook_create",
+      "description": "Fetches all ads currently running for a specific company from the Meta Ad Library. Each ad includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body, images, videos, and display_format. Supports filtering by country, media_type, date range, and language with cursor-based pagination. Both GET and POST are supported. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body. Optional: companyName, country, cursor (plus 8 more).",
+      "method": "POST",
+      "path": "/v1/facebook/adLibrary/company/ads",
+      "params": [
+        {
+          "name": "companyName",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the company. Can either use this or pageId"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "This can only be one country. It has to be the 2 letter code for the country. It defaults to ALL."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "Cursor to paginate through results"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date to search for. Format: YYYY-MM-DD"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language to filter ads on. Needs to be 2 letter language code, ie EN, ES, FR, etc"
+        },
+        {
+          "name": "media_type",
+          "type": "string",
+          "location": "body",
+          "description": "Media type of the ad. Defaults to ALL. Meme refers to ads with image and text. Not sure why they call it meme."
+        },
+        {
+          "name": "pageId",
+          "type": "string",
+          "location": "body",
+          "description": "The companies ad library page id. You can get this with my Search For Companies Endpoint. Can either use this or companyName"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "body",
+          "description": "Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped)."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date to search for. Format: YYYY-MM-DD"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status of the ad. Defaults to ACTIVE."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "facebook_create-adlibrary",
+      "description": "Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body text, images, videos, and cta_text. Both GET and POST are supported. Use GET for normal requests. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body. Required: query. Optional: ad_type, country, cursor (plus 7 more).",
+      "method": "POST",
+      "path": "/v1/facebook/adLibrary/search/ads",
+      "params": [
+        {
+          "name": "ad_type",
+          "type": "string",
+          "location": "body",
+          "description": "Search for all ads or only political and issue ads"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "This can only be one country. It has to be the 2 letter code for the country. It defaults to ALL."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "Cursor to paginate through results"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "Impressions end date. Needs to be in YYYY-MM-DD format."
+        },
+        {
+          "name": "media_type",
+          "type": "string",
+          "location": "body",
+          "description": "Media type of the ad. Defaults to ALL. Meme just means the ad has text and an image. No clue why they call it meme."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Keyword to search for",
+          "required": true
+        },
+        {
+          "name": "search_type",
+          "type": "string",
+          "location": "body",
+          "description": "If you want to search by exact phrase or not"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "body",
+          "description": "Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped)."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Impressions start date. Needs to be in YYYY-MM-DD format."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status of the ad. Defaults to ACTIVE."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
       "name": "facebook_list",
       "description": "Get the events of a city. Check out this [link](https://www.facebook.com/events/explore/saint-petersburg-florida/111326725552547) for an example of where we are getting the data from. Required: url. Optional: time, cursor.",
       "method": "GET",
@@ -196,7 +426,7 @@
     },
     {
       "name": "facebook_list-adlibrary",
-      "description": "Retrieves detailed information about a specific Facebook ad by its ID or URL. Returns adArchiveID, pageName, isActive, startDate, endDate, and a snapshot containing body, images, videos, display_format, link_url, and cta_text. For ads with multiple versions, the ad creative is found in the snapshot.cards array rather than snapshot.body. Optional: id, url, trim.",
+      "description": "Retrieves detailed information about a specific Facebook ad by its ID or URL. Returns adArchiveID, pageName, isActive, startDate, endDate, and a snapshot containing body, images, videos, display_format, link_url, and cta_text. Regulated ads may also include source-dependent aaa_info using the structure shown below. Political and social issue delivery data is normalized to location_audience and age_country_gender_reach_breakdown. Political location_audience rows include reach, and political delivery values are fractional shares, so 0.08 means 8%. Regional transparency data may use absolute reach counts. For ads with multiple versions, the ad creative is found in the snapshot.cards array rather than snapshot.body. Optional: id, url, trim (plus 1 more).",
       "method": "GET",
       "path": "/v1/facebook/adLibrary/ad",
       "params": [
@@ -217,12 +447,18 @@
           "type": "bool",
           "location": "query",
           "description": "Set to true for a trimmed down version of the response"
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "facebook_list-adlibrary-2",
-      "description": "Retrieves a transcript for a single Facebook Ad Library video ad by ID or URL. If Facebook exposes captions, those are used. Otherwise we try to transcribe the public video URL. Credits are only deducted when transcript is returned. If the ad has no video or no transcript is available, transcript will be null and no credit is charged. Optional: id, url.",
+      "description": "Retrieves a transcript for a single Facebook Ad Library video ad by ID or URL. If Facebook exposes captions, those are used. Otherwise we try to transcribe the public video URL. Credits are only deducted when transcript is returned. If the ad has no video or no transcript is available, transcript will be null and no credit is charged. Optional: id, url, cache_max_age.",
       "method": "GET",
       "path": "/v1/facebook/adLibrary/ad/transcript",
       "params": [
@@ -237,12 +473,18 @@
           "type": "string",
           "location": "query",
           "description": "Facebook Ad URL"
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "facebook_list-adlibrary-3",
-      "description": "Fetches all ads currently running for a specific company from the Meta Ad Library. Each ad includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body, images, videos, and display_format. Supports filtering by country, media_type, date range, and language with cursor-based pagination. Optional: pageId, companyName, country (plus 8 more).",
+      "description": "Fetches all ads currently running for a specific company from the Meta Ad Library. Each ad includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body, images, videos, and display_format. Supports filtering by country, media_type, date range, and language with cursor-based pagination. Both GET and POST are supported. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body. Optional: pageId, companyName, country (plus 8 more).",
       "method": "GET",
       "path": "/v1/facebook/adLibrary/company/ads",
       "params": [
@@ -286,7 +528,7 @@
           "name": "sort_by",
           "type": "string",
           "location": "query",
-          "description": "Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped). Defaults to impressions."
+          "description": "Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped)."
         },
         {
           "name": "start_date",
@@ -316,7 +558,7 @@
     },
     {
       "name": "facebook_list-adlibrary-4",
-      "description": "Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body text, images, videos, and cta_text. Results cap around 1,500 via GET due to cursor size limits; switch to POST method with body params for larger result sets. Required: query. Optional: sort_by, search_type, ad_type (plus 7 more).",
+      "description": "Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body text, images, videos, and cta_text. Both GET and POST are supported. Use GET for normal requests. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body. Required: query. Optional: sort_by, search_type, ad_type (plus 7 more).",
       "method": "GET",
       "path": "/v1/facebook/adLibrary/search/ads",
       "params": [
@@ -331,7 +573,7 @@
           "name": "sort_by",
           "type": "string",
           "location": "query",
-          "description": "Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped). Defaults to impressions."
+          "description": "Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped)."
         },
         {
           "name": "search_type",
@@ -447,7 +689,27 @@
     },
     {
       "name": "facebook_list-group",
-      "description": "Fetches posts from a public Facebook group, limited to 3 posts per page due to API limitations. Each post includes id, text, url, reactionCount, commentCount, publishTime, videoDetails, and topComments. Supports sorting by TOP_POSTS, RECENT_ACTIVITY, CHRONOLOGICAL, or CHRONOLOGICAL_LISTINGS, with cursor-based pagination. Optional: url, group_id, sort_by (plus 1 more).",
+      "description": "Fetches the public information shown on a Facebook group's About page, including its description, privacy and visibility, member and activity counts, categories, administrators and moderators when Facebook exposes them, group history, and rules. Provide either url or group_id. Optional: url, group_id.",
+      "method": "GET",
+      "path": "/v1/facebook/group",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The Facebook group URL. Group sub-page URLs such as /about work too."
+        },
+        {
+          "name": "group_id",
+          "type": "string",
+          "location": "query",
+          "description": "The numeric Facebook group ID. Provide this instead of url if you already have it."
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-group-2",
+      "description": "Fetches posts from a public Facebook group, limited to 3 posts per page due to API limitations. Each post includes id, text, url, reactionCount, commentCount, publishTime, videoDetails, and topComments. Results are chronological by default. Supports TOP_POSTS, RECENT_ACTIVITY, CHRONOLOGICAL, and CHRONOLOGICAL_LISTINGS with cursor-based pagination. Optional: url, group_id, sort_by (plus 1 more).",
       "method": "GET",
       "path": "/v1/facebook/group/posts",
       "params": [
@@ -467,7 +729,7 @@
           "name": "sort_by",
           "type": "string",
           "location": "query",
-          "description": "How to sort the posts"
+          "description": "How to sort the posts. Defaults to CHRONOLOGICAL."
         },
         {
           "name": "cursor",
@@ -603,7 +865,7 @@
     },
     {
       "name": "facebook_list-post",
-      "description": "Retrieves a single public Facebook post or reel by URL. Returns post_id, like_count, comment_count, share_count, view_count, description, creation_time, and author details. For some reels, Facebook does not expose the same view count on the individual post page that it shows on the profile Reels grid. This value can be null or lower than the public Reels badge. If you need the public Reel badge count, call /v1/facebook/profile/reels with the author URL and match the reel by post_id. For video posts, includes video sd_url, hd_url, thumbnail, and length_in_second. Optionally fetches comments and transcript via get_comments and get_transcript parameters. Required: url.",
+      "description": "Retrieves a single public Facebook post or reel by URL. Returns post_id, like_count, comment_count, share_count, view_count, description, creation_time, and author details. For some reels, Facebook does not expose the same view count on the individual post page that it shows on the profile Reels grid. This value can be null or lower than the public Reels badge. If you need the public Reel badge count, call /v1/facebook/profile/reels with the author URL and match the reel by post_id. For video posts, includes video sd_url, hd_url, thumbnail, and length_in_second. Optionally fetches comments and transcript via get_comments and get_transcript parameters. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/facebook/post",
       "params": [
@@ -613,6 +875,12 @@
           "location": "query",
           "description": "The URL of the post to get",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -644,7 +912,7 @@
     },
     {
       "name": "facebook_list-post-3",
-      "description": "Extracts the transcript text from a Facebook video post or reel. Returns the transcript as a single text string with line breaks. Only works on videos under 2 minutes in length. Required: url.",
+      "description": "Extracts the transcript text from a Facebook video post or reel. Returns the transcript as a single text string with line breaks. Only works on videos under 2 minutes in length. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/facebook/post/transcript",
       "params": [
@@ -654,6 +922,12 @@
           "location": "query",
           "description": "Facebook post URL",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -687,7 +961,7 @@
     },
     {
       "name": "facebook_list-profile",
-      "description": "Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange, rating, likeCount, and followerCount. Also returns adLibrary status with the page's ad activity and pageId. Optionally includes businessHours when get_business_hours is set to true. If Facebook shows an 18+ or private content gate, the response is still 200 and includes isPrivate: true. If the page is not found, the response is 404 with accountDoesNotExist: true and isPrivate: false. Required: url. Optional: get_business_hours.",
+      "description": "Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange, rating, likeCount, and followerCount. Also returns adLibrary status with the page's ad activity and pageId. Optionally includes businessHours when get_business_hours is set to true. If Facebook shows an 18+ content gate, the response is still 200 with account_status: 'age-restricted' and isPrivate: true. If Facebook shows a private content gate, the response is still 200 with account_status: 'private' and isPrivate: true. If the page is not found, the response is 404 with accountDoesNotExist: true and isPrivate: false. Set include_gated_profile=true to also return limited public fields (such as id, name, category, likeCount, profilePicSmall, and links) when a profile is gated or age-restricted. This option only affects gated/age-restricted profiles — public profiles still return the normal full response. Required: url. Optional: get_business_hours, include_gated_profile, cache_max_age.",
       "method": "GET",
       "path": "/v1/facebook/profile",
       "params": [
@@ -703,6 +977,18 @@
           "type": "string",
           "location": "query",
           "description": "Get the business's hours"
+        },
+        {
+          "name": "include_gated_profile",
+          "type": "string",
+          "location": "query",
+          "description": "When true, returns limited public fields for gated or age-restricted profiles. Ignored for normal public profiles — those still return the full response."
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -1077,7 +1363,7 @@
     },
     {
       "name": "google_list",
-      "description": "Retrieves detailed information about a specific Google ad including advertiserId, creativeId, format, firstShown, lastShown, and overallImpressions. Returns creativeRegions, regionStats with per-region impression data, and variations with destinationUrl, headline, description, and imageUrl. Text extraction uses OCR, so accuracy may vary. Required: url.",
+      "description": "Retrieves detailed information about a specific Google ad including advertiserId, creativeId, format, firstShown, lastShown, and overallImpressions. Returns creativeRegions, regionStats with per-region impression data, and variations with destinationUrl, headline, description, and imageUrl. Text extraction uses OCR, so accuracy may vary. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/google/ad",
       "params": [
@@ -1087,6 +1373,12 @@
           "location": "query",
           "description": "The url of the ad",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -1181,7 +1473,7 @@
     },
     {
       "name": "google_list-search",
-      "description": "Performs a Google search and returns organic results with url, title, and description for each result. Supports an optional region parameter (2-letter country code) to get localized results from a specific country. Required: query. Optional: region, date_posted, page.",
+      "description": "Performs a Google search and returns organic results with url, title, and description for each result. Supports an optional region parameter (2-letter country code) to get localized results from a specific country. Pages 1 through 11 are supported; requests for page 12 or greater return a 400 response. Required: query. Optional: region, date_posted, page.",
       "method": "GET",
       "path": "/v1/google/search",
       "params": [
@@ -1208,13 +1500,13 @@
           "name": "page",
           "type": "float",
           "location": "query",
-          "description": "Page number to retrieve"
+          "description": "Page number to retrieve. Must be between 1 and 11; page 12 or greater returns a 400 response."
         }
       ]
     },
     {
       "name": "instagram_list",
-      "description": "Fetches a lightweight Instagram profile summary by user ID, returning username, full name, biography, profile picture URL, verification status, follower count, following count, media count, and account privacy and type. Ideal for quick lookups or enrichment when you already have the numeric user ID. Optional: userId.",
+      "description": "Fetches a lightweight Instagram profile summary by user ID, returning username, full name, biography, profile picture URL, verification status, follower count, following count, media count, and account privacy and type. Ideal for quick lookups or enrichment when you already have the numeric user ID. Optional: userId, cache_max_age.",
       "method": "GET",
       "path": "/v1/instagram/basic-profile",
       "params": [
@@ -1223,6 +1515,12 @@
           "type": "string",
           "location": "query",
           "description": "Instagram user id"
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -1249,7 +1547,7 @@
     },
     {
       "name": "instagram_list-media",
-      "description": "Generates an AI-powered speech-to-text transcription for an Instagram video post or reel. The video must be under 2 minutes long. Returns a transcripts array with each item's shortcode and transcribed text; carousel posts produce one transcript per video slide. Expect 10-30 second response times, and null when no speech is detected. Required: url.",
+      "description": "Generates an AI-powered speech-to-text transcription for an Instagram video post or reel. The video must be under 2 minutes long. Returns a transcripts array with each item's shortcode and transcribed text; carousel posts produce one transcript per video slide. Expect 10-30 second response times, and null when no speech is detected. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v2/instagram/media/transcript",
       "params": [
@@ -1259,12 +1557,18 @@
           "location": "query",
           "description": "Instagram post or reel URL",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "instagram_list-post",
-      "description": "Fetches detailed metadata for a single Instagram post or reel by shortcode or URL. Returns caption text, like count, comment count, video URL, video play count, video duration, display images, owner info, tagged users, and carousel sidecar children when applicable. Play counts are Instagram-only views and exclude cross-posted Facebook views. Required: url. Optional: region, trim, download_media.",
+      "description": "Fetches detailed metadata for a single Instagram post or reel by shortcode or URL. Returns caption text, like count, comment count, video URL, video play count, video duration, display images, owner info, tagged users, and carousel sidecar children when applicable. Play counts are Instagram-only views and exclude cross-posted Facebook views. Required: url. Optional: region, trim, download_media (plus 1 more).",
       "method": "GET",
       "path": "/v1/instagram/post",
       "params": [
@@ -1292,12 +1596,18 @@
           "type": "bool",
           "location": "query",
           "description": "Set to true to download the video/images and get back permanent Supabase URLs. Costs 10 credits if media is found, 1 credit otherwise."
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "instagram_list-post-2",
-      "description": "Retrieves comments on a public Instagram post or reel. Each comment includes the comment text, creation timestamp, and commenter details such as username, user ID, verification status, and profile picture URL. Supports cursor-based pagination to load additional comment pages. Required: url. Optional: cursor.",
+      "description": "Retrieves comments on a public Instagram post or reel. Each comment includes the comment text, creation timestamp, reply count when Instagram provides it, and commenter details such as username, user ID, verification status, and profile picture URL. `child_comment_count` can be null when Instagram does not expose the count publicly. Set `include_replies=true` to fetch the first page of replies for every returned comment. This adds `replies`, `replies_cursor`, and `has_more_replies` to each comment. This option always costs 15 credits because Scrape Creators makes a separate Instagram replies request for every comment in the response. It is possible that no replies are returned, but you will still be charged 15 credits because those reply lookups were performed. This option is much slower than a normal comments request and may time out at 29 seconds. Supports cursor-based pagination to load additional comment pages. Required: url. Optional: cursor, include_replies.",
       "method": "GET",
       "path": "/v2/instagram/post/comments",
       "params": [
@@ -1313,12 +1623,46 @@
           "type": "string",
           "location": "query",
           "description": "The cursor to get more comments. Get 'cursor' from previous response."
+        },
+        {
+          "name": "include_replies",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to include replies for every returned comment. This always costs 15 credits because each comment requires a separate Instagram replies request. You will still be charged 15 credits if no replies are returned. This is much slower and may time out at 29 seconds."
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-post-3",
+      "description": "Retrieves the public replies to a specific Instagram comment. Pass the post or reel URL and the parent comment's `id` from the Comments endpoint. Returns reply text, timestamps, engagement counts, parent comment ID, and user details. Paginate with `cursor` when `has_more` is true. Required: url, comment_id. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/instagram/post/comment/replies",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The Instagram post or reel URL",
+          "required": true
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "query",
+          "description": "The parent comment ID from the Comments endpoint",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to get more replies. Get `cursor` from the previous response."
         }
       ]
     },
     {
       "name": "instagram_list-profile",
-      "description": "Retrieves comprehensive public Instagram profile information including biography, bio links, follower and following counts, verification status, and profile picture URLs. Also returns recent timeline posts with engagement metrics such as likes, comments, and video view counts, plus a list of related profiles. Useful for account overview, audience analysis, or discovering similar creators. Required: handle. Optional: trim.",
+      "description": "Retrieves comprehensive public Instagram profile information including biography, bio links, follower and following counts, verification status, and profile picture URLs. Also returns recent timeline posts with engagement metrics such as likes, comments, and video view counts, plus a list of related profiles. Useful for account overview, audience analysis, or discovering similar creators. Required: handle. Optional: trim, cache_max_age.",
       "method": "GET",
       "path": "/v1/instagram/profile",
       "params": [
@@ -1334,6 +1678,12 @@
           "type": "bool",
           "location": "query",
           "description": "Set to true to get a trimmed response"
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -1346,7 +1696,7 @@
     },
     {
       "name": "instagram_list-reels-2",
-      "description": "Searches for Instagram reels matching a keyword or phrase via Google Search, bypassing Instagram's login-gated search. Returns a list of reels with shortcode, caption, thumbnail, video URL, play count, like count, comment count, video duration, owner details, location, and audio attribution info. Play counts are Instagram-only views and exclude cross-posted Facebook views. Supports page-based pagination for browsing additional results. Required: query. Optional: date_posted, page.",
+      "description": "Use this when you only want Google-indexed Instagram reels matching a keyword or phrase, with optional date filters and pagination. It returns reel media, engagement, owner, location, and audio details. Results are best-effort rather than a complete Instagram-native search. For Instagram-curated topic posts, use /v1/instagram/search/popular. For an exact hashtag across posts and reels, use /v1/instagram/search/hashtag. Play counts are Instagram-only and exclude cross-posted Facebook views. Pages 1 through 11 are supported; page 12 or greater returns a 400 response. Required: query. Optional: date_posted, page.",
       "method": "GET",
       "path": "/v2/instagram/reels/search",
       "params": [
@@ -1367,13 +1717,28 @@
           "name": "page",
           "type": "float",
           "location": "query",
-          "description": "The page number to return."
+          "description": "The page number to return. Must be between 1 and 11; page 12 or greater returns a 400 response."
         }
       ]
     },
     {
       "name": "instagram_list-search",
-      "description": "Finds public Instagram posts for a hashtag using Google Search, then returns post details such as caption, play count when available, like count, comment count, owner, and post time. Results depend on what Google has indexed, so this is best-effort and not a complete Instagram-native hashtag search. Pass media_type=reels if you only want reels. Use date_posted for recent posts and pass the returned cursor to fetch the next page. Required: hashtag. Optional: date_posted, media_type, cursor.",
+      "description": "Use this for Instagram-native account, hashtag, or place lookup. It returns ranked users, hashtags, places, and keyword suggestions from Instagram itself. It is not Google-indexed, does not require an Instagram login, returns one page only, and does not return posts. For an Instagram-curated topic page with posts, use /v1/instagram/search/popular. For broader profile discovery from Google-indexed bios and captions, use /v1/instagram/search/profiles. Required: query.",
+      "method": "GET",
+      "path": "/v1/instagram/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The username, hashtag, place, or keyword to search for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-search-2",
+      "description": "Use this when you know the exact hashtag and want Google-indexed public Instagram posts or reels, optional date filters, and pagination. It returns post details such as caption, play count when available, engagement, owner, and post time. Results are best-effort and not a complete Instagram-native hashtag feed. For an Instagram-curated topic page with generated context and suggested terms, use /v1/instagram/search/popular. Pass media_type=reels to only return reels. Cursors are limited to pages 1 through 11; cursor 12 or greater returns a 400 response. Required: hashtag. Optional: date_posted, media_type, cursor.",
       "method": "GET",
       "path": "/v1/instagram/search/hashtag",
       "params": [
@@ -1400,13 +1765,34 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "The cursor returned by the previous response. In this version, it is the next Google results page number."
+          "description": "The cursor returned by the previous response. It is the next Google results page number and cannot exceed 11; cursor 12 or greater returns a 400 response."
         }
       ]
     },
     {
-      "name": "instagram_list-search-2",
-      "description": "Searches Google for public Instagram results matching a keyword or phrase, then returns matching public profiles. Profile-page matches are marked matched_from=profile. Reel/post caption matches are enriched into the creator profile and marked matched_from=caption. This is best-effort and depends on what Google has indexed; it is not a complete native Instagram profile search. Required: query. Optional: cursor.",
+      "name": "instagram_list-search-3",
+      "description": "Use this to explore an Instagram topic and the posts Instagram curates for it. It scrapes the public /popular/{query} page without requiring an Instagram login. The first page returns the topic title, numeric total media count, Instagram's generated description and sources, suggested terms, posts, and an opaque cursor. Pass that cursor with the same query to fetch more posts. Later pages return query, posts, cursor, and has_more only. For an exact hashtag through Google-indexed results, use /v1/instagram/search/hashtag. For reels only, use /v2/instagram/reels/search. Each successful request costs 1 credit. Required: query. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/instagram/search/popular",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The Popular topic to search for.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The opaque cursor returned by the previous response. Use it with the same query to fetch the next page of posts."
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-search-4",
+      "description": "Use this for broad creator discovery from keywords found in Google-indexed Instagram profile pages, bios, and post captions. Profile-page matches are marked matched_from=profile; caption matches are enriched into the creator profile and marked matched_from=caption. This is best-effort and can paginate, but it is not Instagram-native or complete. For Instagram's own ranked account results, use /v1/instagram/search. Cursors are limited to pages 1 through 11; cursor 12 or greater returns a 400 response. Required: query. Optional: cursor.",
       "method": "GET",
       "path": "/v1/instagram/search/profiles",
       "params": [
@@ -1421,7 +1807,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "The cursor returned by the previous response. In this version, it is the next Google results page number."
+          "description": "The cursor returned by the previous response. It is the next Google results page number and cannot exceed 11; cursor 12 or greater returns a 400 response."
         }
       ]
     },
@@ -1494,6 +1880,27 @@
     },
     {
       "name": "instagram_list-user-4",
+      "description": "Returns up to 10 public posts per page from an Instagram user's Tagged tab. Each item is a flat post object with its shortcode, caption, media type, engagement counts, media URLs, and owner details. Keep passing the returned cursor to fetch additional pages until has_more is false. Required: user_id. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/instagram/user/tagged-posts",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "Numeric Instagram user ID.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor returned by the previous response."
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-user-5",
       "description": "Returns a paginated feed of a user's public Instagram posts, including reels, photos, videos, and carousels. Each item includes media type, shortcode, caption text, like count, comment count, play count, video URLs, image URLs, and tagged users. Play counts reflect Instagram-only views and exclude cross-posted Facebook views. Supports cursor-based pagination via next_max_id for scrolling through the full timeline. Required: handle. Optional: next_max_id, trim.",
       "method": "GET",
       "path": "/v2/instagram/user/posts",
@@ -1520,7 +1927,7 @@
       ]
     },
     {
-      "name": "instagram_list-user-5",
+      "name": "instagram_list-user-6",
       "description": "Fetches the full contents of a specific Instagram story highlight album by its ID. Returns the highlight's cover image, title, user info, and an items array containing each story with its media type, image or video URLs, dimensions, timestamp, and sticker/interactive element data. Useful for archiving or analyzing individual highlight reels. Optional: id.",
       "method": "GET",
       "path": "/v1/instagram/user/highlight/detail",
@@ -1550,7 +1957,7 @@
     },
     {
       "name": "komi_list",
-      "description": "Scrapes a Komi page by URL, extracting the creator's profile, social links, and featured content. Returns id, username, avatar, displayName, bio, and social accounts (instagram, tiktok, youtube, twitter, facebook, snapchat). Also includes links, an array of link and product objects each with id, url, title, type, thumbnail, and optional price and currency for products. Required: url.",
+      "description": "Scrapes a Komi page by URL, extracting the creator's profile, social links, and featured content. Returns id, username, avatar, displayName, bio, and social accounts (instagram, tiktok, youtube, twitter, facebook, snapchat). Also includes links, an array of link and product objects each with id, url, title, type, thumbnail, and optional price and currency for products. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/komi",
       "params": [
@@ -1560,6 +1967,12 @@
           "location": "query",
           "description": "URL to Komi page",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -1631,7 +2044,7 @@
     },
     {
       "name": "linkbio_list",
-      "description": "Scrapes a Linkbio (lnk.bio) page by URL, extracting the creator's profile and all their links. Returns handle, id, social accounts (instagram, tiktok, youtube, twitter, whatsapp), email, website, and links — an array of link objects each with url and text. Required: url.",
+      "description": "Scrapes a Linkbio (lnk.bio) page by URL, extracting the creator's profile and all their links. Returns handle, id, social accounts (instagram, tiktok, youtube, twitter, whatsapp), email, website, and links — an array of link objects each with url and text. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/linkbio",
       "params": [
@@ -1641,6 +2054,12 @@
           "location": "query",
           "description": "URL to Linkbio (lnk.bio) page",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -1792,7 +2211,7 @@
     },
     {
       "name": "linkedin_list-search",
-      "description": "Finds public LinkedIn posts, feed updates, and Pulse articles by keyword using Google Search, then returns post details such as description, author, media, images, like count, comment count, and published date when LinkedIn exposes them publicly. Results depend on what Google has indexed, so this is best-effort and not a complete LinkedIn-native search. Use date_posted for recent posts and pass the returned cursor to fetch the next page. Required: query. Optional: date_posted, cursor.",
+      "description": "Finds public LinkedIn posts, feed updates, and Pulse articles by keyword using Google Search, then returns post details such as description, author, media, images, like count, comment count, and published date when LinkedIn exposes them publicly. Results depend on what Google has indexed, so this is best-effort and not a complete LinkedIn-native search. Use date_posted for recent posts and pass the returned cursor to fetch the next page. Cursors are limited to pages 1 through 11; cursor 12 or greater returns a 400 response. Required: query. Optional: date_posted, cursor.",
       "method": "GET",
       "path": "/v1/linkedin/search/posts",
       "params": [
@@ -1813,13 +2232,13 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "The cursor returned from the previous response"
+          "description": "The cursor returned from the previous response. The maximum cursor is 11; cursor 12 or greater returns a 400 response."
         }
       ]
     },
     {
       "name": "linkme_list",
-      "description": "Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id, firstName, username, bio, profileVisitCount, profileImage, verifiedAccount, and isAmbassador flag. Also includes infoLinks (email addresses) and webLinks, an array of categorized social platform links (Spotify, Instagram, YouTube, Twitter, Facebook, and more) each with linkValue and faceValue. Required: url.",
+      "description": "Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id, firstName, username, bio, profileVisitCount, profileImage, verifiedAccount, and isAmbassador flag. Also includes infoLinks (email addresses) and webLinks, an array of categorized social platform links (Spotify, Instagram, YouTube, Twitter, Facebook, and more) each with linkValue and faceValue. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/linkme",
       "params": [
@@ -1829,12 +2248,18 @@
           "location": "query",
           "description": "Linkme profile URL",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "linktree_list",
-      "description": "Scrapes a Linktree page by URL, extracting the creator's profile and all their links. Returns id, username, profilePictureUrl, description, verticals, timezone, and links — an array of link objects each with id, type, title, and url. Also includes detected social accounts (instagram, tiktok, spotify, youtube, soundcloud, apple_music) and email_address. Required: url.",
+      "description": "Scrapes a Linktree page by URL, extracting the creator's profile and all their links. Returns id, username, profilePictureUrl, description, verticals, timezone, and links — an array of link objects each with id, type, title, and url. Also includes detected social accounts (instagram, tiktok, spotify, youtube, soundcloud, apple_music) and email_address. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/linktree",
       "params": [
@@ -1844,12 +2269,18 @@
           "location": "query",
           "description": "URL to Linktree page",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "pillar_list",
-      "description": "Scrapes a Pillar page by URL, extracting the creator's profile, social links, and products. Returns id, first_name, last_name, email, location, and social accounts (tiktok, spotify, twitter, youtube, facebook, linkedin, instagram, and more). Also includes links with click counts and products with title, price, description, and image. Required: url.",
+      "description": "Scrapes a Pillar page by URL, extracting the creator's profile, social links, and products. Returns id, first_name, last_name, email, location, and social accounts (tiktok, spotify, twitter, youtube, facebook, linkedin, instagram, and more). Also includes links with click counts and products with title, price, description, and image. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/pillar",
       "params": [
@@ -1859,6 +2290,12 @@
           "location": "query",
           "description": "URL to Pillar page",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -1891,7 +2328,7 @@
     },
     {
       "name": "pinterest_list-pin",
-      "description": "Fetches detailed information about a single Pinterest pin by URL, returning title, description, link, dominantColor, originPinner, pinner, images at multiple resolutions (imageSpec_236x through imageSpec_orig), and pinJoin with visual annotations. Supports a trim option for lighter responses. Required: url. Optional: trim.",
+      "description": "Fetches detailed information about a single Pinterest pin by URL, returning title, description, link, dominantColor, originPinner, pinner, images at multiple resolutions (imageSpec_236x through imageSpec_orig), and pinJoin with visual annotations. Supports a trim option for lighter responses. Required: url. Optional: trim, cache_max_age.",
       "method": "GET",
       "path": "/v1/pinterest/pin",
       "params": [
@@ -1907,6 +2344,12 @@
           "type": "bool",
           "location": "query",
           "description": "Set to true for a trimmed down version of the response"
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -1959,6 +2402,33 @@
       ]
     },
     {
+      "name": "reddit_create",
+      "description": "Retrieves comments and post details from a Reddit post by URL. Returns the post with title, author, score, ups, upvote_ratio, num_comments, and created_utc, plus a comments array where each comment includes author, body, body_html, score, created_utc, parent_id, permalink, and nested replies. Both GET and POST are supported. Use GET for normal requests. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body. Supports cursor-based pagination for loading more comments and a trim parameter for lighter responses. Required: url. Optional: cursor, trim.",
+      "method": "POST",
+      "path": "/v1/reddit/post/comments",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "Cursor returned by the previous response to get more comments or replies."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true for a trimmed down version of the response"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Reddit post URL",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "reddit_list",
       "description": "Searches across all of Reddit for posts matching a query. Each post includes title, author, selftext, subreddit, score, ups, upvote_ratio, num_comments, created_utc, url, permalink, and is_video. Supports sort (relevance, new, top, comment_count), timeframe filtering, pagination via the after token, and a trim parameter for lighter responses. Required: query. Optional: sort, timeframe, after (plus 1 more).",
       "method": "GET",
@@ -1999,7 +2469,7 @@
     },
     {
       "name": "reddit_list-post",
-      "description": "Retrieves comments and post details from a Reddit post by URL. Returns the post with title, author, score, ups, upvote_ratio, num_comments, and created_utc, plus a comments array where each comment includes author, body, body_html, score, created_utc, parent_id, permalink, and nested replies. Supports cursor-based pagination for loading more comments and a trim parameter for lighter responses. Required: url. Optional: cursor, trim.",
+      "description": "Retrieves comments and post details from a Reddit post by URL. Returns the post with title, author, score, ups, upvote_ratio, num_comments, and created_utc, plus a comments array where each comment includes author, body, body_html, score, created_utc, parent_id, permalink, and nested replies. Both GET and POST are supported. Use GET for normal requests. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body. Supports cursor-based pagination for loading more comments and a trim parameter for lighter responses. Required: url. Optional: cursor, trim.",
       "method": "GET",
       "path": "/v1/reddit/post/comments",
       "params": [
@@ -2014,7 +2484,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Cursor to get more comments, or replies."
+          "description": "Cursor returned by the previous response to get more comments or replies."
         },
         {
           "name": "trim",
@@ -2026,7 +2496,7 @@
     },
     {
       "name": "reddit_list-post-2",
-      "description": "Gets the transcript from a Reddit video post or direct v.redd.it URL when Reddit exposes a VTT caption file. Returns the raw WebVTT in raw_vtt plus a parsed plain-text transcript. If Reddit does not expose captions for the video, transcript is null and transcriptNotAvailable is true. Required: url. Optional: language.",
+      "description": "Gets the transcript from a Reddit video post or direct v.redd.it URL when Reddit exposes a VTT caption file. Returns the raw WebVTT in raw_vtt plus a parsed plain-text transcript. If Reddit does not expose captions for the video, transcript is null and transcriptNotAvailable is true. Required: url. Optional: language, cache_max_age.",
       "method": "GET",
       "path": "/v1/reddit/post/transcript",
       "params": [
@@ -2042,12 +2512,18 @@
           "type": "string",
           "location": "query",
           "description": "2 letter language code. Defaults to en."
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "reddit_list-subreddit",
-      "description": "Fetches posts from a subreddit with sorting and filtering options. Each post includes title, author, selftext, score, ups, upvote_ratio, num_comments, created_utc, url, permalink, subreddit_subscribers, and is_video. Supports sort (best, hot, new, top, rising), timeframe filtering, pagination via the after token, and a trim parameter for lighter responses. Required: subreddit. Optional: timeframe, sort, after (plus 1 more).",
+      "description": "Fetches posts from a subreddit with sorting and filtering options. Each post includes title, author, selftext, score, ups, upvote_ratio, num_comments, created_utc, url, permalink, subreddit_subscribers, and is_video. Supports sort (best, hot, new, top, rising), timeframe filtering, pagination via the after token, and a trim parameter for lighter responses. Required: subreddit. Optional: timeframe, sort, after (plus 2 more).",
       "method": "GET",
       "path": "/v1/reddit/subreddit",
       "params": [
@@ -2081,12 +2557,18 @@
           "type": "bool",
           "location": "query",
           "description": "Set to true for a trimmed down version of the response"
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "reddit_list-subreddit-2",
-      "description": "Retrieves metadata about a subreddit by name or URL. The subreddit name must be case-sensitive. Returns display_name, description, subscribers, weekly_active_users, weekly_contributions, rules, icon_img, header_img, advertiser_category, submit_text, and created_at. Optional: subreddit, url.",
+      "description": "Retrieves metadata about a subreddit by name or URL. The subreddit name must be case-sensitive. Returns display_name, description, subscribers, weekly_active_users, weekly_contributions, rules, icon_img, header_img, advertiser_category, submit_text, and created_at. Optional: subreddit, url, cache_max_age.",
       "method": "GET",
       "path": "/v1/reddit/subreddit/details",
       "params": [
@@ -2101,6 +2583,12 @@
           "type": "string",
           "location": "query",
           "description": "Subreddit URL"
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -2247,6 +2735,42 @@
           "location": "query",
           "description": "Snapchat username",
           "required": true
+        }
+      ]
+    },
+    {
+      "name": "snapchat_list-spotlight",
+      "description": "Fetches public data for a Snapchat Spotlight video by URL. Returns the snap id, description, creator, engagement counts, thumbnail, and content URL when Snapchat exposes them publicly. Required: url.",
+      "method": "GET",
+      "path": "/v1/snapchat/spotlight",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Snapchat Spotlight URL.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "snapchat_list-spotlight-2",
+      "description": "Fetches public comments from Snapchat's Spotlight comments API by URL. Returns the snap id, comments, a cursor for the next page, and hasMore. Pass the returned cursor back as the cursor param to load more comments. Required: url. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/snapchat/spotlight/comments",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Snapchat Spotlight URL.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor from the previous response."
         }
       ]
     },
@@ -2434,7 +2958,7 @@
     },
     {
       "name": "threads_list",
-      "description": "Fetches a single Threads post by URL, returning the post's caption, like_count, view_counts, reshare_count, direct_reply_count, image_versions2, and taken_at. Also includes comments and related_posts arrays. Supports a trim option for lighter responses. Required: url. Optional: trim.",
+      "description": "Fetches a single Threads post by URL, returning the post's caption, like_count, view_counts, reshare_count, direct_reply_count, image_versions2, and taken_at. Also includes comments and related_posts arrays. Supports a trim option for lighter responses. Required: url. Optional: trim, cache_max_age.",
       "method": "GET",
       "path": "/v1/threads/post",
       "params": [
@@ -2450,12 +2974,18 @@
           "type": "bool",
           "location": "query",
           "description": "Set to true for a trimmed down version of the response"
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "threads_list-profile",
-      "description": "Retrieves a Threads user's public profile including username, full_name, biography, profile_pic_url, follower_count, is_verified, bio_links, and hd_profile_pic_versions. Also indicates whether the account is a threads-only user via is_threads_only_user. Required: handle.",
+      "description": "Retrieves a Threads user's public profile including username, full_name, biography, profile_pic_url, follower_count, is_verified, bio_links, and hd_profile_pic_versions. Also indicates whether the account is a threads-only user via is_threads_only_user. Required: handle. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/threads/profile",
       "params": [
@@ -2465,6 +2995,12 @@
           "location": "query",
           "description": "Threads username",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -2560,7 +3096,7 @@
     },
     {
       "name": "tiktok_list-adlibrary",
-      "description": "Fetches one TikTok Creative Center Top Ad by material/ad ID or URL. Uses the same Creative Center data behind pages like ads.tiktok.com/business/creativecenter/topads/{id}/pc/en, including title, metrics, video info, landing page, country codes, objective, industry, source, the Creative Center URL, summary/analysis, interactive time analysis graph data, and recommended-for-you ads when TikTok provides them. Required: ad_id.",
+      "description": "Fetches one TikTok ad by ID or URL. It first checks Creative Center Top Ads (ads.tiktok.com), then TikTok's public transparency Ads Library (library.tiktok.com) when the ID is not a Top Ads material. Both sources return the same response shape. Fields TikTok does not expose for a public Ads Library ad are null, empty, or false as appropriate. Required: ad_id.",
       "method": "GET",
       "path": "/v1/tiktok/ad-library/ad",
       "params": [
@@ -2568,88 +3104,50 @@
           "name": "ad_id",
           "type": "string",
           "location": "query",
-          "description": "TikTok Top Ads material/ad ID, or a Top Ads detail URL.",
+          "description": "Creative Center Top Ads material ID or URL, or a public Ads Library ad ID or library.tiktok.com detail URL.",
           "required": true
         }
       ]
     },
     {
       "name": "tiktok_list-adlibrary-2",
-      "description": "Searches TikTok Creative Center Top Ads, the ad library page at ads.tiktok.com/business/creativecenter/inspiration/topads. Supports US and other 2-letter regions, period filters, sorting, keyword search, and cursor pagination. Returns TikTok's public top ad material objects, including ad title, metrics, video info, landing page, and pagination. Optional: region, period, query (plus 9 more).",
+      "description": "Searches TikTok's public Ads Library by advertiser name or keyword. Results are global, sorted by the latest shown date, and support cursor pagination. Required: query. Optional: cursor.",
       "method": "GET",
       "path": "/v1/tiktok/ad-library/search",
       "params": [
         {
-          "name": "region",
-          "type": "string",
-          "location": "query",
-          "description": "Country code. Defaults to US."
-        },
-        {
-          "name": "period",
-          "type": "string",
-          "location": "query",
-          "description": "Time window for Top Ads."
-        },
-        {
           "name": "query",
           "type": "string",
           "location": "query",
-          "description": "Optional keyword to search ad titles/content."
-        },
-        {
-          "name": "order_by",
-          "type": "string",
-          "location": "query",
-          "description": "Sort metric. Defaults to for_you."
-        },
-        {
-          "name": "industry",
-          "type": "string",
-          "location": "query",
-          "description": "Industry filter."
-        },
-        {
-          "name": "objective",
-          "type": "string",
-          "location": "query",
-          "description": "Campaign objective filter."
-        },
-        {
-          "name": "duration",
-          "type": "string",
-          "location": "query",
-          "description": "Video duration filter."
-        },
-        {
-          "name": "likes",
-          "type": "string",
-          "location": "query",
-          "description": "Likes percentile filter."
-        },
-        {
-          "name": "ad_format",
-          "type": "string",
-          "location": "query",
-          "description": "Ad format filter."
-        },
-        {
-          "name": "ad_language",
-          "type": "string",
-          "location": "query",
-          "description": "Ad language filter."
+          "description": "Advertiser name or keyword to search for.",
+          "required": true
         },
         {
           "name": "cursor",
-          "type": "float",
+          "type": "string",
           "location": "query",
-          "description": "Page number to fetch. Use the cursor returned from the previous response, like 3 for page 3."
+          "description": "Opaque cursor returned from the previous response."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-collection",
+      "description": "Fetches the videos saved in a public TikTok collection, which TikTok also calls a playlist. Pass the collection URL. Returns `videos` using TikTok's native web video object format, including `id`, `desc`, `author`, `stats`, and `video`. To fetch the next page, pass the previous response's `max_cursor` as `cursor` when `has_more` is true. Required: url. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/tiktok/collection/videos",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Public TikTok collection URL",
+          "required": true
         },
         {
-          "name": "limit",
-          "type": "float",
+          "name": "cursor",
+          "type": "string",
           "location": "query",
-          "description": "Number of ads to return, max 50. Defaults to 20."
+          "description": "Cursor to get more videos. Use max_cursor from the previous response."
         }
       ]
     },
@@ -2688,44 +3186,6 @@
           "type": "string",
           "location": "query",
           "description": "Country code of the audience/follower"
-        }
-      ]
-    },
-    {
-      "name": "tiktok_list-hashtags",
-      "description": "Discovers trending and popular TikTok hashtags, filterable by time period (7/30/120 days) and country. Returns a list of hashtag objects each with `hashtag_name`, `rank`, `trend` data, and related video examples. Useful for identifying viral topics and content trends on TikTok. Optional: period, page, countryCode (plus 2 more).",
-      "method": "GET",
-      "path": "/v1/tiktok/hashtags/popular",
-      "params": [
-        {
-          "name": "period",
-          "type": "string",
-          "location": "query",
-          "description": "Time period in days (7, 30, or 120)"
-        },
-        {
-          "name": "page",
-          "type": "float",
-          "location": "query",
-          "description": "Page number"
-        },
-        {
-          "name": "countryCode",
-          "type": "string",
-          "location": "query",
-          "description": "Country code to get popular hashtags from"
-        },
-        {
-          "name": "newOnBoard",
-          "type": "bool",
-          "location": "query",
-          "description": "Show only newly trending hashtags"
-        },
-        {
-          "name": "industry",
-          "type": "string",
-          "location": "query",
-          "description": "Industry to get popular hashtags from."
         }
       ]
     },
@@ -2774,7 +3234,7 @@
     },
     {
       "name": "tiktok_list-profile",
-      "description": "Fetches public profile data for a TikTok user by their handle or user_id — useful for looking up a creator's identity, bio, and account stats. Returns a `user` object (display name, avatar URLs, bio/signature, verification status, bio link) and a `stats` object (followerCount, followingCount, heartCount/total likes, videoCount). This only returns profile metadata, not the user's actual videos or followers list. Optional: handle, user_id.",
+      "description": "Fetches public profile data for a TikTok user by their handle or user_id — useful for looking up a creator's identity, bio, and account stats. Returns a `user` object (display name, avatar URLs, bio/signature, verification status, bio link) and a `stats` object (followerCount, followingCount, heartCount/total likes, videoCount). This only returns profile metadata, not the user's actual videos or followers list. Optional: handle, user_id, cache_max_age.",
       "method": "GET",
       "path": "/v1/tiktok/profile",
       "params": [
@@ -2789,6 +3249,12 @@
           "type": "string",
           "location": "query",
           "description": "TikTok user id."
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -2809,7 +3275,7 @@
     },
     {
       "name": "tiktok_list-profile-3",
-      "description": "Fetches videos posted by a TikTok user, sortable by latest or most popular — use this to get a creator's video feed or TikToks. Returns `aweme_list`, an array of video objects each containing `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count/saves), and `video` (download URLs, duration, cover image). Paginate with `max_cursor` from the previous response. Required: handle. Optional: user_id, sort_by, max_cursor (plus 2 more).",
+      "description": "Fetches videos posted by a TikTok user, sortable by latest or most popular — use this to get a creator's video feed or TikToks. Returns `aweme_list`, an array of video objects each containing `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count/saves), and `video` (download URLs, duration, cover image). Paginate with `max_cursor` from the previous response. If a profile should have videos but returns none, try `region=US` or another relevant two-letter country code. Required: handle. Optional: user_id, sort_by, max_cursor (plus 2 more).",
       "method": "GET",
       "path": "/v3/tiktok/profile/videos",
       "params": [
@@ -2842,7 +3308,7 @@
           "name": "region",
           "type": "string",
           "location": "query",
-          "description": "Region (Country) you want the proxy in. Defaults to US."
+          "description": "Region (country) for the proxy. Defaults to GB. If a profile should have videos but returns none, try US or another relevant two-letter country code."
         },
         {
           "name": "trim",
@@ -3262,7 +3728,7 @@
     },
     {
       "name": "tiktok_list-video",
-      "description": "Fetches detailed data for a single TikTok video by URL, including its metadata, engagement stats, and optionally its transcript/captions. Returns `aweme_detail` with `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count), `video` URLs, `author` info, and `music` info; also returns `transcript` in WEBVTT format if `get_transcript=true`. For no-watermark video URLs, use `aweme_detail.video.download_no_watermark_addr.url_list[0]` when it exists. If it is missing and `aweme_detail.video.has_watermark` is false, use `aweme_detail.video.play_addr.url_list[0]` instead. If `has_watermark` is true and `download_no_watermark_addr` is missing, TikTok did not return a no-watermark URL for that video. Required: url. Optional: get_transcript, region, trim (plus 1 more).",
+      "description": "Fetches detailed data for a single TikTok video by URL, including its metadata, engagement stats, and optionally its transcript/captions. Returns `aweme_detail` with `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count), `video` URLs, `author` info, and `music` info; also returns `transcript` in WEBVTT format if `get_transcript=true`. For no-watermark video URLs, use `aweme_detail.video.download_no_watermark_addr.url_list[0]` when it exists. If it is missing and `aweme_detail.video.has_watermark` is false, use `aweme_detail.video.play_addr.url_list[0]` instead. If `has_watermark` is true and `download_no_watermark_addr` is missing, TikTok did not return a no-watermark URL for that video. Required: url. Optional: get_transcript, region, trim (plus 2 more).",
       "method": "GET",
       "path": "/v2/tiktok/video",
       "params": [
@@ -3296,6 +3762,12 @@
           "type": "bool",
           "location": "query",
           "description": "Set to true to download the video/images and get back permanent Supabase URLs. Costs 10 credits if media is found, 1 credit otherwise."
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -3445,7 +3917,7 @@
     },
     {
       "name": "twitch_list",
-      "description": "Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs. Returns clip id, slug, url, embedURL, title, viewCount, language, durationSeconds, game info, broadcaster details with follower count, thumbnailURL, and videoQualities at multiple resolutions with a signed videoURL for playback. Also includes additional clips from the same broadcaster. Required: url.",
+      "description": "Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs. Returns clip id, slug, url, embedURL, title, viewCount, language, durationSeconds, game info, broadcaster details with follower count, thumbnailURL, and videoQualities at multiple resolutions with a signed videoURL for playback. Also includes additional clips from the same broadcaster. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/twitch/clip",
       "params": [
@@ -3455,12 +3927,18 @@
           "location": "query",
           "description": "Twitch clip URL",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "twitch_list-profile",
-      "description": "Retrieves a Twitch user's public profile by handle, including identity, social links, and content. Returns id, handle, displayName, description, followers count, and linked social accounts (instagram, x, tiktok). Also includes allVideos with game info, duration, and view counts, featuredClips with clip metadata and thumbnails, and similarStreamers. Required: handle.",
+      "description": "Retrieves a Twitch user's public profile by handle, including identity, social links, and content. Returns id, handle, displayName, description, followers count, and linked social accounts (instagram, x, tiktok). Also includes allVideos with game info, duration, and view counts, featuredClips with clip metadata and thumbnails, and similarStreamers. Required: handle. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/twitch/profile",
       "params": [
@@ -3470,6 +3948,12 @@
           "location": "query",
           "description": "Twitch handle",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -3547,7 +4031,7 @@
     },
     {
       "name": "twitter_list-profile",
-      "description": "Retrieves a Twitter user's profile by handle, including account metadata and statistics. Returns name, screen_name, description, followers_count, friends_count, statuses_count, favourites_count, location, profile_image_url_https, and is_blue_verified. Also includes verification_info, tipjar_settings, highlights_info, and creator_subscriptions_count. Required: handle.",
+      "description": "Retrieves a Twitter user's profile by handle, including account metadata and statistics. Returns name, screen_name, description, followers_count, friends_count, statuses_count, favourites_count, location, profile_image_url_https, and is_blue_verified. Also includes verification_info, tipjar_settings, highlights_info, and creator_subscriptions_count. Required: handle. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/twitter/profile",
       "params": [
@@ -3557,12 +4041,18 @@
           "location": "query",
           "description": "Twitter handle",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "twitter_list-tweet",
-      "description": "Retrieves detailed information about a specific tweet by URL, including the author's profile and engagement metrics. Returns rest_id, full_text, views count, favorite_count, retweet_count, reply_count, bookmark_count, quote_count, created_at, source, and media entities. Supports a trim parameter for a lighter response. Required: url. Optional: trim.",
+      "description": "Retrieves detailed information about a specific tweet by URL, including the author's profile and engagement metrics. Returns rest_id, full_text, views count, favorite_count, retweet_count, reply_count, bookmark_count, quote_count, created_at, source, and media entities. Supports a trim parameter for a lighter response. Required: url. Optional: trim, cache_max_age.",
       "method": "GET",
       "path": "/v1/twitter/tweet",
       "params": [
@@ -3578,12 +4068,18 @@
           "type": "bool",
           "location": "query",
           "description": "Set to true for a trimmed down version of the response"
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
     {
       "name": "twitter_list-tweet-2",
-      "description": "Extracts the transcript from a Twitter video tweet using AI-powered transcription. The video must be under 2 minutes long. Returns a success flag and the full transcript text. This endpoint is slower than others due to the AI processing step. Required: url.",
+      "description": "Extracts the transcript from a Twitter video tweet using AI-powered transcription. The video must be under 2 minutes long. Returns a success flag and the full transcript text. This endpoint is slower than others due to the AI processing step. Required: url. Optional: cache_max_age.",
       "method": "GET",
       "path": "/v1/twitter/tweet/transcript",
       "params": [
@@ -3593,6 +4089,12 @@
           "location": "query",
           "description": "Tweet URL",
           "required": true
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -3619,7 +4121,7 @@
     },
     {
       "name": "youtube_list",
-      "description": "Retrieves comprehensive YouTube channel profile data including name, avatar images, subscriber count (subscribers), total video and view counts, join date, tags, and linked social accounts like Twitter and Instagram. Accepts a channelId, handle, or full channel URL as input. Returns channel metadata such as country, email, and external store links when available. Optional: channelId, handle, url.",
+      "description": "Retrieves comprehensive YouTube channel profile data including name, avatar images, subscriber count (subscribers), total video and view counts, join date, tags, and linked social accounts like Twitter and Instagram. Accepts a channelId, handle, or full channel URL as input. Returns channel metadata such as country, email, and external store links when available. Optional: channelId, handle, url (plus 1 more).",
       "method": "GET",
       "path": "/v1/youtube/channel",
       "params": [
@@ -3640,6 +4142,12 @@
           "type": "string",
           "location": "query",
           "description": "YouTube channel URL. Can pass a channelId, handle or url"
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -3920,7 +4428,7 @@
     },
     {
       "name": "youtube_list-video",
-      "description": "Fetches full details for a YouTube video or short, including title, description, thumbnail, view count (views), like count (likes), comment count, publish date, duration, genre, keywords, chapters, collaborators, and available caption tracks (subtitles/captions). Also returns related recommended videos in watchNextVideos and channel info for the uploader. Required: url. Optional: language.",
+      "description": "Fetches full details for a YouTube video or short, including title, description, thumbnail, view count (views), like count (likes), comment count, publish date, duration, genre, keywords, chapters, collaborators, and available caption tracks (subtitles/captions). Also returns related recommended videos in watchNextVideos and channel info for the uploader. When YouTube exposes its public Most replayed graph, most_replayed contains normalized graph buckets in markers and YouTube's highlighted ranges in ranges. The field is null when the graph is not available. YouTube says the graph may be unavailable when the channel has active strikes, the content is potentially inappropriate, the video is too new or has too few views, or its systems deem the video ineligible for another reason. YouTube does not publish fixed age or view-count thresholds. Age-restricted videos return 403 with message: 'This video is age restricted' because Scrape Creators only uses the public logged-out YouTube source. Required: url. Optional: language, cache_max_age.",
       "method": "GET",
       "path": "/v1/youtube/video",
       "params": [
@@ -3936,6 +4444,12 @@
           "type": "string",
           "location": "query",
           "description": "Preferred response language (mapped to Accept-Language header; not guaranteed due to YouTube localization behavior). 2 letter language code, ie 'en', 'es', 'fr' etc."
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },
@@ -3989,7 +4503,7 @@
     },
     {
       "name": "youtube_list-video-4",
-      "description": "Retrieves the captions, subtitles, or transcript of a YouTube video or short. Returns both a timestamped transcript array with start/end times and a plain-text version in transcript_only_text. Supports specifying a language code. Note: the video must be under 2 minutes for transcript extraction to work. Required: url. Optional: language.",
+      "description": "Retrieves the captions, subtitles, or transcript of a YouTube video or Short. Returns both a timestamped transcript array with start/end times and a plain-text version in transcript_only_text. Supports specifying a language code. There is no two-minute limit for YouTube. Long videos, including podcasts, work when YouTube exposes public captions. If no matching caption track is available, the transcript fields return null. Required: url. Optional: language, cache_max_age.",
       "method": "GET",
       "path": "/v1/youtube/video/transcript",
       "params": [
@@ -4005,6 +4519,12 @@
           "type": "string",
           "location": "query",
           "description": "2 letter language code, ie 'en', 'es', 'fr' etc. If the transcript is not available in the language you specify, the transcript will be null."
+        },
+        {
+          "name": "cache_max_age",
+          "type": "string",
+          "location": "query",
+          "description": "If we have a response in the cache that is this many days old or newer, return the cached..."
         }
       ]
     },

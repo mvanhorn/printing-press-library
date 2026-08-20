@@ -19,7 +19,7 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		switch classify(cmd) {
 		case commandHidden:
 			return
-		case commandEndpoint, commandFramework:
+		case commandEndpoint, commandGroup, commandFramework:
 			return
 		}
 		if !cmd.Runnable() {
@@ -46,18 +46,36 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		if readOnly {
 			options = append(options, mcplib.WithReadOnlyHintAnnotation(true), mcplib.WithDestructiveHintAnnotation(false))
 		}
-		s.AddTool(mcplib.NewTool(toolName, options...), shellOutToCLI(cliPath, path, blockedCLIArgs, allowedStructuredArgs, positionals, readOnly, positionalWriteSinkIndexes(cmd)))
+		if !readOnly && isMCPLocalWrite(cmd) {
+			// Local-write tier: the command's only writes land in the CLI's
+			// own local store, so the tool is neither destructive nor
+			// open-world; readOnlyHint stays unset because it does write.
+			options = append(options, mcplib.WithDestructiveHintAnnotation(false), mcplib.WithOpenWorldHintAnnotation(false))
+		}
+		tool := mcplib.NewTool(toolName, options...)
+		if tool.Meta == nil {
+			tool.Meta = &mcplib.Meta{}
+		}
+		if tool.Meta.AdditionalFields == nil {
+			tool.Meta.AdditionalFields = map[string]any{}
+		}
+		// The companion CLI owns the one live tenant gate for mirrored
+		// commands. The parent MCP middleware must not probe a second time.
+		tool.Meta.AdditionalFields["pp:tenant-gate"] = "child-cli"
+		s.AddTool(tool, shellOutToCLI(cliPath, path, blockedCLIArgs, allowedStructuredArgs, positionals, readOnly, positionalWriteSinkIndexes(cmd)))
 	})
 }
 
 func walk(cmd *cobra.Command, path []string, visit func(*cobra.Command, []string)) {
 	for _, child := range cmd.Commands() {
-		if child.Hidden || isMCPHidden(child) {
+		if isMCPHidden(child) {
 			continue
 		}
 		childPath := append(append([]string{}, path...), child.Name())
-		visit(child, childPath)
-		if kind := classify(child); kind != commandHidden && kind != commandFramework {
+		if !child.Hidden {
+			visit(child, childPath)
+		}
+		if !isTopLevelFrameworkCommand(child) {
 			walk(child, childPath, visit)
 		}
 	}

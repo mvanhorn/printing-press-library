@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "sentry-which-resolves-live-issue-triage",
+  "applied_at": "2026-07-16",
+  "base_run_id": "20260502-124520",
+  "base_printing_press_version": "3.4.3",
+  "summary": "Keep the live organization issue-list command discoverable from natural-language incident-triage queries.",
+  "reason": "Sentry's core incident path is a generated API command rather than a novel local command; omitting it from the curated index makes agents traverse several help levels before listing current issues.",
+  "files": [
+    "internal/cli/which.go",
+    "internal/cli/which_test.go"
+  ],
+  "validated_outcome": "The previously failing live-issue query resolves to organizations issues list-an-organization-s on its first invocation."
+}

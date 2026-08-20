@@ -21,8 +21,8 @@ func newFilesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "files <file_key>",
-		Short:       "Returns the document identified by `file_key` as a JSON object. The file key can be parsed from any Figma file url:...",
-		Long:        "Shortcut for 'files get'. Returns the document identified by `file_key` as a JSON object. The file key can be parsed from any Figma file url:...",
+		Short:       "Returns the document identified by `file_key` as a JSON object.",
+		Long:        "Returns the document identified by `file_key` as a JSON object.",
 		Example:     "  figma-pp-cli files your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "files.get", "pp:method": "GET", "pp:path": "/v1/files/{file_key}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -48,33 +48,33 @@ func newFilesPromotedCmd(flags *rootFlags) *cobra.Command {
 			path = replacePathParam(path, "file_key", args[0])
 			params := map[string]string{}
 			if flagVersion != "" {
-				params["version"] = fmt.Sprintf("%v", flagVersion)
+				params["version"] = formatCLIParamValue(flagVersion)
 			}
 			if flagIds != "" {
-				params["ids"] = fmt.Sprintf("%v", flagIds)
+				params["ids"] = formatCLIParamValue(flagIds)
 			}
 			if flagDepth != 0.0 {
-				params["depth"] = fmt.Sprintf("%v", flagDepth)
+				params["depth"] = formatCLIParamValue(flagDepth)
 			}
 			if flagGeometry != "" {
-				params["geometry"] = fmt.Sprintf("%v", flagGeometry)
+				params["geometry"] = formatCLIParamValue(flagGeometry)
 			}
 			if flagPluginData != "" {
-				params["plugin_data"] = fmt.Sprintf("%v", flagPluginData)
+				params["plugin_data"] = formatCLIParamValue(flagPluginData)
 			}
 			if flagBranchData != false {
-				params["branch_data"] = fmt.Sprintf("%v", flagBranchData)
+				params["branch_data"] = formatCLIParamValue(flagBranchData)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "files", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "files", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -82,14 +82,12 @@ func newFilesPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -118,11 +116,11 @@ func newFilesPromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagVersion, "version", "", "A specific version ID to get. Omitting this will get the current version of the file.")
-	cmd.Flags().StringVar(&flagIds, "ids", "", "Comma separated list of nodes that you care about in the document. If specified, only a subset of the document will...")
-	cmd.Flags().Float64Var(&flagDepth, "depth", 0.0, "Positive integer representing how deep into the document tree to traverse. For example, setting this to 1 returns...")
+	cmd.Flags().StringVar(&flagIds, "ids", "", "Comma separated list of nodes that you care about in the document.")
+	cmd.Flags().Float64Var(&flagDepth, "depth", 0.0, "Positive integer representing how deep into the document tree to traverse.")
 	cmd.Flags().StringVar(&flagGeometry, "geometry", "", "Set to 'paths' to export vector data.")
-	cmd.Flags().StringVar(&flagPluginData, "plugin-data", "", "A comma separated list of plugin IDs and/or the string 'shared'. Any data present in the document written by those...")
-	cmd.Flags().BoolVar(&flagBranchData, "branch-data", false, "Returns branch metadata for the requested file. If the file is a branch, the main file's key will be included in the...")
+	cmd.Flags().StringVar(&flagPluginData, "plugin-data", "", "A comma separated list of plugin IDs and/or the string 'shared'.")
+	cmd.Flags().BoolVar(&flagBranchData, "branch-data", false, "Returns branch metadata for the requested file.")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 	{

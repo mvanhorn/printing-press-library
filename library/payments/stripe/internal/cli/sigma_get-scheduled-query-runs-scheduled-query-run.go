@@ -30,10 +30,12 @@ func newSigmaGetScheduledQueryRunsScheduledQueryRunCmd(flags *rootFlags) *cobra.
 			}
 
 			path := "/v1/sigma/scheduled_query_runs/{scheduled_query_run}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("scheduled_query_run is required\nUsage: %s <%s>", cmd.CommandPath(), "scheduled_query_run"))
 			}
-			path = replacePathParam(path, "scheduled_query_run", args[1])
+			path = replacePathParam(path, "scheduled_query_run", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

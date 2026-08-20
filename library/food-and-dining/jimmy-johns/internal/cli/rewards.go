@@ -9,8 +9,11 @@ import (
 
 func newRewardsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "rewards",
-		Short: "Freaky Fast Rewards points balance and catalog",
+		Use:         "rewards",
+		Short:       "Freaky Fast Rewards points balance and catalog",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newRewardsCatalogCmd(flags))

@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-06-02T07:36:10.4105379Z",
-  "printing_press_version": "4.20.1",
+  "schema_version": 2,
+  "generated_at": "2026-07-24T05:43:37.1689529Z",
+  "printing_press_version": "4.29.0",
   "api_name": "plane",
   "display_name": "Plane",
   "cli_name": "plane-pp-cli",
@@ -12,19 +12,18 @@
   "owner": "sidorovanthon",
   "printer": "sidorovanthon",
   "printer_name": "Anton Sidorov aka anticodeguy",
-  "spec_url": "https://raw.githubusercontent.com/mvanhorn/cli-printing-press/main/catalog/specs/plane-spec.yaml",
   "spec_path": "plane-spec.yaml",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:def065498186f45ff82fd53e74479e41d86d9c7e7d4f6beb6227c09737fa7f88",
-  "run_id": "20260602-073610",
-  "catalog_entry": "plane",
+  "spec_checksum": "sha256:ca2852c5ed00be736a0fe3700e3e098e3a0bc242c78de53252d939134ed60ba5",
+  "run_id": "20260724-124302-67128fc0",
   "category": "project-management",
-  "description": "Open-source project management \u0432\u0402\u201d issues, cycles, modules, sub-issues, and workspaces. A self-hostable Jira/Linear/ClickUp alternative.",
+  "description": "Every Plane workspace as a typed, offline-syncable CLI — plus issue relations and module membership the REST API hides.",
   "mcp_binary": "plane-pp-mcp",
   "mcp_tool_count": 125,
   "mcp_ready": "full",
   "api_version": "0.0.1",
   "auth_type": "api_key",
+  "auth_preference": "ApiKeyAuthentication",
   "auth_env_vars": [
     "PLANE_API_KEY_AUTHENTICATION"
   ],
@@ -34,7 +33,6 @@
   "endpoint_template_var_defaults": {
     "slug": "my-workspace"
   },
-  "auth_key_url": "https://app.plane.so/profile/api-tokens",
   "novel_features": [
     {
       "name": "Issue Relations",

@@ -1,0 +1,59 @@
+{
+  "author": {
+    "name": "Hunter Veltri"
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "description": "Mirror-read MCP for the self-hosted Paperclip board (http://paperclip.example.test). Local SQLite cache with FTS5; auto-resolves companyId from the cached single company.",
+  "display_name": "Paperclip CLI",
+  "license": "Apache-2.0",
+  "manifest_version": "0.3",
+  "name": "paperclip-pp-mcp",
+  "server": {
+    "entry_point": "bin/paperclip-pp-mcp",
+    "mcp_config": {
+      "args": [],
+      "command": "${__dirname}/bin/paperclip-pp-mcp",
+      "env": {
+        "PAPERCLIP_AGENT_TOKEN": "${user_config.paperclip_agent_token}",
+        "PAPERCLIP_API_KEY": "${user_config.paperclip_api_key}",
+        "PAPERCLIP_AUTH_MODE": "${user_config.paperclip_auth_mode}",
+        "PAPERCLIP_SESSION_COOKIE": "${user_config.paperclip_session_cookie}"
+      }
+    },
+    "type": "binary"
+  },
+  "user_config": {
+    "paperclip_agent_token": {
+      "type": "string",
+      "title": "PAPERCLIP_AGENT_TOKEN",
+      "description": "Optional agent bearer token for the Paperclip MCP server.",
+      "sensitive": true
+    },
+    "paperclip_api_key": {
+      "type": "string",
+      "title": "PAPERCLIP_API_KEY",
+      "description": "Optional board API key for the Paperclip MCP server.",
+      "sensitive": true
+    },
+    "paperclip_auth_mode": {
+      "type": "string",
+      "title": "PAPERCLIP_AUTH_MODE",
+      "description": "Optional explicit auth mode: board-session, board-api-key, agent-bearer, or none.",
+      "sensitive": false
+    },
+    "paperclip_session_cookie": {
+      "type": "string",
+      "title": "PAPERCLIP_SESSION_COOKIE",
+      "description": "Optional board session cookie value for the Paperclip MCP server.",
+      "sensitive": true
+    }
+  },
+  "version": "4.28.0"
+}

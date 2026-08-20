@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "thelancet-pp-mcp",
+  "display_name": "The Lancet",
+  "version": "0.0.0",
+  "description": "Search Lancet articles offline and analyze author impact, institutional networks, and editorial trends — powered by the free OpenAlex scholarly graph.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/thelancet-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/thelancet-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

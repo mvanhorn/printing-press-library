@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "matrix-fixtures-come-from-the-mirror-or-the-environment",
+  "applied_at": "2026-08-15",
+  "base_run_id": "20260814-154828-17a1784d",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Every Tiimo resource except /api/profiles is nested under /api/profiles/{profile_id}, so the generated commands need a real profile id (and sometimes a second id) before a live happy path means anything. Supply those ids to the matrix rather than weakening the commands' own argument validation, and read them from the local mirror or an environment override -- never invent one.",
+  "reason": "Probed with no arguments the profile-scoped commands correctly exit 2, which the matrix records as happy-path failures; the tempting fix is to relax the required positional, which would ship a worse CLI to make a test pass. Ids are read from the mirror so the probe hits a row that genuinely exists, and an invented UUID is worse than no fixture at all -- it turns a fixture gap into a 403/404 that reads like a command defect. The environment overrides are not a convenience: the live matrix runs the binary in a SANDBOXED HOME where the mirror is unreachable, so without TIIMO_PROFILE_ID and TIIMO_TASK_ID the mirror-derived fixtures silently resolve to empty and those commands are probed bare.",
+  "files": [
+    "internal/cli/tiimo_fixtures.go"
+  ],
+  "validated_outcome": "Without the overrides, full live dogfood is 201/203: `todo-tasks get` and `todo-tasks list` are probed with no arguments and reported as 'missing runnable example', while single-positional commands elsewhere still pass because the harness supplies their profile id from its own discovery. Exporting TIIMO_PROFILE_ID and TIIMO_TASK_ID alongside TIIMO_TOKEN takes the same run to 207/207 with both commands receiving real ids. The annotations themselves were confirmed correct in-process, so the gap is purely the sandboxed HOME.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4170"
+}

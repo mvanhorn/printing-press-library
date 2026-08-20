@@ -1,0 +1,179 @@
+{
+  "api_name": "logitech-docs",
+  "base_url": "https://support.logi.com",
+  "description": "Every Logitech manual, spec sheet, and install guide \u2014 searchable offline, agent-native, no browser.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "articles_by_section",
+      "description": "List articles in one section (server-side scoped). Required: section_id. Optional: page-size (default: 100), cursor. Returns array of ArticleSummary.",
+      "method": "GET",
+      "path": "/api/v2/help_center/en-us/sections/{section_id}/articles.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "section_id",
+          "type": "string",
+          "location": "path",
+          "description": "Section ID",
+          "required": true
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Articles per page"
+        },
+        {
+          "name": "cursor",
+          "wire_name": "page[after]",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor from a previous response"
+        }
+      ]
+    },
+    {
+      "name": "articles_get",
+      "description": "Get a single article including its HTML body. Required: article_id. Returns the Article.",
+      "method": "GET",
+      "path": "/api/v2/help_center/en-us/articles/{article_id}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "article_id",
+          "type": "string",
+          "location": "path",
+          "description": "Article ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "articles_list",
+      "description": "List articles (filter by label). Optional: label_names, page-size (default: 100), cursor. Returns array of ArticleSummary.",
+      "method": "GET",
+      "path": "/api/v2/help_center/en-us/articles.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "label_names",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by label, e.g. webcontent=productspecs or webcontent=productdocument"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Articles per page"
+        },
+        {
+          "name": "cursor",
+          "wire_name": "page[after]",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor from a previous response"
+        }
+      ]
+    },
+    {
+      "name": "articles_search",
+      "description": "Search articles by text. Required: query. Optional: label_names, per_page (default: 25), page (default: 1). Returns array of ArticleSummary.",
+      "method": "GET",
+      "path": "/api/v2/help_center/articles/search.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "label_names",
+          "type": "string",
+          "location": "query",
+          "description": "Filter results by label, e.g. webcontent=productspecs"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List the top-level Logitech support categories (Mice and Pointers, Keyboards, Webcams, Gaming, Video Collaboration, and so on). Takes no parameters. Returns an array of Category objects with id, name, description, html_url, and position. Call this first when you need a category id to narrow sections_list; prefer articles_search or the docs command when you already know the product name or keyword.",
+      "method": "GET",
+      "path": "/api/v2/help_center/en-us/categories.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sections_list",
+      "description": "List sections (optionally filtered by category). Optional: category_id, per_page (default: 100), page (default: 1). Returns array of Section.",
+      "method": "GET",
+      "path": "/api/v2/help_center/en-us/sections.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter sections by category ID"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Sections per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Friendly doc-type search",
+      "command": "docs",
+      "description": "Search Logitech support docs by friendly type: spec sheet, manual, install guide, FAQ, download, warranty."
+    },
+    {
+      "name": "Offline full-text search",
+      "command": "find",
+      "description": "Full-text search inside synced manuals and spec sheets from the local store."
+    },
+    {
+      "name": "Download resolver",
+      "command": "download",
+      "description": "Resolve download01.logi.com file links in an article and fetch them (with --dry-run and local cache)."
+    },
+    {
+      "name": "Spec comparison",
+      "command": "compare",
+      "description": "Side-by-side spec comparison between two products from synced spec sheets."
+    }
+  ]
+}

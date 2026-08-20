@@ -1,0 +1,238 @@
+{
+  "api_name": "human-goat",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-03T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Autonomous soup-to-nuts hire",
+      "command": "hire",
+      "description": "Say the job and the date; goat searches, ranks by review quality and honest all-in price, and checks out against the card on file with no prompt.",
+      "rationale": "Only a client-side agent can walk the whole TaskRabbit funnel and commit checkout unattended; the app forces a human through every step.",
+      "example": "human-goat-pp-cli hire \"help moving\" --on 2026-07-11 --min-rating 4.8 --max-total 200 --agent --lat 47.6062 --lng -122.3321",
+      "why_it_matters": "Reach for this when the user wants a task done, not a Tasker shortlist to review.",
+      "group": "Hands-off hiring"
+    },
+    {
+      "name": "Verified cancel (the safety gate)",
+      "command": "cancel",
+      "description": "Cancels a booking and confirms it landed by re-reading status, reporting whether it was inside the free window and any fee.",
+      "rationale": "Requires reading back booking state after the mutation; a fire-and-forget cancel would defeat the whole hands-off safety model.",
+      "example": "human-goat-pp-cli cancel task_abc123 --agent",
+      "why_it_matters": "This is the undo that makes autonomous checkout tolerable; always available after a hire.",
+      "group": "Hands-off hiring"
+    },
+    {
+      "name": "Spend cap",
+      "command": "hire",
+      "description": "Refuses to check out when the computed all-in total exceeds a configurable ceiling, printing the total and the cap.",
+      "rationale": "Bounds blast radius on unattended checkout without adding a per-hire human prompt.",
+      "example": "human-goat-pp-cli hire movers --on saturday --min-rating 4.9 --max-total 150 --lat 47.6062 --lng -122.3321",
+      "why_it_matters": "Use --max-total (or the config default) to cap autonomous spend before any booking is placed.",
+      "group": "Hands-off hiring"
+    },
+    {
+      "name": "All-in price",
+      "command": "best",
+      "description": "Folds TaskRabbit's hidden service (~15%) and trust-and-support (5-15%) fees into the displayed hourly rate, honoring the CA/MA service-fee-only rule.",
+      "rationale": "The app hides fees until checkout; the CLI computes the honest effective rate client-side and makes it the default price everywhere.",
+      "example": "human-goat-pp-cli best \"help moving\" --on saturday --min-rating 4.9 --agent",
+      "why_it_matters": "Every price surface (search, compare, best, hire, spend) shows the real all-in rate, not the teaser.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Cross-source dispatch",
+      "command": "dispatch",
+      "description": "Routes a plain-language task to Magic (remote-doable) or TaskRabbit (in-person) by task shape, with a --via override.",
+      "rationale": "Only a unified binary over both human networks can pick the right one from the task alone.",
+      "example": "human-goat-pp-cli dispatch \"call the dentist and reschedule my cleaning\"",
+      "why_it_matters": "Say what you want done and let goat pick the human network; force it with --via taskrabbit|magic.",
+      "group": "One surface, two human networks"
+    },
+    {
+      "name": "Cross-source spend analytics",
+      "command": "spend",
+      "description": "SQL over local booking, invoice, and Magic-task history by category, tasker, source, or month, using true effective all-in $/hr for TaskRabbit.",
+      "rationale": "Requires a local store joining bookings, invoices, and remote tasks that only exist together offline.",
+      "example": "human-goat-pp-cli spend --by source --agent",
+      "why_it_matters": "Answers where the money went across both human networks with fees folded in.",
+      "group": "One surface, two human networks"
+    },
+    {
+      "name": "Availability watch",
+      "command": "watch",
+      "description": "Polls recommendations for a category and date (optionally a favorite or a rate ceiling) and alerts when a match opens.",
+      "rationale": "The app has no watch primitive; polling the recommendations endpoint from the store enables it.",
+      "example": "human-goat-pp-cli watch movers --on saturday --max-rate 60",
+      "why_it_matters": "Use when nothing good is available now and you want the first qualifying slot.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Unified in-flight inbox",
+      "command": "status",
+      "description": "One list of every in-flight task across TaskRabbit bookings and Magic requests, joined on the common task model and sorted by state.",
+      "rationale": "Only a unified store joining two human networks can show all pending work in one place; each backend only knows its own.",
+      "example": "human-goat-pp-cli status --open --agent",
+      "why_it_matters": "Use for a cross-source view of everything in flight; use 'tasks list' for TR-only and 'track \u003cid\u003e' for one Magic request.",
+      "group": "One surface, two human networks"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Autonomous soup-to-nuts hire",
+      "command": "hire",
+      "description": "Say the job and the date; goat searches, ranks by review quality and honest all-in price, and checks out against the card on file with no prompt.",
+      "rationale": "Only a client-side agent can walk the whole TaskRabbit funnel and commit checkout unattended; the app forces a human through every step.",
+      "example": "human-goat-pp-cli hire \"help moving\" --on 2026-07-11 --min-rating 4.8 --max-total 200 --agent --lat 47.6062 --lng -122.3321",
+      "why_it_matters": "Reach for this when the user wants a task done, not a Tasker shortlist to review.",
+      "group": "Hands-off hiring"
+    },
+    {
+      "name": "Verified cancel (the safety gate)",
+      "command": "cancel",
+      "description": "Cancels a booking and confirms it landed by re-reading status, reporting whether it was inside the free window and any fee.",
+      "rationale": "Requires reading back booking state after the mutation; a fire-and-forget cancel would defeat the whole hands-off safety model.",
+      "example": "human-goat-pp-cli cancel task_abc123 --agent",
+      "why_it_matters": "This is the undo that makes autonomous checkout tolerable; always available after a hire.",
+      "group": "Hands-off hiring"
+    },
+    {
+      "name": "Spend cap",
+      "command": "hire",
+      "description": "Refuses to check out when the computed all-in total exceeds a configurable ceiling, printing the total and the cap.",
+      "rationale": "Bounds blast radius on unattended checkout without adding a per-hire human prompt.",
+      "example": "human-goat-pp-cli hire movers --on saturday --min-rating 4.9 --max-total 150 --lat 47.6062 --lng -122.3321",
+      "why_it_matters": "Use --max-total (or the config default) to cap autonomous spend before any booking is placed.",
+      "group": "Hands-off hiring"
+    },
+    {
+      "name": "All-in price",
+      "command": "best",
+      "description": "Folds TaskRabbit's hidden service (~15%) and trust-and-support (5-15%) fees into the displayed hourly rate, honoring the CA/MA service-fee-only rule.",
+      "rationale": "The app hides fees until checkout; the CLI computes the honest effective rate client-side and makes it the default price everywhere.",
+      "example": "human-goat-pp-cli best \"help moving\" --on saturday --min-rating 4.9 --agent",
+      "why_it_matters": "Every price surface (search, compare, best, hire, spend) shows the real all-in rate, not the teaser.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Cross-source dispatch",
+      "command": "dispatch",
+      "description": "Routes a plain-language task to Magic (remote-doable) or TaskRabbit (in-person) by task shape, with a --via override.",
+      "rationale": "Only a unified binary over both human networks can pick the right one from the task alone.",
+      "example": "human-goat-pp-cli dispatch \"call the dentist and reschedule my cleaning\"",
+      "why_it_matters": "Say what you want done and let goat pick the human network; force it with --via taskrabbit|magic.",
+      "group": "One surface, two human networks"
+    },
+    {
+      "name": "Cross-source spend analytics",
+      "command": "spend",
+      "description": "SQL over local booking, invoice, and Magic-task history by category, tasker, source, or month, using true effective all-in $/hr for TaskRabbit.",
+      "rationale": "Requires a local store joining bookings, invoices, and remote tasks that only exist together offline.",
+      "example": "human-goat-pp-cli spend --by source --agent",
+      "why_it_matters": "Answers where the money went across both human networks with fees folded in.",
+      "group": "One surface, two human networks"
+    },
+    {
+      "name": "Availability watch",
+      "command": "watch",
+      "description": "Polls recommendations for a category and date (optionally a favorite or a rate ceiling) and alerts when a match opens.",
+      "rationale": "The app has no watch primitive; polling the recommendations endpoint from the store enables it.",
+      "example": "human-goat-pp-cli watch movers --on saturday --max-rate 60",
+      "why_it_matters": "Use when nothing good is available now and you want the first qualifying slot.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Unified in-flight inbox",
+      "command": "status",
+      "description": "One list of every in-flight task across TaskRabbit bookings and Magic requests, joined on the common task model and sorted by state.",
+      "rationale": "Only a unified store joining two human networks can show all pending work in one place; each backend only knows its own.",
+      "example": "human-goat-pp-cli status --open --agent",
+      "why_it_matters": "Use for a cross-source view of everything in flight; use 'tasks list' for TR-only and 'track \u003cid\u003e' for one Magic request.",
+      "group": "One surface, two human networks"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Human-Goat",
+    "headline": "Hire real humans from the terminal — autonomous TaskRabbit checkout with a verified undo, plus Magic remote errands, in one agent-native binary.",
+    "value_prop": "goat unifies two human networks behind a common task model: TaskRabbit for in-person local labor and Magic for remote errands. Its headline is hands-off checkout on TaskRabbit against the card on file — searched, ranked by honest all-in price and review quality, and booked with no prompt — made safe by a spend cap and a cancel command that verifies the cancellation actually landed.",
+    "auth_narrative": "TaskRabbit auth is cookie replay from a logged-in Chrome session: run `human-goat-pp-cli auth login --chrome` to lift the session + XSRF-TOKEN cookies. Never a programmatic password login (the login form is reCAPTCHA-gated). Magic uses an x-api-key read from $MAGIC_API_KEY or ~/.magic/api_key.",
+    "quickstart": [
+      {
+        "command": "human-goat-pp-cli doctor --dry-run",
+        "comment": "check both backends and resolve the account metro before doing anything"
+      },
+      {
+        "command": "human-goat-pp-cli categories list --agent",
+        "comment": "see the task templates available in your metro"
+      },
+      {
+        "command": "human-goat-pp-cli best \"help moving\" --on saturday --min-rating 4.9 --agent",
+        "comment": "find the best-value available Tasker with all-in pricing"
+      },
+      {
+        "command": "human-goat-pp-cli hire \"help moving\" --on saturday --min-rating 4.9 --max-total 200 --dry-run --lat 47.6062 --lng -122.3321",
+        "comment": "render the confirm summary without booking; drop --dry-run to check out for real"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports TaskRabbit unauthenticated",
+        "fix": "run `human-goat-pp-cli auth login --chrome` while logged into taskrabbit.com in Chrome"
+      },
+      {
+        "symptom": "hire refuses with a spend-cap message",
+        "fix": "raise --max-total or pick a cheaper Tasker; the printed all-in total exceeded the cap"
+      },
+      {
+        "symptom": "Magic task shows ONGOING forever",
+        "fix": "the human's answer arrives in the conversation, not result; read it with `track \u003cid\u003e` which surfaces the conversation tail"
+      }
+    ],
+    "when_to_use": "Use goat when an agent should get a real-world task done end to end — hire a mover, assemble furniture, make a phone call, book something online — rather than surfacing options for a human to finish. It is strongest for autonomous TaskRabbit hiring with a safety net and for dispatching remote errands to Magic.",
+    "anti_triggers": [
+      "Do not use goat to edit the payment method on file — the card is managed in the TaskRabbit app.",
+      "Do not use goat for programmatic password login to either service — auth is cookie/api-key only.",
+      "Do not use goat to move money outside a task booking — no transfers, payouts, or standalone tipping."
+    ],
+    "recipes": [
+      {
+        "title": "Autonomous hire with a spend cap",
+        "command": "human-goat-pp-cli hire \"help moving\" --on 2026-07-11 --min-rating 4.8 --max-total 200 --agent --lat 47.6062 --lng -122.3321",
+        "explanation": "Searches, ranks by all-in price x reviews, checks out under the cap, and prints the booking id, Tasker, time, and total with no prompt."
+      },
+      {
+        "title": "Undo a booking and verify",
+        "command": "human-goat-pp-cli cancel task_abc123 --agent",
+        "explanation": "Cancels, re-reads status, and reports cancelled plus whether it was inside the free window and any fee."
+      },
+      {
+        "title": "Dispatch a remote errand",
+        "command": "human-goat-pp-cli call 5209076052 \"when does the jewelry store open\"",
+        "explanation": "Sends a phone-call task to Magic and returns a request id to track; the answer comes back in the conversation."
+      },
+      {
+        "title": "Narrow a verbose payload for an agent",
+        "command": "human-goat-pp-cli taskers favorites --agent --select items.name,items.all_in_rate,items.rating",
+        "explanation": "Returns only the fields an agent needs from a deeply nested Tasker list instead of the full payload."
+      },
+      {
+        "title": "Where did the money go",
+        "command": "human-goat-pp-cli spend --by source --agent",
+        "explanation": "Splits TaskRabbit vs Magic totals from the local store, with TaskRabbit rows using true all-in effective rate."
+      }
+    ],
+    "trigger_phrases": [
+      "hire a mover on saturday",
+      "book someone to assemble my furniture",
+      "call this number and ask",
+      "who did i hire before",
+      "cancel that booking",
+      "use human-goat",
+      "run goat"
+    ]
+  }
+}

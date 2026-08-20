@@ -1,0 +1,11 @@
+{
+  "run_id": "20260728-073020-15799c7c",
+  "sources": [
+    {
+      "source_name": "webflow",
+      "decision": "skip-silent",
+      "reason": "spec-complete: official Webflow OpenAPI 3.1.0 (github.com/webflow/openapi-spec, openapi/v2.yml, pushed 2026-05-26) covers 117 operations across all 16 documented Data API tags. Docs at developers.webflow.com are Fern-generated from this same spec. No competitor, community tool, or doc page references additional Data API HTTP surface. The official MCP server's extra tools (deElement/dePages/deStyle/deVariable) run over the Webflow Designer app bridge, not replayable HTTP, and are out of scope for a printed CLI by the Phase 1.7 replayability rule.",
+      "asked_at": "2026-07-28T14:44:00Z"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-07-12T18:16:44Z",
+  "elapsed_ms": 57383,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T18:16:44Z",
+      "elapsed_ms": 33411,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press verify --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428/working/ticketmaster-pp-cli --write-manifest /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428/working/ticketmaster-pp-cli/.printing-press.json --spec /Users/omarshahine/printing-press/library/ticketmaster/spec.json --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T18:17:17Z",
+      "elapsed_ms": 890,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428/research.json --binary /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428/working/ticketmaster-pp-cli/ticketmaster-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T18:17:18Z",
+      "elapsed_ms": 12737,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press dogfood --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428/working/ticketmaster-pp-cli --spec /Users/omarshahine/printing-press/library/ticketmaster/spec.json --research-dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T18:17:31Z",
+      "elapsed_ms": 79,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press workflow-verify --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428/working/ticketmaster-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T18:17:31Z",
+      "elapsed_ms": 243,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press apify-audit --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428/working/ticketmaster-pp-cli --research-dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T18:17:31Z",
+      "elapsed_ms": 5421,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press verify-skill --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428/working/ticketmaster-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T18:17:37Z",
+      "elapsed_ms": 4597,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press scorecard --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428/working/ticketmaster-pp-cli --write-manifest /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428/working/ticketmaster-pp-cli/.printing-press.json --research-dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-180417-tm-reprint428 --spec /Users/omarshahine/printing-press/library/ticketmaster/spec.json --live-check"
+    }
+  ]
+}

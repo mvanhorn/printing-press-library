@@ -1,0 +1,13 @@
+{
+ "schema_version": 2,
+ "id": "lightroom-classic-sync-noop-catalog-flag",
+ "applied_at": "2026-07-19",
+ "base_run_id": "20260719-202653-490adff0",
+ "base_printing_press_version": "4.29.0",
+ "summary": "Hid sync/tail, made sync an honest local no-op, and added the --catalog persistent flag.",
+ "reason": "The catalog IS the local data store; generated sync dials a nonexistent API and fails.",
+ "files": [
+  "internal/cli/root.go"
+ ],
+ "validated_outcome": "Live dogfood sync happy-path and JSON fidelity pass with noop output."
+}

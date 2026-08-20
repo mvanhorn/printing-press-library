@@ -9,8 +9,10 @@ import (
 
 func newFilesVariablesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "variables",
-		Short: "Interact with variables in an Enterprise organization.",
+		Use:         "variables",
+		Short:       "Interact with variables in an Enterprise organization.",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFilesVariablesGetLocalCmd(flags))

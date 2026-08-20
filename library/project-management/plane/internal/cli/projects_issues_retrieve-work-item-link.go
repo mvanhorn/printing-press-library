@@ -19,35 +19,49 @@ func newProjectsIssuesRetrieveWorkItemLinkCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "retrieve-work-item-link <issue_id> <pk> <project_id>",
+		Use:         "retrieve-work-item-link <project_id> <issue_id> <pk>",
 		Short:       "Retrieve details of a specific work item link.",
-		Example:     "  plane-pp-cli projects issues retrieve-work-item-link 550e8400-e29b-41d4-a716-446655440000 example-value 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  plane-pp-cli projects issues retrieve-work-item-link 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "issues.retrieve-work-item-link", "pp:method": "GET", "pp:path": "/projects/{project_id}/issues/{issue_id}/links/{pk}/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <project_id> <issue_id> <pk>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <project_id> <issue_id> <pk>"))
 			}
+			path := "/projects/{project_id}/issues/{issue_id}/links/{pk}/"
+			if len(args) < 2 || args[1] == "" {
+				return usageErr(fmt.Errorf("issue_id is required\nUsage: %s <%s>", cmd.CommandPath(), "issue_id"))
+			}
+			path = replacePathParam(path, "issue_id", args[1])
+			if len(args) < 3 || args[2] == "" {
+				return usageErr(fmt.Errorf("pk is required\nUsage: %s <%s>", cmd.CommandPath(), "pk"))
+			}
+			path = replacePathParam(path, "pk", args[2])
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
+			}
+			path = replacePathParam(path, "project_id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/projects/{project_id}/issues/{issue_id}/links/{pk}/"
-			path = replacePathParam(path, "issue_id", args[0])
-			if len(args) < 2 {
-				return usageErr(fmt.Errorf("pk is required\nUsage: %s <%s>", cmd.CommandPath(), "pk"))
-			}
-			path = replacePathParam(path, "pk", args[1])
-			if len(args) < 3 {
-				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
-			}
-			path = replacePathParam(path, "project_id", args[2])
-			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "issues", path, map[string]string{
-				"cursor":   fmt.Sprintf("%v", flagCursor),
-				"expand":   fmt.Sprintf("%v", flagExpand),
-				"fields":   fmt.Sprintf("%v", flagFields),
-				"per_page": fmt.Sprintf("%v", flagPerPage),
-			}, nil, flagAll, "cursor", "cursor", "per_page", "next_cursor", "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "live", "issues", path, map[string]string{
+				"cursor":   formatCLIParamValue(flagCursor),
+				"expand":   formatCLIParamValue(flagExpand),
+				"fields":   formatCLIParamValue(flagFields),
+				"per_page": formatCLIParamValue(flagPerPage),
+			}, nil, flagAll, "cursor", "cursor", "per_page", 100, "next_cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -92,7 +106,7 @@ func newProjectsIssuesRetrieveWorkItemLinkCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Pagination cursor for getting next set of results")

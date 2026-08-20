@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "teach-pattern-typed-exit-codes",
+  "applied_at": "2026-07-11",
+  "base_run_id": "pp-pp-local-2026-07-11",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Added pp:typed-exit-codes: \"0,2\" annotation on the teach-pattern command so the typed-exit-codes verifier accepts its docstring as evidence.",
+  "reason": "The dogfood runner cross-checks typed-exit-codes declarations against the help text. The generated stub omitted the annotation for the post-fetch teach loop.",
+  "files": [
+    "internal/cli/teach_pattern.go"
+  ],
+  "validated_outcome": "shipcheck green; typed-exit-codes gate PASS."
+}

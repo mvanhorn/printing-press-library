@@ -69,10 +69,10 @@ func hacktivityTrendRows(program string, sinceDays, limit int) ([]map[string]any
 		if program != "" && stringField(h, "program.slug", "data.program.slug") != program {
 			continue
 		}
-		if ts := parseFlexibleTime(stringField(h, "disclosed_at", "data.disclosed_at")); !ts.IsZero() && ts.Before(cutoff) {
+		if ts := hacktivityDate(h); !ts.IsZero() && ts.Before(cutoff) {
 			continue
 		}
-		cwe := stringField(h, "vulnerable_part", "data.vulnerable_part")
+		cwe := cweFromReport(h)
 		if cwe == "" {
 			cwe = "unknown"
 		}

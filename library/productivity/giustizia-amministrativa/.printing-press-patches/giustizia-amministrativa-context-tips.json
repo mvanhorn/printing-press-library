@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-context-tips",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Riscritti i query_tips del tool `context` con indicazioni vere di questa fonte: phrase contro testo, l'ordinamento per sede e il campo avvisi, sede-sweep e lo sweep per anni, corpus_build con ids al posto di una sequenza di get, il riuso dei testi gia' scaricati, cosa serve a sql e grep, e il caso dei provvedimenti in PDF.",
+  "reason": "I tips erano quelli del template del generatore e descrivevano un'API REST che qui non esiste: paginazione a cursore con parametro `after` (non esiste), limit di default 100 (e' 10) e soprattutto l'invito a usare 'the search tool', che nella superficie MCP non e' esposto affatto (search e' nella lista frameworkCommands di classify.go, quindi il mirror non lo registra). Il tool `context` e' descritto come 'Call this first' e l'agente lo chiama davvero per primo: indirizzarlo verso un tool inesistente e una paginazione inventata e' peggio che tacere. Osservato di conseguenza: due esecuzioni della stessa identica richiesta, con lo stesso bundle, hanno prodotto 3 chiamate in un caso e oltre 22 nell'altro.",
+  "files": [
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Il tool context restituisce i 7 nuovi tips; nessun riferimento a `after`, a limit 100 o a un tool `search` inesistente. go build/vet/test verdi."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "blacklane",
+  "run_id": "20260712-023133-reprint428",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 94,
+  "tests_passed": 94,
+  "tests_skipped": 60,
+  "auth_context": {
+    "type": "none"
+  }
+}

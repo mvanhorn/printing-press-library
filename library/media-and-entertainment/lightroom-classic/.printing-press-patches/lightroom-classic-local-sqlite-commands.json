@@ -1,0 +1,19 @@
+{
+ "schema_version": 2,
+ "id": "lightroom-classic-local-sqlite-commands",
+ "applied_at": "2026-07-19",
+ "base_run_id": "20260719-202653-490adff0",
+ "base_printing_press_version": "4.29.0",
+ "summary": "Rewrote generated HTTP endpoint commands (photos, catalog collections/keywords/cameras/lenses) to query the .lrcat SQLite catalog directly via internal/lrcat.",
+ "reason": "source: local-sqlite specs still emit HTTP-client commands; a local catalog has no API to call.",
+ "files": [
+  "internal/cli/promoted_photos.go",
+  "internal/cli/catalog_collections.go",
+  "internal/cli/catalog_keywords.go",
+  "internal/cli/catalog_cameras.go",
+  "internal/cli/catalog_lenses.go",
+  "internal/cli/lrcat_listings.go",
+  "internal/cli/lrcat_helpers.go"
+ ],
+ "validated_outcome": "Full live dogfood 124/124 including happy-path and JSON fidelity on every rewritten command."
+}

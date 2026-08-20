@@ -161,7 +161,7 @@ Get your API key from your API provider's developer portal. The key typically lo
 export PLANE_API_KEY_AUTHENTICATION="<paste-your-key>"
 ```
 
-You can also persist this in your config file at `~/.config/plane-pp-cli/config.toml`.
+To persist credentials, use `plane-pp-cli auth set-token <token>`. Stored secrets live in `credentials.toml` under the data directory, not in `config.toml`.
 
 ### 3. Verify Setup
 
@@ -180,6 +180,55 @@ plane-pp-cli projects list
 ## Usage
 
 Run `plane-pp-cli --help` for the full command reference and flag list.
+
+## Paths & environment variables
+
+This CLI separates local files into four path kinds:
+
+| Kind | Contents |
+|------|----------|
+| `config` | User-editable settings such as `config.toml` and saved profiles |
+| `data` | Durable local data: `credentials.toml`, `data.db`, cookies, browser-session proof files, and other auth sidecars |
+| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
+| `cache` | Regenerable HTTP/cache files |
+
+Each kind resolves independently. The ladder is:
+
+1. Per-kind env var: `PLANE_CONFIG_DIR`, `PLANE_DATA_DIR`, `PLANE_STATE_DIR`, or `PLANE_CACHE_DIR`
+2. `--home <dir>` for this invocation
+3. `PLANE_HOME` for a flat relocated root
+4. XDG env vars: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`
+5. Platform defaults matching existing installs
+
+For containers and agent sandboxes, prefer a single relocated root:
+
+```bash
+export PLANE_HOME=/srv/plane
+plane-pp-cli doctor
+```
+
+Under `PLANE_HOME=/srv/plane`, the four dirs resolve to `/srv/plane/config`, `/srv/plane/data`, `/srv/plane/state`, and `/srv/plane/cache`.
+
+MCP servers do not receive CLI flags from the host. Put relocation in the host `env` block:
+
+```json
+{
+  "mcpServers": {
+    "plane": {
+      "command": "plane-pp-mcp",
+      "env": {
+        "PLANE_HOME": "/srv/plane"
+      }
+    }
+  }
+}
+```
+
+Precedence matters in fleets: an ambient per-kind variable such as `PLANE_DATA_DIR` overrides an explicit `--home` for that kind. Use `PLANE_HOME` or the per-kind variables for durable fleet relocation; treat `--home` as the weaker per-invocation lever.
+
+Relocation is one-way. Unsetting `PLANE_HOME` does not move files back to platform defaults, and `doctor` cannot find credentials left under a former root. Move the files manually before unsetting relocation variables.
+
+Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `plane-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
 
 ## Commands
 
@@ -350,7 +399,7 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
+- **Explicit retries** - add `--idempotent` to create retries and add `--ignore-missing` to delete retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
@@ -377,7 +426,7 @@ Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/plane-pp-cli/config.toml`
+Run `plane-pp-cli doctor` to see the resolved config, data, state, and cache directories. The platform-default config path is `~/.config/plane-pp-cli/config.toml`; `--home`, `PLANE_HOME`, and per-kind env vars can relocate it.
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 

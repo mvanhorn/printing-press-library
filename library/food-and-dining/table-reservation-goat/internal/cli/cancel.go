@@ -272,22 +272,32 @@ func cancelOnTock(ctx context.Context, session *auth.Session, parts []string, ou
 		out.Hint = err.Error()
 		return out, err
 	}
-	out.RestaurantSlug = slug
 	resp, err := c.Cancel(ctx, tock.CancelRequest{VenueSlug: slug, PurchaseID: pid})
 	if err != nil {
-		switch {
-		case errors.Is(err, tock.ErrPastCancellationWindow):
-			out.Error = "past_cancellation_window"
-		case errors.Is(err, tock.ErrCanaryUnrecognizedBody):
-			out.Error = "discriminator_drift"
-		default:
-			out.Error = "network_error"
-		}
+		out.Error = tockCancelErrorCategory(err)
 		out.Hint = err.Error()
 		return out, err
 	}
 	out.Source = "cancel"
+	out.RestaurantSlug = slug
 	out.ReservationID = fmt.Sprintf("%d", resp.PurchaseID)
 	out.CanceledAt = time.Now().UTC().Format(time.RFC3339)
 	return out, nil
+}
+
+func tockCancelErrorCategory(err error) string {
+	switch {
+	case errors.Is(err, tock.ErrCancelOutcomeUnknown):
+		// The command discards the returned Go error after building its JSON
+		// result, so this category is the public no-auto-retry contract.
+		return "outcome_unknown"
+	case errors.Is(err, tock.ErrCancelUIFlow):
+		return "cancel_ui_failed"
+	case errors.Is(err, tock.ErrPastCancellationWindow):
+		return "past_cancellation_window"
+	case errors.Is(err, tock.ErrCanaryUnrecognizedBody):
+		return "discriminator_drift"
+	default:
+		return "network_error"
+	}
 }

@@ -29,8 +29,7 @@ func newProgramsListScopesCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/programs/{slug}/scopes"
 			path = replacePathParam(path, "slug", args[0])
-			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "programs", false, path, params, nil)
+			data, prov, err := readProgramScopes(cmd, c, flags, args[0])
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

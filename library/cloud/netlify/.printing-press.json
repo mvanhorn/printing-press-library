@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-03T09:51:46.012198Z",
+  "printing_press_version": "4.27.0",
+  "api_name": "netlify",
+  "cli_name": "netlify-pp-cli",
+  "creator": {
+    "handle": "Selrach84",
+    "name": "Charles Denzel Segovia"
+  },
+  "printer": "Selrach84",
+  "printer_name": "Charles Denzel Segovia",
+  "spec_path": "netlify-swagger.json",
+  "run_id": "netlify-session",
+  "category": "cloud",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "NETLIFY_AUTH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-site health dashboard",
+      "command": "overview",
+      "description": "One command shows build status, last deploy time, and form counts for every site in your account."
+    },
+    {
+      "name": "Environment variable drift",
+      "command": "env-drift",
+      "description": "Finds env vars that exist on some sites but are missing or differ on others, across contexts."
+    },
+    {
+      "name": "Offline form submission search",
+      "command": "submissions search",
+      "description": "Full-text search across every form submission from every site, offline."
+    },
+    {
+      "name": "DNS audit",
+      "command": "dns-audit",
+      "description": "Aggregates DNS records across all zones and flags records pointing at deleted sites and soon-expiring SNI certs."
+    },
+    {
+      "name": "Deploy timeline",
+      "command": "since",
+      "description": "Shows deploys and builds across all sites within a time window (e.g. last 2h)."
+    },
+    {
+      "name": "Deploy diff",
+      "command": "deploy-diff",
+      "description": "Compares two deploys of a site (state, commit, context, error) side by side from the local mirror."
+    }
+  ]
+}

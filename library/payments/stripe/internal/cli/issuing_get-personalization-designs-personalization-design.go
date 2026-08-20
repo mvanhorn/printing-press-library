@@ -29,10 +29,12 @@ func newIssuingGetPersonalizationDesignsPersonalizationDesignCmd(flags *rootFlag
 			}
 
 			path := "/v1/issuing/personalization_designs/{personalization_design}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("personalization_design is required\nUsage: %s <%s>", cmd.CommandPath(), "personalization_design"))
 			}
-			path = replacePathParam(path, "personalization_design", args[1])
+			path = replacePathParam(path, "personalization_design", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

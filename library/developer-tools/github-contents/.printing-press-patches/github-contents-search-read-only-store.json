@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "github-contents-search-read-only-store",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260710-125244-1a986992",
+  "base_printing_press_version": "4.28.0",
+  "summary": "search honors its MCP read-only contract end-to-end: read-only store open + missing-store early return (search.go), search on learnHookSkipList so the pre-run initializer skips it, and the post-run journal/derive path honors the same skip list so a cold home gets zero files (root.go).",
+  "reason": "Greptile review (PR #1489) found a read-only MCP command could create and migrate local SQLite state — first via search's own writable Open, then via the generated learning pre-run hook that runs before RunE.",
+  "files": [
+    "internal/cli/search.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Cold GITHUB_CONTENTS_HOME: search exits 0 with empty result and creates 0 files; journaling verified still active for non-skip commands (stats writes journal-YYYYMMDD.jsonl); existing store hits unchanged."
+}

@@ -9,6 +9,7 @@ import (
 	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/learn"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -31,6 +32,10 @@ type agentContext struct {
 	Commands                   []agentContextCommand  `json:"commands"`
 	AvailableProfiles          []string               `json:"available_profiles"`
 	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
+	// LearnProtocol carries the recall-first protocol from the single
+	// shared source (internal/learn.RecallFirstProtocol) also consumed by
+	// the MCP context tool, so the two agent surfaces cannot drift.
+	LearnProtocol string `json:"learn_protocol"`
 }
 
 type agentContextCLI struct {
@@ -133,7 +138,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "scrape-creators-pp-cli",
-			Description: "Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform joins, and ad-library diffing no other Scrape Creators tool ships.",
+			Description: "Every Scrape Creators endpoint across 28 platforms, with credit-aware comment mining and a local corpus no other Scrape Creators tool has.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{
@@ -145,6 +150,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
 		FeedbackEndpointConfigured: FeedbackEndpointConfigured(),
+		LearnProtocol:              learn.RecallFirstProtocol,
 	}
 }
 
@@ -172,10 +178,9 @@ func buildAgentDiscoveryContext() *agentContextDiscovery {
 // command name for stable diffs across regenerations.
 //
 // Cobra's Hidden flag suppresses listing in --help but does not gate
-// agent discovery. Raw resource parents are Hidden so --help stays
-// curated and the `api` browser populates; the agent-context surface
-// must still enumerate them and their endpoints so agents can call any
-// action a CLI user could.
+// agent discovery. The agent-context surface still traverses Hidden
+// grouping commands so agents can reach any visible descendant that a
+// CLI user can invoke directly.
 func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 	children := c.Commands()
 	sort.Slice(children, func(i, j int) bool { return children[i].Name() < children[j].Name() })

@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "dataforseo-runtime-contracts",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260511-221728",
+  "base_printing_press_version": "4.11.0",
+  "summary": "A reprint must preserve DataForSEO's task-array request shape, application-level status validation, safe task polling, reachable snapshot commands, credential and MCP filesystem boundaries, and append-only observation history.",
+  "reason": "DataForSEO can bill task POSTs, report failures inside HTTP-success envelopes, require formatted GET result paths, and reuse stable keyword IDs across observations; treating it like a conventional object-body REST API or dropping hand-written command wiring causes duplicate spend, silent failures, stalled polling, unreachable workflows, empty deltas, and unsafe local-tool access.",
+  "files": [
+    "internal/cli/*.go (258 generated POST command files)",
+    "internal/cli/auth.go",
+    "internal/cli/backlinks.go",
+    "internal/cli/data_source.go",
+    "internal/cli/keywords.go",
+    "internal/cli/keywords_delta.go",
+    "internal/cli/rank.go",
+    "internal/cli/root.go",
+    "internal/cli/search.go",
+    "internal/cli/sync.go",
+    "internal/cli/task.go",
+    "internal/client/client.go",
+    "internal/config/config.go",
+    "internal/mcp/code_orch.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/typemap.go",
+    "internal/mcp/tools.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "Focused regression suites cover exact request bodies, logical failures, retry counts, uncached task GETs, SSRF rejection, credential clearing, local FTS, response ingestion, and historical deltas."
+}

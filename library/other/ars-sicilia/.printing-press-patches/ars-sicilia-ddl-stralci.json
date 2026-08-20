@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "id": "ars-sicilia-ddl-stralci",
+  "summary": "Nuovo comando `ddl stralci <legisl> <numero>` che elenca i ddl ricavati per stralcio da un ddl base, e nuovo campo `stralcio` su `ddl get` e `ddl iter` per il verso opposto (dallo stralcio al ddl base). Il legame si legge dal riferimento che il portale pubblica sia nel campo Riferimenti della scheda sia nell'excerpt della short-list; parser tollerante in internal/cli/ddl_stralci.go, 18 casi sotto test.",
+  "reason": "La finanziaria viene spacchettata in stralci che proseguono l'iter da soli, e le notizie li citano per numero composito (\"ddl 1030/A Stralcio IV\"). La CLI non offriva alcun modo di passare dal ddl base ai suoi stralci ne' viceversa: bisognava indovinare i numeri, e non c'e' una regola da indovinare, perche' gli stralci del 1030 sono 3030..8030 mentre quelli del 738 sono 7381/7382. Il dato pero' e' gia' pubblicato: si legge il riferimento invece di calcolarlo. Tre forme reali che il parser regge e l'output non nasconde: stralcio nato da piu' ddl abbinati (\"ddl nn. 824-810 - I Stralcio\", `di` con piu' voci); base non dichiarata perche' il portale scrive l'id interno al posto del numero base su parte della XVII legislatura (`base_dichiarata: false`, `di` vuoto, invece di dedurla togliendo una cifra); righe duplicate dal portale, alcune con excerpt vuoto, deduplicate PRIMA del filtro per non perdere lo stralcio la cui unica copia sia quella vuota.",
+  "files": [
+    "internal/cli/ddl_stralci.go",
+    "internal/cli/ddl_stralci_test.go",
+    "internal/cli/ddl.go",
+    "internal/cli/ddl_iter.go",
+    "internal/cli/icaro_helpers.go"
+  ],
+  "validated_outcome": "leg 18: `ddl stralci 18 1030` -> 9 stralci ordinati per data, tutti con base dichiarata; `ddl stralci 18 738` -> 21 stralci inclusi i livelli Comm/Comm bis/Comm ter. leg 17: `ddl stralci 17 893` -> 2 stralci in autoriferimento marcati base_dichiarata:false; `ddl stralci 17 824` -> 8241 con due basi (824 e 810). `ddl stralci 18 1188` -> lista vuota con hint su stderr. `ddl get 18 6030` -> stralcio.di [{numero:1030,variante:A}]; `ddl get 18 1030` -> nessun campo stralcio."
+}

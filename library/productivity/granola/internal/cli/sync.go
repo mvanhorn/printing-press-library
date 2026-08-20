@@ -6,8 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/store"
-	"github.com/spf13/cobra"
+	"io"
 	"net/url"
 	"os"
 	"regexp"
@@ -16,6 +15,9 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path
@@ -159,13 +161,19 @@ Exit codes & warnings:
 			effectiveLatestOnly := latestOnly && since == ""
 
 			// Resolve --since into an RFC3339 timestamp
+			//
+			// PATCH(api-list-stage-matches-live-contract): normalize to UTC
+			// before formatting. time.RFC3339 on a local time renders a
+			// numeric offset ("2026-07-18T09:00:00-07:00"), which Granola's
+			// public API rejects with `updated_after: Invalid date`; the Z
+			// form is accepted. Verified live against /v1/notes.
 			sinceTS := ""
 			if since != "" {
 				ts, err := parseSinceDuration(since)
 				if err != nil {
 					return fmt.Errorf("invalid --since value %q: %w", since, err)
 				}
-				sinceTS = ts.Format(time.RFC3339)
+				sinceTS = granolaAPITimestamp(ts)
 			}
 
 			// Worker pool: produce resources, N workers consume
@@ -294,18 +302,70 @@ Exit codes & warnings:
 	return cmd
 }
 
+// syncStreams carries the destinations one sync run writes its progress to.
+//
+// PATCH(autorefresh-no-stdout): every event below used to go to the process
+// os.Stdout / os.Stderr unconditionally. Auto-refresh calls this path from
+// PersistentPreRunE on nearly every command, so `show <id> --json` with an API
+// key configured emitted sync ndjson ahead of its real payload and broke
+// strict JSON / ndjson consumers. Making the destinations a caller argument —
+// rather than having auto-refresh mutate a global — keeps the explicit `sync`
+// and `sync-api` commands byte-for-byte identical (they take the defaults)
+// while letting the hook run silently via quietSyncStreams.
+type syncStreams struct {
+	// out receives the ndjson event stream (!humanFriendly mode).
+	out io.Writer
+	// err receives the human-readable progress and warning lines.
+	err io.Writer
+}
+
+// defaultSyncStreams is the generated behavior: process stdout + stderr.
+// Resolved at call time, not package init, so os.Stdout redirection works.
+func defaultSyncStreams() syncStreams { return syncStreams{out: os.Stdout, err: os.Stderr} }
+
+// quietSyncStreams discards everything. Used by the auto-refresh hook, whose
+// only user-visible reporting is the provenance line the dispatcher writes to
+// the command's stderr.
+func quietSyncStreams() syncStreams { return syncStreams{out: io.Discard, err: io.Discard} }
+
+// resolve fills in the generated defaults for a zero-valued stream so a
+// partially-specified syncStreams can never silently drop output.
+func (s syncStreams) resolve() syncStreams {
+	if s.out == nil {
+		s.out = os.Stdout
+	}
+	if s.err == nil {
+		s.err = os.Stderr
+	}
+	return s
+}
+
 // syncResource handles the full paginated sync of a single resource.
 // It resumes from the last cursor unless sinceTS or full mode overrides it.
 // channel_workflow.go.tmpl mirrors the trailing dates arg conditional;
 // keep both call sites in sync if this signature changes.
+//
+// This wrapper preserves the generated signature and the generated
+// destinations; syncResourceTo is the seam for callers that need to redirect
+// or silence the stream.
 func syncResource(c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
 }, db *store.Store, resource, sinceTS string, full bool, maxPages int, latestOnly bool, userParams *syncUserParams) syncResult {
+	return syncResourceTo(defaultSyncStreams(), c, db, resource, sinceTS, full, maxPages, latestOnly, userParams)
+}
+
+// syncResourceTo is syncResource with caller-controlled output destinations.
+func syncResourceTo(streams syncStreams, c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, resource, sinceTS string, full bool, maxPages int, latestOnly bool, userParams *syncUserParams) syncResult {
 	started := time.Now()
+	streams = streams.resolve()
+	stdout, stderr := streams.out, streams.err
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stdout, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+		fmt.Fprintf(stdout, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
 	}
 
 	path, err := syncResourcePath(resource)
@@ -337,9 +397,9 @@ func syncResource(c interface {
 				Message:  fmt.Sprintf("path %s requires parent context (%s); resource skipped", path, strings.Join(missingKeys, ", ")),
 			}
 			payloadJSON, _ := json.Marshal(payload)
-			fmt.Fprintf(os.Stdout, "%s\n", payloadJSON)
+			fmt.Fprintf(stdout, "%s\n", payloadJSON)
 		} else {
-			fmt.Fprintf(os.Stderr, "  %s skipped (requires parent context: %s)\n",
+			fmt.Fprintf(stderr, "  %s skipped (requires parent context: %s)\n",
 				resource, strings.Join(missingKeys, ", "))
 		}
 		return syncResult{
@@ -360,7 +420,10 @@ func syncResource(c interface {
 	sinceParam := syncResourceSinceParam(resource)
 	effectiveSince := sinceTS
 	if effectiveSince == "" && !lastSynced.IsZero() && !full {
-		effectiveSince = lastSynced.Format(time.RFC3339)
+		// PATCH(api-list-stage-matches-live-contract): UTC for the same
+		// reason as the --since path above; a stored local-zone checkpoint
+		// would otherwise 400 the whole resource on the next incremental run.
+		effectiveSince = granolaAPITimestamp(lastSynced)
 	}
 	// Resources whose list endpoint declares no temporal-filter parameter
 	// fall back to plain pagination — sending a synthetic since=... would
@@ -369,9 +432,9 @@ func syncResource(c interface {
 	// when the user expected incremental behavior.
 	if effectiveSince != "" && sinceParam == "" {
 		if humanFriendly {
-			fmt.Fprintf(os.Stderr, "  %s: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n", resource)
+			fmt.Fprintf(stderr, "  %s: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n", resource)
 		} else {
-			fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
+			fmt.Fprintf(stdout, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
 		}
 		effectiveSince = ""
 	}
@@ -419,13 +482,13 @@ func syncResource(c interface {
 		if err != nil {
 			if w, ok := isSyncAccessWarning(err); ok {
 				if !humanFriendly {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
+					fmt.Fprintf(stdout, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
 						resource, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
 				}
 				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 			}
 			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+				fmt.Fprintln(stdout, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 		}
@@ -441,7 +504,7 @@ func syncResource(c interface {
 			// Single object response - try to store as-is
 			if err := upsertSingleObject(db, resource, data); err != nil {
 				if !humanFriendly {
-					fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+					fmt.Fprintln(stdout, syncErrorJSON(resource, "", err))
 				}
 				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 			}
@@ -463,7 +526,7 @@ func syncResource(c interface {
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
 			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+				fmt.Fprintln(stdout, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
@@ -478,9 +541,9 @@ func syncResource(c interface {
 		// pattern, or an unrecognized primary-key field name.
 		if len(items) > 0 && stored == 0 {
 			if humanFriendly {
-				fmt.Fprintf(os.Stderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: scalar item shape rather than objects with extractable IDs.\n", resource, len(items))
+				fmt.Fprintf(stderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: scalar item shape rather than objects with extractable IDs.\n", resource, len(items))
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
+				fmt.Fprintf(stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
 			}
 			anomalyEmitted = true
 		} else if extractFailures > 0 && !anomalyEmitted {
@@ -489,9 +552,9 @@ func syncResource(c interface {
 			// sync run so users see the first occurrence of silent drops
 			// instead of waiting for total failure.
 			if humanFriendly {
-				fmt.Fprintf(os.Stderr, "\nwarning: %s had %d item(s) on this page with no extractable primary key — those rows were dropped silently. Annotate the spec with x-resource-id to fix.\n", resource, extractFailures)
+				fmt.Fprintf(stderr, "\nwarning: %s had %d item(s) on this page with no extractable primary key — those rows were dropped silently. Annotate the spec with x-resource-id to fix.\n", resource, extractFailures)
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
+				fmt.Fprintf(stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
 			}
 			anomalyEmitted = true
 		}
@@ -503,22 +566,22 @@ func syncResource(c interface {
 		currentRate := c.RateLimit()
 		if humanFriendly {
 			if currentRate > 0 {
-				fmt.Fprintf(os.Stderr, "\r  %s: %d synced [%.1f req/s]", resource, atomic.LoadInt64(&progressCount), currentRate)
+				fmt.Fprintf(stderr, "\r  %s: %d synced [%.1f req/s]", resource, atomic.LoadInt64(&progressCount), currentRate)
 			} else {
-				fmt.Fprintf(os.Stderr, "\r  %s: %d synced", resource, atomic.LoadInt64(&progressCount))
+				fmt.Fprintf(stderr, "\r  %s: %d synced", resource, atomic.LoadInt64(&progressCount))
 			}
 		} else {
 			if currentRate > 0 {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","fetched":%d,"rate_rps":%.1f}`+"\n", resource, atomic.LoadInt64(&progressCount), currentRate)
+				fmt.Fprintf(stdout, `{"event":"sync_progress","resource":"%s","fetched":%d,"rate_rps":%.1f}`+"\n", resource, atomic.LoadInt64(&progressCount), currentRate)
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, atomic.LoadInt64(&progressCount))
+				fmt.Fprintf(stdout, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, atomic.LoadInt64(&progressCount))
 			}
 		}
 
 		// Save cursor after each page for resumability
 		if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
 			// Non-fatal: log and continue
-			fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
+			fmt.Fprintf(stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
 		}
 
 		pagesFetched++
@@ -531,9 +594,9 @@ func syncResource(c interface {
 		if maxPages > 0 && pagesFetched >= maxPages {
 			if !latestOnly {
 				if humanFriendly {
-					fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
+					fmt.Fprintf(stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
 				} else {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
+					fmt.Fprintf(stdout, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
 				}
 			}
 			break
@@ -547,9 +610,9 @@ func syncResource(c interface {
 		// non-empty cursor on its own.
 		if nextCursor != "" && nextCursor == lastNextCursor {
 			if humanFriendly {
-				fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
+				fmt.Fprintf(stderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
+				fmt.Fprintf(stdout, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
 			}
 			break
 		}
@@ -575,14 +638,14 @@ func syncResource(c interface {
 	// controlled repro.
 	if consumedTotal > 0 && totalCount == 0 && extractFailureTotal < consumedTotal {
 		if humanFriendly {
-			fmt.Fprintf(os.Stderr, "\nwarning: %s consumed %d items, extracted %d primary keys, but stored 0 rows — extraction succeeded yet nothing landed. Investigate FTS triggers / transaction rollback / encoding.\n", resource, consumedTotal, consumedTotal-extractFailureTotal)
+			fmt.Fprintf(stderr, "\nwarning: %s consumed %d items, extracted %d primary keys, but stored 0 rows — extraction succeeded yet nothing landed. Investigate FTS triggers / transaction rollback / encoding.\n", resource, consumedTotal, consumedTotal-extractFailureTotal)
 		} else {
-			fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
+			fmt.Fprintf(stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
 		}
 	}
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stdout, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
+		fmt.Fprintf(stdout, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
 	}
 
 	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
@@ -597,11 +660,29 @@ type paginationDefaults struct {
 
 // determinePaginationDefaults returns the pagination parameter names to use.
 // Values are detected from the API spec by the profiler at generation time.
+// granolaAPITimestamp renders a timestamp in the only RFC3339 shape Granola's
+// public API accepts.
+//
+// PATCH(api-list-stage-matches-live-contract): time.RFC3339 on a local-zone
+// time produces a numeric offset ("2026-07-18T09:00:00-07:00"), which the API
+// rejects with `updated_after: Invalid date`; the UTC Z form is accepted.
+// Verified live. Every call site that sends a temporal filter must route
+// through this helper — the failure is a whole-resource 400, not a bad row.
+func granolaAPITimestamp(ts time.Time) string {
+	return ts.UTC().Format(time.RFC3339)
+}
+
+// PATCH(api-list-stage-matches-live-contract): the generated default of 100
+// exceeded Granola's documented and enforced page_size ceiling of 30, so every
+// list request 400'd with `page_size: Number must be less than or equal to 30`
+// and the API sync path could never complete. Verified live against /v1/notes
+// and /v1/folders: 30 succeeds, 31 fails. A regen must re-read the ceiling from
+// the spec rather than restoring a generic default.
 func determinePaginationDefaults() paginationDefaults {
 	return paginationDefaults{
 		cursorParam: "cursor",
 		limitParam:  "page_size",
-		limit:       100,
+		limit:       30,
 	}
 }
 

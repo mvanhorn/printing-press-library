@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sprocket-greptile-review-fixes",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-211906-50f83ca4",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Publish-time review fixes: snapKey avoids zero-ID snapshot collisions (since.go); RFC 5545 75-octet line folding (ical.go); deterministic wrapper-array selection (owed.go).",
+  "reason": "Greptile review on the library PR flagged a zero-ID map-key collision, missing iCal line-folding, and non-deterministic map iteration in multi-array response parsing.",
+  "files": ["internal/cli/since.go","internal/cli/ical.go","internal/cli/owed.go","internal/cli/sprocket_schedule_test.go"],
+  "validated_outcome": "go test ./internal/cli/... passes incl. new fold/snapKey/determinism tests."
+}

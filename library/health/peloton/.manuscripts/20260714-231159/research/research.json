@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "api_name": "peloton",
+  "run_id": "20260714-231159",
+  "recommendation": "proceed",
+  "researched_at": "2026-07-14T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Managed OAuth catalog access",
+      "command": "auth setup",
+      "description": "Bootstraps a private OAuth bundle and reuses or refreshes it for bearer-authenticated catalog reads.",
+      "rationale": "The provider-specific lifecycle removes manual bearer-token handling while retaining a bounded, read-only catalog path."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Managed OAuth catalog access",
+      "command": "auth setup",
+      "description": "Bootstraps a private OAuth bundle and reuses or refreshes it for bearer-authenticated catalog reads.",
+      "rationale": "The provider-specific lifecycle removes manual bearer-token handling while retaining a bounded, read-only catalog path."
+    }
+  ]
+}

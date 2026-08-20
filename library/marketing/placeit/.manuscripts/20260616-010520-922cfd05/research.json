@@ -1,0 +1,220 @@
+{
+  "api_name": "placeit",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T06:30:00Z",
+  "novel_features": [
+    {
+      "name": "Best-seller rank within a niche",
+      "command": "top",
+      "description": "Rank matching templates by real purchase count, not opaque relevance.",
+      "rationale": "Placeit's UI never exposes per-template popularity as a sort; only a local mirror of the purchases field can.",
+      "example": "placeit-pp-cli top \"t-shirt\" --category mockups --agent",
+      "why_it_matters": "Reach for this when a seller needs the mockups that actually convert, not just the first search hits.",
+      "group": "Popularity intelligence"
+    },
+    {
+      "name": "Printify POD-ready filter",
+      "command": "pod",
+      "description": "Return only Printify-compatible mockups for a query with deep links for a listing pipeline.",
+      "rationale": "is_printify is a per-template flag the web UI offers no filter for; the local mirror makes it queryable and exportable.",
+      "example": "placeit-pp-cli pod \"hoodie\" --agent --select stage_link,editor_link",
+      "why_it_matters": "Reach for this when batching POD listings so you never open a mockup that isn't print-ready.",
+      "group": "Print-on-demand"
+    },
+    {
+      "name": "Twitch matched-kit builder",
+      "command": "kit",
+      "description": "Assemble a coherent streamer kit (overlay, panels, emotes, frame) and flag missing slots.",
+      "rationale": "Requires joining templates on shared bundle/style tags in the local store, which no single Placeit call does.",
+      "example": "placeit-pp-cli kit \"neon gaming\" --agent",
+      "why_it_matters": "Reach for this when a streamer rebrand needs a visually consistent set, not mismatched single assets.",
+      "group": "Matched sets"
+    },
+    {
+      "name": "Industry taxonomy map",
+      "command": "industry-map",
+      "description": "Map the 152-entry industry taxonomy with template counts from your synced mirror.",
+      "rationale": "Joins the taxonomy index against the local catalog mirror for counts the flat UI never shows.",
+      "example": "placeit-pp-cli industry-map \"coffee shop\"",
+      "why_it_matters": "Reach for this to size a niche and find the industries with the most ready-made templates.",
+      "group": "Taxonomy navigation"
+    },
+    {
+      "name": "Saved search watchlist",
+      "command": "watch",
+      "description": "Persist named searches and report templates newly matching since the last sync.",
+      "rationale": "A time-windowed delta over the local mirror that no Algolia query can return.",
+      "example": "placeit-pp-cli watch run --agent",
+      "why_it_matters": "Reach for this to keep a client niche fresh without re-running searches by hand every week.",
+      "group": "Monitoring"
+    },
+    {
+      "name": "Cross-facet gap finder",
+      "command": "gaps",
+      "description": "Pivot the catalog across two tag facets to surface under-served template combinations.",
+      "rationale": "A local SQLite cross-tabulation no single API call or the Placeit UI exposes.",
+      "example": "placeit-pp-cli gaps --facet device_tags --by ethnicity_tags",
+      "why_it_matters": "Reach for this to spot mockup coverage gaps (e.g. a device with thin on-model diversity).",
+      "group": "Catalog analytics"
+    },
+    {
+      "name": "Template popularity percentile",
+      "command": "rank",
+      "description": "Show a template's purchase percentile within its category and tag cohort.",
+      "rationale": "Computes local percentile statistics over the purchases field across the mirror.",
+      "example": "placeit-pp-cli rank 41935 --agent",
+      "why_it_matters": "Reach for this to judge whether a specific template is a strong pick before committing to it.",
+      "group": "Popularity intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Best-seller rank within a niche",
+      "command": "top",
+      "description": "Rank matching templates by real purchase count, not opaque relevance.",
+      "rationale": "Placeit's UI never exposes per-template popularity as a sort; only a local mirror of the purchases field can.",
+      "example": "placeit-pp-cli top \"t-shirt\" --category mockups --agent",
+      "why_it_matters": "Reach for this when a seller needs the mockups that actually convert, not just the first search hits.",
+      "group": "Popularity intelligence"
+    },
+    {
+      "name": "Printify POD-ready filter",
+      "command": "pod",
+      "description": "Return only Printify-compatible mockups for a query with deep links for a listing pipeline.",
+      "rationale": "is_printify is a per-template flag the web UI offers no filter for; the local mirror makes it queryable and exportable.",
+      "example": "placeit-pp-cli pod \"hoodie\" --agent --select stage_link,editor_link",
+      "why_it_matters": "Reach for this when batching POD listings so you never open a mockup that isn't print-ready.",
+      "group": "Print-on-demand"
+    },
+    {
+      "name": "Twitch matched-kit builder",
+      "command": "kit",
+      "description": "Assemble a coherent streamer kit (overlay, panels, emotes, frame) and flag missing slots.",
+      "rationale": "Requires joining templates on shared bundle/style tags in the local store, which no single Placeit call does.",
+      "example": "placeit-pp-cli kit \"neon gaming\" --agent",
+      "why_it_matters": "Reach for this when a streamer rebrand needs a visually consistent set, not mismatched single assets.",
+      "group": "Matched sets"
+    },
+    {
+      "name": "Industry taxonomy map",
+      "command": "industry-map",
+      "description": "Map the 152-entry industry taxonomy with template counts from your synced mirror.",
+      "rationale": "Joins the taxonomy index against the local catalog mirror for counts the flat UI never shows.",
+      "example": "placeit-pp-cli industry-map \"coffee shop\"",
+      "why_it_matters": "Reach for this to size a niche and find the industries with the most ready-made templates.",
+      "group": "Taxonomy navigation"
+    },
+    {
+      "name": "Saved search watchlist",
+      "command": "watch",
+      "description": "Persist named searches and report templates newly matching since the last sync.",
+      "rationale": "A time-windowed delta over the local mirror that no Algolia query can return.",
+      "example": "placeit-pp-cli watch run --agent",
+      "why_it_matters": "Reach for this to keep a client niche fresh without re-running searches by hand every week.",
+      "group": "Monitoring"
+    },
+    {
+      "name": "Cross-facet gap finder",
+      "command": "gaps",
+      "description": "Pivot the catalog across two tag facets to surface under-served template combinations.",
+      "rationale": "A local SQLite cross-tabulation no single API call or the Placeit UI exposes.",
+      "example": "placeit-pp-cli gaps --facet device_tags --by ethnicity_tags",
+      "why_it_matters": "Reach for this to spot mockup coverage gaps (e.g. a device with thin on-model diversity).",
+      "group": "Catalog analytics"
+    },
+    {
+      "name": "Template popularity percentile",
+      "command": "rank",
+      "description": "Show a template's purchase percentile within its category and tag cohort.",
+      "rationale": "Computes local percentile statistics over the purchases field across the mirror.",
+      "example": "placeit-pp-cli rank 41935 --agent",
+      "why_it_matters": "Reach for this to judge whether a specific template is a strong pick before committing to it.",
+      "group": "Popularity intelligence"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Placeit",
+    "headline": "Every one of Placeit's 164k mockup, logo, video, and design templates — searchable, sortable by real popularity, and cached offline from your terminal, with catalog analytics Placeit's own UI can't do.",
+    "value_prop": "Placeit has no public API, no bulk search, and no offline catalog. This CLI mirrors the entire Algolia-indexed catalog into a local SQLite database, then layers on commands no Placeit tool has: rank results by actual purchase count (top), filter Printify-ready mockups for a POD pipeline (pod), assemble matched Twitch kits (kit), and cross-tabulate the catalog's tag facets (gaps). Search and browse need no login; account and saved-templates use your Placeit session.",
+    "auth_narrative": "Search, browse, sync, and template lookup use Placeit's public Algolia catalog and need no credentials. The account and bookmarks commands read your Placeit (Envato) session, which you import once from Chrome via the auth login step shown in Quick Start. Because Placeit sits behind Cloudflare, the CLI ships a browser-compatible HTTP transport for those calls.",
+    "quickstart": [
+      {
+        "command": "placeit-pp-cli doctor",
+        "comment": "Check catalog reachability before anything else (no login needed)."
+      },
+      {
+        "command": "placeit-pp-cli search \"t-shirt mockup\" --category mockups --limit 10",
+        "comment": "Search the live catalog by keyword and category."
+      },
+      {
+        "command": "placeit-pp-cli sync --category mockups --max-pages 5",
+        "comment": "Build a local offline mirror so search and analytics work without the network."
+      },
+      {
+        "command": "placeit-pp-cli top \"hoodie\" --agent",
+        "comment": "Rank cached mockups by real purchase count."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns nothing offline",
+        "fix": "search queries the live Placeit catalog by default and needs no sync; for offline use, run a sync first to build the local mirror."
+      },
+      {
+        "symptom": "account or bookmarks returns 403 / Cloudflare challenge",
+        "fix": "Re-import a fresh Chrome session via the auth login step in Quick Start; Placeit sessions expire."
+      },
+      {
+        "symptom": "gaps or rank show 0 results",
+        "fix": "gaps and rank read the local mirror; run a sync to populate it before using them."
+      }
+    ],
+    "when_to_use": "Use this CLI to search, filter, and analyze Placeit's template catalog programmatically: finding the best-selling or Printify-ready mockups for a product line, assembling matched streamer kits, or auditing catalog coverage across tag facets. It is ideal for print-on-demand sellers, streamers, and social-media managers who batch-produce assets and want scriptable, offline-cacheable catalog access.",
+    "anti_triggers": [
+      "Do not use this CLI to actually render or download a finished design — Placeit's render/download is a browser-only flow; use 'open' to launch the template in your browser instead.",
+      "Do not use this CLI to edit a template's text, colors, or uploaded artwork — there is no headless editor.",
+      "Do not use this CLI to manage billing or change a Placeit subscription."
+    ],
+    "recipes": [
+      {
+        "title": "Find the best-selling Printify t-shirt mockups",
+        "command": "placeit-pp-cli pod \"t-shirt\" --agent --select name,stage_link,purchases",
+        "explanation": "Filters to Printify-ready mockups and narrows the JSON to just the fields a listing pipeline needs."
+      },
+      {
+        "title": "Rank cached logos by popularity in a niche",
+        "command": "placeit-pp-cli top \"coffee shop logo\" --category logos --limit 20 --agent",
+        "explanation": "Orders local-mirror matches by real purchase count for agent consumption."
+      },
+      {
+        "title": "Audit on-model mockup diversity",
+        "command": "placeit-pp-cli gaps --facet device_tags --by ethnicity_tags",
+        "explanation": "Cross-tabulates two tag facets to reveal under-served mockup combinations."
+      },
+      {
+        "title": "Narrow a deeply nested template record for an agent",
+        "command": "placeit-pp-cli template 41935 --agent --select name,category_name,stage_link,large_thumb,device_tags",
+        "explanation": "Template records carry 40+ fields and 9 tag arrays; --select keeps only what the agent needs."
+      },
+      {
+        "title": "Watch a client niche for new templates",
+        "command": "placeit-pp-cli watch add \"halloween instagram\" \u0026\u0026 placeit-pp-cli watch run --agent",
+        "explanation": "Saves a named search, then reports templates newly published since the last sync."
+      }
+    ],
+    "trigger_phrases": [
+      "search placeit for t-shirt mockups",
+      "find printify-ready mockups",
+      "best selling placeit logos",
+      "build a twitch kit",
+      "what's new on placeit",
+      "use placeit",
+      "run placeit"
+    ]
+  }
+}

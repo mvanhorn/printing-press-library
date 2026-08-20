@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "promoted-list-local-store",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260509-090403",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Promoted Fathom list shortcuts must read resource collections from the local store when --data-source local is selected.",
+  "reason": "The meetings, teams, and team-members shortcuts are list endpoints. Treating them as single-object reads makes local mode look for an item whose ID is the endpoint name, so synced data appears missing.",
+  "files": [
+    "internal/cli/promoted_meetings.go",
+    "internal/cli/promoted_teams.go",
+    "internal/cli/promoted_team-members.go",
+    "internal/cli/promoted_local_test.go"
+  ],
+  "validated_outcome": "A temp synced SQLite store can satisfy meetings, teams, and team-members with --agent --data-source local."
+}

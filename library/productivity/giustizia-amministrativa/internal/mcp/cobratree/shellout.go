@@ -6,11 +6,13 @@ package cobratree
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -35,11 +37,11 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 			}
 			finalArgs = append(finalArgs, tokens...)
 		}
-		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
+		out, diag, err := RunCLICommandWithDiagnostics(ctx, lookupPath, finalArgs)
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
-		return mcplib.NewToolResultText(out), nil
+		return mcplib.NewToolResultText(BoundToolText(MergeDiagnostics(out, diag))), nil
 	}
 }
 
@@ -139,6 +141,22 @@ func SplitShellArgs(s string) []string {
 // machine-readable channel. Stderr is included only in error text so post-run
 // telemetry or quota output cannot corrupt JSON results.
 func RunCLICommand(ctx context.Context, binPath string, args []string) (string, error) {
+	out, _, err := RunCLICommandWithDiagnostics(ctx, binPath, args)
+	return out, err
+}
+
+// RunCLICommandWithDiagnostics is RunCLICommand plus the child's stderr, which
+// the plain form discards on success.
+//
+// Keeping the two streams separate is right — folding stderr into stdout would
+// corrupt the JSON, which is exactly what RunCLICommand's contract protects.
+// But *discarding* stderr is a separate decision, and on the MCP surface it is
+// the wrong one: every warning the CLI writes there (a year skipped mid-sweep,
+// results narrowed to one sede, an unsynced store) is meant for whoever reads
+// the result, and here that reader is always a machine that cannot see a note
+// on screen and adjust. The caller gets both streams and decides how to carry
+// the diagnostic without breaking the payload.
+func RunCLICommandWithDiagnostics(ctx context.Context, binPath string, args []string) (string, string, error) {
 	cmd := exec.CommandContext(ctx, binPath, args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -153,9 +171,125 @@ func RunCLICommand(ctx context.Context, binPath string, args []string) (string, 
 			if strings.TrimSpace(stderr.String()) == "" {
 				label = "output"
 			}
-			return stdout.String(), fmt.Errorf("cli %s: %w (%s: %s)", binPath, err, label, msg)
+			return stdout.String(), stderr.String(), fmt.Errorf("cli %s: %w (%s: %s)", binPath, err, label, msg)
 		}
-		return stdout.String(), fmt.Errorf("cli %s: %w", binPath, err)
+		return stdout.String(), stderr.String(), fmt.Errorf("cli %s: %w", binPath, err)
 	}
-	return stdout.String(), nil
+	return stdout.String(), stderr.String(), nil
+}
+
+// mcpHostMaxBytes is the last-resort ceiling on a tool result. Claude Desktop
+// rejects anything past 1 MB outright — the caller gets an error, not a
+// shortened answer — so the safety net has to sit well below it, and it has to
+// cover the command-mirror tools: the budget in internal/mcp only ever applied
+// to the two typed endpoint tools.
+//
+// 250 KB, not something closer to the host limit: a result that large would
+// pass the transport and still swamp the context it lands in. It is set above
+// the typed tools' 60 KB budget only because a single provvedimento's full
+// text legitimately reaches ~90 KB and must not be cut. Commands that can
+// return many documents bound themselves first (grep --limit, corpus/search
+// --limit); this catches whatever slips through.
+const mcpHostMaxBytes = 250_000
+
+// BoundToolText shortens an oversized tool result, always saying that it did.
+// A JSON array is trimmed to fewer items inside an envelope that reports the
+// real count; anything else is cut on a rune boundary with a trailing notice.
+func BoundToolText(s string) string {
+	if len(s) <= mcpHostMaxBytes {
+		return s
+	}
+	var items []json.RawMessage
+	if json.Unmarshal([]byte(s), &items) == nil {
+		for n := len(items); n >= 0; n-- {
+			out, err := json.Marshal(map[string]any{
+				"items":    items[:n],
+				"count":    n,
+				"troncato": true,
+				"totale":   len(items),
+				"avvisi": []string{fmt.Sprintf(
+					"Attenzione: risultato troppo grande per il client (%d byte): restituiti %d elementi su %d. Restringi la richiesta (filtri piu' specifici, --limit) per vederli tutti.",
+					len(s), n, len(items))},
+			})
+			if err == nil && len(out) <= mcpHostMaxBytes {
+				return string(out)
+			}
+		}
+	}
+	cut := mcpHostMaxBytes
+	for cut > 0 && !utf8.RuneStart(s[cut]) {
+		cut--
+	}
+	return s[:cut] + fmt.Sprintf(
+		"\n\n[Attenzione: output troncato qui. Erano %d byte, il client ne accetta al massimo %d. Restringi la richiesta per ottenere il resto.]\n",
+		len(s), mcpHostMaxBytes)
+}
+
+// MergeDiagnostics carries the CLI's stderr warnings into the tool result so
+// an MCP client actually receives them. A JSON object gets an "avvisi" field;
+// anything else (a bare array, or Markdown from `get`) is wrapped or suffixed
+// rather than dropped.
+func MergeDiagnostics(stdout, stderr string) string {
+	warnings := warningsFromStderr(stderr)
+	if len(warnings) == 0 {
+		return stdout
+	}
+	var payload any
+	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
+		// Not JSON (e.g. `get --format md`): append the warnings as plain text.
+		// Losing them entirely is worse than a trailing note on a document.
+		return stdout + "\n\n" + strings.Join(warnings, "\n") + "\n"
+	}
+	switch t := payload.(type) {
+	case map[string]any:
+		if _, taken := t["avvisi"]; taken {
+			return stdout
+		}
+		t["avvisi"] = warnings
+		payload = t
+	default:
+		payload = wrapListWithWarnings(payload, warnings)
+	}
+	out, err := json.Marshal(payload)
+	if err != nil {
+		return stdout
+	}
+	return string(out)
+}
+
+// wrapListWithWarnings gives an array somewhere to carry warnings without
+// changing the shape a caller sees. It reuses the count/items naming of the
+// typed list envelope on purpose: a response that is {count, items} when
+// nothing went wrong and {risultati, avvisi} when something did forces the
+// reader to handle two schemas for the same call, and the second one shows up
+// exactly when they are least prepared for it.
+func wrapListWithWarnings(payload any, warnings []string) map[string]any {
+	out := map[string]any{"items": payload, "avvisi": warnings}
+	if arr, ok := payload.([]any); ok {
+		out["count"] = len(arr)
+	}
+	return out
+}
+
+// warningsFromStderr keeps the diagnostic lines and drops the rest. The prefix
+// is the discriminator: the CLI marks with "Attenzione: ", "Nota: ", "hint: "
+// or "warning: " what is addressed to whoever consumes the result, while
+// stderr also carries plain completion counts ("Corpus creato in …") that
+// would be noise inside the payload.
+func warningsFromStderr(stderr string) []string {
+	var out []string
+	for _, line := range strings.Split(stderr, "\n") {
+		line = strings.TrimSpace(line)
+		if i := strings.LastIndex(line, "\r"); i >= 0 {
+			line = strings.TrimSpace(line[i+1:])
+		}
+		switch {
+		case strings.HasPrefix(line, "Attenzione: "),
+			strings.HasPrefix(line, "Nota: "),
+			strings.HasPrefix(line, "hint: "),
+			strings.HasPrefix(line, "warning: "):
+			out = append(out, line)
+		}
+	}
+	return out
 }

@@ -1,0 +1,132 @@
+{
+  "api_name": "lightroom-classic",
+  "base_url": "",
+  "description": "Your Lightroom Classic catalog, queryable from the terminal — streaks, daily picks, and shot lists with zero exports and zero writes.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "catalog_cameras",
+      "description": "List camera bodies with counts and first/last-seen dates. Returns array of Gear.",
+      "method": "GET",
+      "path": "/cameras",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_collections",
+      "description": "List collections with image counts. Returns array of Collection.",
+      "method": "GET",
+      "path": "/collections",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_keywords",
+      "description": "List keywords with image counts. Returns array of Keyword.",
+      "method": "GET",
+      "path": "/keywords",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_lenses",
+      "description": "List lenses with counts and first/last-seen dates. Returns array of Gear.",
+      "method": "GET",
+      "path": "/lenses",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "photos_find",
+      "description": "Search photos by date, rating, pick, label, keyword, collection, camera, lens, and EXIF criteria. Optional: since, until, date (plus 10 more). Returns array of Photo.",
+      "method": "GET",
+      "path": "/photos",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest capture date (YYYY-MM-DD)"
+        },
+        {
+          "name": "until",
+          "type": "string",
+          "location": "query",
+          "description": "Latest capture date (YYYY-MM-DD)"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Exact capture day (YYYY-MM-DD)"
+        },
+        {
+          "name": "rating",
+          "type": "string",
+          "location": "query",
+          "description": "Rating filter, e.g. '\u003e=4', '5', '\u003e0'"
+        },
+        {
+          "name": "picked",
+          "type": "bool",
+          "location": "query",
+          "description": "Only flagged picks"
+        },
+        {
+          "name": "rejected",
+          "type": "bool",
+          "location": "query",
+          "description": "Only rejected photos"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "query",
+          "description": "Color label"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword name"
+        },
+        {
+          "name": "collection",
+          "type": "string",
+          "location": "query",
+          "description": "Collection name"
+        },
+        {
+          "name": "camera",
+          "type": "string",
+          "location": "query",
+          "description": "Camera model substring"
+        },
+        {
+          "name": "lens",
+          "type": "string",
+          "location": "query",
+          "description": "Lens substring"
+        },
+        {
+          "name": "iso",
+          "type": "string",
+          "location": "query",
+          "description": "ISO filter, e.g. '\u003e=1600'"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max photos returned"
+        }
+      ]
+    }
+  ]
+}

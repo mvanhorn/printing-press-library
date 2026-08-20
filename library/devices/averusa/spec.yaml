@@ -1,0 +1,183 @@
+name: averusa
+description: "AVer USA document catalog — user manuals, spec sheets, and white papers for AVer products, offline"
+version: "0.1.0"
+category: devices
+# Operator-local SQLite datastore CLI: the corpus (averusa_documents,
+# averusa_products, averusa_spec_fields) is built by the hand-authored
+# harvest pipeline (support-portal sitemap -> crawler-UA SSR articles ->
+# Salesforce Aura getArticleVersionId entityId resolution -> fileField
+# downloads; main-site sitemap -> product pages) plus a generated sync
+# command. This classification lets the machine's sync-centric gates
+# (verify Data Pipeline, phase5 skip semantics) treat the CLI as the
+# local-datastore shape it actually is.
+source: local-sqlite
+base_url: "https://averusa.my.site.com/support/s"
+http_transport: standard
+health_check_path: "/sitemap.xml"
+
+# The support portal serves knowledge-article SSR HTML and the Aura action API
+# only to crawler UAs; the same UA is accepted by fileField, the sitemaps, and
+# the main site, so one Googlebot UA covers every surface. All surfaces are
+# public (no auth, no cookies).
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+  - name: Accept
+    value: "*/*"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/averusa-pp-cli/config.toml"
+
+# Cache auto-refresh is deliberately OFF. The corpus is built by the
+# hand-authored harvest pipeline (support-portal sitemap -> crawler-UA SSR
+# articles -> Salesforce Aura getArticleVersionId entityId resolution ->
+# fileField downloads; main-site sitemap -> product pages), not by generated
+# spec-endpoint sync. Enabling cache would fire doomed pre-read fetches on
+# every read command. EntityId resolution needs a runtime-fresh fwuid parsed
+# from the shell HTML, so it lives in the sync client, not a static endpoint.
+
+learn:
+  ticker_patterns:
+    - "^[a-z]+[0-9]+[a-z0-9]*(-[a-z0-9]+)*$"
+  stopwords:
+    - aver
+    - averusa
+    - series
+    - model
+  synonyms:
+    "spec sheet": "datasheet"
+    "data sheet": "datasheet"
+    "cut sheet": "datasheet"
+    "user guide": "user manual"
+    "quick start guide": "quick-start"
+    "white paper": "white-paper"
+    "discontinued": "eol"
+    "end of life": "eol"
+  entity_lookup_seeds:
+    product_model:
+      - canonical: CAM570
+        aliases: [cam570, cam 570, conference camera 570]
+      - canonical: CAM550
+        aliases: [cam550, cam 550]
+      - canonical: CAM520
+        aliases: [cam520, cam520pro, cam 520]
+      - canonical: VC520
+        aliases: [vc520, vc520pro, vc520pro3]
+      - canonical: VB130
+        aliases: [vb130, vb130e, video bar 130]
+      - canonical: TR530
+        aliases: [tr530, tr530plus]
+      - canonical: PTZ310
+        aliases: [ptz310, ptz330, ptz 310]
+      - canonical: MD330U
+        aliases: [md330u, md330ui, md720uis]
+      - canonical: M50
+        aliases: [m50, m50s]
+      - canonical: U50
+        aliases: [u50, u50i]
+      - canonical: A30
+        aliases: [a30, a30s]
+      - canonical: C36i
+        aliases: [c36i, c36i plus, c36iplus]
+      - canonical: E30P
+        aliases: [e30p, charging cart e30]
+      - canonical: CP10
+        aliases: [cp10, cp10 g2, control pod]
+    doc_type:
+      - canonical: user-manual
+        aliases: [user manual, manual, instruction manual, users guide, operation manual]
+      - canonical: spec-sheet
+        aliases: [spec sheet, datasheet, data sheet, specifications, cut sheet]
+      - canonical: white-paper
+        aliases: [white paper, whitepaper, evaluation guide]
+      - canonical: quick-start
+        aliases: [quick start, quickstart, quick start guide, qsg]
+      - canonical: brochure
+        aliases: [brochure, flyer]
+      - canonical: software
+        aliases: [software manual, software, app]
+      - canonical: comparison-chart
+        aliases: [comparison, comparison chart, compare]
+
+resources:
+  docs:
+    description: "AVer USA support-portal knowledge articles and attached files"
+    base_url: "https://averusa.my.site.com/support/s"
+    endpoints:
+      list:
+        method: GET
+        path: "/sitemap-topicarticle-1.xml"
+        description: "Fetch the support-portal article sitemap (all knowledge-article URLs)"
+        response_format: binary
+      get:
+        method: GET
+        path: "/article/CAM540-Manual"
+        description: "Fetch a knowledge article as clean text (crawler-UA SSR)"
+        example: "  averusa-pp-cli docs get CAM540-Manual"
+        happy_args: "CAM540-Manual"
+        params:
+          - name: url_name
+            flag_name: url-name
+            aliases: [u]
+            type: string
+            required: true
+            positional: true
+            description: "Article URL name from the sitemap, e.g. CAM540-Manual"
+        response_format: html
+        html_extract:
+          mode: page
+          limit: 200
+      download:
+        method: GET
+        path: "/servlet/fileField?entityId={entity_id}&field=File__Body__s"
+        description: "Download an article's attached file (PDF)"
+        example: "  averusa-pp-cli docs download ka00y000000DGArAAO"
+        happy_args: "ka00y000000DGArAAO"
+        params:
+          - name: entity_id
+            flag_name: entity-id
+            aliases: [e]
+            type: string
+            required: true
+            positional: true
+            description: "Salesforce entityId resolved from the article URL name (see docs sync)"
+        response_format: binary
+  products:
+    description: "AVer USA product catalog and datasheets"
+    base_url: "https://www.averusa.com"
+    endpoints:
+      list:
+        method: GET
+        path: "/sitemap.xml"
+        description: "Fetch the main-site sitemap (product pages, categories)"
+        response_format: binary
+      get:
+        method: GET
+        path: "/products/conference-camera/cam570"
+        description: "Fetch a product page as clean text (spec links, downloads)"
+        example: "  averusa-pp-cli products get CAM570 --category conference-camera"
+        happy_args: "CAM570;--category=conference-camera"
+        params:
+          - name: category
+            flag_name: category
+            aliases: [c]
+            type: string
+            required: true
+            description: "Product category slug, e.g. conference-camera, ptz-camera, document-camera, video-bar, charging-cart"
+          - name: model
+            flag_name: model
+            aliases: [m]
+            type: string
+            required: true
+            positional: true
+            description: "Product model slug, e.g. cam570, vc520pro3, tr530"
+        response_format: html
+        html_extract:
+          mode: page
+          limit: 200
+
+types: {}

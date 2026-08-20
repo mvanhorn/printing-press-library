@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "enforcement-sync-recall-number-id",
+  "applied_at": "2026-07-08",
+  "base_run_id": "20260707-200719-bf61d987",
+  "base_printing_press_version": "4.25.0",
+  "summary": "The enforcement resource keys on recall_number for sync upserts; a regen must re-derive this from the spec's x-resource-id, not the generic id/name fallback list.",
+  "reason": "openFDA enforcement records carry no `id`/`name`-shaped field, so the runtime genericIDFieldFallbacks and suffix fallback all miss and every synced record drops silently as primary_key_unresolved (0 rows stored). recall_number is the FDA source record ID. The fix annotates spec.yaml with `x-resource-id: recall_number` (the durable, regen-safe source of truth) and projects it into the runtime resourceIDFieldOverrides map in both the CLI sync path and the store, matching how the generator emits that override for annotated specs.",
+  "files": [
+    "spec.yaml",
+    "internal/cli/sync.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "Live `sync` stores 25/25 enforcement rows (was 0 with primary_key_unresolved); go test ./internal/cli ./internal/store passes.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues"
+}

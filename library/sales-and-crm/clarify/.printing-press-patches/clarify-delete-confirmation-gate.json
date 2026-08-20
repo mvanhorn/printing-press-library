@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "clarify-delete-confirmation-gate",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260817-102905-ca271321",
+  "base_printing_press_version": "4.30.3",
+  "summary": "All 13 generated DELETE commands plus the irreversible objects records merge call confirmDestructive() before sending: --yes/--dry-run skip, interactive y/N prompt, non-interactive callers fail closed with exit 2.",
+  "reason": "Greptile P1 on PR #1747: destructive requests bypassed explicit confirmation; the generated DELETE template ships no consent gate (generator retro candidate).",
+  "files": [
+    "internal/cli/clarify_confirm.go",
+    "internal/cli/comments_delete.go",
+    "internal/cli/meetings_recording_disable.go",
+    "internal/cli/objects_access_revoke-object.go",
+    "internal/cli/objects_lists_delete.go",
+    "internal/cli/objects_records_delete-attachment.go",
+    "internal/cli/objects_records_delete-relationship.go",
+    "internal/cli/objects_records_delete-workspaces.go",
+    "internal/cli/objects_records_delete.go",
+    "internal/cli/objects_records_revoke-grant.go",
+    "internal/cli/schemas_delete-custom-object.go",
+    "internal/cli/schemas_relationships_delete-schema-property.go",
+    "internal/cli/settings_delete-workspace.go",
+    "internal/cli/workflows_delete.go",
+    "internal/cli/objects_records_merge.go"
+  ],
+  "validated_outcome": "Non-interactive delete without --yes exits 2; --dry-run and --yes paths proceed; go build and full test suite pass."
+}

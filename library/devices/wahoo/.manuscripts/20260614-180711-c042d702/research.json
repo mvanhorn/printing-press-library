@@ -1,0 +1,239 @@
+{
+  "api_name": "wahoo",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "wahoolib",
+      "url": "https://github.com/parkerhancock/wahoolib",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "wahoo-mcp",
+      "url": "https://github.com/armonge/wahoo-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-wahoo-cloud-api",
+      "url": "https://github.com/james-millner/go-wahoo-cloud-api",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-14T18:07:11Z",
+  "novel_features": [
+    {
+      "name": "Ride + FIT archive",
+      "command": "backup",
+      "description": "Download every workout record plus its raw FIT file into a resumable local directory tree so you own a permanent backup.",
+      "rationale": "Only possible because the local mirror knows every workout and its file URL; FIT downloads are rate-limit-exempt, so a full back-catalog pull is cheap.",
+      "example": "wahoo backup --out ./wahoo-archive --full",
+      "why_it_matters": "Reach for this when the user wants their rides backed up or exported off Wahoo's cloud — the app has no bulk export.",
+      "group": "Own your data"
+    },
+    {
+      "name": "Training load (Fitness/Fatigue/Form)",
+      "command": "load",
+      "description": "Compute CTL (Fitness), ATL (Fatigue), and TSB (Form) time series from your synced rides — the analysis TrainingPeaks charges for.",
+      "rationale": "The Wahoo API stores raw per-ride metrics but computes nothing; this runs the exponentially-weighted load math locally over the SQLite mirror.",
+      "example": "wahoo load --days 90 --agent",
+      "why_it_matters": "Pick this when the user asks how fit, fatigued, or fresh they are, or whether to push or rest this week.",
+      "group": "Training analytics the app won't compute"
+    },
+    {
+      "name": "Recent-window digest",
+      "command": "digest",
+      "description": "One-shot rollup of the last N days: ride count, distance, time, ascent, work, and load delta — pipeable to any tool.",
+      "rationale": "Aggregates the local workout mirror in-process; no single API call returns a windowed total and the app shows one ride at a time.",
+      "example": "wahoo digest --days 7 --agent",
+      "why_it_matters": "Use for 'how much did I ride this week/month/year' (--days 365 covers year-in-review).",
+      "group": "Training analytics the app won't compute"
+    },
+    {
+      "name": "Personal bests",
+      "command": "bests",
+      "description": "All-time and per-period records for distance, ascent, average power, duration, and work from your ride summaries.",
+      "rationale": "Mechanical max/sort over the NULL-safe-parsed summary fields in the local mirror; the API offers no records endpoint.",
+      "example": "wahoo bests --metric power --agent",
+      "why_it_matters": "Pick this for PRs and bragging-rights records; note it uses ride summaries, not per-second streams.",
+      "group": "Training analytics the app won't compute"
+    },
+    {
+      "name": "FTP progression",
+      "command": "ftp-history",
+      "description": "Dated timeline of your FTP and critical power from power-zone records and sync snapshots, with watts/kg when your weight is known.",
+      "rationale": "Joins power_zones records and per-sync FTP snapshots in local SQLite to reconstruct progression the API never exposes as a series.",
+      "example": "wahoo ftp-history --agent",
+      "why_it_matters": "Use when the user wants to see whether their FTP is trending up over a training block.",
+      "group": "Training analytics the app won't compute"
+    },
+    {
+      "name": "Offline route finder",
+      "command": "routes find",
+      "description": "Filter your saved routes by distance band, climbing, and proximity to a point — query a route library the app only scrolls.",
+      "rationale": "Range filters plus a haversine distance run over the routes mirror's stored lat/lng and elevation fields; the API has no route filtering.",
+      "example": "wahoo routes find --distance 80-120 --max-ascent 1000 --agent",
+      "why_it_matters": "Pick this when the user wants 'a ~100km route under 1000m of climbing near here' from their own saved routes.",
+      "group": "Offline queries over your library"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Ride + FIT archive",
+      "command": "backup",
+      "description": "Download every workout record plus its raw FIT file into a resumable local directory tree so you own a permanent backup.",
+      "rationale": "Only possible because the local mirror knows every workout and its file URL; FIT downloads are rate-limit-exempt, so a full back-catalog pull is cheap.",
+      "example": "wahoo backup --out ./wahoo-archive --full",
+      "why_it_matters": "Reach for this when the user wants their rides backed up or exported off Wahoo's cloud — the app has no bulk export.",
+      "group": "Own your data"
+    },
+    {
+      "name": "Training load (Fitness/Fatigue/Form)",
+      "command": "load",
+      "description": "Compute CTL (Fitness), ATL (Fatigue), and TSB (Form) time series from your synced rides — the analysis TrainingPeaks charges for.",
+      "rationale": "The Wahoo API stores raw per-ride metrics but computes nothing; this runs the exponentially-weighted load math locally over the SQLite mirror.",
+      "example": "wahoo load --days 90 --agent",
+      "why_it_matters": "Pick this when the user asks how fit, fatigued, or fresh they are, or whether to push or rest this week.",
+      "group": "Training analytics the app won't compute"
+    },
+    {
+      "name": "Recent-window digest",
+      "command": "digest",
+      "description": "One-shot rollup of the last N days: ride count, distance, time, ascent, work, and load delta — pipeable to any tool.",
+      "rationale": "Aggregates the local workout mirror in-process; no single API call returns a windowed total and the app shows one ride at a time.",
+      "example": "wahoo digest --days 7 --agent",
+      "why_it_matters": "Use for 'how much did I ride this week/month/year' (--days 365 covers year-in-review).",
+      "group": "Training analytics the app won't compute"
+    },
+    {
+      "name": "Personal bests",
+      "command": "bests",
+      "description": "All-time and per-period records for distance, ascent, average power, duration, and work from your ride summaries.",
+      "rationale": "Mechanical max/sort over the NULL-safe-parsed summary fields in the local mirror; the API offers no records endpoint.",
+      "example": "wahoo bests --metric power --agent",
+      "why_it_matters": "Pick this for PRs and bragging-rights records; note it uses ride summaries, not per-second streams.",
+      "group": "Training analytics the app won't compute"
+    },
+    {
+      "name": "FTP progression",
+      "command": "ftp-history",
+      "description": "Dated timeline of your FTP and critical power from power-zone records and sync snapshots, with watts/kg when your weight is known.",
+      "rationale": "Joins power_zones records and per-sync FTP snapshots in local SQLite to reconstruct progression the API never exposes as a series.",
+      "example": "wahoo ftp-history --agent",
+      "why_it_matters": "Use when the user wants to see whether their FTP is trending up over a training block.",
+      "group": "Training analytics the app won't compute"
+    },
+    {
+      "name": "Offline route finder",
+      "command": "routes find",
+      "description": "Filter your saved routes by distance band, climbing, and proximity to a point — query a route library the app only scrolls.",
+      "rationale": "Range filters plus a haversine distance run over the routes mirror's stored lat/lng and elevation fields; the API has no route filtering.",
+      "example": "wahoo routes find --distance 80-120 --max-ascent 1000 --agent",
+      "why_it_matters": "Pick this when the user wants 'a ~100km route under 1000m of climbing near here' from their own saved routes.",
+      "group": "Offline queries over your library"
+    }
+  ],
+  "narrative": {
+    "display_name": "Wahoo Cloud API",
+    "headline": "Every Wahoo Cloud API capability, plus the local training database and offline analysis Wahoo's app never gives you.",
+    "value_prop": "Sync your Wahoo rides, routes, plans, and power zones into a local SQLite mirror, then do what the app can't: back up every ride and FIT file, compute Fitness/Fatigue/Form and FTP progression, find a saved route by distance and elevation, and roll up any window of training. Agent-native output (--json/--agent/--select) makes it scriptable end to end.",
+    "auth_narrative": "Auth is OAuth 2.0 Authorization Code with PKCE. A Sandbox app works immediately against your own account with NO Wahoo approval — approval is only needed for higher rate limits or accessing other people's data. Register an app at https://developers.wahooligan.com/applications/new with the redirect URI http://localhost:8085/callback, pick your scopes, then set WAHOO_CLIENT_ID and WAHOO_CLIENT_SECRET (or pass --client-id/--client-secret) and run 'wahoo auth login' to authorize in your browser (use --port to change the callback port; sign in to Wahoo however you normally do, including Sign in with Google). Access tokens last 2 hours and refresh automatically (refresh tokens are single-use); you can also paste a pre-obtained token via WAHOO_CLOUD_OAUTH2. Revoke this app's access any time with 'wahoo permissions'. Run 'wahoo-pp-cli auth setup' for the full step-by-step.",
+    "quickstart": [
+      {
+        "command": "wahoo doctor --dry-run",
+        "comment": "Confirm config and rate-limit status; no auth needed."
+      },
+      {
+        "command": "wahoo auth login",
+        "comment": "Authorize in the browser (needs an approved Wahoo app)."
+      },
+      {
+        "command": "wahoo sync --resources workouts,routes,power_zones",
+        "comment": "Pull your data into the local SQLite mirror."
+      },
+      {
+        "command": "wahoo load --days 90",
+        "comment": "Compute Fitness/Fatigue/Form from your rides."
+      },
+      {
+        "command": "wahoo backup --out ./wahoo-archive --full",
+        "comment": "Download every ride record and FIT file locally."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Invalid access token",
+        "fix": "Run 'wahoo auth login' to reauthorize; access tokens expire after 2 hours and refresh tokens are single-use."
+      },
+      {
+        "symptom": "429 rate limited during sync",
+        "fix": "Sandbox apps allow only 250 requests/day; pace with 'wahoo sync --max-pages N' or wait for the window to reset. FIT downloads (backup) are exempt."
+      },
+      {
+        "symptom": "auth login fails before approval",
+        "fix": "Wahoo must approve your app first — register at developers.wahooligan.com/applications/new and wait for the pending status to clear."
+      },
+      {
+        "symptom": "load or bests shows no data",
+        "fix": "Run 'wahoo sync --resources workouts' first; analysis commands read the local mirror."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent needs a user's Wahoo ride history, FIT files, routes, plans, or power zones, or wants training analytics — load/form, FTP progression, personal bests, recent totals — computed locally. It keeps a local SQLite mirror, so repeated queries are fast and offline. It is the right tool for backing up rides, scripting training dashboards, and pushing routes or plans to an ELEMNT.",
+    "anti_triggers": [
+      "Do not use for live Bluetooth control of the ELEMNT device — this is the Cloud API and only sees data that has synced to Wahoo's cloud.",
+      "Do not use for per-second power/HR stream analysis or mean-maximal power curves — the API exposes only per-workout summary averages, not streams.",
+      "Do not use to push activities to Strava or TrainingPeaks — it talks only to Wahoo's cloud."
+    ],
+    "recipes": [
+      {
+        "title": "Inspect a ride's key metrics for an agent",
+        "command": "wahoo workouts get 12345 --agent --select id,name,workout_summary.distance_accum,workout_summary.power_bike_avg,workout_summary.work_accum",
+        "explanation": "Narrows a deeply nested workout (with embedded summary) to just the fields an agent needs, avoiding tens of KB of payload."
+      },
+      {
+        "title": "Back up an entire ride history",
+        "command": "wahoo sync --resources workouts && wahoo backup --out ./wahoo-archive --full",
+        "explanation": "Mirrors all workouts, then downloads each one's FIT file into a resumable local archive."
+      },
+      {
+        "title": "Check form before a hard week",
+        "command": "wahoo load --days 90 --agent",
+        "explanation": "Returns the Fitness/Fatigue/Form series so an agent can advise whether to add intensity or rest."
+      },
+      {
+        "title": "Pick a Saturday route",
+        "command": "wahoo routes find --distance 90-110 --near 40.7,-74.0 --radius 25 --agent",
+        "explanation": "Filters saved routes to ~90-110km within 25km of a point using stored geo and elevation fields."
+      }
+    ],
+    "trigger_phrases": [
+      "back up my wahoo rides",
+      "check my training load",
+      "what's my form on wahoo",
+      "my FTP progression",
+      "find a saved route around 100k",
+      "this week's riding totals",
+      "use wahoo",
+      "run wahoo"
+    ]
+  }
+}

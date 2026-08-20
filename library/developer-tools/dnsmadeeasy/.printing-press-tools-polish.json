@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-07-09T14:27:29.045079Z",
+  "cli_dir": "\u003ccli-dir\u003e/dnsmadeeasy-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-07-09T14:13:14.271825Z"
+  }
+}

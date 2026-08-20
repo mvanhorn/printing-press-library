@@ -33,7 +33,7 @@ func newNovelMassimeCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if gaSkip(flags) {
-				return nil
+				return emitSkip(cmd, flags)
 			}
 			opts := f.opts("")
 			if !hasAnySearchInput(opts) {
@@ -46,6 +46,9 @@ func newNovelMassimeCmd(flags *rootFlags) *cobra.Command {
 			res, err := c.Search(cmd.Context(), opts)
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			for _, w := range res.Warnings {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Attenzione: %s\n", w)
 			}
 			st, _ := openGAStore(cmd.Context())
 			if st != nil {
@@ -60,16 +63,26 @@ func newNovelMassimeCmd(flags *rootFlags) *cobra.Command {
 			}
 			out := []digest{}
 			for _, p := range res.Items {
-				docHTML, ferr := c.FullText(cmd.Context(), p)
-				if ferr != nil {
-					continue
-				}
-				if p.DataDeposito == "" {
-					p.DataDeposito = gaclient.ExtractDataDeposito(docHTML)
-				}
-				p.FullText = gaclient.HTMLToMarkdown(docHTML)
-				if st != nil {
-					persistProvvedimenti(st, []gaclient.Provvedimento{p})
+				if stored := storedFullText(st, p); stored != "" {
+					p.FullText = stored
+					if p.DataDeposito == "" {
+						p.DataDeposito = gaclient.ExtractDataDeposito(stored)
+					}
+				} else {
+					doc, ferr := c.Document(cmd.Context(), p)
+					if ferr != nil {
+						continue
+					}
+					if p.DataDeposito == "" {
+						p.DataDeposito = gaclient.ExtractDataDeposito(doc.Raw)
+					}
+					p.FullText = doc.Raw
+					if !doc.IsPDF {
+						p.FullText = gaclient.HTMLToMarkdown(doc.Raw)
+					}
+					if st != nil {
+						persistProvvedimenti(st, []gaclient.Provvedimento{p})
+					}
 				}
 				found := extractMassime(p.FullText)
 				if len(found) > 0 {

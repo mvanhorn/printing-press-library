@@ -33,10 +33,14 @@ emits ndjson for meetings where the slug is missing.`,
 			if err != nil {
 				return usageErr(err)
 			}
-			c, err := openGranolaCache()
+			// PATCH(dual-path-store-read): the meeting list comes from the
+			// store first, cache second. The panel lookup below stays
+			// live-only — the store has no panel table.
+			c, err := openGranolaRead(cmd.Context())
 			if err != nil {
 				return err
 			}
+			defer c.Close()
 			ids := selectDocsInWindow(c, from, to, limit)
 			ic, ierr := granola.NewInternalClient()
 			w := cmd.OutOrStdout()

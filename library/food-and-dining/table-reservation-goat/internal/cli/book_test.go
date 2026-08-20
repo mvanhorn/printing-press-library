@@ -3,12 +3,227 @@
 package cli
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/tock"
 )
+
+type fakeOpenTableAttachPostBookClient struct {
+	upcoming   []opentable.UpcomingReservation
+	listErr    error
+	cutoff     string
+	cutoffErr  error
+	cutoffCall *openTableCutoffCall
+}
+
+type openTableCutoffCall struct {
+	restaurantID       int
+	confirmationNumber int
+	securityToken      string
+}
+
+func (f *fakeOpenTableAttachPostBookClient) ListUpcomingReservations(context.Context) ([]opentable.UpcomingReservation, error) {
+	return f.upcoming, f.listErr
+}
+
+func (f *fakeOpenTableAttachPostBookClient) FetchCancelCutoff(_ context.Context, restaurantID, confirmationNumber int, securityToken string) (string, error) {
+	f.cutoffCall = &openTableCutoffCall{
+		restaurantID:       restaurantID,
+		confirmationNumber: confirmationNumber,
+		securityToken:      securityToken,
+	}
+	return f.cutoff, f.cutoffErr
+}
+
+func decodeDashboardFixture(t *testing.T) []opentable.UpcomingReservation {
+	t.Helper()
+	raw, err := os.ReadFile(filepath.Join("testdata", "opentable_dashboard_upcoming.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		DiningDashboard struct {
+			UpcomingReservations []opentable.UpcomingReservation `json:"upcomingReservations"`
+		} `json:"diningDashboard"`
+	}
+	if err := json.Unmarshal(raw, &fixture); err != nil {
+		t.Fatal(err)
+	}
+	return fixture.DiningDashboard.UpcomingReservations
+}
+
+func jsonRoundTripBookResult(t *testing.T, result bookResult) bookResult {
+	t.Helper()
+	raw, err := json.Marshal(result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var decoded bookResult
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		t.Fatal(err)
+	}
+	return decoded
+}
+
+func bookResultHasWarning(result bookResult, want string) bool {
+	for _, warning := range result.Warnings {
+		if warning == want {
+			return true
+		}
+	}
+	return false
+}
+
+func TestEnrichOpenTableAttachBookBackfillsRestaurantIDAndFetchesCutoff(t *testing.T) {
+	client := &fakeOpenTableAttachPostBookClient{
+		upcoming: decodeDashboardFixture(t),
+		cutoff:   "2026-07-21T02:00:00Z",
+	}
+	resp := &opentable.BookResponse{
+		ReservationID:      880011,
+		ConfirmationNumber: 771122,
+		SecurityToken:      "fixture-token",
+	}
+
+	got := enrichOpenTableAttachBook(context.Background(), client, resp, bookResult{Source: "book"})
+	decoded := jsonRoundTripBookResult(t, got)
+
+	if resp.RestaurantID != 456789 {
+		t.Fatalf("RestaurantID = %d, want dashboard fixture id 456789", resp.RestaurantID)
+	}
+	if client.cutoffCall == nil {
+		t.Fatal("FetchCancelCutoff was not called")
+	}
+	if *client.cutoffCall != (openTableCutoffCall{restaurantID: 456789, confirmationNumber: 771122, securityToken: "fixture-token"}) {
+		t.Fatalf("FetchCancelCutoff call = %#v", *client.cutoffCall)
+	}
+	if decoded.CancellationDeadline != client.cutoff {
+		t.Fatalf("CancellationDeadline = %q, want %q", decoded.CancellationDeadline, client.cutoff)
+	}
+	if decoded.Hint != "" {
+		t.Fatalf("Hint = %q, want empty", decoded.Hint)
+	}
+	if bookResultHasWarning(decoded, openTableWarningRestaurantIDUnresolved) {
+		t.Fatalf("Warnings = %v, must not contain %q", decoded.Warnings, openTableWarningRestaurantIDUnresolved)
+	}
+}
+
+func TestRestaurantIDForBookedReservationFallsBackToReservationID(t *testing.T) {
+	resp := &opentable.BookResponse{ReservationID: 880011}
+	got := restaurantIDForBookedReservation(decodeDashboardFixture(t), resp)
+	if got != 456789 {
+		t.Fatalf("restaurantIDForBookedReservation = %d, want dashboard fixture id 456789", got)
+	}
+}
+
+func TestRestaurantIDForBookedReservationRejectsAmbiguousConfirmationNumber(t *testing.T) {
+	upcoming := []opentable.UpcomingReservation{
+		{ConfirmationNumber: 771122, RestaurantID: 456789},
+		{ConfirmationNumber: 771122, RestaurantID: 987654},
+	}
+	resp := &opentable.BookResponse{ConfirmationNumber: 771122}
+
+	if got := restaurantIDForBookedReservation(upcoming, resp); got != 0 {
+		t.Fatalf("restaurantIDForBookedReservation = %d, want 0 for ambiguous confirmation number", got)
+	}
+}
+
+func TestRestaurantIDForBookedReservationRequiresConsistentIdentifiers(t *testing.T) {
+	upcoming := []opentable.UpcomingReservation{
+		{ConfirmationNumber: 771122, ConfirmationID: 990044, RestaurantID: 987654},
+		{ConfirmationNumber: 771122, ConfirmationID: 880011, RestaurantID: 456789},
+	}
+	resp := &opentable.BookResponse{ConfirmationNumber: 771122, ReservationID: 880011}
+
+	if got := restaurantIDForBookedReservation(upcoming, resp); got != 456789 {
+		t.Fatalf("restaurantIDForBookedReservation = %d, want consistently matched id 456789", got)
+	}
+}
+
+func TestEnrichOpenTableAttachBookDashboardUnavailableKeepsHint(t *testing.T) {
+	client := &fakeOpenTableAttachPostBookClient{listErr: errors.New("dashboard unavailable")}
+	resp := &opentable.BookResponse{ConfirmationNumber: 771122, SecurityToken: "fixture-token"}
+
+	got := enrichOpenTableAttachBook(context.Background(), client, resp, bookResult{Source: "book"})
+	decoded := jsonRoundTripBookResult(t, got)
+
+	if resp.RestaurantID != 0 {
+		t.Fatalf("RestaurantID = %d, want 0", resp.RestaurantID)
+	}
+	if client.cutoffCall != nil {
+		t.Fatalf("FetchCancelCutoff unexpectedly called with %#v", *client.cutoffCall)
+	}
+	const wantHint = "cancellation deadline unavailable: restaurant id could not be resolved"
+	if decoded.Hint != wantHint {
+		t.Fatalf("Hint = %q, want %q", decoded.Hint, wantHint)
+	}
+	if !bookResultHasWarning(decoded, openTableWarningRestaurantIDUnresolved) {
+		t.Fatalf("Warnings = %v, want %q", decoded.Warnings, openTableWarningRestaurantIDUnresolved)
+	}
+	if decoded.Error != "" {
+		t.Fatalf("Error = %q, want successful booking", decoded.Error)
+	}
+	if decoded.Source != "book" {
+		t.Fatalf("Source = %q, want successful booking source %q", decoded.Source, "book")
+	}
+}
+
+func TestEnrichOpenTableAttachBookNoDashboardMatchKeepsHint(t *testing.T) {
+	client := &fakeOpenTableAttachPostBookClient{upcoming: decodeDashboardFixture(t)}
+	resp := &opentable.BookResponse{ConfirmationNumber: 424242, ReservationID: 434343}
+
+	got := enrichOpenTableAttachBook(context.Background(), client, resp, bookResult{Source: "book"})
+	decoded := jsonRoundTripBookResult(t, got)
+
+	if resp.RestaurantID != 0 {
+		t.Fatalf("RestaurantID = %d, want 0", resp.RestaurantID)
+	}
+	if client.cutoffCall != nil {
+		t.Fatalf("FetchCancelCutoff unexpectedly called with %#v", *client.cutoffCall)
+	}
+	const wantHint = "cancellation deadline unavailable: restaurant id could not be resolved"
+	if decoded.Hint != wantHint {
+		t.Fatalf("Hint = %q, want %q", decoded.Hint, wantHint)
+	}
+	if !bookResultHasWarning(decoded, openTableWarningRestaurantIDUnresolved) {
+		t.Fatalf("Warnings = %v, want %q", decoded.Warnings, openTableWarningRestaurantIDUnresolved)
+	}
+	if decoded.Error != "" {
+		t.Fatalf("Error = %q, want successful booking", decoded.Error)
+	}
+	if decoded.Source != "book" {
+		t.Fatalf("Source = %q, want successful booking source %q", decoded.Source, "book")
+	}
+}
+
+func TestEnrichOpenTableAttachBookCutoffErrorDoesNotFailBooking(t *testing.T) {
+	client := &fakeOpenTableAttachPostBookClient{cutoffErr: errors.New("cutoff unavailable")}
+	resp := &opentable.BookResponse{
+		RestaurantID:       456789,
+		ConfirmationNumber: 771122,
+		SecurityToken:      "fixture-token",
+	}
+
+	got := enrichOpenTableAttachBook(context.Background(), client, resp, bookResult{Source: "book"})
+
+	if client.cutoffCall == nil {
+		t.Fatal("FetchCancelCutoff was not called")
+	}
+	if got.CancellationDeadline != "" {
+		t.Fatalf("CancellationDeadline = %q, want empty", got.CancellationDeadline)
+	}
+	if got.Error != "" {
+		t.Fatalf("Error = %q, want successful booking", got.Error)
+	}
+}
 
 func TestParseNetworkPrefix(t *testing.T) {
 	cases := []struct {
@@ -212,8 +427,92 @@ func TestVerifyEnvFloor_GuardOrder(t *testing.T) {
 	// the gate — and it's covered by cliutil.IsVerifyEnv tests already.
 }
 
+func TestTockCVCForBooking_NoInputAttemptsWithEmptyCVCAndDoesNotPrompt(t *testing.T) {
+	// Machine mode without TRG_TOCK_CVC proceeds with an empty CVC (the
+	// interactive flow allows skipping; card-on-file venues complete without
+	// one). A venue that truly blocks surfaces tock.ErrCVCRequired from the
+	// checkout stage instead.
+	t.Setenv("TRG_TOCK_CVC", "")
+	var stderr bytes.Buffer
+	cvc, err := tockCVCForBooking(true, os.Stdin, &stderr)
+	if err != nil {
+		t.Fatalf("tockCVCForBooking unexpected err: %v", err)
+	}
+	if cvc != "" {
+		t.Fatalf("cvc = %q, want empty", cvc)
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("machine mode wrote prompt: %q", stderr.String())
+	}
+}
+
+func TestTockCVCForBooking_NoInputAcceptsEnv(t *testing.T) {
+	t.Setenv("TRG_TOCK_CVC", "123")
+	var stderr bytes.Buffer
+	cvc, err := tockCVCForBooking(true, os.Stdin, &stderr)
+	if err != nil {
+		t.Fatalf("tockCVCForBooking unexpected err: %v", err)
+	}
+	if cvc != "123" {
+		t.Fatalf("cvc = %q, want env value", cvc)
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("machine mode with env wrote prompt: %q", stderr.String())
+	}
+}
+
+func TestTockCVCForBooking_RejectsInvalidEnv(t *testing.T) {
+	t.Setenv("TRG_TOCK_CVC", "12x")
+	var stderr bytes.Buffer
+	cvc, err := tockCVCForBooking(true, os.Stdin, &stderr)
+	if !errors.Is(err, errTockCVCInvalid) {
+		t.Fatalf("tockCVCForBooking err = %v, want errTockCVCInvalid", err)
+	}
+	if cvc != "" {
+		t.Fatalf("cvc = %q, want empty", cvc)
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("invalid env wrote prompt: %q", stderr.String())
+	}
+}
+
+func TestApplyTockBookError_SelectorDriftPreservesPinnedExperienceFailure(t *testing.T) {
+	bookErr := &tock.ChromeBookError{
+		Kind: tock.ErrSlotControlNotFound,
+		Step: "booking_control",
+		Cause: errors.New(
+			`requested_time="6:15 PM" combobox_layout_error=experience_card: pinned experience 520126 could not be positively identified among Book now controls`,
+		),
+	}
+	got := applyTockBookError(bookResult{}, bookErr, "barcelona-wine-bar-raleigh", "2026-07-10", "18:15", 2)
+
+	if got.Error != "selector_drift" {
+		t.Fatalf("error category = %q, want selector_drift", got.Error)
+	}
+	for _, want := range []string{"step=booking_control", "experience_card", "pinned experience 520126"} {
+		if !strings.Contains(got.Hint, want) {
+			t.Errorf("hint = %q, want it to contain %q", got.Hint, want)
+		}
+	}
+	if want := "https://www.exploretock.com/barcelona-wine-bar-raleigh?date=2026-07-10&size=2&time=18:15"; got.BookURL != want {
+		t.Fatalf("book URL = %q, want %q", got.BookURL, want)
+	}
+}
+
 func envIsVerify() bool {
 	return os.Getenv("PRINTING_PRESS_VERIFY") == "1"
+}
+
+func TestOpenTableFallbackBookURL(t *testing.T) {
+	tests := map[string]string{
+		"le-bernardin-new-york": "https://www.opentable.com/r/le-bernardin-new-york?covers=2&dateTime=2026-07-20T19:00",
+		"3688":                  "https://www.opentable.com/restaurant/profile/3688?covers=2&dateTime=2026-07-20T19:00",
+	}
+	for slug, want := range tests {
+		if got := openTableFallbackBookURL(slug, "2026-07-20", "19:00", 2); got != want {
+			t.Errorf("openTableFallbackBookURL(%q) = %q, want %q", slug, got, want)
+		}
+	}
 }
 
 func TestMatchedExistingOT_RestaurantSlugCheck(t *testing.T) {

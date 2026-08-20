@@ -253,12 +253,13 @@ func newProjectsConfigUpdateAuthServiceCmd(flags *rootFlags) *cobra.Command {
 		Use:         "update-auth-service <ref>",
 		Short:       "Updates a project's auth config",
 		Example:     "  supabase-pp-cli projects config update-auth-service example-value",
-		Annotations: map[string]string{"pp:endpoint": "config.update-auth-service", "pp:method": "PATCH", "pp:path": "/v1/projects/{ref}/config/auth"},
+		Annotations: map[string]string{"pp:endpoint": "config.update-auth-service", "pp:method": "PATCH", "pp:path": "/v1/projects/{ref}/config/auth", "mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if err := rejectSensitiveAuthConfigFlags(cmd); err != nil {
+				return err
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -1284,7 +1285,8 @@ func newProjectsConfigUpdateAuthServiceCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyWebauthnRpDisplayName, "webauthn-rp-display-name", "", "Webauthn rp display name")
 	cmd.Flags().StringVar(&bodyWebauthnRpId, "webauthn-rp-id", "", "Webauthn rp id")
 	cmd.Flags().StringVar(&bodyWebauthnRpOrigins, "webauthn-rp-origins", "", "Webauthn rp origins")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin (required for credential-bearing fields)")
+	hideSensitiveAuthConfigFlags(cmd)
 
 	return cmd
 }

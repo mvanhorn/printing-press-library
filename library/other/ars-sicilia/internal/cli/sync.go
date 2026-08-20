@@ -15,6 +15,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 		flagFull      bool
 		flagResources []string
 		flagLegisle   string
+		flagDeep      bool
 	)
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -43,21 +44,24 @@ Successivamente, i comandi analytics, ddl drift e sync stale useranno i dati loc
 					"resources":  flagResources,
 					"max_pages":  maxPages,
 					"legisl":     flagLegisle,
+					"deep":       flagDeep,
 					"would_sync": "all 12 ARS archives",
 				}
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
 				return enc.Encode(out)
 			}
-			return runSyncAll(cmd, flags, flagDB, maxPages, flagResources, flagLegisle)
+			return runSyncAll(cmd, flags, flagDB, maxPages, flagResources, flagLegisle, flagDeep)
 		},
 	}
-	cmd.Flags().StringVar(&flagDB, "db", "", "Percorso del database SQLite (default: ~/.local/share/ars-sicilia-pp-cli/store.db).")
+	cmd.Flags().StringVar(&flagDB, "db", "", "Percorso del database SQLite (default: ~/.local/share/ars-sicilia-pp-cli/data.db).")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 5, "Numero massimo di pagine per archivio (0 = tutte).")
 	cmd.Flags().BoolVar(&flagFull, "full", false, "Scarica tutte le pagine disponibili (equivale a --max-pages 0).")
 	cmd.Flags().StringSliceVar(&flagResources, "resources", nil, "Archivi da sincronizzare (default: tutti). Es: --resources ddl,leggi")
 	cmd.Flags().StringVar(&flagLegisle, "legisl", "", "Filtra per legislatura (es. 18).")
+	cmd.Flags().BoolVar(&flagDeep, "deep", false, "Per i ddl, scarica anche la scheda di dettaglio di ogni record per estrarre firmatari e stato dell'iter (sblocca `analytics --group-by cofirmatari` e `ddl drift`). Molto più lento: ~1 richiesta extra per ddl.")
 
 	cmd.AddCommand(newNovelSyncStaleCmd(flags))
+	cmd.AddCommand(newNovelSyncCoverageCmd(flags))
 	return cmd
 }

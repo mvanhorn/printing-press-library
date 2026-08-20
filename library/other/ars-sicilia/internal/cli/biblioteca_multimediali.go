@@ -13,6 +13,7 @@ func newBibliotecaMultimedialiCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:         "multimediali",
+		Args:        rejectPositionalArgs,
 		Short:       "Cerca nelle Opere Multimediali (archivio 205multimedia).",
 		Example:     "  ars-sicilia-pp-cli biblioteca multimediali --titolo \"Falcone\" --json",
 		Annotations: map[string]string{"pp:endpoint": "biblioteca.multimediali", "mcp:read-only": "true"},
@@ -35,5 +36,6 @@ func newBibliotecaMultimedialiCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagISIS, "isis-query", "", "Espressione ISIS grezza (escape hatch).")
 	cmd.Flags().IntVar(&flagLimit, "limit", 10, "Max risultati da scaricare.")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 0, "Pagine massime (0 = auto).")
+	cmd.Flags().String("escludi", "", "Escludi i documenti che contengono questo termine (ISIS NOT).")
 	return cmd
 }

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "stac-pp-mcp",
+  "display_name": "STAC API",
+  "version": "0.0.0",
+  "description": "The first Go single-binary STAC CLI: every search filter the Python tools have, plus an offline cache, scene ranking, coverage, and asset resolution no other STAC tool offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/stac-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/stac-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

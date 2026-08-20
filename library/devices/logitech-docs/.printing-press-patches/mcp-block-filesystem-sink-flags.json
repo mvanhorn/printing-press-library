@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcp-block-filesystem-sink-flags",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260815-214721-c558e557",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Stop MCP callers from choosing where the CLI writes on the host: block the receipt/audit destination root flags outright, and reject path-valued flags on tools annotated mcp:read-only, and block host-file sink flags (export --output) for every MCP tool regardless of its read-only annotation.",
+  "reason": "The MCP shell-out layer mirrors every visible Cobra flag into the tool schema and forwards it to the companion CLI. blockedRootFlags omitted --receipt, --receipt-file and --audit-dir, so a caller could turn on receipt writing and aim it at any path (Greptile P1 on PR #1729). The same defect existed for --save (download) and --db (find, recall, learnings, playbook, channel workflows), which are worse because those commands carry mcp:read-only: the tool promised the client it mutates nothing while creating directories and files at a caller-selected path. The layer already guarded positional write sinks for read-only tools but had no flag equivalent. A third gap of the same class survived that first pass and was caught by Greptile on PR #1729: `export --output` reaches os.Create with a caller-chosen path. Neither existing guard covered it \u2014 export is not annotated mcp:read-only (writing is its job, so readOnlyWriteSinkFlags never applied), and --output is a per-command flag rather than a root one, so blockedRootFlags did not either. hostFileSinkFlags is a third map applied unconditionally to every shell-out tool, because the mutation it enables is not the command's own domain write but \"create or truncate this arbitrary path\". Blocking costs MCP callers nothing: RunCLICommand captures stdout as the tool result and export writes to stdout when --output is omitted, so the agent still receives the full payload.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/typemap.go",
+    "internal/mcp/cobratree/shellout_test.go"
+  ],
+  "validated_outcome": "go build, go vet and go test ./... pass in both the working copy and the publish package. TestCliArgsFromMCP_BlocksRootFlags now asserts against the production blockedRootFlags map instead of a literal copy, and TestReadOnlyToolsBlockFlagWriteSinks proves --save/--db are absent from a read-only tool's schema and argv while a non-read-only sibling keeps them. TestExportOutputFlagIsBlockedForMCP additionally proves --output is absent from both the tool schema and the built argv while a sibling non-sink flag (--format) survives; emptying hostFileSinkFlags makes argv leak `--output /etc/passwd` and fails the test."
+}

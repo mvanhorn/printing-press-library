@@ -1,0 +1,143 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-14T23:09:14.33557Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "tiimo",
+  "cli_name": "tiimo-pp-cli",
+  "printer": "vcolombo",
+  "printer_name": "Vincent Colombo",
+  "spec_format": "internal",
+  "spec_source": "browser-sniffed",
+  "run_id": "20260814-154828-17a1784d",
+  "category": "productivity",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Export",
+      "command": "export",
+      "description": "Stream a paginated resource straight to JSON or JSONL. Use backup for a whole-planner snapshot and feed for calendar or spreadsheet formats."
+    },
+    {
+      "name": "Calendar feed",
+      "command": "feed",
+      "description": "Generate a subscribable read-only iCalendar file of your Tiimo activities."
+    },
+    {
+      "name": "Local backup",
+      "command": "backup",
+      "description": "Write every mirrored record - activities, to-dos, tags, routines, calendars - to one portable JSON snapshot. This is the whole-planner export Tiimo does not offer."
+    },
+    {
+      "name": "Plan-versus-actual drift",
+      "command": "drift",
+      "description": "Show which activities consistently start late, overrun, or spend the most time paused."
+    },
+    {
+      "name": "Checklist stall points",
+      "command": "stalls",
+      "description": "Find the exact checklist step where a multi-step routine tends to break down."
+    },
+    {
+      "name": "Routine adherence",
+      "command": "adherence",
+      "description": "Completion rate for each recurring activity over a window."
+    },
+    {
+      "name": "Overlap detection",
+      "command": "overlaps",
+      "description": "List activities that are double-booked against each other."
+    },
+    {
+      "name": "Free-gap finder",
+      "command": "gaps",
+      "description": "Find the unscheduled windows in a day that are at least a given length."
+    },
+    {
+      "name": "Rolling window",
+      "command": "rolling",
+      "description": "A true rolling multi-day view starting from today."
+    },
+    {
+      "name": "Day capacity",
+      "command": "capacity",
+      "description": "Committed versus free minutes per day, broken down by time-of-day bucket."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Export",
+      "command": "export",
+      "description": "Stream a paginated resource straight to JSON or JSONL. Use backup for a whole-planner snapshot and feed for calendar or spreadsheet formats."
+    },
+    {
+      "name": "Calendar feed",
+      "command": "feed",
+      "description": "Generate a subscribable read-only iCalendar file of your Tiimo activities."
+    },
+    {
+      "name": "Local backup",
+      "command": "backup",
+      "description": "Write every mirrored record - activities, to-dos, tags, routines, calendars - to one portable JSON snapshot. This is the whole-planner export Tiimo does not offer."
+    },
+    {
+      "name": "Plan-versus-actual drift",
+      "command": "drift",
+      "description": "Show which activities consistently start late, overrun, or spend the most time paused."
+    },
+    {
+      "name": "Checklist stall points",
+      "command": "stalls",
+      "description": "Find the exact checklist step where a multi-step routine tends to break down."
+    },
+    {
+      "name": "Routine adherence",
+      "command": "adherence",
+      "description": "Completion rate for each recurring activity over a window."
+    },
+    {
+      "name": "Overlap detection",
+      "command": "overlaps",
+      "description": "List activities that are double-booked against each other."
+    },
+    {
+      "name": "Free-gap finder",
+      "command": "gaps",
+      "description": "Find the unscheduled windows in a day that are at least a given length."
+    },
+    {
+      "name": "Rolling window",
+      "command": "rolling",
+      "description": "A true rolling multi-day view starting from today."
+    },
+    {
+      "name": "Day capacity",
+      "command": "capacity",
+      "description": "Committed versus free minutes per day, broken down by time-of-day bucket."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 75,
+    "total": 75,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 96,
+      "grade": "A",
+      "total": 96
+    }
+  }
+}

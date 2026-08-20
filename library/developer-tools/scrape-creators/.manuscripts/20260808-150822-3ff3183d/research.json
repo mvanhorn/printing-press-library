@@ -1,0 +1,378 @@
+{
+  "api_name": "scrape-creators",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "scrapecreators-cli",
+      "url": "https://github.com/ScrapeCreators/scrapecreators-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 110,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "scrape-creators-skills",
+      "url": "https://github.com/ScrapeCreators/scrape-creators-skills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-08T15:40:00Z",
+  "novel_features": [
+    {
+      "name": "Cost-aware thread completion",
+      "command": "comments thread",
+      "description": "Fetch one post's complete comment threads, automatically picking the cheaper route between the 15-credit flat include_replies call and 1-credit per-comment reply calls (don't trust child_comment_count to decide: it's unreliable).",
+      "rationale": "Routes on thread economics the API doesn't expose, and reports the routing decision and credits charged in the envelope.",
+      "example": "scrape-creators-pp-cli comments thread https://www.instagram.com/reel/C8rKmYvsrck --agent",
+      "why_it_matters": "Reach for this when you need every reply on a post without doing credit arithmetic by hand.",
+      "group": "Comment-thread completeness"
+    },
+    {
+      "name": "Reply-gap audit",
+      "command": "comments coverage",
+      "description": "Rank synced posts by how many comments the API reported versus how many actually landed in your local store — ground truth where the API's child_comment_count is unreliable as a thread filter.",
+      "rationale": "Ground truth from a local join where the API's child_comment_count is measurably unreliable (1 false negative per 5 real threads).",
+      "example": "scrape-creators-pp-cli comments coverage bracken.design --agent",
+      "why_it_matters": "Reach for this after a sweep to find which posts are silently missing their replies.",
+      "group": "Comment-thread completeness"
+    },
+    {
+      "name": "Pre-flight credit estimator",
+      "command": "account estimate",
+      "description": "Project the credit cost of a planned run against your live balance and exit non-zero if it would exhaust the budget.",
+      "rationale": "Combines the per-endpoint credit table with the live credits_remaining field into a go/no-go gate.",
+      "example": "scrape-creators-pp-cli account estimate --posts 950 --with-replies flat --agent",
+      "why_it_matters": "Run this before any bulk sweep so an agent never burns the balance mid-pipeline.",
+      "group": "Credit governance"
+    },
+    {
+      "name": "Cross-platform presence matrix",
+      "command": "creator find",
+      "description": "Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.",
+      "rationale": "No single API call answers where a creator lives; this fans out and collates.",
+      "example": "scrape-creators-pp-cli creator find mkbhd --agent",
+      "why_it_matters": "Start any collab qualification here before pulling per-platform detail.",
+      "group": "Cross-platform intelligence"
+    },
+    {
+      "name": "Transcript full-text search",
+      "command": "transcripts search",
+      "description": "FTS5 full-text search across every platform transcript you've synced — nine resource types spanning YouTube, TikTok, Instagram, Facebook, LinkedIn, Rumble, and more.",
+      "rationale": "Paid transcripts become a re-queryable offline corpus instead of one-shot responses.",
+      "example": "scrape-creators-pp-cli transcripts search \"pricing objection\" --limit 10",
+      "why_it_matters": "Search transcripts you already paid for instead of re-fetching them.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Brand ad campaign monitor",
+      "command": "ads monitor",
+      "description": "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads versus ones that disappeared.",
+      "rationale": "Ad-library endpoints are memoryless; the local snapshot store turns dumps into diffs.",
+      "example": "scrape-creators-pp-cli ads monitor nike --agent",
+      "why_it_matters": "Rerun weekly and read only the delta of a competitor's ad activity.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk comment sweep",
+      "command": "comments sweep",
+      "description": "Pull recent posts for a handle and their comments in one command, stopping cleanly at a credit budget you set.",
+      "rationale": "Posts-to-comments fan-out with a credit circuit breaker no endpoint offers.",
+      "example": "scrape-creators-pp-cli comments sweep bracken.design --since 7d --max-credits 200 --agent",
+      "why_it_matters": "The one-command version of a multi-hundred-post comment-mining ritual, budget-gated.",
+      "group": "Comment-thread completeness"
+    },
+    {
+      "name": "Comment corpus FTS",
+      "command": "comments search",
+      "description": "Full-text search across every synced comment and reply, offline.",
+      "rationale": "No API search over comments exists at all; FTS5 over the local corpus fills the gap.",
+      "example": "scrape-creators-pp-cli comments search \"refund\" --limit 20",
+      "why_it_matters": "Mine questions and complaints from comments you already pulled without spending credits.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credit burn projection",
+      "command": "account budget",
+      "description": "See how fast you're spending API credits and how many days remain at the current pace.",
+      "rationale": "Computed from the API's credit balance and daily usage history.",
+      "example": "scrape-creators-pp-cli account budget --agent",
+      "why_it_matters": "Check runway before committing to a new recurring pipeline.",
+      "group": "Credit governance"
+    },
+    {
+      "name": "Multi-creator comparison",
+      "command": "creator compare",
+      "description": "Compare two or more creators side-by-side on follower count, engagement rate, and content volume.",
+      "rationale": "Local-store computation across profiles the API only returns one at a time.",
+      "example": "scrape-creators-pp-cli creator compare mkbhd mrwhosetheboss --agent",
+      "why_it_matters": "Strip vanity follower counts out of a collab decision.",
+      "group": "Cross-platform intelligence"
+    },
+    {
+      "name": "Engagement spike detector",
+      "command": "content spikes",
+      "description": "Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.",
+      "rationale": "Needs the whole local history to compute a per-creator baseline.",
+      "example": "scrape-creators-pp-cli content spikes mkbhd --platform youtube",
+      "why_it_matters": "Find outlier content without eyeballing hundreds of posts.",
+      "group": "Cross-platform intelligence"
+    },
+    {
+      "name": "Trend triangulation",
+      "command": "trends triangulate",
+      "description": "Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.",
+      "rationale": "Cross-platform fan-out no single endpoint provides.",
+      "example": "scrape-creators-pp-cli trends triangulate \"matcha\" --agent",
+      "why_it_matters": "Decide where to publish before creating the content.",
+      "group": "Cross-platform intelligence"
+    },
+    {
+      "name": "Follower growth tracker",
+      "command": "creator track",
+      "description": "Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.",
+      "rationale": "Time-series the API never returns; built from your own snapshots.",
+      "example": "scrape-creators-pp-cli creator track mkbhd --platform instagram",
+      "why_it_matters": "Track a partner's growth on a schedule you control.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "UGC tag watcher",
+      "command": "creator tagged",
+      "description": "Snapshot the posts a creator or brand is tagged in and diff new mentions on rerun.",
+      "rationale": "Adds snapshot-diff memory to the memoryless tagged-posts endpoint.",
+      "example": "scrape-creators-pp-cli creator tagged bracken.design --agent",
+      "why_it_matters": "Weekly UGC check for a client brand without re-reading the full list.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cost-aware thread completion",
+      "command": "comments thread",
+      "description": "Fetch one post's complete comment threads, automatically picking the cheaper route between the 15-credit flat include_replies call and 1-credit per-comment reply calls (don't trust child_comment_count to decide: it's unreliable).",
+      "rationale": "Routes on thread economics the API doesn't expose, and reports the routing decision and credits charged in the envelope.",
+      "example": "scrape-creators-pp-cli comments thread https://www.instagram.com/reel/C8rKmYvsrck --agent",
+      "why_it_matters": "Reach for this when you need every reply on a post without doing credit arithmetic by hand.",
+      "group": "Comment-thread completeness"
+    },
+    {
+      "name": "Reply-gap audit",
+      "command": "comments coverage",
+      "description": "Rank synced posts by how many comments the API reported versus how many actually landed in your local store — ground truth where the API's child_comment_count is unreliable as a thread filter.",
+      "rationale": "Ground truth from a local join where the API's child_comment_count is measurably unreliable (1 false negative per 5 real threads).",
+      "example": "scrape-creators-pp-cli comments coverage bracken.design --agent",
+      "why_it_matters": "Reach for this after a sweep to find which posts are silently missing their replies.",
+      "group": "Comment-thread completeness"
+    },
+    {
+      "name": "Pre-flight credit estimator",
+      "command": "account estimate",
+      "description": "Project the credit cost of a planned run against your live balance and exit non-zero if it would exhaust the budget.",
+      "rationale": "Combines the per-endpoint credit table with the live credits_remaining field into a go/no-go gate.",
+      "example": "scrape-creators-pp-cli account estimate --posts 950 --with-replies flat --agent",
+      "why_it_matters": "Run this before any bulk sweep so an agent never burns the balance mid-pipeline.",
+      "group": "Credit governance"
+    },
+    {
+      "name": "Cross-platform presence matrix",
+      "command": "creator find",
+      "description": "Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.",
+      "rationale": "No single API call answers where a creator lives; this fans out and collates.",
+      "example": "scrape-creators-pp-cli creator find mkbhd --agent",
+      "why_it_matters": "Start any collab qualification here before pulling per-platform detail.",
+      "group": "Cross-platform intelligence"
+    },
+    {
+      "name": "Transcript full-text search",
+      "command": "transcripts search",
+      "description": "FTS5 full-text search across every platform transcript you've synced — nine resource types spanning YouTube, TikTok, Instagram, Facebook, LinkedIn, Rumble, and more.",
+      "rationale": "Paid transcripts become a re-queryable offline corpus instead of one-shot responses.",
+      "example": "scrape-creators-pp-cli transcripts search \"pricing objection\" --limit 10",
+      "why_it_matters": "Search transcripts you already paid for instead of re-fetching them.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Brand ad campaign monitor",
+      "command": "ads monitor",
+      "description": "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads versus ones that disappeared.",
+      "rationale": "Ad-library endpoints are memoryless; the local snapshot store turns dumps into diffs.",
+      "example": "scrape-creators-pp-cli ads monitor nike --agent",
+      "why_it_matters": "Rerun weekly and read only the delta of a competitor's ad activity.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk comment sweep",
+      "command": "comments sweep",
+      "description": "Pull recent posts for a handle and their comments in one command, stopping cleanly at a credit budget you set.",
+      "rationale": "Posts-to-comments fan-out with a credit circuit breaker no endpoint offers.",
+      "example": "scrape-creators-pp-cli comments sweep bracken.design --since 7d --max-credits 200 --agent",
+      "why_it_matters": "The one-command version of a multi-hundred-post comment-mining ritual, budget-gated.",
+      "group": "Comment-thread completeness"
+    },
+    {
+      "name": "Comment corpus FTS",
+      "command": "comments search",
+      "description": "Full-text search across every synced comment and reply, offline.",
+      "rationale": "No API search over comments exists at all; FTS5 over the local corpus fills the gap.",
+      "example": "scrape-creators-pp-cli comments search \"refund\" --limit 20",
+      "why_it_matters": "Mine questions and complaints from comments you already pulled without spending credits.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credit burn projection",
+      "command": "account budget",
+      "description": "See how fast you're spending API credits and how many days remain at the current pace.",
+      "rationale": "Computed from the API's credit balance and daily usage history.",
+      "example": "scrape-creators-pp-cli account budget --agent",
+      "why_it_matters": "Check runway before committing to a new recurring pipeline.",
+      "group": "Credit governance"
+    },
+    {
+      "name": "Multi-creator comparison",
+      "command": "creator compare",
+      "description": "Compare two or more creators side-by-side on follower count, engagement rate, and content volume.",
+      "rationale": "Local-store computation across profiles the API only returns one at a time.",
+      "example": "scrape-creators-pp-cli creator compare mkbhd mrwhosetheboss --agent",
+      "why_it_matters": "Strip vanity follower counts out of a collab decision.",
+      "group": "Cross-platform intelligence"
+    },
+    {
+      "name": "Engagement spike detector",
+      "command": "content spikes",
+      "description": "Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.",
+      "rationale": "Needs the whole local history to compute a per-creator baseline.",
+      "example": "scrape-creators-pp-cli content spikes mkbhd --platform youtube",
+      "why_it_matters": "Find outlier content without eyeballing hundreds of posts.",
+      "group": "Cross-platform intelligence"
+    },
+    {
+      "name": "Trend triangulation",
+      "command": "trends triangulate",
+      "description": "Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.",
+      "rationale": "Cross-platform fan-out no single endpoint provides.",
+      "example": "scrape-creators-pp-cli trends triangulate \"matcha\" --agent",
+      "why_it_matters": "Decide where to publish before creating the content.",
+      "group": "Cross-platform intelligence"
+    },
+    {
+      "name": "Follower growth tracker",
+      "command": "creator track",
+      "description": "Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.",
+      "rationale": "Time-series the API never returns; built from your own snapshots.",
+      "example": "scrape-creators-pp-cli creator track mkbhd --platform instagram",
+      "why_it_matters": "Track a partner's growth on a schedule you control.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "UGC tag watcher",
+      "command": "creator tagged",
+      "description": "Snapshot the posts a creator or brand is tagged in and diff new mentions on rerun.",
+      "rationale": "Adds snapshot-diff memory to the memoryless tagged-posts endpoint.",
+      "example": "scrape-creators-pp-cli creator tagged bracken.design --agent",
+      "why_it_matters": "Weekly UGC check for a client brand without re-reading the full list.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SCRAPECREATORS_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Scrape Creators",
+    "headline": "Every Scrape Creators endpoint across 28 platforms, with credit-aware comment mining and a local corpus no other Scrape Creators tool has.",
+    "value_prop": "The official CLI mirrors endpoints and the official skills describe curl workflows; neither remembers anything between runs. This CLI syncs profiles, posts, comments with their replies, transcripts, and ads into SQLite with FTS5 search, routes comment-thread fetches on credit economics (comments thread), audits reply completeness against ground truth (comments coverage), and gates expensive sweeps behind a pre-flight credit estimate (account estimate).",
+    "quickstart": [
+      {
+        "command": "scrape-creators-pp-cli doctor --dry-run",
+        "comment": "Verify the binary, config, and API reachability before spending a credit"
+      },
+      {
+        "command": "scrape-creators-pp-cli creator find mkbhd --agent",
+        "comment": "One handle in, presence and follower counts across 12 platforms out"
+      },
+      {
+        "command": "scrape-creators-pp-cli comments thread https://www.instagram.com/reel/C8rKmYvsrck --agent",
+        "comment": "Complete comment threads for one post, routed on the cheaper of the two reply endpoints"
+      },
+      {
+        "command": "scrape-creators-pp-cli account estimate --posts 100 --with-replies flat",
+        "comment": "Project what a sweep will cost before running it"
+      },
+      {
+        "command": "scrape-creators-pp-cli comments search \"refund\" --limit 20",
+        "comment": "Mine the synced comment corpus offline, no credits spent"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 on every call",
+        "fix": "Your API key is missing or invalid: run scrape-creators-pp-cli auth set-token \u003ckey\u003e, or export SCRAPECREATORS_API_KEY"
+      },
+      {
+        "symptom": "A comments command returns success with no comments key",
+        "fix": "Update the binary — pre-2026.8 builds stripped the payload under --agent; current builds never strip the sole payload array"
+      },
+      {
+        "symptom": "Sweep stopped before finishing",
+        "fix": "It hit --max-credits; raise the budget or rerun after checking scrape-creators-pp-cli account budget"
+      },
+      {
+        "symptom": "comments coverage flags posts you believe are complete",
+        "fix": "The API's reported counts include replies; run comments thread on the flagged post to close the gap, then re-audit"
+      }
+    ],
+    "when_to_use": "Use this CLI when a task touches public social-media data at scale: mining comments and replies for a brand, qualifying creators across platforms, monitoring competitor ads, or searching transcript/comment corpora you have already synced. It is the right choice whenever credit economics matter — its thread routing, sweep budgets, and pre-flight estimates exist so agents never spend blind.",
+    "anti_triggers": [
+      "Do not use this CLI to post, like, follow, or message on any platform — it is read-only public-data scraping",
+      "Do not use it for private/logged-in-only content; it sees what the public sees",
+      "Do not use it as a general web scraper for non-social sites; use a crawling tool instead"
+    ],
+    "recipes": [
+      {
+        "title": "Complete comment mining for one post",
+        "command": "scrape-creators-pp-cli comments thread \u003cpost-url\u003e --agent --select comments.text,comments.replies.text",
+        "explanation": "Fetches every top-level comment and reply with cost-aware routing, then narrows the envelope to just the text fields an agent needs."
+      },
+      {
+        "title": "Budget-gated weekly sweep",
+        "command": "scrape-creators-pp-cli comments sweep \u003chandle\u003e --since 7d --max-credits 200 --agent",
+        "explanation": "Pulls the week's posts and their comments, stopping cleanly when the credit budget is hit."
+      },
+      {
+        "title": "Find the gaps before spending",
+        "command": "scrape-creators-pp-cli comments coverage \u003chandle\u003e --agent",
+        "explanation": "Ranks synced posts by missing-thread gap so reply credits go only where threads are incomplete."
+      },
+      {
+        "title": "Offline comment mining",
+        "command": "scrape-creators-pp-cli comments search \"delivery\" --limit 20",
+        "explanation": "FTS5 search over the synced corpus — zero credits."
+      },
+      {
+        "title": "Collab qualification in two calls",
+        "command": "scrape-creators-pp-cli creator find \u003chandle\u003e --agent \u0026\u0026 scrape-creators-pp-cli creator compare \u003chandle\u003e \u003crival\u003e --agent",
+        "explanation": "Presence matrix first, then engagement comparison to strip vanity followers."
+      }
+    ],
+    "trigger_phrases": [
+      "find which platforms a creator is on",
+      "pull the comments and replies from this post",
+      "monitor a brand's ads",
+      "search creator transcripts for a keyword",
+      "how many credits would this sweep cost",
+      "use scrape creators",
+      "run scrape-creators"
+    ]
+  }
+}

@@ -41,7 +41,27 @@ func IsUUID(s string) bool {
 // shape — adding columns, dropping indexes, changing FTS5 tokenizers —
 // so an older binary refuses to open a newer database rather than silently
 // producing wrong results against a schema it cannot read.
-const StoreSchemaVersion = 2
+//
+// PATCH(api-detail-hydrate): bumped 2 -> 3 for the row_source ownership
+// columns added by granola.EnsureSchema. This gate is load-bearing, not
+// bookkeeping: a pre-bump binary opening a migrated database still runs its
+// old unscoped `DELETE FROM folder_memberships`, its unscoped per-meeting
+// transcript delete, and an `INSERT OR REPLACE` that omits row_source (so it
+// reverts to the column DEFAULT). That silently destroys every API-owned row
+// and reassigns ownership of the survivors. Refusing to open is the only
+// safe downgrade behavior, and it is what the paragraph above already
+// prescribes for any migration that changes table shape.
+//
+// PATCH(catalog-provenance-and-merge): bumped 3 -> 4 for the row_source
+// ownership columns granola.EnsureSchema now adds to folders,
+// panel_templates, recipes and recipes_usage, plus the folders description
+// and is_favourited columns. Same load-bearing gate, one table set further
+// out: a pre-bump binary opening a migrated database still writes these four
+// tables with `INSERT OR REPLACE` and no row_source, so every write deletes
+// the conflicting row, falls back to the column default, and silently
+// reassigns every API-owned catalog row to the cache path — while blanking
+// the folder metadata columns it does not know exist.
+const StoreSchemaVersion = 4
 
 const resourcesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 	id, resource_type, content, tokenize='porter unicode61'

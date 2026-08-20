@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "v0-install-module-uses-vzero-submodule",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260804-232309-9bd8d5ce",
+  "base_printing_press_version": "4.30.1",
+  "summary": "The public v0 CLI installs from a nested vzero Go module so the installable module path never ends in /v0.",
+  "reason": "Go semantic import versioning reserves trailing /vN suffixes and rejects explicit /v0 or /v1 suffixes, so npm and direct Go install paths must target library/ai/v0/vzero while preserving the public v0 catalog slug, binary, skill, config paths, and release tags.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "vzero/go.mod",
+    "vzero/cmd/v0-pp-cli/main.go",
+    "vzero/cmd/v0-pp-mcp/main.go",
+    "vzero/internal/**/*.go"
+  ],
+  "validated_outcome": "go list ./cmd/v0-pp-cli resolves the package under module github.com/mvanhorn/printing-press-library/library/ai/v0/vzero."
+}

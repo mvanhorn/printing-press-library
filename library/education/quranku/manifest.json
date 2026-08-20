@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "quranku-pp-mcp",
+  "display_name": "QuranKu",
+  "version": "0.1.0",
+  "description": "Every Al-Qur'an feature the app has, plus the Indonesian Tarjamah Tafsiriyah offline, a local database, offline search, a khatam plan, and a hifz tracker no other Qur'an tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/quranku-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/quranku-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

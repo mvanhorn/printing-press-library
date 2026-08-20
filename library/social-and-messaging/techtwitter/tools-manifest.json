@@ -1,0 +1,308 @@
+{
+  "api_name": "techtwitter",
+  "base_url": "https://www.techtwitter.com",
+  "description": "Every Tech Twitter read endpoint, plus an offline-searchable local mirror and cited evidence bundles no other tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "agent_context",
+      "description": "Cited evidence bundle for an agent question. Optional: kind, question, q (plus 3 more). Returns the EvidenceBundle.",
+      "method": "GET",
+      "path": "/api/agent/context",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "query",
+          "description": "auto, what-changed, launches, arguments, read-list, or narrative-alert"
+        },
+        {
+          "name": "question",
+          "type": "string",
+          "location": "query",
+          "description": "Natural-language question"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Optional search phrase"
+        },
+        {
+          "name": "topic",
+          "type": "string",
+          "location": "query",
+          "description": "Optional topic name or slug"
+        },
+        {
+          "name": "window",
+          "type": "string",
+          "location": "query",
+          "description": "24h, 48h, or 7d"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Evidence rows (default 8, max 20)"
+        }
+      ]
+    },
+    {
+      "name": "articles_list",
+      "description": "List long-form articles. Optional: limit, offset. Returns array of Article.",
+      "method": "GET",
+      "path": "/api/articles",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum articles to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "command_heatmap",
+      "description": "Topic momentum heatmap (keyword, count, engagement). Returns array of Topic.",
+      "method": "GET",
+      "path": "/api/command/heatmap",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "command_hot-takes",
+      "description": "High-reply, debate-heavy curated tweets. Optional: limit. Returns array of Tweet.",
+      "method": "GET",
+      "path": "/api/command/hot-takes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum tweets to return"
+        }
+      ]
+    },
+    {
+      "name": "command_main-character",
+      "description": "The day's most-engaged authors (main character). Returns array of Author.",
+      "method": "GET",
+      "path": "/api/command/main-character",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "command_stats",
+      "description": "Report corpus index health for the Tech Twitter dataset. Returns counts of tweets indexed, profiles tracked, and topics covered, plus a monitor24h block (tweets fetched, passed, and the pass rate over the last 24 hours). Read-only; use it to confirm the dataset is populated and fresh before running search or evidence commands.",
+      "method": "GET",
+      "path": "/api/command/stats",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "command_tweets-by-date",
+      "description": "Curated tweets for a date (today, yesterday, latest, or YYYY-MM-DD). Optional: date, limit, topic (plus 1 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/api/command/tweets-by-date",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "today, yesterday, latest, or YYYY-MM-DD"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum tweets to return (1-50)"
+        },
+        {
+          "name": "topic",
+          "type": "string",
+          "location": "query",
+          "description": "Optional keyword/topic filter"
+        },
+        {
+          "name": "tz",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone for day boundaries (default UTC)"
+        }
+      ]
+    },
+    {
+      "name": "newsletters_list",
+      "description": "List published in-app newsletters. Returns array of Newsletter.",
+      "method": "GET",
+      "path": "/api/newsletters",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "profiles_search",
+      "description": "Search author profiles by name, handle, or bio. Required: q. Returns array of Author.",
+      "method": "GET",
+      "path": "/api/profiles/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search phrase, e.g. ai",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tweets_author",
+      "description": "Curated tweets for a specific author handle. Required: handle. Optional: limit, offset. Returns array of Tweet.",
+      "method": "GET",
+      "path": "/api/tweets/author",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Author handle without the @, e.g. karpathy",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum tweets to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "tweets_get",
+      "description": "Get a single curated tweet by UUID (with prev/next neighbors). Required: id. Returns the Tweet.",
+      "method": "GET",
+      "path": "/api/tweets/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Tweet UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tweets_latest",
+      "description": "Get the single most recent curated tweet (with nextTweetId). Returns the Tweet.",
+      "method": "GET",
+      "path": "/api/tweets/latest",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tweets_monthly",
+      "description": "Curated tweets for a given month. Required: year, month. Returns array of Tweet.",
+      "method": "GET",
+      "path": "/api/tweets/monthly",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "query",
+          "description": "Four-digit year, e.g. 2026",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "int",
+          "location": "query",
+          "description": "Month number 1-12",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tweets_search",
+      "description": "Search curated tweets by text (relevance-ranked). Required: q. Optional: limit. Returns array of Tweet.",
+      "method": "GET",
+      "path": "/api/tweets/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search phrase, e.g. 'agentic coding'",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum tweets to return"
+        }
+      ]
+    },
+    {
+      "name": "tweets_topic",
+      "description": "Curated tweets for a topic slug. Required: slug. Returns array of Tweet.",
+      "method": "GET",
+      "path": "/api/tweets/topic",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "Topic slug, e.g. ai-twitter",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tweets_trending",
+      "description": "Ranked trending curated tweets from the last 7 days. Optional: limit. Returns array of Tweet.",
+      "method": "GET",
+      "path": "/api/tweets/trending",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum tweets to return"
+        }
+      ]
+    }
+  ]
+}

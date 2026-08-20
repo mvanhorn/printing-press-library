@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-cronologia-anno-hint",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "`legge cronologia` senza --anno avvisa su stderr quale legge ha preso, nominandone la data di promulgazione. Nessun cambio di default: continua a usare il primo record restituito dall'archivio.",
+  "reason": "Lo stesso numero di legge si ripete in anni diversi della stessa legislatura: nella XVIII ci sono due L.R. 26 (7.10.2024 sulle dipendenze, 10.06.2025 sulle variazioni di bilancio). Senza --anno la ricerca ne restituiva una sola, la prima, e la cronologia usciva perfettamente coerente ma riferita all'atto sbagliato, senza alcun segnale che ne esistesse un altro. L'help documentava già --anno, ma nulla lo segnalava a runtime. Non sondiamo l'archivio per contare gli anni presenti: costerebbe pagine di richieste e resterebbe inaffidabile, perché l'archivio tiene una riga per articolo e una legge lunga riempirebbe da sola la finestra (la L.R. 26/2024 ne occupa 19). Dichiarare quale legge si è presa costa zero richieste ed è altrettanto utile: chi legge la data riconosce subito l'atto sbagliato.",
+  "files": ["internal/cli/legge_cronologia.go", "internal/cli/icaro_helpers_test.go"],
+  "validated_outcome": "`legge cronologia 18 26 --json` -> hint 'uso la L.R. 26 promulgata il 7.10.2024 ... se non è questa, ripeti con --anno' su stderr, stdout invariato; `legge cronologia 18 26 --anno 2025 --json` -> nessun hint. TestAnnoNonPinnatoHint copre i tre rami (anno pinnato, data assente, avviso completo)."
+}

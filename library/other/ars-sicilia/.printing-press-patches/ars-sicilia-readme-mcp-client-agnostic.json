@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-readme-mcp-client-agnostic",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "README: la sezione `## Use with Claude Desktop` (bundle MCPB + config JSON in un <details>) e' sostituita da `## Use as an MCP server`, client-agnostica: installazione del binario MCP via `go install ...@latest` (l'unico canale che oggi lo pubblica), blocco stdio canonico valido per la maggior parte dei client, link alla directory dei client MCP e alle guide di Claude Code / Cursor / VS Code, one-liner `claude mcp add ars-sicilia -- ars-sicilia-pp-mcp`.",
+  "reason": "Due difetti nel testo generato. (1) Prometteva di scaricare un `.mcpb` dalla release `ars-sicilia-current`, che non contiene ne' bundle MCPB ne' binario MCP (solo i 6 binari CLI): l'istruzione era ineseguibile su ogni piattaforma. La release ha i .mcpb solo per le CLI che hanno `manifest.json` in root — arxiv ed elezioni-sicilia ce l'hanno, ars-sicilia e open-library no. (2) Presentava l'MCP come cosa di Claude Desktop, mentre e' il modo piu' facile di usare questa CLI per un utente non tecnico e lo stesso binario stdio funziona con qualsiasi client MCP.",
+  "files": ["README.md"],
+  "validated_outcome": "`go install github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/cmd/ars-sicilia-pp-mcp@latest` completa e produce il binario; una `initialize` su stdio risponde {\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"Ars Sicilia\",\"version\":\"1.0.0\"}}. I quattro link della sezione rispondono 200. La sezione non usa titoli che `tools/sweep-canonical` riscrive o rimuove (`## Install`, `## Use with Claude Code`, `## Use with Claude Desktop`), quindi sopravvive allo sweep canonico."
+}

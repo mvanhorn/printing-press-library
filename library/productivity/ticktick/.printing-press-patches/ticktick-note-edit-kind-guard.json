@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "ticktick-note-edit-kind-guard",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260707-201031-0987b304",
+  "base_printing_press_version": "4.27.1",
+  "summary": "note edit: central kind guard (refuse non-TEXT/NOTE targets on every write path) and idempotent append (skip when content already ends with the append text).",
+  "reason": "Greptile PR review P1s: --task-id and single-date-match paths could overwrite a regular task's content while reporting a note update; the per-item-error retry could append the same line twice.",
+  "files": ["internal/cli/note_edit.go"],
+  "validated_outcome": "Live: CHECKLIST task refused with kind error; re-append of an existing trailing line returned already_applied=true with etag unchanged.",
+  "upstream_issue": ""
+}

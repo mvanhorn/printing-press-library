@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/snipd-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260713-190747-d8d38c3e",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

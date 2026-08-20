@@ -9,10 +9,11 @@ import (
 
 func newConversationsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "conversations",
-		Short:  "Everything about your Conversations",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "conversations",
+		Short:       "Everything about your Conversations",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newConversationsCreateCmd(flags))
@@ -27,8 +28,7 @@ func newConversationsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newConversationsPartsCmd(flags))
 	cmd.AddCommand(newConversationsReplyCmd(flags))
 	cmd.AddCommand(newConversationsTagsCmd(flags))
-	// Novel (transcendence) subcommands — hand-written.
-	cmd.AddCommand(newConversationsSlaCmd(flags))
-	cmd.AddCommand(newConversationsIncidentTagCmd(flags))
+	cmd.AddCommand(newNovelConversationsIncidentTagCmd(flags))
+	cmd.AddCommand(newNovelConversationsSlaCmd(flags))
 	return cmd
 }

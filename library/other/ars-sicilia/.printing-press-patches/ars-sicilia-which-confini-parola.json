@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-which-confini-parola",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "which confronta query e indice sui confini di parola invece che per sottostringa: token sotto le quattro lettere per intero, sopra per prefisso ignorando la vocale finale. Il confronto vale su descrizione, gruppo e token del comando.",
+  "reason": "strings.Contains matchava in mezzo alle parole. La query «chi» prendeva 2 punti da «ri*chi*esti» nella descrizione di `commissione dossier` e 1 da «cross-ar*chi*vio» nel gruppo, e usciva a score 3, cioe' con la stessa confidenza dei match veri: le domande su capacita' che la CLI non ha («chi era assente alla seduta», «chi ha parlato di rifiuti in aula») pescavano un comando plausibile e sbagliato. Il meccanismo del «nessun match» funzionava gia' — `assente`, `seduta`, `voto nominale`, `presenze` uscivano tutti vuoti — era il rumore da sottostringa ad affogarlo. La tolleranza sulla vocale finale serve alla morfologia italiana: l'indice scrive «disegno di legge» e «commissione», le domande arrivano al plurale, e il prefisso nudo e' piu' corto solo nella direzione sbagliata («disegni» non e' prefisso di «disegno»). Stesso confronto esteso ai token del comando, dove l'uguaglianza esatta separava «commissioni» da `commissione dossier`. La contiguita' della query sulla descrizione non cambia: era gia' la sottostringa intera. NOTA PER LA PROSSIMA RISTAMPA: SKILL.md documenta l'exit 2 di `which` senza dire che sotto --json (quindi sotto --agent) il no-match esce 0 con `matches: []` — comportamento deliberato e commentato in which.go, ma la skill non lo menziona e qui non si puo' correggere. Non toccato l'indice delle 9 voci, seminato dal generatore in parallelo alla sezione feature di SKILL.md: e' li' che manca la ricerca testuale sui resoconti, non nel ranker.",
+  "files": [
+    "internal/cli/which.go",
+    "internal/cli/which_confini_test.go"
+  ],
+  "validated_outcome": "Sedici domande poste come le porrebbe un non tecnico. Prima: `chi` -> commissione dossier 3, legge cronologia 3, sync stale 2; `chi era assente alla seduta` -> ddl iter, deputato profilo, commissione dossier (score 1); `chi ha parlato di rifiuti in aula` -> ddl iter. Dopo: tutte e quattro le domande fuori copertura tacciono (`chi`, `chi era assente alla seduta`, `chi ha parlato di rifiuti in aula`, `quanto spende l'assemblea`). Nessuna regressione sulle domande legittime: `a che punto e' il disegno di legge sulla sanita'` -> legge cronologia 3; `cosa si discute in commissione bilancio la prossima settimana` -> commissione dossier 3; `le leggi approvate quest'anno` -> leggi cerca 3. Due casi migliorano: `cronologia di un disegno di legge` -> legge cronologia 6 (era 3), `lavori delle commissioni` -> commissione dossier 3 (era nessun match). Gli 8 test preesistenti di which restano verdi."
+}

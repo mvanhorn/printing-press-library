@@ -507,6 +507,17 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		"status": true, "state": true, "type": true, "priority": true,
 		"url": true, "email": true, "key": true,
 		"created_at": true, "updated_at": true, "createdAt": true, "updatedAt": true,
+		// Commerce/search result fields. eBay's `listings`, `sold`, `comp`, and
+		// `auctions` commands are useless to agents if compact mode strips the
+		// price/condition/bid fields. `--agent` implies `--compact`, so these must
+		// survive the generic allow-list.
+		"item_id": true, "price": true, "sold_price": true, "currency": true,
+		"condition": true, "seller": true, "bids": true, "best_offer": true,
+		"auction": true, "buy_it_now": true, "time_left": true, "ends_at": true,
+		"sold_date": true, "image_url": true, "location": true, "shipping": true,
+		// Comp-summary statistical fields (listings/comp command).
+		"mean": true, "median": true, "sample_size": true, "p25": true,
+		"p75": true, "std_dev": true,
 	}
 
 	filtered := make([]map[string]any, 0, len(items))

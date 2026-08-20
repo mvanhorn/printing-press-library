@@ -5,21 +5,18 @@ package mcp
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"math"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/store"
 )
@@ -27,47 +24,75 @@ import (
 const (
 	mcpToolResultMaxBytes = 60000
 	mcpToolResultMaxItems = 50
-	// MCP hosts can fan out tool calls faster than a human CLI session.
-	// Keep them on the same polite-client limiter path instead of disabling
-	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
-	defaultMCPRateLimit = 2
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("provvedimenti_cerca",
-			mcplib.WithDescription("Cerca provvedimenti per testo, tipo, sede, anno, numero o NRG. Optional: testo, tipo, sede (plus 4 more). Returns array of Provvedimento."),
-			mcplib.WithString("testo", mcplib.Description("Ricerca full-text libera.")),
+			mcplib.WithDescription("Cerca provvedimenti per testo, tipo, sede, anno, numero o NRG. Optional: testo, phrase, tipo, sede, sede-sweep (plus 9 more). Returns the provvedimenti; quando la CLI emette avvisi il risultato e' {count, items, avvisi} invece dell'array nudo. La data di deposito non e' fra i dati restituiti: il portale non la espone in ricerca, e arriva vuota su ogni riga. Per averla usa provvedimenti_get sul singolo provvedimento, oppure corpus_build, che la scrive nel manifest."),
+			mcplib.WithString("testo", mcplib.Description("Ricerca full-text libera (parole in AND, ordine e adiacenza non contano: puo' agganciare corrispondenze casuali, es. 'civico' su un numero civico invece che su 'accesso civico').")),
+			mcplib.WithString("phrase", mcplib.Description("Cerca le parole come locuzione esatta, adiacenti e nell'ordine dato (--phrase sulla CLI). Piu' preciso di testo per un istituto giuridico con nome fisso (es. 'accesso civico generalizzato'): riduce i falsi positivi.")),
 			mcplib.WithString("tipo", mcplib.Description("Tipo: sentenza, ordinanza, decreto, parere, plenaria, generale.")),
 			mcplib.WithString("sede", mcplib.Description("Sede (es. roma, milano, consiglio-di-stato).")),
 			mcplib.WithNumber("anno", mcplib.Description("Anno del provvedimento.")),
 			mcplib.WithNumber("numero", mcplib.Description("Numero del provvedimento.")),
 			mcplib.WithNumber("nrg", mcplib.Description("Numero di registro generale (ricorso).")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati da scaricare.")),
+			// These worked through the undeclared-parameter passthrough but were
+			// absent from the schema, so a caller reading it could not know they
+			// exist. sede-sweep is not a convenience: without it a query with no
+			// sede returns TAR Lazio alone while reporting a national total, so
+			// hiding it hides the only way to ask the question correctly.
+			mcplib.WithBoolean("sede-sweep", mcplib.Description("Interroga tutte le 31 sedi e unisci i risultati. Senza, il portale ordina per sede e i primi ~200 risultati sono tutti TAR Lazio anche quando il totale dichiarato e' nazionale. Il limite vale sul totale e viene distribuito fra le sedi, quindi un limite basso rappresenta solo le prime sedi. Non si combina con sede ne' con anno-from/anno-to.")),
+			mcplib.WithNumber("anno-from", mcplib.Description("Sweep storico: primo anno incluso. Serve perche' l'ordinamento e' per numero decrescente e le pronunce piu' vecchie restano sepolte sotto le recenti.")),
+			mcplib.WithNumber("anno-to", mcplib.Description("Sweep storico: ultimo anno incluso.")),
+			mcplib.WithString("all", mcplib.Description("Ricerca avanzata: tutte queste parole (AND), in qualunque punto del testo.")),
+			mcplib.WithString("any", mcplib.Description("Ricerca avanzata: una qualsiasi di queste parole (OR).")),
+			mcplib.WithString("not", mcplib.Description("Ricerca avanzata: esclude i provvedimenti che contengono queste parole.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithIdempotentHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/web/guest/dcsnprr", true, false, nil, []mcpParamBinding{{PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "tipo", WireName: "tipo", Location: "query"}, {PublicName: "sede", WireName: "sede", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}, {PublicName: "nrg", WireName: "nrg", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "10"}}, []string{}),
+		makeCLIHandler([]string{"provvedimenti", "cerca"}, []mcpParamBinding{{PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "phrase", WireName: "phrase", Location: "query"}, {PublicName: "all", WireName: "all", Location: "query"}, {PublicName: "any", WireName: "any", Location: "query"}, {PublicName: "not", WireName: "not", Location: "query"}, {PublicName: "tipo", WireName: "tipo", Location: "query"}, {PublicName: "sede", WireName: "sede", Location: "query"}, {PublicName: "sede-sweep", WireName: "sede-sweep", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "anno-from", WireName: "anno-from", Location: "query"}, {PublicName: "anno-to", WireName: "anno-to", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}, {PublicName: "nrg", WireName: "nrg", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "10"}}, []string{}, true),
 	)
 	s.AddTool(
 		mcplib.NewTool("provvedimenti_get",
-			mcplib.WithDescription("Scarica il testo integrale di un provvedimento. Required: id. Returns the Provvedimento."),
+			// The archiving hint lives here, not only in `context`: context is
+			// read once at the start, while the decision "I have now read N
+			// rulings, what do I do with them" is taken much later, when that
+			// advice is far back in the conversation. This description is in
+			// front of the agent at exactly the moment it matters.
+			mcplib.WithDescription("Scarica il testo integrale di un provvedimento. Required: id. Returns the Provvedimento. "+
+				"Se stai leggendo piu' provvedimenti per sceglierli, archiviali poi con corpus_build passando `ids` (la lista degli ECLI tenuti): "+
+				"i testi appena letti sono gia' nello store e non vengono riscaricati, quindi scrivere il corpus non costa altre richieste ed e' molto piu' rapido "+
+				"che salvare i file uno per uno — in piu' produce un manifest.csv con ECLI, sede, data e URL di ciascuno."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("ECLI o idprovv del provvedimento (da una ricerca).")),
+			mcplib.WithString("format", mcplib.Description("Formato: md (Markdown pulito), text, html, json. Default json, che incapsula il testo nel campo full_text; usa md per ottenere Markdown vero.")),
+			mcplib.WithBoolean("front-matter", mcplib.Description("Con format md/text antepone un blocco YAML con ecli, sede, sezione, data di deposito e URL. Attivo per default.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithIdempotentHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/visualizzah2/", true, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeCLIHandler([]string{"provvedimenti", "get"}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{"id"}, false),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='items'.")),
+			// The generator's example named a resource_type ('items') and a JSON
+			// field ('$.name') that this store never writes, so following it
+			// verbatim returns zero rows and reads like "nothing has been
+			// synced yet". The store holds two types: 'provvedimenti' (written
+			// by search and sync) and 'watches' (saved queries, written by
+			// `watch run` and refreshed by sync).
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data). I provvedimenti stanno sotto resource_type='provvedimenti'; le ricerche salvate sotto 'watches'. Use json_extract on data, e.g. SELECT json_extract(data,'$.ecli'), json_extract(data,'$.sede') FROM resources WHERE resource_type='provvedimenti'. Campi di un provvedimento: idprovv, ecli, tipo, sede, schema, sezione, numero, anno, nrg, data_deposito, snippet, formato, nome_file, url, full_text.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithIdempotentHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(false),
 		),
 		handleSQL,
 	)
@@ -79,6 +104,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithIdempotentHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(false),
 		),
 		handleContext,
 	)
@@ -123,164 +150,123 @@ func formatMCPParamValue(v any) string {
 	}
 }
 
-// makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+// blockedExtraCLIParams mirrors cobratree's blockedRootFlags (unexported,
+// package-private there): root-level CLI flags an MCP caller must never
+// reach through the undeclared-parameter passthrough below, since they
+// could redirect config, base URL, or credentials outside the per-command
+// surface the agent is supposed to be calling.
+var blockedExtraCLIParams = map[string]bool{
+	"args":     true,
+	"base-url": true,
+	"client":   true,
+	"config":   true,
+	"deliver":  true,
+	"profile":  true,
+	"token":    true,
+}
+
+// wantsNonJSONFormat reports whether the caller asked for a rendering that
+// --json would destroy. Only md/text/html qualify: an empty value or "json"
+// means the JSON envelope is what they want anyway.
+func wantsNonJSONFormat(format string) bool {
+	switch strings.ToLower(strings.TrimSpace(format)) {
+	case "md", "markdown", "text", "txt", "html":
+		return true
+	}
+	return false
+}
+
+// makeCLIHandler builds an MCP tool handler for typed tools whose real
+// implementation lives in a hand-written CLI command rather than a plain
+// REST call. This portal needs a stateful Liferay session handshake for
+// search and a constructed multi-param URL for full text; a generic HTTP GET
+// against the page path (the previous makeAPIHandler-based implementation)
+// gets back the plain HTML page instead of data. internal/gaclient already
+// does this correctly for the CLI's "provvedimenti cerca"/"provvedimenti
+// get" commands, so this shells out to the already-working companion binary
+// instead of duplicating that logic.
+//
+// boundOutput applies the same byte/item budget as other typed list tools
+// (mcpToolResultText) — appropriate for a result list, never for a single
+// full-text decision: a legal document truncated at the byte budget is a
+// worse failure than the one this replaces, since it looks like a complete
+// answer instead of an obvious error.
+func makeCLIHandler(cmdPath []string, bindings []mcpParamBinding, positionalParams []string, boundOutput bool) server.ToolHandlerFunc {
+	posSet := make(map[string]bool, len(positionalParams))
+	for _, p := range positionalParams {
+		posSet[p] = true
+	}
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
+		bin, err := cobratree.SiblingCLIPath()
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
-
-		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
-		// non-map payloads; GetArguments() returns the map[string]any shape
-		// we rely on here (or an empty map when the payload is something else).
-		args := req.GetArguments()
-
-		// positionalParams mixes real URL path params with CLI positional
-		// args that map to query params (e.g. `search <query>` -> ?query=);
-		// the placeholder check below disambiguates them at runtime.
-		path := pathTemplate
-		knownArgs := make(map[string]bool, len(bindings))
-		pathParams := make(map[string]bool, len(positionalParams))
-		params := make(map[string]string)
-		bodyArgs := make(map[string]any)
-		var headers map[string]string
-		if len(headerOverrides) > 0 {
-			headers = make(map[string]string, len(headerOverrides)+1)
-			for k, v := range headerOverrides {
-				headers[k] = v
+		values := req.GetArguments()
+		cliArgs := append([]string{}, cmdPath...)
+		// Positionals first, in declared order: the CLI wants them up front
+		// (e.g. `provvedimenti get <id>`).
+		for _, name := range positionalParams {
+			v, ok := values[name]
+			if !ok || v == nil {
+				continue
 			}
+			cliArgs = append(cliArgs, formatMCPParamValue(v))
 		}
-		if binaryResponse {
-			if headers == nil {
-				headers = map[string]string{}
-			}
-			headers[client.BinaryResponseHeader] = "true"
-		}
+		declared := make(map[string]bool, len(bindings))
 		for _, binding := range bindings {
-			knownArgs[binding.PublicName] = true
-			v, ok := args[binding.PublicName]
-			if !ok {
-				if binding.Default != "" {
-					v = binding.Default
-				} else {
+			declared[binding.PublicName] = true
+			if posSet[binding.PublicName] {
+				continue
+			}
+			v, ok := values[binding.PublicName]
+			if !ok || v == nil {
+				if binding.Default == "" {
 					continue
 				}
+				v = binding.Default
 			}
-			switch binding.Location {
-			case "path":
-				placeholder := "{" + binding.WireName + "}"
-				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
-			case "body":
-				bodyArgs[binding.WireName] = v
-			default:
-				params[binding.WireName] = formatMCPParamValue(v)
+			if s := formatMCPParamValue(v); s != "" {
+				cliArgs = append(cliArgs, "--"+binding.PublicName, s)
 			}
 		}
-		for _, p := range positionalParams {
-			placeholder := "{" + p + "}"
-			if !strings.Contains(pathTemplate, placeholder) {
-				continue
-			}
-			pathParams[p] = true
-			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
-			}
-		}
-
-		for k, v := range args {
-			if pathParams[k] || knownArgs[k] {
-				continue
-			}
-			switch method {
-			case "POST", "PUT", "PATCH":
-				bodyArgs[k] = v
-			default:
-				params[k] = formatMCPParamValue(v)
+		// The typed schema is a snapshot taken when the tool was declared; a
+		// CLI flag added afterward (or one an agent infers from the tool's
+		// description, e.g. --frase) is not in bindings. Dropping it silently
+		// would run an unfiltered query that still looks like a valid,
+		// filtered answer — worse than a loud failure. Pass anything
+		// undeclared straight through and let the CLI accept it or reject it
+		// by name.
+		extra := make([]string, 0, len(values))
+		for name := range values {
+			if !declared[name] && !posSet[name] && !blockedExtraCLIParams[name] && values[name] != nil {
+				extra = append(extra, name)
 			}
 		}
-
-		var data json.RawMessage
-		switch method {
-		case "GET":
-			if len(headers) > 0 {
-				data, err = c.GetWithHeaders(ctx, path, params, headers)
-				break
+		sort.Strings(extra)
+		for _, name := range extra {
+			if s := formatMCPParamValue(values[name]); s != "" {
+				cliArgs = append(cliArgs, "--"+name, s)
 			}
-			data, err = c.Get(ctx, path, params)
-		case "POST":
-			if len(headers) > 0 {
-				if readOnly {
-					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
-				} else {
-					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
-				}
-				break
-			}
-			if readOnly {
-				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
-			} else {
-				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
-			}
-		case "PUT":
-			if len(headers) > 0 {
-				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
-				break
-			}
-			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
-		case "PATCH":
-			if len(headers) > 0 {
-				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
-				break
-			}
-			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
-		case "DELETE":
-			if len(headers) > 0 {
-				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
-				break
-			}
-			data, _, err = c.DeleteWithParams(ctx, path, params)
-		default:
-			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}
-
+		// --agent bundles --json with the non-interactive defaults, so passing
+		// it unconditionally silently overrode an explicit format: `format:
+		// "md"` and `format: "text"` both came back as the same JSON, with no
+		// error and no hint that the parameter had been discarded. Ask for the
+		// agent defaults piece by piece, and add --json only when the caller
+		// has not asked for a different rendering.
+		cliArgs = append(cliArgs, "--no-input", "--no-color", "--yes")
+		if f, _ := values["format"].(string); !wantsNonJSONFormat(f) {
+			cliArgs = append(cliArgs, "--json", "--compact")
+		}
+		out, diag, err := cobratree.RunCLICommandWithDiagnostics(ctx, bin, cliArgs)
 		if err != nil {
-			msg := err.Error()
-			switch {
-			case strings.Contains(msg, "HTTP 409"):
-				return mcplib.NewToolResultText("already exists (no-op)"), nil
-			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + msg +
-					"\nhint: check your API credentials." +
-					"\n      See API docs: https://www.giustizia-amministrativa.it" +
-					"\n      Run 'giustizia-amministrativa-pp-cli doctor' to check auth status."), nil
-			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + msg +
-					"\nhint: this API is configured without credentials; the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy." +
-					"\n      See API docs: https://www.giustizia-amministrativa.it" +
-					"\n      Run 'giustizia-amministrativa-pp-cli doctor' to check auth status."), nil
-			case strings.Contains(msg, "HTTP 404"):
-				if method == "DELETE" {
-					return mcplib.NewToolResultText("already deleted (no-op)"), nil
-				}
-				return mcplib.NewToolResultError("not found: " + msg), nil
-			case strings.Contains(msg, "HTTP 429"):
-				return mcplib.NewToolResultError("rate limited: " + msg), nil
-			default:
-				return mcplib.NewToolResultError(msg), nil
-			}
+			return mcplib.NewToolResultError(err.Error()), nil
 		}
-
-		if binaryResponse {
-			out, _ := json.Marshal(map[string]any{
-				"content_encoding": "base64",
-				"data_base64":      base64.StdEncoding.EncodeToString(data),
-				"byte_count":       len(data),
-			})
-			return mcplib.NewToolResultText(string(out)), nil
+		out = cobratree.MergeDiagnostics(out, diag)
+		if boundOutput {
+			return mcpToolResultText("GET", json.RawMessage(out)), nil
 		}
-		return mcpToolResultText(method, data), nil
+		return mcplib.NewToolResultText(cobratree.BoundToolText(out)), nil
 	}
 }
 
@@ -403,23 +389,6 @@ func mcpOversizedPreviewEnvelope(data json.RawMessage) []byte {
 		"note":           "Typed MCP endpoint response exceeded the tool result budget and was not a recognized list envelope. Narrow the request with filters, search/sql, or a command-mirror tool with --agent/--compact/--select.",
 	})
 	return out
-}
-
-func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "giustizia-amministrativa-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
-	if err != nil {
-		return nil, fmt.Errorf("loading config: %w", err)
-	}
-	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
-	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a
-	// DELETE/PATCH followed by a GET would otherwise return the
-	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
-	// constructs its own client and is unaffected.
-	c.NoCache = true
-	return c, nil
 }
 
 func dbPath() string {
@@ -647,7 +616,12 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"api":         "giustizia-amministrativa",
 		"description": "La giurisprudenza amministrativa italiana (TAR, Consiglio di Stato) da terminale: ricerca, testo integrale in Markdown",
 		"archetype":   "generic",
-		"tool_count":  2,
+		// The generator emitted "tool_count": 2 — the number of typed endpoint
+		// tools — while the server registers those plus the whole command
+		// mirror. An agent reading "2" in the very first response concludes the
+		// surface is two tools wide and never looks for massime, corpus_build
+		// or appeal_chain. Name what the number actually counts instead.
+		"typed_endpoint_tools": 2,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion giustizia-amministrativa-pp-cli binary.",
 		"resources": []map[string]any{
@@ -659,23 +633,38 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"searchable":  true,
 			},
 		},
+		// These replace the generator's boilerplate tips, which described a
+		// cursor-paged REST API (`after`, default limit 100) and told the caller
+		// to use a `search` tool this surface does not expose. They are the
+		// first thing an agent reads, and pointing it at a tool that does not
+		// exist is worse than saying nothing.
 		"query_tips": []string{
-			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
-			"Control page size with the limit parameter (default 100).",
-			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
-			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
-			"Prefer sql/search over repeated API calls when the data is already synced.",
+			"provvedimenti_cerca: usa `phrase` per un istituto giuridico con nome fisso (es. 'accesso civico generalizzato'). `testo` combina le parole in AND senza badare all'ordine e aggancia corrispondenze casuali (es. 'civico' su un numero civico stradale).",
+			"Il portale ordina i risultati PER SEDE, non per pertinenza ne' per data: senza il filtro `sede` i primi ~200 risultati sono tutti TAR Lazio (Roma) anche se il totale dichiarato e' nazionale. Quando accade il tool lo segnala nel campo `avvisi`: leggilo prima di presentare i risultati come 'i piu' rilevanti'.",
+			"Per una copertura nazionale reale passa `sede-sweep` (interroga tutte le 31 sedi); per una singola sede usa `sede`. Per il passato usa `anno`, oppure `anno-from`/`anno-to`: le pronunce storiche restano altrimenti sepolte sotto quelle recenti.",
+			"Per archiviare piu' provvedimenti usa corpus_build, non una sequenza di get: scrive un .md per atto e un manifest.csv con ECLI, sede, data e URL di ciascuno. Se la selezione l'hai gia' fatta tu leggendo i testi, passala con `ids` (lista di ECLI separati da virgola) invece dei criteri di ricerca, cosi' una nuova ricerca non la sostituisce.",
+			"I testi gia' scaricati non vengono riscaricati: get, corpus_build e massime li riusano dallo store locale. Dopo aver letto dei provvedimenti, archiviarli con corpus_build `ids` non costa altre richieste al portale.",
+			"sql interroga lo store locale (tabella `resources`); richiede almeno una sync o una ricerca precedente per avere dati. grep cerca nei testi integrali gia' scaricati, non negli snippet.",
+			"Alcuni provvedimenti sono pubblicati dal portale in PDF: il testo non e' estraibile e il documento riporta una nota esplicita con il link all'originale invece del contenuto.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
+		//
+		// `tool` carries the MCP tool name, not the CLI spelling. The
+		// generator listed the CLI paths ("watch run", "corpus build",
+		// "appeal-chain") while the registered tools are watch_run,
+		// corpus_build and appeal_chain: an agent that took this list at its
+		// word called a name that does not exist and concluded the capability
+		// was missing. `cli_command` keeps the shell spelling for a human
+		// reading the same context dump.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Testo integrale in Markdown", "command": "get", "description": "Scarica il testo completo di una sentenza/ordinanza/decreto/parere e lo restituisce in Markdown pulito.", "rationale": "Il form web mostra solo HTML a video; nessuno strumento esporta il provvedimento in markdown citabile.", "via": "mcp-command-mirror"},
-			{"name": "Watch & Diff query salvate", "command": "watch run", "description": "Salva una ricerca e a ogni esecuzione mostra solo i provvedimenti nuovi dall'ultima volta.", "rationale": "Il form e' stateless e non puo' dire cosa e' comparso da ieri; serve lo store locale.", "via": "mcp-command-mirror"},
-			{"name": "Corpus export", "command": "corpus build", "description": "Assembla N provvedimenti su un tema in una cartella di Markdown + un CSV manifest (ECLI, sede, data, url).", "rationale": "Il form mostra un atto alla volta e non offre export massivo.", "via": "mcp-command-mirror"},
-			{"name": "Grep sui testi integrali", "command": "grep", "description": "Ricerca regex/prossimita' sui testi integrali scaricati localmente, non solo sugli snippet.", "rationale": "Possibile solo sul full-text in store locale; il form indicizza campi propri e mostra solo un teaser.", "via": "mcp-command-mirror"},
-			{"name": "Estrazione massime", "command": "massime", "description": "Estrae i paragrafi 'principio di diritto'/massima da un corpus in un unico digest.", "rationale": "Richiede parsing aggregato su molti testi che il form non offre.", "via": "mcp-command-mirror"},
-			{"name": "Appeal-chain tracer", "command": "appeal-chain", "description": "Esegue il 'verifica appello' in batch e ricostruisce la catena TAR->Consiglio di Stato.", "rationale": "Il 'verifica appello' del form e' manuale e uno alla volta.", "via": "mcp-command-mirror"},
-			{"name": "Statistiche corpus", "command": "stats", "description": "Distribuzione di un tema per sede, sezione, tipo e anno.", "rationale": "Aggregazione sull'intera popolazione; il form da' solo lista e conteggio.", "via": "mcp-command-mirror"},
+			{"name": "Testo integrale in Markdown", "tool": "get", "cli_command": "get", "description": "Scarica il testo completo di una sentenza/ordinanza/decreto/parere e lo restituisce in Markdown pulito. Passa l'ECLI in `id`.", "rationale": "Il form web mostra solo HTML a video; nessuno strumento esporta il provvedimento in markdown citabile.", "via": "mcp-command-mirror"},
+			{"name": "Watch & Diff query salvate", "tool": "watch_run", "cli_command": "watch run", "description": "Salva una ricerca e a ogni esecuzione mostra solo i provvedimenti nuovi dall'ultima volta.", "rationale": "Il form e' stateless e non puo' dire cosa e' comparso da ieri; serve lo store locale.", "via": "mcp-command-mirror"},
+			{"name": "Corpus export", "tool": "corpus_build", "cli_command": "corpus build", "description": "Assembla N provvedimenti su un tema in una cartella di Markdown + un CSV manifest (ECLI, sede, data, url).", "rationale": "Il form mostra un atto alla volta e non offre export massivo.", "via": "mcp-command-mirror"},
+			{"name": "Grep sui testi integrali", "tool": "grep", "cli_command": "grep", "description": "Ricerca regex/prossimita' sui testi integrali scaricati localmente, non solo sugli snippet.", "rationale": "Possibile solo sul full-text in store locale; il form indicizza campi propri e mostra solo un teaser.", "via": "mcp-command-mirror"},
+			{"name": "Estrazione massime", "tool": "massime", "cli_command": "massime", "description": "Estrae i paragrafi 'principio di diritto'/massima da un corpus in un unico digest.", "rationale": "Richiede parsing aggregato su molti testi che il form non offre.", "via": "mcp-command-mirror"},
+			{"name": "Appeal-chain tracer", "tool": "appeal_chain", "cli_command": "appeal-chain", "description": "Esegue il 'verifica appello' in batch e ricostruisce la catena TAR->Consiglio di Stato.", "rationale": "Il 'verifica appello' del form e' manuale e uno alla volta.", "via": "mcp-command-mirror"},
+			{"name": "Statistiche corpus", "tool": "stats", "cli_command": "stats", "description": "Distribuzione di un tema per sede, sezione, tipo e anno; con `sede-sweep` la distribuzione e' nazionale e non il solo campione della prima sede.", "rationale": "Aggregazione sull'intera popolazione; il form da' solo lista e conteggio.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Testo integrale in Markdown", "insight": "Il form web mostra solo HTML a video; nessuno strumento esporta il provvedimento in markdown citabile."},

@@ -96,3 +96,16 @@ func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {
 		}
 	}
 }
+
+// Regression: a real incident-triage query should resolve directly to the
+// live issues endpoint instead of forcing an agent through the help tree.
+func TestWhichIndex_ResolvesLiveIssueTriage(t *testing.T) {
+	query := "list unresolved issues for a mobile app with firstSeen lastSeen user counts"
+	got := rankWhich(whichIndex, query, 3)
+	if len(got) == 0 {
+		t.Fatal("expected a match for live issue triage, got none")
+	}
+	if got[0].Entry.Command != "organizations issues list-an-organization-s" {
+		t.Fatalf("top match: want live organization issues command, got %s", got[0].Entry.Command)
+	}
+}

@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -31,13 +32,12 @@ type FeedbackEntry struct {
 const feedbackMaxTextLen = 4096
 
 func feedbackFilePath() (string, error) {
-	home, err := os.UserHomeDir()
+	dir, err := cliutil.DataDir()
 	if err != nil {
-		return "", fmt.Errorf("resolving home dir: %w", err)
+		return "", err
 	}
-	dir := filepath.Join(home, ".slack-pp-cli")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return "", fmt.Errorf("creating state dir: %w", err)
+		return "", fmt.Errorf("creating feedback data dir: %w", err)
 	}
 	return filepath.Join(dir, "feedback.jsonl"), nil
 }
@@ -100,7 +100,7 @@ func newFeedbackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feedback [text]",
 		Short: "Record feedback about this CLI (local by default; upstream opt-in)",
-		Long: `Feedback is captured locally first at ~/.slack-pp-cli/feedback.jsonl.
+		Long: `Feedback is captured locally first in the CLI data directory's feedback.jsonl.
 When ` + "`SLACK_FEEDBACK_ENDPOINT`" + ` is set and either --send is
 passed or ` + "`SLACK_FEEDBACK_AUTO_SEND=true`" + `, the entry is
 POSTed as JSON after the local write.
@@ -153,12 +153,12 @@ maintainer sees it.`,
 			}
 
 			if flags.asJSON {
-				return flags.printJSON(cmd, map[string]any{
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"recorded":  true,
 					"truncated": truncated,
 					"upstream":  upstreamResult,
 					"entry":     entry,
-				})
+				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "feedback recorded locally (%d chars%s)\n", len(text), func() string {
 				if truncated {
@@ -184,6 +184,12 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List recent feedback entries",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
+		Example: `  slack-pp-cli feedback list
+  slack-pp-cli feedback list --limit 5
+  slack-pp-cli feedback list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			p, err := feedbackFilePath()
 			if err != nil {
@@ -193,7 +199,7 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				if os.IsNotExist(err) {
 					if flags.asJSON {
-						return flags.printJSON(cmd, []FeedbackEntry{})
+						return printJSONFiltered(cmd.OutOrStdout(), []FeedbackEntry{}, flags)
 					}
 					return nil
 				}
@@ -214,7 +220,7 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 			if limit > 0 && limit < len(entries) {
 				entries = entries[len(entries)-limit:]
 			}
-			return flags.printJSON(cmd, entries)
+			return printJSONFiltered(cmd.OutOrStdout(), entries, flags)
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum number of recent entries to return")

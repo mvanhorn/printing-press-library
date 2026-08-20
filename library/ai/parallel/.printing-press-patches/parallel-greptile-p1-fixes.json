@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "parallel-greptile-p1-fixes",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260720-202045-1a2cb7d8",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Fix account Bearer auth, session stitch membership output/order, and lineage DB error propagation.",
+  "reason": "Greptile P1 findings on PR #1551.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/session_stitch.go",
+    "internal/store/novel.go"
+  ],
+  "validated_outcome": "go build ./...; addressing Greptile P1 threads"
+}

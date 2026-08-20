@@ -14,6 +14,14 @@
   "printer": "aborruso",
   "printer_name": "aborruso",
   "category": "developer-tools",
+  "mcp_binary": "openipa-pp-mcp",
+  "mcp_tool_count": 31,
+  "mcp_public_tool_count": 31,
+  "mcp_ready": "full",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "IPA_auth_id"
+  ],
   "novel_features": [
     {
       "name": "Doctor compliance PA",

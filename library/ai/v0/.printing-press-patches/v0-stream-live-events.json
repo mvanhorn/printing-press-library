@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "v0-stream-live-events",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260804-232309-9bd8d5ce",
+  "base_printing_press_version": "4.30.1",
+  "summary": "chats stream renders SSE events live from PostStream's body reader (previously buffered via io.ReadAll), carries the event: type across lines within an SSE block (previously lost, every event rendered as data), and exits non-zero on SSE error events.",
+  "reason": "Greptile review P1 on chats_stream.go: buffered SSE + lost event types + silent success on error events made the streaming command misleading for agents and scripts.",
+  "files": ["internal/cli/chats_stream.go"],
+  "validated_outcome": "TestChatsStreamRendersSSEEvents + TestChatsStreamErrorEventExitsNonZero pass"
+}

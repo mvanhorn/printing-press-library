@@ -10,6 +10,12 @@
     "handle": "neektza",
     "name": "Nikica Jokic"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "printer": "neektza",
   "printer_name": "Nikica Jokic",
   "spec_path": "https://developers.notion.com/openapi.json",

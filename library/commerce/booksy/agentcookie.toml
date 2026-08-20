@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "booksy-pp-cli"
+display_name = "Booksy"
+description = "Book a haircut in Poland from the terminal — search barbers, compare prices and reviews, check open slots, and book, with a dry-run-by-default booking guard."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/booksy-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+BOOKSY_ACCESS_TOKEN = true

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "sprocket-pp-cli"
+display_name = "Sprocket Sports"
+description = "Your youth-soccer club's schedule, teams, and dues from the terminal — with merged multi-kid agendas, conflict detection, and iCal export no dashboard gives you."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/sprocket-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SPROCKET_TOKEN = true

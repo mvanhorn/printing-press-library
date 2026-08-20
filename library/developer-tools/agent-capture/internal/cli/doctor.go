@@ -115,7 +115,7 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 	// Check 6: Remotion (optional - simulated demo rendering)
 	npxPath, npxErr := exec.LookPath("npx")
 	if npxErr == nil {
-		remCheck := exec.CommandContext(ctx, npxPath, "remotion", "--version")
+		remCheck := remotionProbeCommand(ctx, npxPath)
 		if out, err := remCheck.Output(); err == nil && len(out) > 0 {
 			checks = append(checks, doctorCheck{
 				Name:    "remotion",
@@ -164,4 +164,8 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		fmt.Println("\nSome checks failed. Fix the issues above and re-run 'agent-capture doctor'.")
 	}
 	return nil
+}
+
+func remotionProbeCommand(ctx context.Context, npxPath string) *exec.Cmd {
+	return exec.CommandContext(ctx, npxPath, "remotion", "versions")
 }

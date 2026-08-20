@@ -1,0 +1,988 @@
+{
+  "api_name": "dnsmadeeasy",
+  "base_url": "https://api.dnsmadeeasy.com/V2.0",
+  "description": "Every DNS Made Easy operation, plus a local record store for cross-zone search, drift detection, and 'where is this IP used' — instant and offline.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-dnsme-apiKey",
+    "format": "{DNSMADEEASY_API_KEY}",
+    "in": "header",
+    "env_vars": [
+      "DNSMADEEASY_API_KEY",
+      "DNSMADEEASY_API_SECRET"
+    ],
+    "env_var_specs": [
+      {
+        "name": "DNSMADEEASY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "DNSMADEEASY_API_SECRET",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "acl_delete",
+      "description": "Delete a transfer ACL. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/dns/transferAcl/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric ACL id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "acl_get",
+      "description": "Get a transfer ACL by id. Required: id. Returns the TransferACL.",
+      "method": "GET",
+      "path": "/dns/transferAcl/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric ACL id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "acl_list",
+      "description": "List transfer ACLs. Returns array of TransferACL.",
+      "method": "GET",
+      "path": "/dns/transferAcl",
+      "params": []
+    },
+    {
+      "name": "contact-lists_get",
+      "description": "Get a contact list by id. Required: id. Returns the ContactList.",
+      "method": "GET",
+      "path": "/contactList/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric contact list id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact-lists_list",
+      "description": "List failover contact lists. Returns array of ContactList.",
+      "method": "GET",
+      "path": "/contactList",
+      "params": []
+    },
+    {
+      "name": "domains_create",
+      "description": "Create a managed domain. Required: name. Optional: gtdEnabled, soaId, templateId (plus 3 more). Returns the new Domain.",
+      "method": "POST",
+      "path": "/dns/managed",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Domain name to create, e.g. example.com",
+          "required": true
+        },
+        {
+          "name": "gtdEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable Global Traffic Director (GTD)"
+        },
+        {
+          "name": "soaId",
+          "type": "string",
+          "location": "body",
+          "description": "SOA record id to attach"
+        },
+        {
+          "name": "templateId",
+          "type": "string",
+          "location": "body",
+          "description": "Template id to provision records from"
+        },
+        {
+          "name": "vanityId",
+          "type": "string",
+          "location": "body",
+          "description": "Vanity DNS configuration id"
+        },
+        {
+          "name": "transferAclId",
+          "type": "string",
+          "location": "body",
+          "description": "Transfer ACL id"
+        },
+        {
+          "name": "folderId",
+          "type": "string",
+          "location": "body",
+          "description": "Folder id to place the domain in"
+        }
+      ]
+    },
+    {
+      "name": "domains_delete",
+      "description": "Delete a managed domain and all its records. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/dns/managed/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric domain id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_find",
+      "description": "Look up a managed domain by its name. Required: domainname. Returns the Domain.",
+      "method": "GET",
+      "path": "/dns/managed/name",
+      "params": [
+        {
+          "name": "domainname",
+          "type": "string",
+          "location": "query",
+          "description": "Fully qualified domain name, e.g. example.com",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_get",
+      "description": "Get a managed domain by numeric id. Required: id. Returns the Domain.",
+      "method": "GET",
+      "path": "/dns/managed/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric domain id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "List all managed domains. Returns array of Domain.",
+      "method": "GET",
+      "path": "/dns/managed",
+      "params": []
+    },
+    {
+      "name": "domains_update",
+      "description": "Update a managed domain's configuration. Required: id. Optional: gtdEnabled, soaId, templateId (plus 3 more). Returns the updated Domain.",
+      "method": "PUT",
+      "path": "/dns/managed/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric domain id",
+          "required": true
+        },
+        {
+          "name": "gtdEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable Global Traffic Director (GTD)"
+        },
+        {
+          "name": "soaId",
+          "type": "string",
+          "location": "body",
+          "description": "SOA record id to attach"
+        },
+        {
+          "name": "templateId",
+          "type": "string",
+          "location": "body",
+          "description": "Template id"
+        },
+        {
+          "name": "vanityId",
+          "type": "string",
+          "location": "body",
+          "description": "Vanity DNS configuration id"
+        },
+        {
+          "name": "transferAclId",
+          "type": "string",
+          "location": "body",
+          "description": "Transfer ACL id"
+        },
+        {
+          "name": "folderId",
+          "type": "string",
+          "location": "body",
+          "description": "Folder id"
+        }
+      ]
+    },
+    {
+      "name": "folders_get",
+      "description": "Get a security folder by id. Required: id. Returns the Folder.",
+      "method": "GET",
+      "path": "/security/folder/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric folder id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_list",
+      "description": "List security folders. Returns array of Folder.",
+      "method": "GET",
+      "path": "/security/folder",
+      "params": []
+    },
+    {
+      "name": "ipsets_create",
+      "description": "Create a secondary DNS IP set. Required: name. Returns the new IPSet.",
+      "method": "POST",
+      "path": "/dns/secondary/ipSet",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "IP set name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ipsets_delete",
+      "description": "Delete a secondary DNS IP set. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/dns/secondary/ipSet/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric IP set id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ipsets_get",
+      "description": "Get a secondary DNS IP set by id. Required: id. Returns the IPSet.",
+      "method": "GET",
+      "path": "/dns/secondary/ipSet/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric IP set id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ipsets_list",
+      "description": "List secondary DNS IP sets. Returns array of IPSet.",
+      "method": "GET",
+      "path": "/dns/secondary/ipSet",
+      "params": []
+    },
+    {
+      "name": "monitor_get",
+      "description": "Get failover/monitor configuration for a record. Required: recordId. Returns the Monitor.",
+      "method": "GET",
+      "path": "/monitor/{recordId}",
+      "params": [
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitor_update",
+      "description": "Update failover/monitor configuration for a record. Required: recordId. Optional: monitor, failover, autoFailover (plus 7 more). Returns the updated Monitor.",
+      "method": "PUT",
+      "path": "/monitor/{recordId}",
+      "params": [
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric record id",
+          "required": true
+        },
+        {
+          "name": "monitor",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable system monitoring"
+        },
+        {
+          "name": "failover",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable failover"
+        },
+        {
+          "name": "autoFailover",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable automatic failover"
+        },
+        {
+          "name": "protocolId",
+          "type": "int",
+          "location": "body",
+          "description": "Monitoring protocol id"
+        },
+        {
+          "name": "port",
+          "type": "int",
+          "location": "body",
+          "description": "Port to monitor"
+        },
+        {
+          "name": "sensitivity",
+          "type": "int",
+          "location": "body",
+          "description": "Monitoring sensitivity"
+        },
+        {
+          "name": "maxEmails",
+          "type": "int",
+          "location": "body",
+          "description": "Max notification emails"
+        },
+        {
+          "name": "contactListId",
+          "type": "string",
+          "location": "body",
+          "description": "Contact list id for notifications"
+        },
+        {
+          "name": "ip1",
+          "type": "string",
+          "location": "body",
+          "description": "Failover IP 1"
+        },
+        {
+          "name": "ip2",
+          "type": "string",
+          "location": "body",
+          "description": "Failover IP 2"
+        }
+      ]
+    },
+    {
+      "name": "records_create",
+      "description": "Create a DNS record in a domain. Required: domainId, name, type, value. Optional: ttl (default: 1800), gtdLocation, mxLevel (plus 11 more). Returns the new Record.",
+      "method": "POST",
+      "path": "/dns/managed/{domainId}/records",
+      "params": [
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric domain id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Record name / host label (use empty string or @ for apex)",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Record type: A, AAAA, CNAME, MX, TXT, SRV, NS, PTR, SPF, CAA, ANAME, HTTPRED",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Record value / target (IP, hostname, text, etc.)",
+          "required": true
+        },
+        {
+          "name": "ttl",
+          "type": "int",
+          "location": "body",
+          "description": "Time to live in seconds"
+        },
+        {
+          "name": "gtdLocation",
+          "type": "string",
+          "location": "body",
+          "description": "GTD location: DEFAULT, US_EAST, US_WEST, EUROPE, ASIA_PAC, OCEANIA, SOUTH_AMERICA"
+        },
+        {
+          "name": "mxLevel",
+          "type": "int",
+          "location": "body",
+          "description": "MX preference (MX records)"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Priority (SRV records)"
+        },
+        {
+          "name": "weight",
+          "type": "int",
+          "location": "body",
+          "description": "Weight (SRV records)"
+        },
+        {
+          "name": "port",
+          "type": "int",
+          "location": "body",
+          "description": "Port (SRV records)"
+        },
+        {
+          "name": "dynamicDns",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark record as dynamic DNS"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Dynamic DNS password"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text description"
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "body",
+          "description": "Keywords (HTTPRED records)"
+        },
+        {
+          "name": "redirectType",
+          "type": "string",
+          "location": "body",
+          "description": "Redirect type (HTTPRED records)"
+        },
+        {
+          "name": "hardLink",
+          "type": "bool",
+          "location": "body",
+          "description": "Hard link (HTTPRED records)"
+        },
+        {
+          "name": "caaType",
+          "type": "string",
+          "location": "body",
+          "description": "CAA type: issue, issuewild, iodef"
+        },
+        {
+          "name": "issuerCritical",
+          "type": "int",
+          "location": "body",
+          "description": "CAA issuer critical flag (0 or 1)"
+        }
+      ]
+    },
+    {
+      "name": "records_delete",
+      "description": "Delete a single DNS record. Required: domainId, recordId. Destructive.",
+      "method": "DELETE",
+      "path": "/dns/managed/{domainId}/records/{recordId}",
+      "params": [
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric domain id",
+          "required": true
+        },
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "records_get",
+      "description": "Get a single record by id. Required: domainId, recordId. Returns the Record.",
+      "method": "GET",
+      "path": "/dns/managed/{domainId}/records/{recordId}",
+      "params": [
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric domain id",
+          "required": true
+        },
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "records_list",
+      "description": "List records in a domain, optionally filtered by type or name. Required: domainId. Optional: type, recordName. Returns array of Record.",
+      "method": "GET",
+      "path": "/dns/managed/{domainId}/records",
+      "params": [
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric domain id",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by record type (A, AAAA, CNAME, MX, TXT, SRV, NS, PTR, SPF, CAA, ANAME, HTTPRED)"
+        },
+        {
+          "name": "recordName",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by record name (host label, e.g. www)"
+        }
+      ]
+    },
+    {
+      "name": "records_update",
+      "description": "Update a DNS record. Required: domainId, recordId. Optional: name, type, value (plus 6 more). Returns the updated Record.",
+      "method": "PUT",
+      "path": "/dns/managed/{domainId}/records/{recordId}",
+      "params": [
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric domain id",
+          "required": true
+        },
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric record id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Record name / host label"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Record type"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Record value / target"
+        },
+        {
+          "name": "ttl",
+          "type": "int",
+          "location": "body",
+          "description": "Time to live in seconds"
+        },
+        {
+          "name": "gtdLocation",
+          "type": "string",
+          "location": "body",
+          "description": "GTD location"
+        },
+        {
+          "name": "mxLevel",
+          "type": "int",
+          "location": "body",
+          "description": "MX preference"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Priority (SRV)"
+        },
+        {
+          "name": "weight",
+          "type": "int",
+          "location": "body",
+          "description": "Weight (SRV)"
+        },
+        {
+          "name": "port",
+          "type": "int",
+          "location": "body",
+          "description": "Port (SRV)"
+        }
+      ]
+    },
+    {
+      "name": "secondary_delete",
+      "description": "Delete a secondary DNS domain. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/dns/secondary/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric secondary domain id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "secondary_get",
+      "description": "Get a secondary DNS domain by id. Required: id. Returns the SecondaryDomain.",
+      "method": "GET",
+      "path": "/dns/secondary/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric secondary domain id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "secondary_list",
+      "description": "List all secondary DNS domains. Returns array of SecondaryDomain.",
+      "method": "GET",
+      "path": "/dns/secondary",
+      "params": []
+    },
+    {
+      "name": "soa_create",
+      "description": "Create a custom SOA record. Required: name. Optional: email, comment, ttl. Returns the new SOARecord.",
+      "method": "POST",
+      "path": "/dns/soa",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "SOA record name",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Administrator email"
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Comment"
+        },
+        {
+          "name": "ttl",
+          "type": "int",
+          "location": "body",
+          "description": "TTL in seconds"
+        }
+      ]
+    },
+    {
+      "name": "soa_delete",
+      "description": "Delete a custom SOA record. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/dns/soa/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric SOA record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "soa_get",
+      "description": "Get a custom SOA record by id. Required: id. Returns the SOARecord.",
+      "method": "GET",
+      "path": "/dns/soa/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric SOA record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "soa_list",
+      "description": "List custom SOA records. Returns array of SOARecord.",
+      "method": "GET",
+      "path": "/dns/soa",
+      "params": []
+    },
+    {
+      "name": "template-records_create",
+      "description": "Create a record in a template. Required: templateId, name, type, value. Optional: ttl (default: 1800). Returns the new Record.",
+      "method": "POST",
+      "path": "/dns/template/{templateId}/records",
+      "params": [
+        {
+          "name": "templateId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric template id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Record name / host label",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Record type",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Record value / target",
+          "required": true
+        },
+        {
+          "name": "ttl",
+          "type": "int",
+          "location": "body",
+          "description": "Time to live in seconds"
+        }
+      ]
+    },
+    {
+      "name": "template-records_delete",
+      "description": "Delete a record from a template. Required: templateId, recordId. Destructive.",
+      "method": "DELETE",
+      "path": "/dns/template/{templateId}/records/{recordId}",
+      "params": [
+        {
+          "name": "templateId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric template id",
+          "required": true
+        },
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "template-records_list",
+      "description": "List records in a template. Required: templateId. Returns array of Record.",
+      "method": "GET",
+      "path": "/dns/template/{templateId}/records",
+      "params": [
+        {
+          "name": "templateId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric template id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_create",
+      "description": "Create a DNS template. Required: name. Optional: publicTemplate. Returns the new Template.",
+      "method": "POST",
+      "path": "/dns/template",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Template name",
+          "required": true
+        },
+        {
+          "name": "publicTemplate",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the template is public"
+        }
+      ]
+    },
+    {
+      "name": "templates_delete",
+      "description": "Delete a DNS template. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/dns/template/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric template id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_get",
+      "description": "Get a DNS template by id. Required: id. Returns the Template.",
+      "method": "GET",
+      "path": "/dns/template/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric template id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_list",
+      "description": "List DNS templates. Returns array of Template.",
+      "method": "GET",
+      "path": "/dns/template",
+      "params": []
+    },
+    {
+      "name": "templates_update",
+      "description": "Update a DNS template. Required: id. Optional: name, publicTemplate. Returns the updated Template.",
+      "method": "PUT",
+      "path": "/dns/template/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric template id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Template name"
+        },
+        {
+          "name": "publicTemplate",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the template is public"
+        }
+      ]
+    },
+    {
+      "name": "vanity_delete",
+      "description": "Delete a Vanity DNS configuration. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/dns/vanity/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric vanity config id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vanity_get",
+      "description": "Get a Vanity DNS configuration by id. Required: id. Returns the Vanity.",
+      "method": "GET",
+      "path": "/dns/vanity/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric vanity config id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vanity_list",
+      "description": "List Vanity DNS configurations. Returns array of Vanity.",
+      "method": "GET",
+      "path": "/dns/vanity",
+      "params": []
+    }
+  ]
+}

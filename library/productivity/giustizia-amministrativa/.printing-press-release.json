@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "giustizia-amministrativa",
   "cli_name": "giustizia-amministrativa-pp-cli",
-  "version": "2026.6.1",
-  "released_at": "2026-06-26T07:45:56Z",
-  "source_commit": "e0b2a3af206d4cc640eaf2e2c1c2616b26b1b72f",
-  "printing_press_version": "4.24.0",
+  "version": "2026.8.3",
+  "released_at": "2026-08-19T09:14:36Z",
+  "source_commit": "c91441d1a9fb8ae8bad026c85a0e886377032d9a",
+  "printing_press_version": "4.30.1",
   "run_id": "20260621-094103",
   "changes": [
     {
-      "title": "feat(giustizia-amministrativa): add giustizia-amministrativa",
-      "pr": 1310,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1310",
-      "commit": "e0b2a3af206d4cc640eaf2e2c1c2616b26b1b72f"
+      "title": "feat(giustizia-amministrativa): declare the date the search cannot return, and the sede skew",
+      "pr": 1756,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1756",
+      "commit": "c91441d1a9fb8ae8bad026c85a0e886377032d9a"
     }
   ]
 }

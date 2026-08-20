@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "slack-external-file-upload",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Migrate file upload from the retired files.upload endpoint to Slack's three-step external upload flow, shared between the CLI command and the MCP code-orchestration surface.",
+  "reason": "Slack retired files.upload; it answers method_deprecated regardless of the request body. The generated command was doubly broken on the reprinted tree: it posted a JSON body to /files.upload and declared no --file flag at all, so the only source it could express was inline --content, sent to an endpoint that rejects everything. The MCP surface had the same defect in a different shape — the code-orchestration descriptor table advertises files.upload, so an agent that discovers it through slack_search and executes it always fails. The generic MCP dispatcher cannot express the replacement (it issues one request with a JSON body, while step 2 posts raw bytes to a different host without the workspace credential), so the flow lives in client.UploadExternal and both surfaces call it rather than duplicating it. Step 2 deliberately does not carry the workspace credential: the reserved URL holds its own single-use token and the host is not slack.com. The source is opened once and sized through that same handle — sizing a path with os.Stat and opening it later leaves a window in which the file can be appended to, truncated or replaced, so the length reserved in step 1 would not match the bytes streamed in step 2.",
+  "validated_outcome": "Ported onto the v4.29.0 reprint. `go build`, `go vet`, `gofmt`, `go test ./...` clean; the upload unit tests pass (exact-reserved-length, short read, grew-underneath, bad input). Command surface exercised against the built binary: six validation paths each produce a named error at exit 2 (no source, --file with --content, --content without --filename, --file naming a directory, empty file, multi-channel --channels); `--dry-run` emits the three-step plan with the reserved length; `--dry-run --quiet` prints zero bytes; a single-value --channels resolves to channel_id as a compatibility alias. Streaming is bounded by LimitReader with a probe read after it, so a source that shrinks or grows between step 1 and step 2 errors rather than uploading a prefix and reporting success. NOT re-verified against a live workspace on this tree.",
+  "files": [
+    "internal/cli/files_upload.go",
+    "internal/client/upload.go",
+    "internal/client/upload_amend_test.go",
+    "internal/mcp/code_orch.go"
+  ],
+  "upstream": "The generator should model multipart/streaming upload endpoints and multi-step flows. Two consequences show up here: a POST whose payload is a byte stream rather than a JSON body gets no --file flag at all, and an endpoint that is one leg of a three-call flow gets emitted as a standalone command pointing at a retired path. The MCP code-orchestration table needs the same notion, otherwise a hand-fixed CLI command and an unfixable MCP descriptor drift apart. A narrower fix that would also have caught this: flag spec endpoints the upstream API has deprecated, rather than emitting them as working commands."
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "search-analytics-dimensions-accepts-bare-list",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260509-053752",
+  "base_printing_press_version": "4.2.0",
+  "summary": "The Search Analytics dimensions flag accepts the documented bare names and comma-separated lists in addition to JSON arrays.",
+  "reason": "The generated help advertised values like QUERY and PAGE, but the command only JSON-decoded the flag, so following help failed before a request could be sent.",
+  "files": [
+    "internal/cli/webmasters_query-search-analytics.go",
+    "internal/cli/webmasters_query-search-analytics_test.go"
+  ],
+  "validated_outcome": "Unit tests exercise --dimensions QUERY and --dimensions '[\"QUERY\",\"PAGE\"]' through dry-run request-body construction without a live API call."
+}

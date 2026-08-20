@@ -1,0 +1,148 @@
+
+=== verify ===
+Runtime Verification: /tmp/axs-pp-cli/axs-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+battery                        read         PASS   PASS     PASS     3/3
+devicetypes                    read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+firmware-check                 read         PASS   PASS     PASS     3/3
+garage                         read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+models                         read         PASS   PASS     PASS     3/3
+notifications                  read         PASS   PASS     PASS     3/3
+products                       read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     FAIL     2/3
+registrations                  read         PASS   PASS     FAIL     2/3
+search                         data-layer   PASS   PASS     PASS     3/3
+shifts                         read         PASS   PASS     PASS     3/3
+since                          read         PASS   PASS     FAIL     2/3
+stats                          read         PASS   PASS     FAIL     2/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+units                          read         PASS   PASS     PASS     3/3
+wear                           read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (31/31 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+UNSUPPORTED [quickstart]: axs-pp-cli auth login → full-example validation skipped: command is side-effectful (auth/launch/apply)
+DONE: 11 ok, 0 missing, 0 empty-words, 0 failed-examples, 1 unsupported
+
+=== dogfood ===
+dogfood: using spec /tmp/axs-pp-cli/spec.yaml (bundled)
+dogfood: synced README.md (Quick Start) from research.json narrative
+Dogfood Report: axs-pp-cli
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: internal-yaml spec: paths validated at parse time
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 1
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    6/6 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: axs-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== axs ===
+  ✘ 0 error(s), 2 likely false-positive(s)
+    [positional-args] axs-pp-cli registrations: got 1 positional args; Use: "registrations" expects 0–0  [likely false positive]
+      evidence: SKILL.md: create
+    [positional-args] axs-pp-cli registrations: got 1 positional args; Use: "registrations" expects 0–0  [likely false positive]
+      evidence: README.md: create
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: axs
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     5/10
+  MCP Token Efficiency 7/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              9/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           7/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           4/5
+  Dead Code               5/5
+
+  Total: 91/100 - Grade A
+  Note: omitted from denominator: mcp_tool_design, mcp_surface_strategy, live_api_verification
+
+Gaps:
+  - MCP: 21 tools (1 public, 20 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         4.51s
+  validate-narrative  PASS    0         164ms
+  dogfood           PASS    0         1.267s
+  workflow-verify   PASS    0         12ms
+  verify-skill      PASS    0         889ms
+  scorecard         PASS    0         192ms
+
+Verdict: PASS (6/6 legs passed)

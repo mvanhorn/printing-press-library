@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "state-predicates-resolve-through-one-declarable-group",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Every workflow-state predicate in this CLI resolves through one user-declarable group registry, and a project-level calculation resolves it at the project's own team scope.",
+  "reason": "Linear lets a workspace name its own workflow states, so a hardcoded state comparison is wrong for any team that ships out of a custom column, and a team may redeclare a group that the workspace already defines. Reintroducing per-command state literals silently returns wrong open counts, velocity and landing dates; resolving a project's group at workspace scope silently ignores that project's team override.",
+  "files": [
+    "internal/groups/groups.go",
+    "internal/groups/defaults.toml",
+    "internal/cli/groups_cmd.go",
+    "internal/cli/issues.go",
+    "internal/cli/blocking.go",
+    "internal/cli/bottleneck.go",
+    "internal/cli/slipped.go",
+    "internal/cli/today.go",
+    "internal/cli/cycles_compare.go",
+    "internal/cli/projects_burndown.go",
+    "internal/cli/milestones_at_risk.go"
+  ],
+  "validated_outcome": "A group declared under [team_state_groups.<KEY>] governs that team's issue listings and its projects' burndown and at-risk arithmetic, while a project spanning several teams falls back to the workspace declaration."
+}

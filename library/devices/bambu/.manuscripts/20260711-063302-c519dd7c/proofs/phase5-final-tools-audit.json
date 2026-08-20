@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "missing-read-only",
+    "command": "health",
+    "file": "bambu_commands.go",
+    "line": 387,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "teach.go",
+    "line": 692,
+    "evidence": "List recorded learnings"
+  }
+]

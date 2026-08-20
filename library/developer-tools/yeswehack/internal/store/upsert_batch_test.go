@@ -257,3 +257,97 @@ func TestUpsertBatch_ExtractFailuresReturnedForPerItemMisses(t *testing.T) {
 		t.Fatalf("extractFailures = %d, want 2 (two items have no extractable PK)", extractFailures)
 	}
 }
+
+func TestUpsertBatch_HacktivitySyntheticID(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	item := json.RawMessage(`{
+		"date": "2026-07-06",
+		"status": "accepted",
+		"bug_type": {"name": "Insecure Direct Object Reference (IDOR) (CWE-639)", "slug": "insecure-direct-object-reference-idor-cwe-639"},
+		"hunter": {"username": "hunter-one", "slug": "hunter-one"},
+		"program": {"slug": "example-program"}
+	}`)
+	stored, extractFailures, err := s.UpsertBatch("hacktivity", []json.RawMessage{item})
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 1 {
+		t.Fatalf("stored = %d, want 1", stored)
+	}
+	if extractFailures != 0 {
+		t.Fatalf("extractFailures = %d, want 0", extractFailures)
+	}
+
+	stored, extractFailures, err = s.UpsertBatch("hacktivity", []json.RawMessage{item})
+	if err != nil {
+		t.Fatalf("second UpsertBatch: %v", err)
+	}
+	if stored != 1 {
+		t.Fatalf("second stored = %d, want 1", stored)
+	}
+	if extractFailures != 0 {
+		t.Fatalf("second extractFailures = %d, want 0", extractFailures)
+	}
+
+	db := s.DB()
+	var total int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = 'hacktivity'`).Scan(&total); err != nil {
+		t.Fatalf("count hacktivity: %v", err)
+	}
+	if total != 1 {
+		t.Fatalf("hacktivity rows = %d, want 1 (synthetic ID should be deterministic)", total)
+	}
+}
+
+func TestUpsertBatch_HacktivitySyntheticIDUsesFullRow(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{
+			"date": "2026-07-06",
+			"status": "accepted",
+			"bug_type": {"name": "Cross-Site Scripting (CWE-79)", "slug": "cross-site-scripting-cwe-79"},
+			"hunter": {"username": "hunter-one", "slug": "hunter-one"},
+			"program": {"slug": "example-program"},
+			"bounty": 100
+		}`),
+		json.RawMessage(`{
+			"date": "2026-07-06",
+			"status": "accepted",
+			"bug_type": {"name": "Cross-Site Scripting (CWE-79)", "slug": "cross-site-scripting-cwe-79"},
+			"hunter": {"username": "hunter-one", "slug": "hunter-one"},
+			"program": {"slug": "example-program"},
+			"bounty": 200
+		}`),
+	}
+
+	stored, extractFailures, err := s.UpsertBatch("hacktivity", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 2 {
+		t.Fatalf("stored = %d, want 2", stored)
+	}
+	if extractFailures != 0 {
+		t.Fatalf("extractFailures = %d, want 0", extractFailures)
+	}
+
+	var total int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = 'hacktivity'`).Scan(&total); err != nil {
+		t.Fatalf("count hacktivity: %v", err)
+	}
+	if total != 2 {
+		t.Fatalf("hacktivity rows = %d, want 2 distinct rows", total)
+	}
+}

@@ -1,0 +1,103 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-16T11:22:55.649963Z",
+  "printing_press_version": "4.28.0",
+  "api_name": "peerspace",
+  "cli_name": "peerspace-pp-cli",
+  "creator": {
+    "handle": "nspage",
+    "name": "nspage"
+  },
+  "printer": "nspage",
+  "printer_name": "nspage",
+  "spec_path": "peerspace-browser-sniff-spec.yaml",
+  "run_id": "20260716-123216-7a9be8d4",
+  "category": "travel",
+  "novel_features": [
+    {
+      "name": "Budget scout",
+      "command": "scout budget",
+      "description": "Band market listings by hourly/day rate so you can see what a city+activity actually costs."
+    },
+    {
+      "name": "Capacity bands",
+      "command": "scout capacity",
+      "description": "Histogram of guest capacity for a synced market so you can re-cut when headcount changes."
+    },
+    {
+      "name": "Shortlist compare",
+      "command": "shortlist compare",
+      "description": "Join your favorites board to listing attributes for a sortable offline comparison table."
+    },
+    {
+      "name": "Create favorite board",
+      "command": "shortlist create-board",
+      "description": "Create a Peerspace favorite board and attach a listing via POST /v1/projects/attachments (cookie auth)."
+    },
+    {
+      "name": "Favorite a space",
+      "command": "shortlist add",
+      "description": "Attach a listing id to an existing favorite board via POST /v1/projects/attachments (cookie auth)."
+    },
+    {
+      "name": "Multi-city market pulse",
+      "command": "markets pulse",
+      "description": "Cross-city rollup of median price, listing density, instant-book share, and capacity quantiles."
+    },
+    {
+      "name": "Shortlist delta",
+      "command": "shortlist delta",
+      "description": "Show favorites added, removed, or changed since the last sync snapshot."
+    },
+    {
+      "name": "Neighborhood market cut",
+      "command": "markets neighborhoods",
+      "description": "Per-neighborhood listing stats plus optional --vibe tech keyword signals from descriptions (WiFi, projector, transit) and a built-in tech-cluster map."
+    },
+    {
+      "name": "Similar-to-shortlist",
+      "command": "shortlist similar",
+      "description": "Find local listings near a favorite on capacity, price, and neighborhood."
+    },
+    {
+      "name": "Project scout pack",
+      "command": "projects scout",
+      "description": "Combine project location metadata with fitting listings from the local store."
+    },
+    {
+      "name": "Sync coverage",
+      "command": "sync coverage",
+      "description": "Report which market query keys are present, row counts, and last-synced times."
+    },
+    {
+      "name": "Coordination pulse",
+      "command": "pulse",
+      "description": "One cookie-auth shot: message thread count, favorites summary, profile identity, and optional recent shortlist activity."
+    },
+    {
+      "name": "Venue fit recommender",
+      "command": "venues recommend",
+      "description": "Rank synced venues for tech meetups/workshops by headcount, date window, budget, and vibe keywords."
+    },
+    {
+      "name": "Shortlist proposal bridge",
+      "command": "shortlist export",
+      "description": "Export favorites as clean JSON plus a markdown block (price, capacity, amenities, fit notes) for Eventbrite/Luma/Slack."
+    },
+    {
+      "name": "Shortlist venue drift",
+      "command": "shortlist drift",
+      "description": "Track price and availability-field changes on favorites over time (Luma-style watch)."
+    },
+    {
+      "name": "Amenity gap analysis",
+      "command": "scout gaps",
+      "description": "Surface missing tech-event must-haves (WiFi, AV/projector, late access, flexible seating, transit) on any shortlist."
+    },
+    {
+      "name": "Multi-city campaign scout",
+      "command": "scout multi-city",
+      "description": "Cross-city comparison with top venue options per city under shared tech-event constraints."
+    }
+  ]
+}

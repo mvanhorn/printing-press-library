@@ -32,6 +32,28 @@ func TestRankWhich_ExactTokenMatchWins(t *testing.T) {
 	}
 }
 
+func TestRankWhich_ExactTokenBeatsIncidentalDescriptionMatch(t *testing.T) {
+	index := []whichEntry{
+		{Command: "refresh", Description: "Sync local resources"},
+		{Command: "sync", Description: "Refresh local resources"},
+	}
+	got := rankWhich(index, "sync", 1)
+	if len(got) == 0 || got[0].Entry.Command != "sync" {
+		t.Fatalf("exact command token should beat a description-only match, got %+v", got)
+	}
+}
+
+func TestRankWhich_SingleTokenDoesNotReceivePhraseAliasBoost(t *testing.T) {
+	index := []whichEntry{
+		{Command: "comments add", SearchTerms: "create comment"},
+		{Command: "issues create", Description: "Create an issue"},
+	}
+	got := rankWhich(index, "create", 1)
+	if len(got) == 0 || got[0].Entry.Command != "issues create" {
+		t.Fatalf("exact command token should beat a phrase alias on a bare verb, got %+v", got)
+	}
+}
+
 // Happy path: a query matching the description wins when the command
 // itself does not contain the query tokens.
 func TestRankWhich_DescriptionMatch(t *testing.T) {
@@ -131,5 +153,23 @@ func TestWhichIndex_RoutesPortfolioInventoryQueries(t *testing.T) {
 	got = rankWhich(whichIndex, "list all initiatives", 1)
 	if len(got) == 0 || got[0].Entry.Command != "initiatives list" {
 		t.Fatalf("initiative inventory query should route to initiatives list, got %+v", got)
+	}
+}
+
+func TestWhichIndex_RoutesConventionalReadAndCommentQueries(t *testing.T) {
+	tests := []struct {
+		query string
+		want  string
+	}{
+		{query: "create comment", want: "comments add"},
+		{query: "create a comment from a markdown file", want: "comments add"},
+		{query: "get issue by identifier", want: "issues <ID>"},
+		{query: "view document by slug", want: "documents <document-ref>"},
+	}
+	for _, tt := range tests {
+		got := rankWhich(whichIndex, tt.query, 1)
+		if len(got) == 0 || got[0].Entry.Command != tt.want {
+			t.Errorf("query %q should route to %q, got %+v", tt.query, tt.want, got)
+		}
 	}
 }

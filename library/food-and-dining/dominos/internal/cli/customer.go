@@ -15,5 +15,6 @@ func newCustomerCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newCustomerLoyaltyCmd(flags))
 	cmd.AddCommand(newCustomerOrdersCmd(flags))
+	cmd.AddCommand(newCustomerCardsCmd(flags))
 	return cmd
 }

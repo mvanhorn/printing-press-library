@@ -23,7 +23,7 @@ export AIR_QUALITY_AIRNOW_API_KEY="..."
 
 If a key is missing, auth-gated commands return structured setup guidance instead of fake data.
 
-For direct Go installation, use Go 1.26.4 or newer when Go toolchain auto-download is disabled.
+For direct Go installation, use Go 1.26.5 or newer when Go toolchain auto-download is disabled.
 
 ## Commands
 

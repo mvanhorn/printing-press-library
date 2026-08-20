@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "placeit-catalog-readonly-warn",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260616-010520-922cfd05",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Open the local mirror read-only (store.OpenReadOnly) for the read-only analytics commands, and warn on stderr when loadCatalog materializes a very large row set.",
+  "reason": "Analytics commands (top, rank, gaps, pod, kit) never write, so a read-write open needlessly runs migrations and takes the WAL write lock; read-only also rejects writes at the driver level. The stderr note makes the memory cost of an unusually large mirror visible without polluting stdout/--json (Greptile P2 on catalog.go).",
+  "files": ["internal/cli/catalog.go"],
+  "validated_outcome": "go build ./... and go vet ./... pass; live dogfood gate re-run green."
+}

@@ -1,0 +1,66 @@
+ShareThing:
+  post:
+    tags:
+      - Message
+    summary: Create a new message to share a thing
+    security:
+      - BearerAuth: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - to_user
+              - subject
+              - body
+            properties:
+              to_user:
+                description: Set the username to whom the message will be sent.
+                type: string
+                example: Thingiverse
+              subject:
+                description: Set the subject of message
+                type: string
+                example: Message Subject
+              body:
+                description: The contents of the message
+                type: string
+                example: The actual message
+    responses:
+      '200':
+        description: The id of newly created message
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    minimum: 0
+                    format: int
+                  is_read:
+                    type: integer
+                    minimum: 0
+                    maximum: 1
+                    example: 0
+                  subject:
+                    type: string
+                    example: Message Subject
+                  user:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Thingiverse"
+                      thumbnail:
+                        type: string
+
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+      '400':
+        $ref : "../responses/badrequest.yaml"

@@ -1,0 +1,119 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-11T05:10:49.172427Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "bonusly",
+  "display_name": "Bonusly",
+  "cli_name": "bonusly-pp-cli",
+  "creator": {
+    "handle": "enlewof",
+    "name": "Allen Lew"
+  },
+  "owner": "enlewof",
+  "printer": "enlewof",
+  "printer_name": "Allen Lew",
+  "spec_path": "bonusly-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:523cf712fe7aad8fbc487ef3bdf65da779d1bacb4bafa21a1b03737c70b0782c",
+  "run_id": "20260810-153232-4e95f81e",
+  "category": "productivity",
+  "description": "The recognition analytics Bonusly reserves for admins -- rebuilt from data any employee can already read.",
+  "mcp_binary": "bonusly-pp-mcp",
+  "mcp_tool_count": 26,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Recognition Budget Audit",
+      "command": "recognition audit",
+      "description": "See whether your team's recognition spend is on pace with its monthly budget, broken down by department -- the report Bonusly normally reserves for admins."
+    },
+    {
+      "name": "Personal Recognition Search",
+      "command": "recognition search-mine",
+      "description": "Search your own given and received recognition offline, without scrolling the public company feed. Requires one live lookup to confirm your identity (no local fallback); not yet verified against a real API response in this build."
+    },
+    {
+      "name": "Points Burn-Rate Forecast",
+      "command": "balance history",
+      "description": "Track your giving-allowance burn rate over time and see forfeiture coming before the monthly reset, not after."
+    },
+    {
+      "name": "Neglected-Teammate Finder",
+      "command": "recognition gap",
+      "description": "Find direct reports you haven't recognized recently, without an admin's Participation Report. Requires a live lookup to resolve your manager identity and direct reports (no local fallback); not yet verified against a real API response in this build."
+    },
+    {
+      "name": "Company Values Trend Audit",
+      "command": "recognition values",
+      "description": "See which company-value hashtags are actually trending in a department, instead of manually tallying the feed."
+    },
+    {
+      "name": "Redemption Spend Forecast",
+      "command": "redemptions forecast",
+      "description": "Project your reward-redemption spend from your own history -- a simple trend line, not a black box."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Recognition Budget Audit",
+      "command": "recognition audit",
+      "description": "See whether your team's recognition spend is on pace with its monthly budget, broken down by department -- the report Bonusly normally reserves for admins."
+    },
+    {
+      "name": "Personal Recognition Search",
+      "command": "recognition search-mine",
+      "description": "Search your own given and received recognition offline, without scrolling the public company feed. Requires one live lookup to confirm your identity (no local fallback); not yet verified against a real API response in this build."
+    },
+    {
+      "name": "Points Burn-Rate Forecast",
+      "command": "balance history",
+      "description": "Track your giving-allowance burn rate over time and see forfeiture coming before the monthly reset, not after."
+    },
+    {
+      "name": "Neglected-Teammate Finder",
+      "command": "recognition gap",
+      "description": "Find direct reports you haven't recognized recently, without an admin's Participation Report. Requires a live lookup to resolve your manager identity and direct reports (no local fallback); not yet verified against a real API response in this build."
+    },
+    {
+      "name": "Company Values Trend Audit",
+      "command": "recognition values",
+      "description": "See which company-value hashtags are actually trending in a department, instead of manually tallying the feed."
+    },
+    {
+      "name": "Redemption Spend Forecast",
+      "command": "redemptions forecast",
+      "description": "Project your reward-redemption spend from your own history -- a simple trend line, not a black box."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 61,
+    "total": 61,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 94,
+      "grade": "A (1 of 26 dimensions unverified: live_api_verification)",
+      "total": 94
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

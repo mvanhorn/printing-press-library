@@ -1,0 +1,56 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+  name:
+    type: string
+  url:
+    type: string
+  public_url:
+    type: string
+  created_at:
+    type: string
+    format: date-time
+  thumbnail:
+    type: string
+  preview_image:
+    type: string
+  creator:
+    $ref: './user_summary_schema.yaml'
+  is_private:
+    type: integer
+    minimum: 0
+    maximum: 1
+  is_purchased:
+    type: integer
+    minimum: 0
+    maximum: 1
+  is_published:
+    type: integer
+    minimum: 0
+    maximum: 1
+  like_count:
+    type: integer
+    format: int
+  collect_count:
+    type: integer
+    format: int
+  make_count:
+    type: integer
+    format: int
+  comment_count:
+    type: integer
+    format: int
+  tags:
+    type: array
+    items:
+      $ref: './tag_schema.yaml'
+  is_nsfw:
+    type: boolean
+    example: false
+    nullable: true
+  rank:
+    type: integer
+    format: int
+    nullable: true

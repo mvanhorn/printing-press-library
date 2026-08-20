@@ -29,10 +29,12 @@ func newTreasuryGetOutboundTransfersOutboundTransferCmd(flags *rootFlags) *cobra
 			}
 
 			path := "/v1/treasury/outbound_transfers/{outbound_transfer}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("outbound_transfer is required\nUsage: %s <%s>", cmd.CommandPath(), "outbound_transfer"))
 			}
-			path = replacePathParam(path, "outbound_transfer", args[1])
+			path = replacePathParam(path, "outbound_transfer", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

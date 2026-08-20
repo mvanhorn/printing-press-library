@@ -30,10 +30,12 @@ func newSourcesGetCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/sources/{source}"
-			if len(args) < 3 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("source is required\nUsage: %s <%s>", cmd.CommandPath(), "source"))
 			}
-			path = replacePathParam(path, "source", args[2])
+			path = replacePathParam(path, "source", args[0])
 			params := map[string]string{}
 			if flagClientSecret != "" {
 				params["client_secret"] = fmt.Sprintf("%v", flagClientSecret)

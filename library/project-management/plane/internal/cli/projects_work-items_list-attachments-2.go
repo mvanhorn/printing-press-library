@@ -15,30 +15,44 @@ func newProjectsWorkItemsListAttachments2Cmd(flags *rootFlags) *cobra.Command {
 	var flagUpdatedAtGt string
 
 	cmd := &cobra.Command{
-		Use:         "list-attachments-2 <issue_id> <project_id>",
+		Use:         "list-attachments-2 <project_id> <issue_id>",
 		Short:       "Retrieve all attachments for a work item.",
 		Example:     "  plane-pp-cli projects work-items list-attachments-2 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "work-items.list-attachments-2", "pp:method": "GET", "pp:path": "/projects/{project_id}/work-items/{issue_id}/attachments/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <project_id> <issue_id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <project_id> <issue_id>"))
 			}
+			path := "/projects/{project_id}/work-items/{issue_id}/attachments/"
+			if len(args) < 2 || args[1] == "" {
+				return usageErr(fmt.Errorf("issue_id is required\nUsage: %s <%s>", cmd.CommandPath(), "issue_id"))
+			}
+			path = replacePathParam(path, "issue_id", args[1])
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
+			}
+			path = replacePathParam(path, "project_id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/projects/{project_id}/work-items/{issue_id}/attachments/"
-			path = replacePathParam(path, "issue_id", args[0])
-			if len(args) < 2 {
-				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
-			}
-			path = replacePathParam(path, "project_id", args[1])
 			params := map[string]string{}
 			if flagUpdatedAtGt != "" {
-				params["updated_at__gt"] = fmt.Sprintf("%v", flagUpdatedAtGt)
+				params["updated_at__gt"] = formatCLIParamValue(flagUpdatedAtGt)
 			}
-			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "work-items", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "live", "work-items", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -83,7 +97,7 @@ func newProjectsWorkItemsListAttachments2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagUpdatedAtGt, "updated-at-gt", "", "Incremental filter — return items updated after this RFC3339 timestamp.")

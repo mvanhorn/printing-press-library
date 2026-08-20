@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "shodhganga-pp-mcp",
+  "display_name": "Shodhganga",
+  "version": "0.1.0",
+  "description": "Structured, scriptable, agent-native access to India's national reservoir of PhD theses — the machine API Shodhganga never shipped.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/shodhganga-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/shodhganga-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

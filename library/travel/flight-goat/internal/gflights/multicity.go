@@ -57,7 +57,10 @@ import (
 // given segments. Open this URL in a browser to see results (Google's UI
 // handles authentication and POSTs the actual search from the user's session).
 // Returns an error if segments are missing required fields.
-func MultiCityBookingURL(segments []Segment) (string, error) {
+// PATCH(review-2026-07-31): currencyCode propagates the searched --currency
+// into the deeplink (curr=), matching the single-pair booking URL builder;
+// empty or invalid values fall back to USD.
+func MultiCityBookingURL(segments []Segment, currencyCode string) (string, error) {
 	if len(segments) < 2 {
 		return "", fmt.Errorf("multi-city requires >= 2 segments; got %d", len(segments))
 	}
@@ -73,8 +76,9 @@ func MultiCityBookingURL(segments []Segment) (string, error) {
 	tfs := base64.RawURLEncoding.EncodeToString(raw)
 	tfu := "KgIIAw" // protobuf bytes: field 5 length-delim with {field 1 varint = 3} → trip_type=3 marker
 	return "https://www.google.com/travel/flights?" + url.Values{
-		"tfs": {tfs},
-		"tfu": {tfu},
+		"tfs":  {tfs},
+		"tfu":  {tfu},
+		"curr": {bookingCurrency(currencyCode)},
 	}.Encode(), nil
 }
 

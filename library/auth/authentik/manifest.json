@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "authentik-pp-mcp",
+  "display_name": "authentik",
+  "version": "4.12.0",
+  "description": "Agent-native admin CLI for authentik identity provider with offline SQLite cache and an MCP server for Claude Desktop.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/authentik-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/authentik-pp-mcp",
+      "args": [],
+      "env": {
+        "AUTHENTIK_TOKEN": "${user_config.authentik_token}",
+        "AUTHENTIK_BASE_URL": "${user_config.authentik_base_url}"
+      }
+    }
+  },
+  "user_config": {
+    "authentik_token": {
+      "type": "string",
+      "title": "AUTHENTIK_TOKEN",
+      "description": "Sets AUTHENTIK_TOKEN for the authentik MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "authentik_base_url": {
+      "type": "string",
+      "title": "AUTHENTIK_BASE_URL",
+      "description": "Base URL of your authentik instance (e.g. https://authentik.example.com).",
+      "sensitive": false,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

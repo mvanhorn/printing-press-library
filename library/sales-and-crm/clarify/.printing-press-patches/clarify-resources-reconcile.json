@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "clarify-resources-reconcile",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260817-102905-ca271321",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Registers the resources sync target as flat-reconcilable partitioned by json_extract($.type), with the partition scope resolved from --path-context object=<type> or CLARIFY_OBJECT, so a complete full sync prunes upstream-deleted records.",
+  "reason": "Greptile P1 on PR #1747: empty flatReconcileModes left every mirror row non-reconcilable; Clarify has no tenant body column but the resources target is naturally partitioned by object type. Uses the generated resolveTenantID override hook.",
+  "files": ["internal/cli/clarify_reconcile.go"],
+  "validated_outcome": "Live test: phantom local row of type person deleted by sync --full reconcile (event reconcile deleted=1, scope person); 50 real person rows untouched; unknown scope safely skips."
+}

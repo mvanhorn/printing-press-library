@@ -55,12 +55,21 @@ resolve the title. Use --available to flag rows streamable on a provider.`,
 func newWatchlistAddCmd(flags *rootFlags) *cobra.Command {
 	var flagKind string
 	var flagDB string
+	var flagYear string
 	cmd := &cobra.Command{
 		Use:         "add <id-or-title>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:       "Resolve a title or id and add it to the local watchlist",
+		Long: `Resolve a title or TMDb id and add it to the local SQLite watchlist.
+
+A shared title resolves to whichever entry TMDb's search ranked first, which is
+not always the canonical edition; the alternatives are listed on stderr and
+recorded under meta.ambiguous in the JSON. Pin the one you meant with --year, a
+"Title (YYYY)" suffix, or the TMDb id — the watchlist stores the id, so an
+unnoticed mismatch is sticky.`,
 		Example: `  movie-goat-pp-cli watchlist add 27205 --kind movie
   movie-goat-pp-cli watchlist add "Inception"
+  movie-goat-pp-cli watchlist add "Sabrina" --year 1954
   movie-goat-pp-cli watchlist add 1396 --kind tv`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -81,11 +90,16 @@ func newWatchlistAddCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			query := strings.Join(args, " ")
+			// PATCH(title-resolution-must-signal-ambiguity)
+			year, yerr := validateYearFlag(flagYear)
+			if yerr != nil {
+				return yerr
+			}
 			var id int
 			var title string
 			switch kind {
 			case "movie":
-				id, _, err = resolveMovieID(c, query)
+				id, _, err = resolveMovieID(c, flags, query, year, "--year")
 				if err != nil {
 					return classifyAPIError(err)
 				}
@@ -95,7 +109,7 @@ func newWatchlistAddCmd(flags *rootFlags) *cobra.Command {
 				}
 				title = detail.Title
 			case "tv":
-				id, _, err = resolveTVID(c, query)
+				id, _, err = resolveTVID(c, flags, query, year, "--year")
 				if err != nil {
 					return classifyAPIError(err)
 				}
@@ -131,6 +145,8 @@ func newWatchlistAddCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKind, "kind", "movie", "Kind: movie | tv")
 	cmd.Flags().StringVar(&flagDB, "db", "", "Override SQLite path (defaults to the CLI's standard location)")
+	// PATCH(title-resolution-must-signal-ambiguity)
+	cmd.Flags().StringVar(&flagYear, "year", "", "Release year (movies) or first-air year (tv) used to disambiguate a shared title")
 	return cmd
 }
 

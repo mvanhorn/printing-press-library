@@ -690,6 +690,7 @@ paths:
       - oauth_2_0: []
   /search:
     get:
+      x-pp-resource: spotify-web-search
       tags:
       - Search
       operationId: search

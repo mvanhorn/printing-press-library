@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "audit-logs-needs-an-enterprise-workspace-token-not-oauth",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "The workspace audit-logs endpoint is reachable only with an Enterprise workspace token carrying workspace_activity:read; that scope is absent from the spec's OAuth2 vocabulary, so no OAuth login can ever reach it and the command's help must say so.",
+  "reason": "The spec's per-operation security block names workspace_activity:read, but securitySchemes.OAuth2 never declares it, so the generated authorize URL cannot request it and a site or OAuth token 403s here regardless of scopes. The generated Short ('Get audit logs for a workspace.') gave a user no way to tell this apart from an ordinary missing-scope error. A regen must re-check whether Webflow has added workspace_activity:read to the published OAuth2 scope list before dropping this disclosure.",
+  "files": [
+    "internal/cli/workspaces_audit-logs_get-workspace.go"
+  ],
+  "validated_outcome": "",
+  "upstream_issue": ""
+}

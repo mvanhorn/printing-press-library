@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "greenhouse-teach-examples-runnable",
+  "applied_at": "2026-08-07",
+  "base_run_id": "greenhouse-job-board-2026-07-19",
+  "base_printing_press_version": "4.0.x",
+  "summary": "Same template fix as lever 008: teach and teach-pattern examples converted to single-line runnable commands; teach JSON envelope no longer gated behind --quiet. Adds .manuscripts/<run-id>/research/research.json synthesized from the manifest's novel_features.",
+  "reason": "Publish live gate teach-family failures (placeholder examples, quiet-gated JSON envelope); research.json needed by the dogfood matrix for novel-feature validation.",
+  "files": [
+    "internal/cli/teach.go",
+    ".manuscripts/greenhouse-job-board-2026-07-19/research/research.json"
+  ],
+  "validated_outcome": "Live dogfood gate PASS (80 tests, 0 failed, 49 skipped); publish validate all 11 checks PASS.",
+  "upstream_issue": "See lever 008 upstream_issue (shared template defect)."
+}

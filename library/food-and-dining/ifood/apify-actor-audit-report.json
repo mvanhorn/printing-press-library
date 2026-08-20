@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/ifood-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260814-042201-817ea5ed",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

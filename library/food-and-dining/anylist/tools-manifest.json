@@ -162,7 +162,7 @@
     },
     {
       "name": "items_add",
-      "description": "Add an item to a shopping list. Required: list, item. Optional: quantity, notes, category. Returns the new ListItem.",
+      "description": "Add an item to a shopping list. Required: list, item. Optional: quantity, notes, category, barcode, package size, and price metadata. Returns the new ListItem.",
       "method": "POST",
       "path": "/data/shopping-lists/update",
       "params": [
@@ -199,6 +199,41 @@
           "type": "string",
           "location": "body",
           "description": "Category to assign"
+        },
+        {
+          "name": "barcode",
+          "wire_name": "product_upc",
+          "type": "string",
+          "location": "body",
+          "description": "UPC/EAN barcode to associate with the item"
+        },
+        {
+          "name": "package_size",
+          "wire_name": "package_size",
+          "type": "string",
+          "location": "body",
+          "description": "Package-size text, such as '12 count, 12 fl oz'"
+        },
+        {
+          "name": "price",
+          "wire_name": "price",
+          "type": "number",
+          "location": "body",
+          "description": "Price metadata to attach to the item"
+        },
+        {
+          "name": "price_store",
+          "wire_name": "price_store",
+          "type": "string",
+          "location": "body",
+          "description": "Store name for the price metadata"
+        },
+        {
+          "name": "price_details",
+          "wire_name": "price_details",
+          "type": "string",
+          "location": "body",
+          "description": "Optional price note or package detail"
         }
       ]
     },
@@ -281,6 +316,21 @@
       ]
     },
     {
+      "name": "items_lookup",
+      "description": "Look up a packaged product by UPC/EAN in AnyList's product catalog. Required: barcode. Returns canonical name, package size, and catalog thumbnail when available.",
+      "method": "GET",
+      "path": "/data/product-lookup/{barcode}",
+      "params": [
+        {
+          "name": "barcode",
+          "type": "string",
+          "location": "path",
+          "description": "UPC/EAN barcode",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "items_remove",
       "description": "Remove an item from a shopping list. Required: list, item. Optional: all (default: false). Returns the new OperationResult.",
       "method": "POST",
@@ -357,7 +407,7 @@
     },
     {
       "name": "items_update",
-      "description": "Update an existing item's quantity, notes, or category. Required: list, item. Optional: quantity, notes, category. Returns the new ListItem.",
+      "description": "Update an existing item's quantity, notes, category, or barcode. Required: list, item. Optional: quantity, notes, category, barcode. Returns the new ListItem.",
       "method": "POST",
       "path": "/data/shopping-lists/update",
       "params": [
@@ -394,6 +444,13 @@
           "type": "string",
           "location": "body",
           "description": "New category"
+        },
+        {
+          "name": "barcode",
+          "wire_name": "product_upc",
+          "type": "string",
+          "location": "body",
+          "description": "New UPC/EAN barcode"
         }
       ]
     },

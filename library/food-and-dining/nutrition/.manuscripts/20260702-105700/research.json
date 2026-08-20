@@ -1,0 +1,321 @@
+{
+  "api_name": "nutrition",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "cyanheads/usda-mcp-server",
+      "url": "https://github.com/cyanheads/usda-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "razvannicolae/Food-Facts-MCP",
+      "url": "https://github.com/razvannicolae/Food-Facts-MCP",
+      "language": "Python",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "SciRustaceans/caltui",
+      "url": "https://github.com/SciRustaceans/caltui",
+      "language": "Go",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "daveremy/nutrition-mcp",
+      "url": "https://github.com/daveremy/nutrition-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aquilax/hranoprovod-cli",
+      "url": "https://github.com/aquilax/hranoprovod-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 11,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "FergusFettes/food-cli",
+      "url": "https://github.com/FergusFettes/food-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "littlebunch/fdc-api",
+      "url": "https://github.com/littlebunch/fdc-api",
+      "language": "Go",
+      "install_method": "",
+      "stars": 18,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "DeepSpaceCartel/fooddata-central-client-go",
+      "url": "https://github.com/DeepSpaceCartel/fooddata-central-client-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-02T18:00:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-source enrichment overlay",
+      "command": "enrich",
+      "description": "Merge NutritionValue.org's derived analytics (net carbs and omega-6/omega-3 ratio) onto a USDA food record by its shared FDC id.",
+      "rationale": "NutritionValue.org's IDs are USDA FDC IDs, so the join is exact; NV computes net carbs and the omega-6/omega-3 ratio the USDA API never exposes, and this is the only tool that surfaces them programmatically.",
+      "example": "nutrition-pp-cli enrich 173414 --agent",
+      "why_it_matters": "Reach for this when a user wants net carbs or the omega-6/omega-3 ratio - numbers no USDA API call returns.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Nutrient ranking",
+      "command": "rank",
+      "description": "Top or bottom foods by any single nutrient, filterable by category and dataset, ingested from NutritionValue.org's precomputed ranking pages.",
+      "rationale": "NutritionValue.org precomputes highest/lowest rankings for ~60 nutrients; no scriptable tool exposes them and the USDA API cannot rank across the database cheaply.",
+      "example": "nutrition-pp-cli rank potassium --order lowest --agent",
+      "why_it_matters": "Reach for this to answer 'which foods are highest/lowest in nutrient X' without paging the whole database yourself.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Common-basis comparison",
+      "command": "compare",
+      "description": "Compare 2-5 foods side by side on a common basis: per 100 g, per serving, or per 100 kcal (protein density).",
+      "rationale": "Requires a batch fetch plus local per-basis math; per-100kcal protein density is offered by no existing nutrition CLI.",
+      "example": "nutrition-pp-cli compare 2646170 173414 747447 --basis 100kcal --agent",
+      "why_it_matters": "Reach for this to rank foods by protein density or compare macros fairly across different serving sizes.",
+      "group": "Local math no API does"
+    },
+    {
+      "name": "Compound nutrient filters",
+      "command": "find",
+      "description": "Find foods that satisfy multiple nutrient thresholds at once (e.g. protein \u003e= 20 g AND kcal \u003c= 165 per 100 g).",
+      "rationale": "The USDA API filters on one sort field; multi-condition thresholds require local filtering of nutrient arrays plus the synced store.",
+      "example": "nutrition-pp-cli find --min protein=20 --max-kcal 165 --agent",
+      "why_it_matters": "Reach for this for diet-constrained discovery like high-protein low-calorie foods in one query.",
+      "group": "Local math no API does"
+    },
+    {
+      "name": "Daily intake log with targets",
+      "command": "log",
+      "description": "A persistent daily food diary with macro/micro targets, backed by local SQLite, with today/summary/progress reports.",
+      "rationale": "Stateful aggregation and target tracking live in local SQLite; the USDA API is stateless and has no logging surface.",
+      "example": "nutrition-pp-cli log progress --agent",
+      "why_it_matters": "Reach for this to record what a user ate and report progress against daily targets - a Claude-loggable tracker.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Meal aggregation",
+      "command": "meal",
+      "description": "Total nutrition across several foods at given quantities in one stateless call (id:quantity pairs).",
+      "rationale": "Summing scaled nutrition across N foods requires batch fetch plus portion math; no USDA endpoint aggregates foods.",
+      "example": "nutrition-pp-cli meal 173414:50g 1105314:120g --agent",
+      "why_it_matters": "Reach for this to get the nutrition of a recipe or plate without recording it in the diary.",
+      "group": "Local math no API does"
+    },
+    {
+      "name": "Citation output",
+      "command": "cite",
+      "description": "Emit an APA or MLA citation for a USDA food record so agent output is verifiable and traceable to a real fdcId.",
+      "rationale": "Formats real USDA record metadata locally; provenance-grade citations are a requirement for agents and no CLI offers them.",
+      "example": "nutrition-pp-cli cite 173414 --style apa",
+      "why_it_matters": "Reach for this when a user needs a citable source for a nutrition figure in a report or agent answer.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-source enrichment overlay",
+      "command": "enrich",
+      "description": "Merge NutritionValue.org's derived analytics (net carbs and omega-6/omega-3 ratio) onto a USDA food record by its shared FDC id.",
+      "rationale": "NutritionValue.org's IDs are USDA FDC IDs, so the join is exact; NV computes net carbs and the omega-6/omega-3 ratio the USDA API never exposes, and this is the only tool that surfaces them programmatically.",
+      "example": "nutrition-pp-cli enrich 173414 --agent",
+      "why_it_matters": "Reach for this when a user wants net carbs or the omega-6/omega-3 ratio - numbers no USDA API call returns.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Nutrient ranking",
+      "command": "rank",
+      "description": "Top or bottom foods by any single nutrient, filterable by category and dataset, ingested from NutritionValue.org's precomputed ranking pages.",
+      "rationale": "NutritionValue.org precomputes highest/lowest rankings for ~60 nutrients; no scriptable tool exposes them and the USDA API cannot rank across the database cheaply.",
+      "example": "nutrition-pp-cli rank potassium --order lowest --agent",
+      "why_it_matters": "Reach for this to answer 'which foods are highest/lowest in nutrient X' without paging the whole database yourself.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Common-basis comparison",
+      "command": "compare",
+      "description": "Compare 2-5 foods side by side on a common basis: per 100 g, per serving, or per 100 kcal (protein density).",
+      "rationale": "Requires a batch fetch plus local per-basis math; per-100kcal protein density is offered by no existing nutrition CLI.",
+      "example": "nutrition-pp-cli compare 2646170 173414 747447 --basis 100kcal --agent",
+      "why_it_matters": "Reach for this to rank foods by protein density or compare macros fairly across different serving sizes.",
+      "group": "Local math no API does"
+    },
+    {
+      "name": "Compound nutrient filters",
+      "command": "find",
+      "description": "Find foods that satisfy multiple nutrient thresholds at once (e.g. protein \u003e= 20 g AND kcal \u003c= 165 per 100 g).",
+      "rationale": "The USDA API filters on one sort field; multi-condition thresholds require local filtering of nutrient arrays plus the synced store.",
+      "example": "nutrition-pp-cli find --min protein=20 --max-kcal 165 --agent",
+      "why_it_matters": "Reach for this for diet-constrained discovery like high-protein low-calorie foods in one query.",
+      "group": "Local math no API does"
+    },
+    {
+      "name": "Daily intake log with targets",
+      "command": "log",
+      "description": "A persistent daily food diary with macro/micro targets, backed by local SQLite, with today/summary/progress reports.",
+      "rationale": "Stateful aggregation and target tracking live in local SQLite; the USDA API is stateless and has no logging surface.",
+      "example": "nutrition-pp-cli log progress --agent",
+      "why_it_matters": "Reach for this to record what a user ate and report progress against daily targets - a Claude-loggable tracker.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Meal aggregation",
+      "command": "meal",
+      "description": "Total nutrition across several foods at given quantities in one stateless call (id:quantity pairs).",
+      "rationale": "Summing scaled nutrition across N foods requires batch fetch plus portion math; no USDA endpoint aggregates foods.",
+      "example": "nutrition-pp-cli meal 173414:50g 1105314:120g --agent",
+      "why_it_matters": "Reach for this to get the nutrition of a recipe or plate without recording it in the diary.",
+      "group": "Local math no API does"
+    },
+    {
+      "name": "Citation output",
+      "command": "cite",
+      "description": "Emit an APA or MLA citation for a USDA food record so agent output is verifiable and traceable to a real fdcId.",
+      "rationale": "Formats real USDA record metadata locally; provenance-grade citations are a requirement for agents and no CLI offers them.",
+      "example": "nutrition-pp-cli cite 173414 --style apa",
+      "why_it_matters": "Reach for this when a user needs a citable source for a nutrition figure in a report or agent answer.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "FDC_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Nutrition (USDA FoodData Central + NutritionValue.org)",
+    "headline": "One agent-native CLI over USDA FoodData Central and NutritionValue.org - with cross-source enrichment, protein-density comparison, nutrient ranking, and a local SQLite cache no other nutrition tool ships.",
+    "value_prop": "Look up any food's nutrition from USDA's ~600K-food database, then enrich it with NutritionValue.org's derived analytics (net carbs, omega-6/omega-3 ratio) that the USDA API never exposes. Compare foods on a per-100kcal protein-density basis, rank foods by any nutrient, filter by compound thresholds, and log a daily diary against targets - all offline-cached, cited, and agent-native.",
+    "auth_narrative": "USDA FoodData Central needs a free api.data.gov key. Set FDC_API_KEY (or USDA_API_KEY). Without a key the CLI falls back to USDA's public DEMO_KEY (rate-limited to ~30 requests/hour). NutritionValue.org commands need no key.",
+    "quickstart": [
+      {
+        "command": "nutrition-pp-cli doctor --dry-run",
+        "comment": "Check API key config and reachability before anything else."
+      },
+      {
+        "command": "nutrition-pp-cli foods get-search --query \"cheddar cheese\" --page-size 5",
+        "comment": "Find a food and grab a match's fdcId."
+      },
+      {
+        "command": "nutrition-pp-cli food 173414",
+        "comment": "Full USDA nutrition record for cheddar (fdcId 173414)."
+      },
+      {
+        "command": "nutrition-pp-cli enrich 173414 --agent",
+        "comment": "Add NutritionValue.org derived analytics (net carbs, omega ratio)."
+      },
+      {
+        "command": "nutrition-pp-cli compare 2646170 173414 747447 --basis 100kcal --agent",
+        "comment": "Rank foods by protein density (grams protein per 100 kcal)."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 200 but the body is HTML, or 429 Too Many Requests",
+        "fix": "You are rate-limited. Set a real key: export FDC_API_KEY=\u003cyour-key\u003e (DEMO_KEY allows only ~30/hour)."
+      },
+      {
+        "symptom": "food get returns sparse nutrients for a branded product",
+        "fix": "Branded foods carry label nutrients only; use --data-type Foundation or SR Legacy for a full nutrient profile."
+      },
+      {
+        "symptom": "enrich or rank returns nothing",
+        "fix": "NutritionValue.org data pages need a browser-like request; the CLI handles this, but retry once if the site is briefly slow, and keep requests polite."
+      },
+      {
+        "symptom": "search returns branded junk instead of the generic food",
+        "fix": "Filter with --data-type Foundation,SR%20Legacy to prefer whole-food records."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user needs trustworthy, citable food nutrition data: looking up macros and micros for a food, comparing foods by protein density or on a common basis, ranking foods by a nutrient, finding foods that meet compound dietary thresholds, enriching a USDA record with NutritionValue.org's derived analytics, or logging a daily food diary against targets. It is offline-cached and agent-native, so repeated lookups and aggregations are cheap and the numbers always trace to a real USDA fdcId.",
+    "anti_triggers": [
+      "Do not use this CLI for restaurant chain menu items - USDA and NutritionValue.org do not carry curated restaurant menus (use Nutritionix or CalorieKing).",
+      "Do not use this CLI for glycemic index - neither source provides it.",
+      "Do not use this CLI to place grocery orders or track weight/biometrics - it is a nutrition-facts and diary tool, not a fitness app.",
+      "Do not use this CLI as a medical or clinical nutrition authority - it reports database values, not personalized dietary advice."
+    ],
+    "recipes": [
+      {
+        "title": "Protein density leaderboard",
+        "command": "nutrition-pp-cli compare 2646170 173414 747447 --basis 100kcal --agent --select foods.description,foods.protein_per_100kcal",
+        "explanation": "Compare foods by grams of protein per 100 kcal and pull only the name and density fields."
+      },
+      {
+        "title": "Low-carb shopping list",
+        "command": "nutrition-pp-cli rank carbs --order lowest --limit 15 --agent",
+        "explanation": "Get the 15 lowest-carbohydrate foods from NutritionValue.org's ranking pages."
+      },
+      {
+        "title": "Enrich a food with derived analytics",
+        "command": "nutrition-pp-cli enrich 173414 --agent --select net_carbs_g_per_100g,omega_6_3_ratio",
+        "explanation": "Merge NutritionValue.org's net carbs and omega-6/omega-3 ratio onto a USDA record."
+      },
+      {
+        "title": "Total a meal",
+        "command": "nutrition-pp-cli meal 173414:50g 1105314:120g --agent",
+        "explanation": "Sum nutrition across cheddar and a banana at given gram quantities in one call."
+      },
+      {
+        "title": "Daily progress against targets",
+        "command": "nutrition-pp-cli log progress --agent",
+        "explanation": "Report today's logged intake versus configured macro targets."
+      }
+    ],
+    "trigger_phrases": [
+      "nutrition facts for",
+      "how much protein in",
+      "compare calories of",
+      "net carbs in",
+      "foods highest in",
+      "log what I ate",
+      "use nutrition",
+      "run nutrition-pp-cli"
+    ]
+  }
+}

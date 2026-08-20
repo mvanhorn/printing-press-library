@@ -27,20 +27,19 @@ func newCompaniesRetrieveCompanyCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli companies retrieve-company",
 		Annotations: map[string]string{"pp:endpoint": "companies.retrieve-company", "pp:method": "GET", "pp:path": "/companies", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/companies"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/companies"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "companies", path, map[string]string{
-				"name":       fmt.Sprintf("%v", flagName),
-				"company_id": fmt.Sprintf("%v", flagCompanyId),
-				"tag_id":     fmt.Sprintf("%v", flagTagId),
-				"segment_id": fmt.Sprintf("%v", flagSegmentId),
-				"page":       fmt.Sprintf("%v", flagPage),
-				"per_page":   fmt.Sprintf("%v", flagPerPage),
-			}, nil, flagAll, "page", "", "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "companies", path, map[string]string{
+				"name":       formatCLIParamValue(flagName),
+				"company_id": formatCLIParamValue(flagCompanyId),
+				"tag_id":     formatCLIParamValue(flagTagId),
+				"segment_id": formatCLIParamValue(flagSegmentId),
+				"page":       formatCLIParamValue(flagPage),
+				"per_page":   formatCLIParamValue(flagPerPage),
+			}, nil, flagAll, "page", "page", "per_page", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -85,7 +84,7 @@ func newCompaniesRetrieveCompanyCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagName, "name", "", "The `name` of the company to filter by.")

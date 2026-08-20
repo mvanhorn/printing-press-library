@@ -24,9 +24,6 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
   giustizia-amministrativa-pp-cli sync
   giustizia-amministrativa-pp-cli sync --limit 100
   giustizia-amministrativa-pp-cli sync --full`, "\n"),
-		Annotations: map[string]string{
-			"mcp:hidden": "true",
-		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if gaSkip(flags) {
 				out := map[string]any{"dry_run": true, "would_sync": "provvedimenti recenti + ricerche salvate (watch)"}
@@ -48,10 +45,21 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 			c := gaclient.New()
 
 			// Seed: most recent provvedimenti (empty query = newest first).
-			seeded := 0
+			// "fetched" and "added" are reported separately on purpose: they
+			// are equal only on a first run, and a single number invites the
+			// reader to call a re-fetch of records already in the store "N new
+			// provvedimenti" when nothing changed at all.
+			fetched, added := 0, 0
 			if res, serr := c.Search(cmd.Context(), gaclient.SearchOptions{Limit: limit}); serr == nil {
+				for _, p := range res.Items {
+					if id := provID(p); id != "" {
+						if existing, gerr := st.Get("provvedimenti", id); gerr != nil || len(existing) == 0 {
+							added++
+						}
+					}
+				}
 				persistProvvedimenti(st, res.Items)
-				seeded = len(res.Items)
+				fetched = len(res.Items)
 			} else {
 				fmt.Fprintf(cmd.ErrOrStderr(), "seed recenti: %v\n", serr)
 			}
@@ -100,9 +108,9 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				fmt.Fprintf(cmd.ErrOrStderr(), "Sync: %d provvedimenti recenti, %d watch aggiornate.\n", seeded, len(results))
+				fmt.Fprintf(cmd.ErrOrStderr(), "Sync: %d provvedimenti recenti scaricati (%d nuovi nello store), %d watch aggiornate.\n", fetched, added, len(results))
 			}
-			data, _ := json.Marshal(map[string]any{"seeded": seeded, "watches_synced": len(results), "watches": results})
+			data, _ := json.Marshal(map[string]any{"fetched": fetched, "added": added, "watches_synced": len(results), "watches": results})
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}

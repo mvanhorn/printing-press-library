@@ -1,0 +1,8 @@
+{
+  "descriptions": {
+    "habits_list": "List every habit on the account, including archived ones. No parameters. Returns an array of Habit objects with id, name, goal, unit, status (0 = active), totalCheckIns, and repeatRule. Use this to resolve habit ids before calling habits_checkins or habits_checkin; for streak math over checkins, prefer the habits streaks command.",
+    "projects_list": "List all projects (lists) on the account. No parameters. Returns an array of Project objects with id, name, groupId, kind, closed, and sortOrder. Use this to resolve a projectId before creating, updating, or fetching tasks — tasks_get and tasks_batch both require a projectId.",
+    "tags_list": "List all tags defined on the account. No parameters. Returns an array of Tag objects with name, label, color, and sortOrder. Tags are identified by name (not id); use these names when filtering or batch-editing tasks that carry tags.",
+    "user_profile": "Fetch the authenticated user's profile. No parameters. Returns a UserProfile with username, name, and locale. Cheapest authenticated call — use it to verify the session cookie is valid (doctor uses this same endpoint as its health check)."
+  }
+}

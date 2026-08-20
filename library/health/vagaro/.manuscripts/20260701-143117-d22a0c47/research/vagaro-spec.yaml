@@ -1,0 +1,229 @@
+name: vagaro
+description: "Vagaro consumer marketplace CLI — search salons/spas/fitness, browse services & reviews, check availability, and manage your bookings"
+version: "0.1.0"
+category: health
+base_url: "https://www.vagaro.com"
+http_transport: standard
+health_check_path: "/"
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+# Composed auth: the s_utkn JWT (from the s_utkn cookie) is sent as a custom
+# header, PLUS the session cookie jar. auth login --chrome imports both.
+auth:
+  type: composed
+  header: s_utkn
+  format: "{s_utkn}"
+  cookie_domain: ".vagaro.com"
+  cookies:
+    - s_utkn
+    - VagaroUID
+    - s_encuid
+    - eU_2
+    - isLoginValue
+    - loginTypeValue
+  in: header
+
+config:
+  format: toml
+  path: "~/.config/vagaro/config.toml"
+
+resources:
+  business:
+    description: "Look up a Vagaro business (salon/spa/barber/fitness) by its slug"
+    endpoints:
+      get:
+        method: GET
+        path: "/{slug}"
+        no_auth: true
+        description: "Get a business profile (name, rating, address, categories)"
+        example: "  vagaro-pp-cli business get centralbarber"
+        happy_args: "slug=centralbarber"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Business slug (the path segment on vagaro.com/<slug>)"
+        response_format: html
+        html_extract:
+          mode: page
+      services:
+        method: GET
+        path: "/{slug}/services"
+        no_auth: true
+        description: "List a business's services with prices and durations"
+        example: "  vagaro-pp-cli business services centralbarber"
+        happy_args: "slug=centralbarber"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Business slug"
+        response_format: html
+        html_extract:
+          mode: page
+      availability:
+        method: GET
+        path: "/{slug}/book-now"
+        no_auth: true
+        description: "Get a business's next-available booking summary"
+        example: "  vagaro-pp-cli business availability centralbarber"
+        happy_args: "slug=centralbarber"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Business slug"
+        response_format: html
+        html_extract:
+          mode: page
+
+  listings:
+    description: "Browse businesses by service and location (live JSON-LD listings)"
+    endpoints:
+      get:
+        method: GET
+        path: "/listings/{service}/{location}"
+        no_auth: true
+        description: "List businesses for a service in a city (city--state slug)"
+        example: "  vagaro-pp-cli listings get barber seattle--washington"
+        happy_args: "service=barber;location=seattle--washington"
+        params:
+          - name: service
+            type: string
+            required: true
+            positional: true
+            description: "Service slug, e.g. barber, massage, nails, haircut"
+          - name: location
+            type: string
+            required: true
+            positional: true
+            description: "City slug as <city>--<state>, e.g. seattle--washington"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script[type=\"application/ld+json\"]"
+          json_path: "itemListElement"
+
+  classes:
+    description: "Browse upcoming livestream classes"
+    endpoints:
+      list:
+        method: POST
+        path: "/websiteapi/homepage/getupcominglivestreamclasses"
+        no_auth: true
+        description: "List upcoming livestream classes"
+        example: "  vagaro-pp-cli classes list --page-size 20"
+        response_path: ObjLiveStreamResponse
+        body:
+          - name: StartDate
+            type: string
+            required: false
+            default: null
+            description: "Start date filter (null for now)"
+          - name: IsCalledFrom
+            type: int
+            required: false
+            default: 1
+            description: "Caller context flag"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            required: false
+            default: 20
+            description: "Results per page"
+          - name: pageIndex
+            flag_name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number"
+          - name: loginUserID
+            type: string
+            required: false
+            default: ""
+            description: "Logged-in user id (blank for anonymous)"
+          - name: strLoginUserId
+            type: string
+            required: false
+            default: ""
+            description: "Logged-in user id string"
+          - name: TimeOffSet
+            type: string
+            required: false
+            default: "Pacific Standard Time"
+            description: "Timezone offset name"
+
+  me:
+    description: "Your own Vagaro account (requires auth login --chrome)"
+    base_url: "https://api.vagaro.com"
+    endpoints:
+      appointments:
+        method: POST
+        path: "/us02/api/v2/myaccount/purchases/appointments"
+        description: "List your appointments (upcoming or past)"
+        example: "  vagaro-pp-cli me appointments --page-size 12"
+        response_path: data
+        body:
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            required: false
+            default: 12
+            description: "Results per page"
+          - name: pageNumber
+            flag_name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number"
+          - name: pastAppointment
+            flag_name: past
+            type: bool
+            required: false
+            default: false
+            description: "true for past history, false for upcoming"
+          - name: myOrSharedAppointments
+            type: int
+            required: false
+            default: 1
+            description: "1 = my appointments"
+          - name: device
+            type: string
+            required: false
+            default: "Website"
+            description: "Client device"
+          - name: module
+            type: string
+            required: false
+            default: "MyAccount"
+            description: "Client module"
+          - name: version
+            type: string
+            required: false
+            default: "2.5.3"
+            description: "Client version"
+          - name: brandedApp
+            type: bool
+            required: false
+            default: false
+            description: "Branded app flag"
+          - name: merchantId
+            type: string
+            required: false
+            default: ""
+            description: "Filter to a merchant id (blank for all)"
+          - name: multiLocation
+            type: bool
+            required: false
+            default: false
+            description: "Multi-location flag"
+          - name: appNo
+            type: string
+            required: false
+            default: null
+            description: "Appointment number filter (null for all)"

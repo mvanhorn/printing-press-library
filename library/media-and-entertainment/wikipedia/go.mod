@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/media-and-entertainment/wikipedia
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/dustin/go-humanize v1.0.1

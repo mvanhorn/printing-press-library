@@ -1,0 +1,73 @@
+{
+  "api_name": "open-food-facts",
+  "cli_name": "open-food-facts-pp-cli",
+  "run_id": "20260626-214605",
+  "status": "pass",
+  "commands": [
+    {
+      "command": "open-food-facts-pp-cli --help",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "open-food-facts-pp-cli --version",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "open-food-facts-pp-cli sources --agent",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "open-food-facts-pp-cli doctor --agent",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "open-food-facts-pp-cli product 3017620422003 --agent",
+      "status": "passed",
+      "mode": "live_public_api",
+      "source": "Open Food Facts Product API v3"
+    },
+    {
+      "command": "open-food-facts-pp-cli search --category \"breakfast cereals\" --country \"united-states\" --page-size 2 --agent",
+      "status": "skipped_upstream_unavailable",
+      "mode": "live_public_api",
+      "source": "Open Food Facts Search API v2",
+      "observed": "The endpoint returned HTTP 503, then timed out on a smaller retry with explicit User-Agent/contact identity. Request shape is covered by unit tests."
+    },
+    {
+      "command": "open-food-facts-pp-cli nutrition 3017620422003 --agent",
+      "status": "passed",
+      "mode": "live_public_api",
+      "source": "Open Food Facts Product API v3"
+    },
+    {
+      "command": "open-food-facts-pp-cli allergens 3017620422003 --agent",
+      "status": "passed",
+      "mode": "live_public_api",
+      "source": "Open Food Facts Product API v3"
+    },
+    {
+      "command": "open-food-facts-pp-cli compare 3017620422003 5449000000996 --agent",
+      "status": "passed",
+      "mode": "live_public_api",
+      "source": "Open Food Facts Product API v3"
+    },
+    {
+      "command": "open-food-facts-pp-cli category \"breakfast cereals\" --page-size 2 --agent",
+      "status": "skipped_upstream_unavailable",
+      "mode": "live_public_api",
+      "source": "Open Food Facts Search API v2",
+      "observed": "Shares the /api/v2/search path that returned HTTP 503 and timeout responses during validation. Request shape is covered by unit tests."
+    }
+  ],
+  "notes": [
+    "No API key or account is required for read operations.",
+    "Live product commands are bounded and use Open Food Facts JSON endpoints.",
+    "The CLI sends a User-Agent header and documents contact-email identification for regular use.",
+    "The source and command output preserve Open Food Facts' voluntary-data and anti-bulk caveats.",
+    "Search-backed live commands were not repeated after /api/v2/search returned HTTP 503 and timeout responses; unit tests verify their request shape."
+  ]
+}

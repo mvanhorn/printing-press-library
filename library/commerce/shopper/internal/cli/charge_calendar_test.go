@@ -1,4 +1,5 @@
 // Copyright 2026 educrvz and contributors. Licensed under Apache-2.0. See LICENSE.
+// Tests for charge_calendar — PATCH: shopper-charge-calendar-realshape
 
 package cli
 

@@ -21,7 +21,7 @@ func newWebhooksGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get",
 		Aliases:     []string{"list"},
-		Short:       "Returns a list of webhooks corresponding to the context or plan provided, if they exist. For plan, the webhooks for...",
+		Short:       "Returns a list of webhooks corresponding to the context or plan provided, if they exist.",
 		Example:     "  figma-pp-cli webhooks get",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.get", "pp:method": "GET", "pp:path": "/v2/webhooks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -31,25 +31,31 @@ func newWebhooksGetCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v2/webhooks"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "webhooks", path, map[string]string{
-				"context":     fmt.Sprintf("%v", flagContext),
-				"context_id":  fmt.Sprintf("%v", flagContextId),
-				"plan_api_id": fmt.Sprintf("%v", flagPlanApiId),
-				"cursor":      fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "webhooks", path, map[string]string{
+				"context":     formatCLIParamValue(flagContext),
+				"context_id":  formatCLIParamValue(flagContextId),
+				"plan_api_id": formatCLIParamValue(flagPlanApiId),
+				"cursor":      formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", "pagination.next_page", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -79,9 +85,9 @@ func newWebhooksGetCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagContext, "context", "", "Context to create the resource on. Should be 'team', 'project', or 'file'.")
-	cmd.Flags().StringVar(&flagContextId, "context-id", "", "The id of the context that you want to get attached webhooks for. If you're using context_id, you cannot use...")
-	cmd.Flags().StringVar(&flagPlanApiId, "plan-api-id", "", "The id of your plan. Use this to get all webhooks for all contexts you have access to. If you're using plan_api_id,...")
-	cmd.Flags().StringVar(&flagCursor, "cursor", "", "If you're using plan_api_id, this is the cursor to use for pagination. If you're using context or context_id, this...")
+	cmd.Flags().StringVar(&flagContextId, "context-id", "", "The id of the context that you want to get attached webhooks for.")
+	cmd.Flags().StringVar(&flagPlanApiId, "plan-api-id", "", "The id of your plan. Use this to get all webhooks for all contexts you have access to.")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "If you're using plan_api_id, this is the cursor to use for pagination.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

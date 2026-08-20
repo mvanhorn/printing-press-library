@@ -26,10 +26,15 @@ to source for 2-attendee meetings and rolling up otherwise.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			c, err := openGranolaCache()
+			// PATCH(dual-path-store-read): store first, cache fallback.
+			// sourceSeconds keys off the normalized microphone/system
+			// vocabulary, which is exactly what the store holds for both
+			// cache-written and API-written rows.
+			c, err := openGranolaRead(cmd.Context())
 			if err != nil {
 				return err
 			}
+			defer c.Close()
 			if len(args) == 1 {
 				id := args[0]
 				segs := c.TranscriptByID(id)

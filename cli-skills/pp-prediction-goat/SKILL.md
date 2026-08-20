@@ -17,7 +17,7 @@ metadata:
      silently overwritten on the next regen. Edit the library/ source instead.
      See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
-# Polymarket + Kalshi - Printing Press CLI
+# Prediction GOAT — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -25,12 +25,12 @@ This skill drives the `prediction-goat-pp-cli` binary. You must verify the CLI i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install prediction-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install prediction-goat --cli-only
    ```
 2. Verify: `prediction-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/cmd/prediction-goat-pp-cli@latest

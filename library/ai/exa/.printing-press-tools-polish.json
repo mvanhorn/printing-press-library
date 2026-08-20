@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-09T17:09:18.011447Z",
+  "cli_dir": "\u003ccli-dir\u003e/exa-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. Short is brief but precise for a list subcommand."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. Short is brief but precise for a list subcommand."
+    }
+  ]
+}

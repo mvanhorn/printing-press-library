@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "sprocket",
+  "cli_name": "sprocket-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-18T16:37:30Z",
+  "source_commit": "fa63d83d82ecfde71a555653921c482ba19a20cf",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260617-211906-50f83ca4",
+  "changes": [
+    {
+      "title": "feat(sprocket): add sprocket",
+      "pr": 1282,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1282",
+      "commit": "fa63d83d82ecfde71a555653921c482ba19a20cf"
+    }
+  ]
+}

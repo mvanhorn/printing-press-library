@@ -1,0 +1,5 @@
+{ "schema_version": 2, "id": "reprint-428-drop-session-gated-cmds", "applied_at": "2026-07-12",
+  "base_run_id": "20260712-223206", "base_printing_press_version": "4.28.0",
+  "summary": "4.28.0 generates OpenTable user-scoped commands (experiences, reservations list/get/book/cancel, me, wishlist) that require a logged-in OpenTable session this no-auth cross-network CLI does not implement; drop their registration + files to match the published surface.",
+  "reason": "The published CLI (main) never exposed these — it is a no-auth cross-network SEARCH tool (goat/earliest/watch) plus dry-run book/cancel. The regenerated user-scoped commands fail live (exit 3/4, no session) and would ship broken. Removed the 4 registrations from root.go and deleted the generated files.",
+  "files": ["internal/cli/root.go"] }

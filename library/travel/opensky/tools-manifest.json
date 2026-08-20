@@ -1,0 +1,108 @@
+{
+  "api_name": "opensky",
+  "base_url": "https://opensky-network.org/api",
+  "description": "Public OpenSky Network API (https://opensky-network.org/api).",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "flights_get-aircraft-trajectory",
+      "description": "Full trajectory for one aircraft within a time window. Required: icao24. Optional: begin, end. Returns array of FlightsGetAircraftTrajectoryItem.",
+      "method": "GET",
+      "path": "/flights/aircraft",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "icao24",
+          "type": "string",
+          "location": "query",
+          "description": "6-hex-digit transponder address",
+          "required": true
+        },
+        {
+          "name": "begin",
+          "type": "int",
+          "location": "query",
+          "description": "Window start, Unix seconds (defaults to now-2h)"
+        },
+        {
+          "name": "end",
+          "type": "int",
+          "location": "query",
+          "description": "Window end, Unix seconds (defaults to now)"
+        }
+      ]
+    },
+    {
+      "name": "flights_get-departures",
+      "description": "Flights departing an airport within a time window. Required: airport. Optional: begin, end. Returns array of FlightsGetDeparturesItem.",
+      "method": "GET",
+      "path": "/flights/departure",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "query",
+          "description": "ICAO airport code (e.g. KJFK, EGLL)",
+          "required": true
+        },
+        {
+          "name": "begin",
+          "type": "int",
+          "location": "query",
+          "description": "Window start, Unix seconds (defaults to now-2h)"
+        },
+        {
+          "name": "end",
+          "type": "int",
+          "location": "query",
+          "description": "Window end, Unix seconds (defaults to now)"
+        }
+      ]
+    },
+    {
+      "name": "states_list",
+      "description": "Live aircraft states over a bounding box or for one transponder. Optional: lamin, lomin, lamax (plus 2 more). Returns array of StatesListItem.",
+      "method": "GET",
+      "path": "/states/all",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lamin",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum latitude of the bounding box (degrees)"
+        },
+        {
+          "name": "lomin",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum longitude of the bounding box (degrees)"
+        },
+        {
+          "name": "lamax",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum latitude of the bounding box (degrees)"
+        },
+        {
+          "name": "lomax",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum longitude of the bounding box (degrees)"
+        },
+        {
+          "name": "icao24",
+          "type": "string",
+          "location": "query",
+          "description": "6-hex-digit transponder address to filter to a single aircraft"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-06-18T07:44:52.8337125Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "dreaming",
+  "display_name": "Dreaming",
+  "cli_name": "dreaming-pp-cli",
+  "creator": {
+    "handle": "paulbockewitz",
+    "name": "Paul Bockewitz"
+  },
+  "printer": "paulbockewitz",
+  "printer_name": "Paul Bockewitz",
+  "run_id": "20260618T050021Z-649b15eb",
+  "category": "education",
+  "mcp_binary": "dreaming-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
+  "auth_env_vars": [
+    "DREAMING_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "DREAMING_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Bearer token from app.dreaming.com localStorage 'token' or via 'auth login'."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Roadmap-aware next-video picker",
+      "command": "next",
+      "description": "Get the next unwatched videos tuned to where you are on the fluency roadmap, sorted by fine-grained difficulty."
+    },
+    {
+      "name": "CSV bulk external-hours import",
+      "command": "external import",
+      "description": "Import a backlog of outside listening/watching hours from a CSV in one command instead of dozens of web-form clicks."
+    },
+    {
+      "name": "Difficulty-progression readiness analysis",
+      "command": "diet",
+      "description": "See whether the difficulty of what you actually watch is trending up over a window - the real signal that you're ready to level up."
+    },
+    {
+      "name": "Unified fluency-ladder roadmap",
+      "command": "roadmap",
+      "description": "The whole L1-L7 ladder with comprehensible-input advisories (speaking, reading, native milestones) and personalized calendar ETAs in one view."
+    },
+    {
+      "name": "Caption / transcript fetch",
+      "command": "transcript",
+      "description": "Fetch a video's captions as clean, timestamp-free plain text (and cache the cue-level transcript)."
+    },
+    {
+      "name": "Corpus concordance (KWIC) search over all transcripts",
+      "command": "concordance",
+      "description": "Search every cached transcript for a word, phrase, regex, or verb-tense pattern and get each hit in context with the video, level, guide, and timestamp."
+    }
+  ]
+}

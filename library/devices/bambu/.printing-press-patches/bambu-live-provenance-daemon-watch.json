@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "bambu-live-provenance-daemon-watch",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260711-063302-c519dd7c",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Agent envelopes must report explicitly live Bambu fetches as live, and daemon recipes must bound persistent event watches with a long timeout.",
+  "reason": "The typed-output path defaulted every handwritten command to local provenance even after a fresh MQTT pushall, misleading agents about data freshness. Long-running integrations also need a documented timeout so supervisors can rotate the process predictably.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/bambu_review_regressions_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "A live printer status command emits meta.source=live, local history remains local, and strict SKILL plus Printing Press publish validation pass with the 24h daemon recipe."
+}

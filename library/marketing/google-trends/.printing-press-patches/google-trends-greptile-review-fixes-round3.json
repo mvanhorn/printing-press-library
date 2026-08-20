@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "google-trends-greptile-review-fixes-round3",
+  "applied_at": "2026-07-14",
+  "base_run_id": "20260713-105453-29114a9d",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Fixed 2 follow-up findings from Greptile's round-3 review: round-2 made the cache keys scope-unique (category/property/compare-set) but the stored records still didn't carry those fields, and the read-side local-analysis commands (changes/opportunities/seasonality) had no way to avoid blending multiple scoped series together.",
+  "reason": "Persisted category (gt_related_term) and category+property+compare_scope (gt_interest_point) as fields on the stored JSON records, not just folded into the opaque cache ID. Added filterInterestRowsToLatestScope/filterRelatedRowsToLatestScope helpers that narrow a keyword's queried rows to just the most-recently-synced scope before any diffing/averaging/ranking happens, applied in trends_changes.go, trends_opportunities.go, and trends_seasonality.go. This matches these commands' existing latest-sync-instant convention rather than introducing new --category/--property CLI flags on three more commands.",
+  "files": [
+    "internal/cli/gtrends_records.go",
+    "internal/cli/gtrends_helpers.go",
+    "internal/cli/trends_interest.go",
+    "internal/cli/trends_related.go",
+    "internal/cli/trends_changes.go",
+    "internal/cli/trends_opportunities.go",
+    "internal/cli/trends_seasonality.go"
+  ],
+  "validated_outcome": "Live dogfood full matrix: 65/65 pass. Manually confirmed live: syncing coffee under category 0 then category 71 leaves both scopes in the local store (53 rows each, verified via direct SQL), and trends seasonality subsequently reads only the latest-synced scope (category 71) instead of blending both.",
+  "upstream_issue": null
+}

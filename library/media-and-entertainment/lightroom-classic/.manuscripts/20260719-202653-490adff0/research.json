@@ -1,0 +1,286 @@
+{
+  "api_name": "lightroom-classic",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "Lightroom-SQL-tools",
+      "url": "https://github.com/fdenivac/Lightroom-SQL-tools",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lrcat-extractor",
+      "url": "https://github.com/hfiguiere/lrcat-extractor",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "LightroomClassicCatalogReader",
+      "url": "https://github.com/thatlarrypearson/LightroomClassicCatalogReader",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lightroom-database",
+      "url": "https://github.com/camerahacks/lightroom-database",
+      "language": "SQL",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-20T03:35:00Z",
+  "novel_features": [
+    {
+      "name": "Streak \u0026 gap tracker",
+      "command": "streaks",
+      "description": "See your current and longest daily-shooting streaks and every missed day in a range.",
+      "rationale": "Only local SQL over ten years of capture times can compute day-level coverage in one pass.",
+      "example": "lightroom-classic-pp-cli streaks --since 2026-01-01 --json",
+      "why_it_matters": "Reach for this when asked about daily practice consistency or missed days.",
+      "group": "Daily practice"
+    },
+    {
+      "name": "Daily pick resolver",
+      "command": "pick-of-day",
+      "description": "Get exactly one image per day — flag beats rating beats recency — with its file path resolved for publishing.",
+      "rationale": "Encodes the photographer's selection ladder against the live catalog with no export step.",
+      "example": "lightroom-classic-pp-cli pick-of-day --date 2026-07-12 --json",
+      "why_it_matters": "Use this when a build pipeline needs the day's photo, not a list of candidates.",
+      "group": "Daily practice"
+    },
+    {
+      "name": "On-this-day",
+      "command": "on-this-day",
+      "description": "Everything shot on this calendar date across all years, grouped by year.",
+      "rationale": "dateMonth/dateDay columns allow calendar-position queries no Lightroom feature offers.",
+      "example": "lightroom-classic-pp-cli on-this-day --month 7 --day 19 --json",
+      "why_it_matters": "Use for month/day browse pages and anniversary lookbacks; find only does date ranges.",
+      "group": "Daily practice"
+    },
+    {
+      "name": "Project progress",
+      "command": "project",
+      "description": "Progress report for a fixed-length photo project: day N of target, missed days, projected finish.",
+      "rationale": "Joins collection membership with capture dates for finite-project accounting Lightroom cannot express.",
+      "example": "lightroom-classic-pp-cli project --collection \"100 Faces\" --target 100 --json",
+      "why_it_matters": "Use when tracking a bounded series backed by a collection.",
+      "group": "Daily practice"
+    },
+    {
+      "name": "Shooting habits stats",
+      "command": "stats",
+      "description": "Histograms of your shooting by focal length, hour, weekday, month, camera, lens, or ISO.",
+      "rationale": "Aggregates harvested EXIF across the whole catalog; Lightroom filters one facet and never counts.",
+      "example": "lightroom-classic-pp-cli stats --by lens --since 2025-01-01",
+      "why_it_matters": "Use for gear and habit questions; returns buckets, not image rows.",
+      "group": "Catalog intelligence"
+    },
+    {
+      "name": "Catalog doctor",
+      "command": "doctor",
+      "description": "Health sweep: masters missing on disk, images without capture time, orphan keywords, empty collections.",
+      "rationale": "Only a process on the same disk can stat every resolved path while staying read-only.",
+      "example": "lightroom-classic-pp-cli doctor --json",
+      "why_it_matters": "Run before backups or migrations to find catalog rot.",
+      "group": "Catalog intelligence"
+    },
+    {
+      "name": "Keeper funnel",
+      "command": "funnel",
+      "description": "Conversion rates from shot to picked to rated to developed to collected, optionally per year.",
+      "rationale": "Chains image, develop-settings, and collection joins into ratios nothing else surfaces.",
+      "example": "lightroom-classic-pp-cli funnel --by year --json",
+      "why_it_matters": "Use for selectivity and culling-discipline questions.",
+      "group": "Catalog intelligence"
+    },
+    {
+      "name": "Unedited backlog",
+      "command": "backlog",
+      "description": "Keepers you flagged or rated but never developed.",
+      "rationale": "The develop-adjustments predicate requires a join Lightroom smart collections cannot express.",
+      "example": "lightroom-classic-pp-cli backlog --picked-only --json",
+      "why_it_matters": "Use to surface workflow debt before publishing deadlines.",
+      "group": "Catalog intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Streak \u0026 gap tracker",
+      "command": "streaks",
+      "description": "See your current and longest daily-shooting streaks and every missed day in a range.",
+      "rationale": "Only local SQL over ten years of capture times can compute day-level coverage in one pass.",
+      "example": "lightroom-classic-pp-cli streaks --since 2026-01-01 --json",
+      "why_it_matters": "Reach for this when asked about daily practice consistency or missed days.",
+      "group": "Daily practice"
+    },
+    {
+      "name": "Daily pick resolver",
+      "command": "pick-of-day",
+      "description": "Get exactly one image per day — flag beats rating beats recency — with its file path resolved for publishing.",
+      "rationale": "Encodes the photographer's selection ladder against the live catalog with no export step.",
+      "example": "lightroom-classic-pp-cli pick-of-day --date 2026-07-12 --json",
+      "why_it_matters": "Use this when a build pipeline needs the day's photo, not a list of candidates.",
+      "group": "Daily practice"
+    },
+    {
+      "name": "On-this-day",
+      "command": "on-this-day",
+      "description": "Everything shot on this calendar date across all years, grouped by year.",
+      "rationale": "dateMonth/dateDay columns allow calendar-position queries no Lightroom feature offers.",
+      "example": "lightroom-classic-pp-cli on-this-day --month 7 --day 19 --json",
+      "why_it_matters": "Use for month/day browse pages and anniversary lookbacks; find only does date ranges.",
+      "group": "Daily practice"
+    },
+    {
+      "name": "Project progress",
+      "command": "project",
+      "description": "Progress report for a fixed-length photo project: day N of target, missed days, projected finish.",
+      "rationale": "Joins collection membership with capture dates for finite-project accounting Lightroom cannot express.",
+      "example": "lightroom-classic-pp-cli project --collection \"100 Faces\" --target 100 --json",
+      "why_it_matters": "Use when tracking a bounded series backed by a collection.",
+      "group": "Daily practice"
+    },
+    {
+      "name": "Shooting habits stats",
+      "command": "stats",
+      "description": "Histograms of your shooting by focal length, hour, weekday, month, camera, lens, or ISO.",
+      "rationale": "Aggregates harvested EXIF across the whole catalog; Lightroom filters one facet and never counts.",
+      "example": "lightroom-classic-pp-cli stats --by lens --since 2025-01-01",
+      "why_it_matters": "Use for gear and habit questions; returns buckets, not image rows.",
+      "group": "Catalog intelligence"
+    },
+    {
+      "name": "Catalog doctor",
+      "command": "doctor",
+      "description": "Health sweep: masters missing on disk, images without capture time, orphan keywords, empty collections.",
+      "rationale": "Only a process on the same disk can stat every resolved path while staying read-only.",
+      "example": "lightroom-classic-pp-cli doctor --json",
+      "why_it_matters": "Run before backups or migrations to find catalog rot.",
+      "group": "Catalog intelligence"
+    },
+    {
+      "name": "Keeper funnel",
+      "command": "funnel",
+      "description": "Conversion rates from shot to picked to rated to developed to collected, optionally per year.",
+      "rationale": "Chains image, develop-settings, and collection joins into ratios nothing else surfaces.",
+      "example": "lightroom-classic-pp-cli funnel --by year --json",
+      "why_it_matters": "Use for selectivity and culling-discipline questions.",
+      "group": "Catalog intelligence"
+    },
+    {
+      "name": "Unedited backlog",
+      "command": "backlog",
+      "description": "Keepers you flagged or rated but never developed.",
+      "rationale": "The develop-adjustments predicate requires a join Lightroom smart collections cannot express.",
+      "example": "lightroom-classic-pp-cli backlog --picked-only --json",
+      "why_it_matters": "Use to surface workflow debt before publishing deadlines.",
+      "group": "Catalog intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Lightroom Classic",
+    "headline": "Your Lightroom Classic catalog, queryable from the terminal — streaks, daily picks, and shot lists with zero exports and zero writes.",
+    "value_prop": "Reads the .lrcat SQLite catalog Lightroom already maintains, strictly read-only. Built for daily photo practices: pick-of-day resolves the one image a publish pipeline needs, streaks and project track consistency, and photos turns any criteria into a JSON shot list.",
+    "auth_narrative": "No authentication. The CLI opens the catalog file in SQLite read-only immutable mode and refuses all writes. Point it at a different catalog with --catalog or LIGHTROOM_CLASSIC_CATALOG.",
+    "quickstart": [
+      {
+        "command": "lightroom-classic-pp-cli doctor --dry-run",
+        "comment": "Confirm the catalog is found and readable before anything else"
+      },
+      {
+        "command": "lightroom-classic-pp-cli stats --by camera",
+        "comment": "First real read: what is actually in this catalog"
+      },
+      {
+        "command": "lightroom-classic-pp-cli streaks --since 2026-01-01",
+        "comment": "The daily-practice headline: streaks and missed days"
+      },
+      {
+        "command": "lightroom-classic-pp-cli pick-of-day --date 2026-07-12 --json",
+        "comment": "One image per day, path resolved, ready for a build script"
+      },
+      {
+        "command": "lightroom-classic-pp-cli photos --rating \"\u003e=4\" --since 2026-06-01 --json",
+        "comment": "Criteria search as a JSON shot list"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "database is locked",
+        "fix": "The CLI opens read-only/immutable so this is rare; if it appears, close Lightroom's backup dialog or pass --catalog pointing at a copied .lrcat"
+      },
+      {
+        "symptom": "no such table: Adobe_images",
+        "fix": "The path is not a Lightroom Classic catalog; check --catalog points at a .lrcat file, not .lrcat-data"
+      },
+      {
+        "symptom": "pick-of-day returns nothing",
+        "fix": "No photos that day; run streaks to see gap days, or widen with --since/--until"
+      }
+    ],
+    "when_to_use": "Use for any question about a Lightroom Classic catalog: what was shot when, with what gear, which images are picked or rated, and where the files live on disk. Built for photographers running daily practices and for build scripts that need per-day shot lists as JSON.",
+    "anti_triggers": [
+      "Do not use to edit photos, change ratings, or write anything into the catalog — it is strictly read-only",
+      "Do not use for Lightroom (cloud) or Apple Photos libraries; this reads .lrcat files only",
+      "Do not use to render or export image files; it resolves paths but never touches image pixels"
+    ],
+    "recipes": [
+      {
+        "title": "Today's pick for the photo-a-day site",
+        "command": "lightroom-classic-pp-cli pick-of-day --date \"$(date +%F)\" --json",
+        "explanation": "Returns the single best image for today with its absolute path, ready for a publish script."
+      },
+      {
+        "title": "Which days this month have no photos",
+        "command": "lightroom-classic-pp-cli streaks --since \"$(date +%Y-%m-01)\" --json --select gaps",
+        "explanation": "Narrow the streak report to just the missing dates."
+      },
+      {
+        "title": "Shot list of recent keepers",
+        "command": "lightroom-classic-pp-cli photos --rating \"\u003e=4\" --since 2026-06-01 --json --select id,capture_time,path,camera",
+        "explanation": "Uses --select to keep the JSON small for agent consumption."
+      },
+      {
+        "title": "Gear reality check",
+        "command": "lightroom-classic-pp-cli stats --by lens",
+        "explanation": "Counts by lens with first/last-seen dates — what glass actually gets used."
+      },
+      {
+        "title": "Pre-backup health sweep",
+        "command": "lightroom-classic-pp-cli doctor --json",
+        "explanation": "Finds masters missing on disk and other catalog rot before it bites."
+      }
+    ],
+    "trigger_phrases": [
+      "what did I shoot on",
+      "current photo streak",
+      "pick of the day from Lightroom",
+      "which days have no photos",
+      "lens usage stats from my catalog",
+      "use lightroom-classic",
+      "run lightroom-classic"
+    ]
+  }
+}

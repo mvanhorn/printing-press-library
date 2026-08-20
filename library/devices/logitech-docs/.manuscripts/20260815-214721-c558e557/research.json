@@ -1,0 +1,150 @@
+{
+  "api_name": "logitech-docs",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-16T02:50:00Z",
+  "novel_features": [
+    {
+      "name": "Friendly doc-type search",
+      "command": "docs",
+      "description": "Search Logitech support docs by friendly type: spec sheet, manual, install guide, FAQ, download, warranty.",
+      "rationale": "Maps human doc-type words to Logitech's webcontent label taxonomy so users never memorize label strings.",
+      "example": "logitech-docs-pp-cli docs spec \"MeetUp\" --agent",
+      "why_it_matters": "Agents reach for this instead of guessing Zendesk label strings for spec sheets vs install guides.",
+      "group": "Doc discovery"
+    },
+    {
+      "name": "Offline full-text search",
+      "command": "find",
+      "description": "Full-text search inside synced manuals and spec sheets from the local store.",
+      "rationale": "Requires a local SQLite FTS5 index of article bodies that no single API call provides.",
+      "example": "logitech-docs-pp-cli find \"camera dimensions\" --agent",
+      "why_it_matters": "Search manuals offline, across a product family at once, without the Cloudflare-fronted site.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Download resolver",
+      "command": "download",
+      "description": "Resolve download01.logi.com file links in an article and fetch them (with --dry-run and local cache).",
+      "rationale": "File URLs live inside article HTML bodies, not a clean endpoint; requires parsing and caching.",
+      "example": "logitech-docs-pp-cli download 360023302754 --dry-run",
+      "why_it_matters": "Scriptable downloads of firmware/software/PDF manuals without clicking through the site.",
+      "group": "Doc discovery"
+    },
+    {
+      "name": "Spec comparison",
+      "command": "compare",
+      "description": "Side-by-side spec comparison between two products from synced spec sheets.",
+      "rationale": "Requires a local join across two products' spec rows that the API cannot do.",
+      "example": "logitech-docs-pp-cli compare \"MeetUp\" \"Rally Bar\" --agent",
+      "why_it_matters": "AV integrators compare dimensions and compatibility across products before quoting.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Friendly doc-type search",
+      "command": "docs",
+      "description": "Search Logitech support docs by friendly type: spec sheet, manual, install guide, FAQ, download, warranty.",
+      "rationale": "Maps human doc-type words to Logitech's webcontent label taxonomy so users never memorize label strings.",
+      "example": "logitech-docs-pp-cli docs spec \"MeetUp\" --agent",
+      "why_it_matters": "Agents reach for this instead of guessing Zendesk label strings for spec sheets vs install guides.",
+      "group": "Doc discovery"
+    },
+    {
+      "name": "Offline full-text search",
+      "command": "find",
+      "description": "Full-text search inside synced manuals and spec sheets from the local store.",
+      "rationale": "Requires a local SQLite FTS5 index of article bodies that no single API call provides.",
+      "example": "logitech-docs-pp-cli find \"camera dimensions\" --agent",
+      "why_it_matters": "Search manuals offline, across a product family at once, without the Cloudflare-fronted site.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Download resolver",
+      "command": "download",
+      "description": "Resolve download01.logi.com file links in an article and fetch them (with --dry-run and local cache).",
+      "rationale": "File URLs live inside article HTML bodies, not a clean endpoint; requires parsing and caching.",
+      "example": "logitech-docs-pp-cli download 360023302754 --dry-run",
+      "why_it_matters": "Scriptable downloads of firmware/software/PDF manuals without clicking through the site.",
+      "group": "Doc discovery"
+    },
+    {
+      "name": "Spec comparison",
+      "command": "compare",
+      "description": "Side-by-side spec comparison between two products from synced spec sheets.",
+      "rationale": "Requires a local join across two products' spec rows that the API cannot do.",
+      "example": "logitech-docs-pp-cli compare \"MeetUp\" \"Rally Bar\" --agent",
+      "why_it_matters": "AV integrators compare dimensions and compatibility across products before quoting.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Logitech",
+    "headline": "Every Logitech manual, spec sheet, and install guide — searchable offline, agent-native, no browser.",
+    "value_prop": "support.logi.com is a Zendesk portal with a clean JSON API hiding behind it. logitech-docs turns 33k+ reference documents into a greppable local index: find specs by product, pull install guides, and full-text search inside manuals without touching a browser.",
+    "auth_narrative": "No authentication required. The support site and its Help Center API are public.",
+    "quickstart": [
+      {
+        "command": "logitech-docs-pp-cli doctor --dry-run",
+        "comment": "health check, works without credentials"
+      },
+      {
+        "command": "logitech-docs-pp-cli categories list",
+        "comment": "see the 9 support categories"
+      },
+      {
+        "command": "logitech-docs-pp-cli articles search --query \"MeetUp\"",
+        "comment": "search the live docs"
+      },
+      {
+        "command": "logitech-docs-pp-cli docs spec \"MeetUp\"",
+        "comment": "pull the spec sheet directly"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns 404 / RecordNotFound",
+        "fix": "use the locale-free search form (articles search), not a locale-prefixed path"
+      },
+      {
+        "symptom": "empty article body in list output",
+        "fix": "list endpoints omit body; use articles get \u003cid\u003e for the full HTML"
+      }
+    ],
+    "when_to_use": "When an agent or technician needs a Logitech spec sheet, install guide, or manual without opening support.logi.com.",
+    "anti_triggers": [
+      "Do not use for controlling Logitech devices or G HUB",
+      "Do not use for live support chat or warranty claims",
+      "Do not use for Logitech account management"
+    ],
+    "recipes": [
+      {
+        "title": "Grab a spec sheet",
+        "command": "logitech-docs-pp-cli docs spec \"MeetUp\" --select title,html_url",
+        "explanation": "narrow a large search response to just name and link"
+      },
+      {
+        "title": "Full-text search inside manuals",
+        "command": "logitech-docs-pp-cli docs manual \"pairing\" --agent --select title,html_url",
+        "explanation": "live full-text search across manual bodies, narrowed for agents"
+      },
+      {
+        "title": "Preview a download",
+        "command": "logitech-docs-pp-cli download 360023302754 --dry-run",
+        "explanation": "see the resolved file URL before fetching"
+      }
+    ],
+    "trigger_phrases": [
+      "get the spec sheet for MeetUp",
+      "Logitech install guide",
+      "download Logitech manual",
+      "search Logitech support docs",
+      "use logitech-docs"
+    ]
+  }
+}

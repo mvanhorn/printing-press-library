@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "parallel-pp-mcp",
+  "display_name": "Parallel",
+  "version": "0.1.2",
+  "description": "Agent-native Parallel web research with a local SQLite memory no other Parallel CLI keeps.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/parallel-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/parallel-pp-mcp",
+      "args": [],
+      "env": {
+        "PARALLEL_API_KEY": "${user_config.parallel_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "parallel_api_key": {
+      "type": "string",
+      "title": "PARALLEL_API_KEY",
+      "description": "Sets PARALLEL_API_KEY for the Parallel MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

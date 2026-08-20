@@ -24,9 +24,12 @@ const (
 )
 
 func main() {
+	// Pin the learn-event surface for this process and every walker
+	// shell-out child, so usage events record surface=mcp.
+	_ = os.Setenv("BLACKLANE_LEARN_SURFACE", "mcp")
 	s := server.NewMCPServer(
 		"Blacklane",
-		"1.0.0",
+		"2026.7.1",
 		server.WithToolCapabilities(false),
 	)
 

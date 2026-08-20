@@ -1,0 +1,217 @@
+{
+  "api_name": "axs",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-14T17:50:00Z",
+  "novel_features": [
+    {
+      "name": "Firmware summary check",
+      "command": "firmware-check",
+      "description": "Show the latest synced firmware version per AXS device type.",
+      "rationale": "Reads fw_version and end_ts from synced quarqnet component summaries.",
+      "example": "axs-pp-cli firmware-check --json",
+      "why_it_matters": "Pick this when an agent needs the current synced firmware signal without clicking through every component.",
+      "group": "Synced component-summary views"
+    },
+    {
+      "name": "Battery dashboard",
+      "command": "battery",
+      "description": "Latest synced battery status per AXS device type, including voltage when available.",
+      "rationale": "Reads battery_status, voltage, and end_ts from synced quarqnet component summaries.",
+      "example": "axs-pp-cli battery --json",
+      "why_it_matters": "Pick this for a quick pre-ride battery signal across synced AXS device types.",
+      "group": "Synced component-summary views"
+    },
+    {
+      "name": "Component wear rollup",
+      "command": "wear",
+      "description": "Rank components by synced shift counts, distance, and actuations from component summaries.",
+      "rationale": "Aggregates component summaries across synced activities; shift counts are the wear proxy.",
+      "example": "axs-pp-cli wear --json --select device_type,device_label,shift_count,fd_shift_count,rd_shift_count",
+      "why_it_matters": "Use to find the most-used drivetrain component for maintenance planning.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ride shift log",
+      "command": "shifts",
+      "description": "Show per-ride front/rear shift counts, chainrings, and cogs from synced component summaries.",
+      "rationale": "Surfaces start_ts, fd_shift_count, rd_shift_count, num_chainrings, and num_cogs while withholding large gear series unless explicitly requested as JSON.",
+      "example": "axs-pp-cli shifts --totals --json",
+      "why_it_matters": "Use for ride-by-ride drivetrain usage analysis without dumping thousands of raw gear samples.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Unified garage view",
+      "command": "garage",
+      "description": "A tree of every bike with its components and serials in one shot.",
+      "rationale": "Joins bikes and components into a single tree no API call returns.",
+      "example": "axs-pp-cli garage",
+      "why_it_matters": "Use as the one-command overview of a rider's whole AXS setup.",
+      "group": "AXS web data joined for agents"
+    },
+    {
+      "name": "Since last sync",
+      "command": "since",
+      "description": "Show new ride activities and notifications since your last sync.",
+      "rationale": "Time-windowed diff over the local mirror; impossible without persistent local state.",
+      "example": "axs-pp-cli since 7d",
+      "why_it_matters": "Pick this to catch up on what changed without re-reading everything.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Firmware summary check",
+      "command": "firmware-check",
+      "description": "Show the latest synced firmware version per AXS device type.",
+      "rationale": "Reads fw_version and end_ts from synced quarqnet component summaries.",
+      "example": "axs-pp-cli firmware-check --json",
+      "why_it_matters": "Pick this when an agent needs the current synced firmware signal without clicking through every component.",
+      "group": "Synced component-summary views"
+    },
+    {
+      "name": "Battery dashboard",
+      "command": "battery",
+      "description": "Latest synced battery status per AXS device type, including voltage when available.",
+      "rationale": "Reads battery_status, voltage, and end_ts from synced quarqnet component summaries.",
+      "example": "axs-pp-cli battery --json",
+      "why_it_matters": "Pick this for a quick pre-ride battery signal across synced AXS device types.",
+      "group": "Synced component-summary views"
+    },
+    {
+      "name": "Component wear rollup",
+      "command": "wear",
+      "description": "Rank components by synced shift counts, distance, and actuations from component summaries.",
+      "rationale": "Aggregates component summaries across synced activities; shift counts are the wear proxy.",
+      "example": "axs-pp-cli wear --json --select device_type,device_label,shift_count,fd_shift_count,rd_shift_count",
+      "why_it_matters": "Use to find the most-used drivetrain component for maintenance planning.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ride shift log",
+      "command": "shifts",
+      "description": "Show per-ride front/rear shift counts, chainrings, and cogs from synced component summaries.",
+      "rationale": "Surfaces start_ts, fd_shift_count, rd_shift_count, num_chainrings, and num_cogs while withholding large gear series unless explicitly requested as JSON.",
+      "example": "axs-pp-cli shifts --totals --json",
+      "why_it_matters": "Use for ride-by-ride drivetrain usage analysis without dumping thousands of raw gear samples.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Unified garage view",
+      "command": "garage",
+      "description": "A tree of every bike with its components and serials in one shot.",
+      "rationale": "Joins bikes and components into a single tree no API call returns.",
+      "example": "axs-pp-cli garage",
+      "why_it_matters": "Use as the one-command overview of a rider's whole AXS setup.",
+      "group": "AXS web data joined for agents"
+    },
+    {
+      "name": "Since last sync",
+      "command": "since",
+      "description": "Show new ride activities and notifications since your last sync.",
+      "rationale": "Time-windowed diff over the local mirror; impossible without persistent local state.",
+      "example": "axs-pp-cli since 7d",
+      "why_it_matters": "Pick this to catch up on what changed without re-reading everything.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SRAM_AXS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "SRAM AXS",
+    "headline": "Every SRAM AXS feature from the terminal, plus a local database, offline search, and cross-bike views the web app has no way to show.",
+    "value_prop": "Manage registered bikes and components, register parts by serial, check synced firmware and battery summaries, review ride activity data, and roll up shift usage — all scriptable with --json. A local SQLite mirror powers offline search and compounding views like `wear`, `shifts`, and `since`.",
+    "auth_narrative": "AXS uses your SRAM account (Auth0). Run `axs-pp-cli auth login` to sign in with your email and password (handled directly against SRAM's token endpoint — no browser), or paste an access token with `axs-pp-cli auth set-token` / set SRAM_AXS_TOKEN. The public device-type catalog works with no login.",
+    "quickstart": [
+      {
+        "command": "axs-pp-cli doctor --dry-run",
+        "comment": "check reachability and config before anything else"
+      },
+      {
+        "command": "axs-pp-cli devicetypes list",
+        "comment": "public catalog — works with no login, proves the API is reachable"
+      },
+      {
+        "command": "axs-pp-cli auth login",
+        "comment": "sign in with your SRAM account to unlock your bikes and components"
+      },
+      {
+        "command": "axs-pp-cli garage",
+        "comment": "one-command overview of every bike and component"
+      },
+      {
+        "command": "axs-pp-cli wear --json",
+        "comment": "rank synced component usage from local component summaries"
+      },
+      {
+        "command": "axs-pp-cli battery --json",
+        "comment": "read latest synced battery_status per AXS device type"
+      },
+      {
+        "command": "axs-pp-cli shifts --totals --json",
+        "comment": "total front and rear shifts across synced ride summaries"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Authentication credentials were not provided",
+        "fix": "Run `axs-pp-cli auth login` or set SRAM_AXS_TOKEN to a valid access token."
+      },
+      {
+        "symptom": "Token expired",
+        "fix": "Run `axs-pp-cli auth login` again; access tokens are short-lived."
+      },
+      {
+        "symptom": "Empty bikes/components after login",
+        "fix": "Run `axs-pp-cli sync` to populate the local mirror, then retry."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when a rider or agent needs scriptable access to a SRAM AXS account: listing bikes and components, registering parts by serial, checking synced firmware/battery status, reviewing ride activity data, or querying synced AXS data offline.",
+    "anti_triggers": [
+      "Do not use this CLI to flash or install firmware on components — it reports versions only; actual updates require the SRAM AXS app over Bluetooth.",
+      "Do not use it to configure shifting behavior or pair components over BLE — that is a phone-app/Bluetooth task, not an HTTP API task.",
+      "Do not use it for non-SRAM drivetrains."
+    ],
+    "recipes": [
+      {
+        "title": "Pre-ride charge check",
+        "command": "axs-pp-cli battery --json",
+        "explanation": "Lists latest battery_status per synced AXS device type."
+      },
+      {
+        "title": "Find stale firmware",
+        "command": "axs-pp-cli firmware-check --json",
+        "explanation": "Lists latest fw_version per synced AXS device type."
+      },
+      {
+        "title": "Rank drivetrain use",
+        "command": "axs-pp-cli wear --json",
+        "explanation": "Ranks component-summary records by shift-count wear proxy."
+      },
+      {
+        "title": "Total ride shifts",
+        "command": "axs-pp-cli shifts --totals --json",
+        "explanation": "Totals front and rear shifts across synced ride summaries."
+      },
+      {
+        "title": "Register a part safely",
+        "command": "axs-pp-cli registrations create --serial ABC123 --dry-run",
+        "explanation": "Shows the registration request without sending it."
+      }
+    ],
+    "trigger_phrases": [
+      "check my AXS firmware",
+      "list my SRAM components",
+      "what's my bike battery level",
+      "register a SRAM component",
+      "show my AXS garage",
+      "my recent AXS rides",
+      "use axs",
+      "run axs"
+    ]
+  }
+}

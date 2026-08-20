@@ -25,6 +25,13 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		if !cmd.Runnable() {
 			return
 		}
+		// A command with subcommands (e.g. "provvedimenti", "corpus", "watch")
+		// carries a stub Run/RunE that only prints usage or errors "subcommand
+		// required" — it is never the right thing to call directly. Only its
+		// children (already walked separately) do real work.
+		if cmd.HasSubCommands() {
+			return
+		}
 
 		toolName := toolNameForPath(path)
 		if toolName == "" {
@@ -36,7 +43,10 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 			options = append(options, mcplib.WithString("args", mcplib.Description("Additional positional arguments or raw CLI flags to append to the command.")))
 		}
 		if isMCPReadOnly(cmd) {
-			options = append(options, mcplib.WithReadOnlyHintAnnotation(true), mcplib.WithDestructiveHintAnnotation(false))
+			// A read-only query is idempotent by construction: calling it
+			// again with the same arguments cannot leave the system in a
+			// different state, because it never changes state at all.
+			options = append(options, mcplib.WithReadOnlyHintAnnotation(true), mcplib.WithDestructiveHintAnnotation(false), mcplib.WithIdempotentHintAnnotation(true))
 		}
 		s.AddTool(mcplib.NewTool(toolName, options...), shellOutToCLI(cliPath, path))
 	})

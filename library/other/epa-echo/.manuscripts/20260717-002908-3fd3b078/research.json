@@ -1,0 +1,122 @@
+{
+  "api_name": "epa-echo",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": null,
+  "patterns": null,
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Explainable facility resolution",
+      "command": "resolve facility",
+      "description": "Rank bounded facility matches while preserving FRS identifiers, addresses, program status fields, and query provenance.",
+      "rationale": ""
+    },
+    {
+      "name": "Facility dossier change set",
+      "command": "dossier diff",
+      "description": "Compare a live detailed facility report with the prior local snapshot and list changed ECHO sections without assigning a score.",
+      "rationale": ""
+    },
+    {
+      "name": "Portfolio compliance watch",
+      "command": "watch",
+      "description": "Fetch a bounded CSV portfolio of facility IDs and atomically report changed detailed-report sections since the prior run.",
+      "rationale": ""
+    },
+    {
+      "name": "Explained nearby scan",
+      "command": "nearby explain",
+      "description": "List facilities within an EPA-supported radius and expose the compliance, inspection, action, and penalty fields behind each concern.",
+      "rationale": ""
+    },
+    {
+      "name": "Effluent exceedance trend",
+      "command": "effluent trend",
+      "description": "Return ECHO's reported Clean Water Act effluent compliance and exceedance records for one stable facility identifier.",
+      "rationale": ""
+    },
+    {
+      "name": "Enforcement chain timeline",
+      "command": "enforcement timeline",
+      "description": "Collect dated inspection, violation, formal-action, and enforcement sections from a detailed facility report without causal inference.",
+      "rationale": ""
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Explainable facility resolution",
+      "command": "resolve facility",
+      "description": "Rank bounded facility matches while preserving FRS identifiers, addresses, program status fields, and query provenance.",
+      "rationale": ""
+    },
+    {
+      "name": "Facility dossier change set",
+      "command": "dossier diff",
+      "description": "Compare a live detailed facility report with the prior local snapshot and list changed ECHO sections without assigning a score.",
+      "rationale": ""
+    },
+    {
+      "name": "Portfolio compliance watch",
+      "command": "watch",
+      "description": "Fetch a bounded CSV portfolio of facility IDs and atomically report changed detailed-report sections since the prior run.",
+      "rationale": ""
+    },
+    {
+      "name": "Explained nearby scan",
+      "command": "nearby explain",
+      "description": "List facilities within an EPA-supported radius and expose the compliance, inspection, action, and penalty fields behind each concern.",
+      "rationale": ""
+    },
+    {
+      "name": "Effluent exceedance trend",
+      "command": "effluent trend",
+      "description": "Return ECHO's reported Clean Water Act effluent compliance and exceedance records for one stable facility identifier.",
+      "rationale": ""
+    },
+    {
+      "name": "Enforcement chain timeline",
+      "command": "enforcement timeline",
+      "description": "Collect dated inspection, violation, formal-action, and enforcement sections from a detailed facility report without causal inference.",
+      "rationale": ""
+    }
+  ],
+  "narrative": {
+    "value_prop": "Resolve EPA-regulated facilities, inspect transparent compliance evidence, and retain change history without creating opaque risk scores.",
+    "quickstart": [
+      {
+        "command": "epa-echo-pp-cli resolve facility --name 'Exxon' --state TX --agent",
+        "comment": "Resolve a name to source-preserving FRS matches."
+      },
+      {
+        "command": "epa-echo-pp-cli dossier diff 110009441979 --agent",
+        "comment": "Create or compare a detailed facility snapshot."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Many facilities match",
+        "fix": ""
+      }
+    ],
+    "when_to_use": "Use for query-only facility compliance research and reproducible ECHO snapshot changes.",
+    "anti_triggers": [
+      "Do not use a result as a composite environmental risk score.",
+      "Do not assume similarly named facilities are the same entity.",
+      "Use EPA bulk downloads for large-volume analysis."
+    ],
+    "recipes": [
+      {
+        "title": "Explain nearby facilities",
+        "command": "epa-echo-pp-cli nearby explain --latitude 41.83 --longitude -71.42 --radius 5 --agent",
+        "explanation": "Return bounded nearby facilities with the ECHO fields driving each concern flag."
+      },
+      {
+        "title": "Order enforcement evidence",
+        "command": "epa-echo-pp-cli enforcement timeline 110009441979 --agent",
+        "explanation": "Keep reported actions and penalties attached to their source sections."
+      }
+    ]
+  }
+}

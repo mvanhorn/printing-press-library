@@ -1,0 +1,1166 @@
+name: tiimo
+description: Discovered API spec for webapp-tiimoapp
+version: 0.1.0
+base_url: https://api.tiimoapp.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/tiimo-pp-cli/config.toml
+resources:
+    configuration:
+        description: Operations on configuration
+        endpoints:
+            list_configuration:
+                method: GET
+                path: /api/configuration
+                description: GET /api/configuration
+                params:
+                    - name: braze
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: blacklistEvents
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: event
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: interaction_type
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: title
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: whitelistEventTypes
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: experiments
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: lockedFeatures
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: unlockedEntitlementLevel
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: onboarding
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: onboarding_video
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: onboarding_video_widget
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                    - name: streaksVersion
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: updatePrompt
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: 2.20.36
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: isForced
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: shouldPrompt
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                body: []
+                response:
+                    type: array
+                    item: ConfigurationLockedFeature
+                pagination: null
+                response_path: lockedFeatures
+    connect:
+        description: Operations on userinfo
+        endpoints:
+            list_userinfo:
+                method: GET
+                path: /connect/userinfo
+                description: GET /connect/userinfo
+                params:
+                    - name: email
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: email
+                    - name: email_verified
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sub
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                body: []
+                response:
+                    type: object
+                    item: Userinfo
+                pagination: null
+    externalCalendar:
+        description: Operations on linkedCalendars
+        endpoints:
+            get_activities:
+                method: GET
+                path: /api/externalCalendar/profiles/{profile_id}/externalCalendars/{externalcalendar_id}/activities
+                description: GET /api/externalCalendar/profiles/{profile_id}/externalCalendars/{externalcalendar_id}/activities
+                params:
+                    - name: externalcalendar_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The externalcalendar_id path segment
+                      fields: []
+                    - name: fromDate
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                    - name: toDate
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Activity202608142
+                pagination: null
+                response_path: "2026-08-14"
+            get_linkedCalendars:
+                method: GET
+                path: /api/externalCalendar/profiles/{profile_id}/linkedCalendars
+                description: GET /api/externalCalendar/profiles/{profile_id}/linkedCalendars
+                params:
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: LinkedCalendar
+                pagination: null
+    profiles:
+        description: Operations on profiles
+        endpoints:
+            create_activities:
+                method: POST
+                path: /api/profiles/{profile_id}/activities
+                description: POST /api/profiles/{profile_id}/activities
+                params:
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Activity2
+                pagination: null
+            delete_activities:
+                method: DELETE
+                path: /api/profiles/{profile_id}/activities/{activity_id}
+                description: DELETE /api/profiles/{profile_id}/activities/{activity_id}
+                params:
+                    - name: activity_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The activity_id path segment
+                      fields: []
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: activities
+                pagination: null
+            get_activities:
+                method: GET
+                path: /api/profiles/{profile_id}/activities
+                description: GET /api/profiles/{profile_id}/activities
+                params:
+                    - name: fromDate
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                    - name: toDate
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Activity20260814
+                pagination: null
+                response_path: "2026-08-14"
+            get_activities_2:
+                method: GET
+                path: /api/profiles/{profile_id}/activities/{activity_id}
+                description: GET /api/profiles/{profile_id}/activities/{activity_id}
+                params:
+                    - name: activity_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The activity_id path segment
+                      fields: []
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Activity
+                pagination: null
+            get_profiles:
+                method: GET
+                path: /api/profiles/{profile_id}
+                description: GET /api/profiles/{profile_id}
+                params:
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Profile2
+                pagination: null
+            get_routines:
+                method: GET
+                path: /api/profiles/{profile_id}/routines
+                description: GET /api/profiles/{profile_id}/routines
+                params:
+                    - name: from
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                    - name: to
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: routines
+                pagination: null
+            get_tags:
+                method: GET
+                path: /api/profiles/{profile_id}/tags
+                description: GET /api/profiles/{profile_id}/tags
+                params:
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Tag
+                pagination: null
+            get_todo_task_lists:
+                method: GET
+                path: /api/profiles/{profile_id}/todo-task-lists
+                description: GET /api/profiles/{profile_id}/todo-task-lists
+                params:
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: TodoTaskListList
+                pagination: null
+                response_path: lists
+            get_todo_tasks:
+                method: GET
+                path: /api/profiles/{profile_id}/todo-tasks
+                description: GET /api/profiles/{profile_id}/todo-tasks
+                params:
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: TodoTask
+                pagination: null
+            list_profiles:
+                method: GET
+                path: /api/profiles
+                description: GET /api/profiles
+                params:
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: profileId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                body: []
+                response:
+                    type: array
+                    item: Profile
+                pagination: null
+            update_activities:
+                method: PUT
+                path: /api/profiles/{profile_id}/activities/{activity_id}
+                description: PUT /api/profiles/{profile_id}/activities/{activity_id}
+                params:
+                    - name: activity_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The activity_id path segment
+                      fields: []
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Activity3
+                pagination: null
+types:
+    Activity:
+        fields:
+            - name: activityId
+              type: string
+              format: uuid
+            - name: allowEarlyEnd
+              type: bool
+            - name: allowEarlyStart
+              type: bool
+            - name: blockRecurrenceUpdateExternalEvent
+              type: bool
+            - name: checklist
+              type: ref:Checklist2
+            - name: description
+              type: string
+            - name: duration
+              type: integer
+            - name: durationActual
+              type: integer
+            - name: durationPaused
+              type: integer
+            - name: endTime
+              type: string
+            - name: endTimeActual
+              type: string
+            - name: endTimeUtc
+              type: string
+            - name: grouping
+              type: ref:Grouping2
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: isAllDay
+              type: bool
+            - name: isReadOnly
+              type: bool
+            - name: isRepeating
+              type: bool
+            - name: recurrenceType
+              type: string
+            - name: repetition
+              type: ref:Repetition2
+            - name: sortPriority
+              type: integer
+            - name: startTime
+              type: string
+            - name: startTimeActual
+              type: string
+            - name: startTimeLocal
+              type: string
+            - name: startTimeUtc
+              type: string
+            - name: tagIds
+              type: array
+            - name: timeUtcOffset
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+    Activity2:
+        fields:
+            - name: activityId
+              type: string
+              format: uuid
+            - name: allowEarlyEnd
+              type: bool
+            - name: allowEarlyStart
+              type: bool
+            - name: blockRecurrenceUpdateExternalEvent
+              type: bool
+            - name: checklist
+              type: ref:Checklist3
+            - name: description
+              type: string
+            - name: duration
+              type: integer
+            - name: durationActual
+              type: integer
+            - name: durationPaused
+              type: integer
+            - name: endTime
+              type: string
+            - name: endTimeActual
+              type: string
+            - name: endTimeUtc
+              type: string
+            - name: grouping
+              type: ref:Grouping3
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: isAllDay
+              type: bool
+            - name: isReadOnly
+              type: bool
+            - name: isRepeating
+              type: bool
+            - name: recurrenceType
+              type: string
+            - name: repetition
+              type: ref:Repetition3
+            - name: sortPriority
+              type: integer
+            - name: startTime
+              type: string
+            - name: startTimeActual
+              type: string
+            - name: startTimeLocal
+              type: string
+            - name: startTimeUtc
+              type: string
+            - name: tagIds
+              type: array
+            - name: timeUtcOffset
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+    Activity3:
+        fields:
+            - name: activityId
+              type: string
+              format: uuid
+            - name: allowEarlyEnd
+              type: bool
+            - name: allowEarlyStart
+              type: bool
+            - name: blockRecurrenceUpdateExternalEvent
+              type: bool
+            - name: checklist
+              type: ref:Checklist4
+            - name: description
+              type: string
+            - name: duration
+              type: integer
+            - name: durationActual
+              type: integer
+            - name: durationPaused
+              type: integer
+            - name: endTime
+              type: string
+            - name: endTimeActual
+              type: string
+            - name: endTimeUtc
+              type: string
+            - name: grouping
+              type: ref:Grouping4
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: isAllDay
+              type: bool
+            - name: isReadOnly
+              type: bool
+            - name: isRepeating
+              type: bool
+            - name: recurrenceType
+              type: string
+            - name: repetition
+              type: ref:Repetition4
+            - name: sortPriority
+              type: integer
+            - name: startTime
+              type: string
+            - name: startTimeActual
+              type: string
+            - name: startTimeLocal
+              type: string
+            - name: startTimeUtc
+              type: string
+            - name: tagIds
+              type: array
+            - name: timeUtcOffset
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+    Activity20260814:
+        fields:
+            - name: activityId
+              type: string
+              format: uuid
+            - name: allowEarlyEnd
+              type: bool
+            - name: allowEarlyStart
+              type: bool
+            - name: blockRecurrenceUpdateExternalEvent
+              type: bool
+            - name: checklist
+              type: ref:Checklist
+            - name: description
+              type: string
+            - name: duration
+              type: integer
+            - name: durationActual
+              type: integer
+            - name: durationPaused
+              type: integer
+            - name: endTime
+              type: string
+            - name: endTimeActual
+              type: string
+            - name: endTimeUtc
+              type: string
+            - name: grouping
+              type: ref:Grouping
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: isAllDay
+              type: bool
+            - name: isReadOnly
+              type: bool
+            - name: isRepeating
+              type: bool
+            - name: recurrenceType
+              type: string
+            - name: repetition
+              type: ref:Repetition
+            - name: sortPriority
+              type: integer
+            - name: startTime
+              type: string
+            - name: startTimeActual
+              type: string
+            - name: startTimeLocal
+              type: string
+            - name: startTimeUtc
+              type: string
+            - name: tagIds
+              type: array
+            - name: timeUtcOffset
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+    Activity202608142:
+        fields:
+            - name: activityId
+              type: string
+              format: uuid
+            - name: allowEarlyEnd
+              type: bool
+            - name: allowEarlyStart
+              type: bool
+            - name: blockRecurrenceUpdateExternalEvent
+              type: bool
+            - name: calendarId
+              type: string
+              format: uuid
+            - name: description
+              type: string
+            - name: duration
+              type: integer
+            - name: durationActual
+              type: integer
+            - name: durationPaused
+              type: integer
+            - name: endTime
+              type: string
+            - name: endTimeActual
+              type: string
+            - name: endTimeUtc
+              type: string
+            - name: externalEventId
+              type: string
+            - name: grouping
+              type: ref:Grouping5
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: isAllDay
+              type: bool
+            - name: isReadOnly
+              type: bool
+            - name: isRepeating
+              type: bool
+            - name: origin
+              type: string
+            - name: recurrenceType
+              type: string
+            - name: repetition
+              type: ref:Repetition5
+            - name: sortPriority
+              type: integer
+            - name: startTime
+              type: string
+            - name: startTimeActual
+              type: string
+            - name: startTimeLocal
+              type: string
+            - name: startTimeUtc
+              type: string
+            - name: tagIds
+              type: array
+            - name: timeUtcOffset
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+    Checklist:
+        fields:
+            - name: checklistId
+              type: string
+              format: uuid
+            - name: checklistItems
+              type: array
+            - name: isCompleted
+              type: bool
+    Checklist2:
+        fields:
+            - name: checklistId
+              type: string
+              format: uuid
+            - name: checklistItems
+              type: '[]ref:ChecklistItem'
+            - name: isCompleted
+              type: bool
+    Checklist3:
+        fields:
+            - name: checklistId
+              type: string
+              format: uuid
+            - name: checklistItems
+              type: '[]ref:ChecklistItem2'
+            - name: isCompleted
+              type: bool
+    Checklist4:
+        fields:
+            - name: checklistId
+              type: string
+              format: uuid
+            - name: checklistItems
+              type: '[]ref:ChecklistItem3'
+            - name: isCompleted
+              type: bool
+    ChecklistItem:
+        fields:
+            - name: checklistDate
+              type: string
+            - name: checklistItemId
+              type: string
+              format: uuid
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: index
+              type: integer
+            - name: isChecked
+              type: bool
+            - name: title
+              type: string
+    ChecklistItem2:
+        fields:
+            - name: checklistDate
+              type: string
+            - name: checklistItemId
+              type: string
+              format: uuid
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: index
+              type: integer
+            - name: isChecked
+              type: bool
+            - name: title
+              type: string
+    ChecklistItem3:
+        fields:
+            - name: checklistDate
+              type: string
+            - name: checklistItemId
+              type: string
+              format: uuid
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: index
+              type: integer
+            - name: isChecked
+              type: bool
+            - name: title
+              type: string
+    ConfigurationLockedFeature:
+        fields:
+            - name: id
+              type: string
+            - name: unlockedEntitlementLevel
+              type: string
+    Grouping:
+        fields:
+            - name: groupingLabel
+              type: string
+            - name: groupingType
+              type: string
+    Grouping2:
+        fields:
+            - name: groupingLabel
+              type: string
+            - name: groupingType
+              type: string
+    Grouping3:
+        fields:
+            - name: groupingLabel
+              type: string
+            - name: groupingType
+              type: string
+    Grouping4:
+        fields:
+            - name: groupingLabel
+              type: string
+            - name: groupingType
+              type: string
+    Grouping5:
+        fields:
+            - name: groupingLabel
+              type: string
+            - name: groupingType
+              type: string
+    Item:
+        fields:
+            - name: isCompleted
+              type: bool
+            - name: priority
+              type: string
+            - name: taskId
+              type: string
+              format: uuid
+            - name: title
+              type: string
+    LinkedCalendar:
+        fields:
+            - name: calendarId
+              type: string
+              format: uuid
+            - name: color
+              type: string
+            - name: connected
+              type: bool
+            - name: email
+              type: string
+              format: email
+            - name: externalCalendarId
+              type: string
+            - name: externalCalendarProvider
+              type: string
+            - name: hidden
+              type: bool
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: isReadOnly
+              type: bool
+            - name: name
+              type: string
+    Profile:
+        fields:
+            - name: name
+              type: string
+            - name: profileId
+              type: string
+              format: uuid
+    Profile2:
+        fields:
+            - name: name
+              type: string
+            - name: profileId
+              type: string
+              format: uuid
+    Repetition:
+        fields:
+            - name: daily
+              type: bool
+            - name: firstDay
+              type: string
+            - name: interval
+              type: integer
+            - name: monthly
+              type: bool
+            - name: monthlyDays
+              type: array
+            - name: type
+              type: string
+            - name: weekly
+              type: bool
+            - name: weeklyDays
+              type: array
+            - name: weeklyFrequency
+              type: integer
+            - name: yearly
+              type: bool
+    Repetition2:
+        fields:
+            - name: daily
+              type: bool
+            - name: firstDay
+              type: string
+            - name: interval
+              type: integer
+            - name: monthly
+              type: bool
+            - name: monthlyDays
+              type: array
+            - name: type
+              type: string
+            - name: weekly
+              type: bool
+            - name: weeklyDays
+              type: array
+            - name: weeklyFrequency
+              type: integer
+            - name: yearly
+              type: bool
+    Repetition3:
+        fields:
+            - name: daily
+              type: bool
+            - name: firstDay
+              type: string
+            - name: interval
+              type: integer
+            - name: monthly
+              type: bool
+            - name: monthlyDays
+              type: array
+            - name: type
+              type: string
+            - name: weekly
+              type: bool
+            - name: weeklyDays
+              type: array
+            - name: weeklyFrequency
+              type: integer
+            - name: yearly
+              type: bool
+    Repetition4:
+        fields:
+            - name: daily
+              type: bool
+            - name: firstDay
+              type: string
+            - name: interval
+              type: integer
+            - name: monthly
+              type: bool
+            - name: monthlyDays
+              type: array
+            - name: type
+              type: string
+            - name: weekly
+              type: bool
+            - name: weeklyDays
+              type: array
+            - name: weeklyFrequency
+              type: integer
+            - name: yearly
+              type: bool
+    Repetition5:
+        fields:
+            - name: daily
+              type: bool
+            - name: firstDay
+              type: string
+            - name: interval
+              type: integer
+            - name: monthly
+              type: bool
+            - name: monthlyDays
+              type: array
+            - name: type
+              type: string
+            - name: weekly
+              type: bool
+            - name: weeklyDays
+              type: array
+            - name: weeklyFrequency
+              type: integer
+            - name: yearly
+              type: bool
+    Tag:
+        fields:
+            - name: backgroundColor
+              type: string
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: name
+              type: string
+            - name: source
+              type: string
+            - name: tagId
+              type: string
+            - name: tagIndex
+              type: integer
+    TodoTask:
+        fields:
+            - name: backgroundColor
+              type: string
+            - name: duration
+              type: integer
+            - name: iconId
+              type: string
+            - name: iconType
+              type: string
+            - name: isCompleted
+              type: bool
+            - name: notes
+              type: string
+            - name: priority
+              type: string
+            - name: profileId
+              type: string
+              format: uuid
+            - name: sortOrder
+              type: integer
+            - name: tagIds
+              type: array
+            - name: taskId
+              type: string
+              format: uuid
+            - name: title
+              type: string
+            - name: todoTaskListId
+              type: string
+    TodoTaskListList:
+        fields:
+            - name: items
+              type: '[]ref:Item'
+            - name: profileId
+              type: string
+              format: uuid
+            - name: selectedGrouping
+              type: string
+            - name: sortOrder
+              type: integer
+            - name: title
+              type: string
+            - name: todoTaskListId
+              type: string
+    Userinfo:
+        fields:
+            - name: email
+              type: string
+              format: email
+            - name: email_verified
+              type: bool
+            - name: sub
+              type: string
+              format: uuid

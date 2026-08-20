@@ -1,0 +1,290 @@
+{
+  "api_name": "ridewithgps",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "pyrwgps",
+      "url": "https://github.com/ckdake/pyrwgps",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ridewithgps-mcp",
+      "url": "https://github.com/boezzz/ridewithgps-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ride-cli",
+      "url": "https://github.com/ridewithgps/ride-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "RideWithGPS",
+      "url": "https://github.com/SteveWinward/RideWithGPS",
+      "language": "C#",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ridewithgps-client",
+      "url": "https://github.com/jmoseley/ridewithgps-client",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-17T11:30:00Z",
+  "novel_features": [
+    {
+      "name": "Bulk export to your bike computer",
+      "command": "export",
+      "description": "Export many routes or trips to GPX, TCX, CSV, or KML files in one command — with cue sheets included, ready to side-load onto a Garmin, Wahoo, or Hammerhead. The bulk export Ride with GPS itself won't do.",
+      "rationale": "Synthesizes files from the local track_points/course_points mirror so a whole library exports in one pass; --native streams RideWithGPS's own render including device-native FIT. No competitor ships bulk export.",
+      "example": "ridewithgps-pp-cli export --type routes --format gpx --out ./gpx",
+      "why_it_matters": "Reach for this when a user wants routes onto a bike computer or rides as files on disk — one command instead of clicking export per route in the web app.",
+      "group": "Routes onto your bike computer"
+    },
+    {
+      "name": "Routes from an event",
+      "command": "event-routes",
+      "description": "List the routes attached to an event (group ride, gran fondo, brevet) and optionally export them straight to files for your bike computer.",
+      "rationale": "Pulls the event's embedded routes via the legacy event endpoint and reuses the export path — the API's v1 event response doesn't surface routes, and no other tool connects events to device-ready files.",
+      "example": "ridewithgps-pp-cli event-routes 12345678 --export gpx --out ./fondo",
+      "why_it_matters": "Reach for this when a user has signed up for an organized ride and wants that event's official routes on their head unit.",
+      "group": "Routes onto your bike computer"
+    },
+    {
+      "name": "Gear mileage \u0026 maintenance",
+      "command": "gear",
+      "description": "Per-bike accumulated mileage from your logged rides, plus maintenance-due flags against wear thresholds.",
+      "rationale": "Joins the synced gear and trips tables locally to sum distance per bike — data that is dashboard-only in RideWithGPS and queryable nowhere else.",
+      "example": "ridewithgps-pp-cli gear --due-km 4000 --agent",
+      "why_it_matters": "Reach for this to answer 'how many miles since my last chain swap' or 'which bike needs service' without a spreadsheet.",
+      "group": "Ride analytics that compound"
+    },
+    {
+      "name": "Training stats",
+      "command": "stats",
+      "description": "Time-windowed distance, elevation, and moving-time totals with activity-type breakdowns over your logged rides.",
+      "rationale": "Aggregates the local trips mirror by week/month/year — there is no API aggregation endpoint, so this only works against a local store.",
+      "example": "ridewithgps-pp-cli stats --period month --agent",
+      "why_it_matters": "Reach for this for 'how far did I ride this month' or 'how much have I climbed this year' — period totals, not single efforts.",
+      "group": "Ride analytics that compound"
+    },
+    {
+      "name": "Personal records",
+      "command": "records",
+      "description": "All-time best efforts — longest ride, most climbing, fastest average speed, biggest power — from your trip metrics.",
+      "rationale": "Sorts the local trips mirror on track-point-derived metrics to surface maxima RideWithGPS never exposes (it has no segments or PR feature).",
+      "example": "ridewithgps-pp-cli records --metric elevation --top 10 --agent",
+      "why_it_matters": "Reach for this for 'what's my longest ride' or 'my biggest climbing day' — top-N extremes, not period sums.",
+      "group": "Ride analytics that compound"
+    },
+    {
+      "name": "Route dedup",
+      "command": "dedup",
+      "description": "Find near-duplicate routes by distance and start/end geometry, and optionally delete the extras.",
+      "rationale": "Clusters routes by rounded distance + start/end coords + bounding box in the local store — a cross-row comparison no single API call can do.",
+      "example": "ridewithgps-pp-cli dedup --threshold 100 --agent",
+      "why_it_matters": "Reach for this to clean a route library full of near-identical versions of the same loop.",
+      "group": "Library hygiene"
+    },
+    {
+      "name": "Library audit",
+      "command": "audit",
+      "description": "Flag routes that are stale, private, or incomplete (missing name, description, or distance) — catalog hygiene across your library.",
+      "rationale": "Runs predicate checks over the synced routes in SQLite — catalog hygiene across hundreds of assets that the web UI makes you click through one at a time.",
+      "example": "ridewithgps-pp-cli audit --checks stale,private --agent",
+      "why_it_matters": "Reach for this before an event season to find routes that are stale, private when they should be shared, or missing details.",
+      "group": "Library hygiene"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bulk export to your bike computer",
+      "command": "export",
+      "description": "Export many routes or trips to GPX, TCX, CSV, or KML files in one command — with cue sheets included, ready to side-load onto a Garmin, Wahoo, or Hammerhead. The bulk export Ride with GPS itself won't do.",
+      "rationale": "Synthesizes files from the local track_points/course_points mirror so a whole library exports in one pass; --native streams RideWithGPS's own render including device-native FIT. No competitor ships bulk export.",
+      "example": "ridewithgps-pp-cli export --type routes --format gpx --out ./gpx",
+      "why_it_matters": "Reach for this when a user wants routes onto a bike computer or rides as files on disk — one command instead of clicking export per route in the web app.",
+      "group": "Routes onto your bike computer"
+    },
+    {
+      "name": "Routes from an event",
+      "command": "event-routes",
+      "description": "List the routes attached to an event (group ride, gran fondo, brevet) and optionally export them straight to files for your bike computer.",
+      "rationale": "Pulls the event's embedded routes via the legacy event endpoint and reuses the export path — the API's v1 event response doesn't surface routes, and no other tool connects events to device-ready files.",
+      "example": "ridewithgps-pp-cli event-routes 12345678 --export gpx --out ./fondo",
+      "why_it_matters": "Reach for this when a user has signed up for an organized ride and wants that event's official routes on their head unit.",
+      "group": "Routes onto your bike computer"
+    },
+    {
+      "name": "Gear mileage \u0026 maintenance",
+      "command": "gear",
+      "description": "Per-bike accumulated mileage from your logged rides, plus maintenance-due flags against wear thresholds.",
+      "rationale": "Joins the synced gear and trips tables locally to sum distance per bike — data that is dashboard-only in RideWithGPS and queryable nowhere else.",
+      "example": "ridewithgps-pp-cli gear --due-km 4000 --agent",
+      "why_it_matters": "Reach for this to answer 'how many miles since my last chain swap' or 'which bike needs service' without a spreadsheet.",
+      "group": "Ride analytics that compound"
+    },
+    {
+      "name": "Training stats",
+      "command": "stats",
+      "description": "Time-windowed distance, elevation, and moving-time totals with activity-type breakdowns over your logged rides.",
+      "rationale": "Aggregates the local trips mirror by week/month/year — there is no API aggregation endpoint, so this only works against a local store.",
+      "example": "ridewithgps-pp-cli stats --period month --agent",
+      "why_it_matters": "Reach for this for 'how far did I ride this month' or 'how much have I climbed this year' — period totals, not single efforts.",
+      "group": "Ride analytics that compound"
+    },
+    {
+      "name": "Personal records",
+      "command": "records",
+      "description": "All-time best efforts — longest ride, most climbing, fastest average speed, biggest power — from your trip metrics.",
+      "rationale": "Sorts the local trips mirror on track-point-derived metrics to surface maxima RideWithGPS never exposes (it has no segments or PR feature).",
+      "example": "ridewithgps-pp-cli records --metric elevation --top 10 --agent",
+      "why_it_matters": "Reach for this for 'what's my longest ride' or 'my biggest climbing day' — top-N extremes, not period sums.",
+      "group": "Ride analytics that compound"
+    },
+    {
+      "name": "Route dedup",
+      "command": "dedup",
+      "description": "Find near-duplicate routes by distance and start/end geometry, and optionally delete the extras.",
+      "rationale": "Clusters routes by rounded distance + start/end coords + bounding box in the local store — a cross-row comparison no single API call can do.",
+      "example": "ridewithgps-pp-cli dedup --threshold 100 --agent",
+      "why_it_matters": "Reach for this to clean a route library full of near-identical versions of the same loop.",
+      "group": "Library hygiene"
+    },
+    {
+      "name": "Library audit",
+      "command": "audit",
+      "description": "Flag routes that are stale, private, or incomplete (missing name, description, or distance) — catalog hygiene across your library.",
+      "rationale": "Runs predicate checks over the synced routes in SQLite — catalog hygiene across hundreds of assets that the web UI makes you click through one at a time.",
+      "example": "ridewithgps-pp-cli audit --checks stale,private --agent",
+      "why_it_matters": "Reach for this before an event season to find routes that are stale, private when they should be shared, or missing details.",
+      "group": "Library hygiene"
+    }
+  ],
+  "narrative": {
+    "display_name": "Ride with GPS",
+    "headline": "Your whole Ride with GPS library, offline — bulk export, gear mileage, and ride analytics no other tool ships.",
+    "value_prop": "A fast, scriptable, agent-native CLI for Ride with GPS with a local SQLite mirror of your routes and trips. Bulk-export everything (with cue sheets) to GPX/TCX/CSV for your bike computer with 'export', pull an organized ride's routes with 'event-routes', track per-bike mileage with 'gear', see this month's climbing with 'stats', surface all-time bests with 'records', and clean a junk-drawer library with 'dedup' and 'audit' — none of which the web app or any existing tool does.",
+    "auth_narrative": "Ride with GPS uses two credentials: a client API key and a per-user auth token, sent as the x-rwgps-api-key and x-rwgps-auth-token headers. Create an API client under your account's developers tab for the API key, then set RIDEWITHGPS_API_KEY and RIDEWITHGPS_AUTH_TOKEN. To get your auth token from your email and password, run 'auth-tokens --user-email \u003cyou\u003e --user-password \u003cpw\u003e', which returns it. The v1 API does not accept browser cookies; run 'doctor' to verify.",
+    "quickstart": [
+      {
+        "command": "ridewithgps-pp-cli doctor --dry-run",
+        "comment": "health check — confirms credentials and API reachability without writing anything"
+      },
+      {
+        "command": "ridewithgps-pp-cli sync --resources routes,trips --full",
+        "comment": "mirror your routes and trips into the local SQLite store"
+      },
+      {
+        "command": "ridewithgps-pp-cli stats --period month",
+        "comment": "this month's distance, elevation, and moving time from the local mirror"
+      },
+      {
+        "command": "ridewithgps-pp-cli export --type routes --format gpx --out ./gpx",
+        "comment": "bulk-export every route to GPX — the thing the web app won't do"
+      },
+      {
+        "command": "ridewithgps-pp-cli gear",
+        "comment": "per-bike mileage rolled up from your logged rides"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Failed to authenticate the request",
+        "fix": "Set RIDEWITHGPS_API_KEY and RIDEWITHGPS_AUTH_TOKEN (the v1 API needs both, sent as x-rwgps-* headers), or harvest a token with 'auth-tokens --user-email \u003ce\u003e --user-password \u003cpw\u003e'."
+      },
+      {
+        "symptom": "List commands return only some of my routes",
+        "fix": "The v1 API returns only assets you own; routes shared with you must be copied into your account first."
+      },
+      {
+        "symptom": "export writes no files",
+        "fix": "Run 'sync' first so track_points are mirrored locally, or pass --native to stream Ride with GPS's own file render."
+      },
+      {
+        "symptom": "Requests slow down or pause",
+        "fix": "Rate limits are undocumented; the CLI backs off automatically on 429 and retries — let it finish."
+      }
+    ],
+    "when_to_use": "Use this CLI to bulk-export Ride with GPS routes and trips to files, mirror a library offline and query it without the API, roll up training volume and personal records from logged rides, track per-bike gear mileage and maintenance, and script route/event/POI operations. It is the right tool when a task is about your existing library and ride history rather than building or navigating a new route.",
+    "anti_triggers": [
+      "Do not use this CLI for live turn-by-turn navigation — use the Ride with GPS mobile app.",
+      "Do not use this CLI to draw or build a new route on a map — use the web route planner.",
+      "Do not use this CLI to record a ride from GPS in real time — use the mobile app.",
+      "Do not use this CLI for the social activity feed or following other riders."
+    ],
+    "recipes": [
+      {
+        "title": "Bulk-export the whole route library to GPX for your head unit",
+        "command": "ridewithgps-pp-cli export --type routes --format gpx --out ./gpx",
+        "explanation": "Writes one GPX file per route (with cue sheets) from the local mirror — ready to side-load onto a Garmin or Wahoo."
+      },
+      {
+        "title": "Get an event's routes onto your bike computer",
+        "command": "ridewithgps-pp-cli event-routes 12345678 --export gpx --out ./fondo",
+        "explanation": "Pulls the routes attached to an organized ride and writes them as files for your head unit."
+      },
+      {
+        "title": "Find and remove duplicate routes",
+        "command": "ridewithgps-pp-cli dedup --threshold 100 --apply",
+        "explanation": "Clusters near-identical routes within 100m and deletes the extras (omit --apply to preview)."
+      },
+      {
+        "title": "Check which bikes are due for service",
+        "command": "ridewithgps-pp-cli gear --due-km 4000",
+        "explanation": "Flags bikes past 4000km of accumulated trip mileage."
+      },
+      {
+        "title": "Agent: pull a route's cue sheet with narrow fields",
+        "command": "ridewithgps-pp-cli routes get 12345678 --agent --select route.name,route.distance,route.course_points.n,route.course_points.d",
+        "explanation": "Route detail is deeply nested and large; --select narrows to cue-sheet names and distances so an agent does not parse tens of KB of track points."
+      },
+      {
+        "title": "Agent: this year's training totals",
+        "command": "ridewithgps-pp-cli stats --period year --agent",
+        "explanation": "Returns structured yearly distance/elevation/time totals for downstream reasoning."
+      }
+    ],
+    "trigger_phrases": [
+      "export my ridewithgps routes to my garmin",
+      "get this event's routes on my wahoo",
+      "bulk export gpx from ride with gps",
+      "how many miles on my bike",
+      "my biggest climbing month",
+      "find duplicate routes",
+      "use ridewithgps",
+      "run ridewithgps"
+    ]
+  }
+}

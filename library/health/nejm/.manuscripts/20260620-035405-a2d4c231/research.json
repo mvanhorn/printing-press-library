@@ -1,0 +1,102 @@
+{
+  "api_name": "nejm",
+  "novelty_score": 0,
+  "alternatives": [
+    {"name": "openpharma-org/pubmed-mcp", "url": "https://github.com/openpharma-org/pubmed-mcp", "language": "TypeScript", "stars": 0, "command_count": 0},
+    {"name": "JamesANZ/medical-mcp", "url": "https://github.com/JamesANZ/medical-mcp", "language": "TypeScript", "stars": 0, "command_count": 0},
+    {"name": "Cicatriiz/healthcare-mcp-public", "url": "https://github.com/Cicatriiz/healthcare-mcp-public", "language": "TypeScript", "stars": 0, "command_count": 0},
+    {"name": "andybrandt/mcp-simple-pubmed", "url": "https://github.com/andybrandt/mcp-simple-pubmed", "language": "Python", "stars": 0, "command_count": 0}
+  ],
+  "novel_features": [
+    {
+      "name": "Time-windowed new articles",
+      "command": "since",
+      "description": "Show NEJM articles first seen in your local corpus within a time window.",
+      "rationale": "Requires local first-seen timestamps; NEJM offers no 'what's new since' API.",
+      "example": "nejm-pp-cli since 48h --agent",
+      "why_it_matters": "Reach for this when an agent needs only what changed since the last check, not the whole issue.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Current-issue reading digest",
+      "command": "digest",
+      "description": "Triage the current issue grouped by specialty or type with abstracts and free/paywalled flags.",
+      "rationale": "Requires a local join across issue articles and their enriched metadata; the site has no digest view.",
+      "example": "nejm-pp-cli digest --agent",
+      "why_it_matters": "Use to summarize the week's NEJM issue in one structured payload instead of fetching each article.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Personal reading list",
+      "command": "reading-list",
+      "description": "Queue NEJM articles by DOI locally and track read/unread state.",
+      "rationale": "Requires local mutable per-user state the logged-out website lacks.",
+      "example": "nejm-pp-cli reading-list add 10.1056/NEJMoa2506905",
+      "why_it_matters": "Use to persist a clinician's to-read queue across sessions without an account.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Specialty and type trends",
+      "command": "trends",
+      "description": "Show how NEJM output distributes by specialty, article type, and issue across the synced corpus.",
+      "rationale": "Requires aggregation across the local corpus (and across repeated syncs over time).",
+      "example": "nejm-pp-cli trends --agent",
+      "why_it_matters": "Use to quantify NEJM coverage patterns no single page exposes.",
+      "group": "Corpus analytics"
+    },
+    {
+      "name": "Open-access finder",
+      "command": "open-access",
+      "description": "Surface free full-text NEJM articles in the corpus, newest first.",
+      "rationale": "Requires enriched isFree flags filtered locally; the website buries free full-text.",
+      "example": "nejm-pp-cli open-access --agent --limit 20",
+      "why_it_matters": "Use for unsubscribed readers who can only act on freely-readable articles.",
+      "group": "Corpus analytics"
+    }
+  ],
+  "narrative": {
+    "display_name": "New England Journal of Medicine",
+    "headline": "Browse, search, and triage New England Journal of Medicine articles from the terminal, backed by a local corpus and a browser-compatible transport that clears Cloudflare.",
+    "value_prop": "NEJM has no public API. This CLI turns its public surfaces into an offline-queryable, agent-native corpus: the current issue and recently-published feeds, per-article abstracts and metadata by DOI, and full-text search over everything you have synced. Novel local-state commands like 'since', 'digest', 'reading-list', 'trends', and 'open-access' do things the website and PubMed wrappers cannot.",
+    "auth_narrative": "No account or API key is required for the public surfaces this CLI uses (RSS feeds and server-rendered article metadata). Full article text remains subscription-gated on nejm.org; the CLI reports a free/paywalled flag and never circumvents the paywall.",
+    "quickstart": [
+      {"command": "nejm-pp-cli doctor --dry-run", "comment": "Confirm the CLI is wired and NEJM is reachable via the Surf transport."},
+      {"command": "nejm-pp-cli sync", "comment": "Pull the current issue and recently-published feeds into the local store."},
+      {"command": "nejm-pp-cli current", "comment": "List the current issue's articles with authors and pages."},
+      {"command": "nejm-pp-cli search \"sepsis\"", "comment": "Offline full-text search over the synced corpus."},
+      {"command": "nejm-pp-cli article get 10.1056/NEJMoa2506905", "comment": "Fetch one article's abstract and metadata by DOI."}
+    ],
+    "troubleshoots": [
+      {"symptom": "Empty results from current/search", "fix": "Run 'nejm-pp-cli sync' first to populate the local store."},
+      {"symptom": "Abstract/specialty/type fields are blank", "fix": "Run 'nejm-pp-cli sync --enrich' or 'nejm-pp-cli article get <doi>' to fetch detail-page metadata."},
+      {"symptom": "Plain HTTP returns 403 / 'Just a moment'", "fix": "The CLI uses Surf (Chrome-TLS) transport which clears Cloudflare; ensure you are on a current build."},
+      {"symptom": "Live keyword search against nejm.org fails", "fix": "NEJM's search endpoint is Cloudflare-hard; this CLI searches the local synced corpus instead. Sync more issues to widen coverage."}
+    ],
+    "when_to_use": "Use this CLI when an agent or clinician needs current peer-reviewed NEJM literature metadata programmatically: the current issue, recently published articles, an article's abstract and bibliographic data by DOI, or an offline searchable corpus filtered by specialty, type, author, or free-access. It is the right choice when you want structured, composable output without driving a Cloudflare-gated browser.",
+    "anti_triggers": [
+      "Do not use this CLI to read full article text behind the NEJM paywall; it surfaces abstracts and metadata only.",
+      "Do not use it for a broad multi-journal literature review; use a PubMed/Crossref tool for cross-journal search.",
+      "Do not use it for live keyword search of the entire NEJM archive; it searches only the locally synced corpus."
+    ],
+    "recipes": [
+      {"title": "Current issue, agent-native, narrowed fields", "command": "nejm-pp-cli current --agent --select articles.doi,articles.title,articles.authors", "explanation": "Return only the fields an agent needs from the current issue, as compact JSON."},
+      {"title": "What's new in the last two days", "command": "nejm-pp-cli since 48h --agent", "explanation": "List articles first seen in the local corpus within the window."},
+      {"title": "Triage the week by specialty", "command": "nejm-pp-cli digest --group specialty --agent", "explanation": "Group the current issue by specialty with one-line abstracts."},
+      {"title": "Free full-text only", "command": "nejm-pp-cli open-access --limit 20 --agent", "explanation": "Surface freely-readable NEJM articles, newest first."},
+      {"title": "Cite an article", "command": "nejm-pp-cli article cite 10.1056/NEJMoa2506905 --format bibtex", "explanation": "Emit a BibTeX entry from the local article record."}
+    ],
+    "trigger_phrases": [
+      "what's in the current NEJM issue",
+      "search NEJM for",
+      "get NEJM article",
+      "recent NEJM articles",
+      "NEJM articles on",
+      "use nejm",
+      "run nejm"
+    ]
+  },
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-20T04:00:00Z"
+}

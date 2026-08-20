@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/shopper-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260803-082038-a3b929d1",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

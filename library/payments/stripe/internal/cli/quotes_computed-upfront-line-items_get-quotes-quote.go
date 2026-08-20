@@ -34,10 +34,12 @@ func newQuotesComputedUpfrontLineItemsGetQuotesQuoteCmd(flags *rootFlags) *cobra
 			}
 
 			path := "/v1/quotes/{quote}/computed_upfront_line_items"
-			if len(args) < 4 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("quote is required\nUsage: %s <%s>", cmd.CommandPath(), "quote"))
 			}
-			path = replacePathParam(path, "quote", args[3])
+			path = replacePathParam(path, "quote", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "computed-upfront-line-items", path, map[string]string{
 				"ending_before":  fmt.Sprintf("%v", flagEndingBefore),
 				"expand":         fmt.Sprintf("%v", flagExpand),

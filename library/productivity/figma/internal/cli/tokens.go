@@ -108,16 +108,19 @@ func canonicalKeys(m map[string]interface{}) map[string]interface{} {
 	return out
 }
 
-func newTokensCmd(flags *rootFlags) *cobra.Command {
+func newNovelTokensCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "tokens",
 		Short: "Design-token operations on Figma variables.",
 	}
-	cmd.AddCommand(newTokensDiffCmd(flags))
+	cmd.AddCommand(newNovelTokensDiffCmd(flags))
 	return cmd
 }
 
-func newTokensDiffCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source local
+// tokens diff reads variable snapshots exclusively from the local SQLite store
+// (HEAD..HEAD today); it never calls the live API. Run 'figma-pp-cli sync' first.
+func newNovelTokensDiffCmd(flags *rootFlags) *cobra.Command {
 	var fromVer, toVer, format, dbPath string
 
 	cmd := &cobra.Command{
@@ -271,6 +274,9 @@ func loadVariablesSnapshot(db *store.Store, fileKey, version string) ([]variable
 			v.ValuesByMode = vbm
 		}
 		out = append(out, v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	if !hasAny {
 		return nil, fmt.Errorf("no variables for file %s", fileKey)

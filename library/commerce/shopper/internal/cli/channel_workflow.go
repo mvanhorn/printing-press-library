@@ -6,8 +6,10 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -55,7 +57,14 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"address", "cart", "catalog", "catalog-departments", "catalog-products-news", "catalog-search-suggest", "delivery", "delivery-v2-calendar", "features", "features-timer-tick", "features-toggle", "session"}
+			resources := []string{"address", "cart", "catalog", "catalog-departments", "catalog-products-news", "delivery", "delivery-v2-calendar", "features", "features-timer-tick", "features-toggle", "orders", "session"}
+			archiveMaxPages := 100
+			if cliutil.IsDogfoodEnv() {
+				archiveMaxPages = 1
+				if len(resources) > 3 {
+					resources = resources[:3]
+				}
+			}
 			totalSynced := 0
 			syncEventWriter := cmd.OutOrStdout()
 			if flags.asJSON {
@@ -67,13 +76,18 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			// since filter, not cursor reset. Mirrors newSyncCmd's pattern.
 			if full {
 				for _, resource := range resources {
-					_ = s.SaveSyncState(resource, "", 0)
+					if err := s.SaveSyncState(resource, "", 0); err != nil {
+						return fmt.Errorf("clearing sync state for %s: %w", resource, err)
+					}
 				}
 			}
 
 			for _, resource := range resources {
-				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, nil, syncEventWriter)
+				res := syncResource(cmd.Context(), c, s, resource, "", full, archiveMaxPages, false, false, nil, syncEventWriter)
 				if res.Err != nil {
+					if isSyncStatePersistenceError(res.Err) {
+						return fmt.Errorf("archiving %s: %w", resource, res.Err)
+					}
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
 					continue
 				}
@@ -101,7 +115,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/shopper-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd
@@ -123,15 +137,34 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("shopper-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
-			if err != nil {
-				return fmt.Errorf("opening store: %w", err)
-			}
-			defer s.Close()
 
-			status, err := s.Status()
-			if err != nil {
-				return err
+			status := map[string]int{}
+			if _, err := os.Stat(dbPath); err == nil {
+				s, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)
+				if err != nil {
+					return fmt.Errorf("opening store read-only: %w", err)
+				}
+				defer s.Close()
+
+				schemaVersion, err := s.SchemaVersion()
+				if err != nil {
+					return fmt.Errorf("checking store schema read-only: %w", err)
+				}
+				if schemaVersion < store.StoreSchemaVersion {
+
+					return fmt.Errorf("local store schema version %d requires migration to %d; run 'workflow archive' to migrate it", schemaVersion, store.StoreSchemaVersion)
+
+				}
+				if schemaVersion > store.StoreSchemaVersion {
+					return fmt.Errorf("local store schema version %d is newer than supported version %d; upgrade the CLI binary", schemaVersion, store.StoreSchemaVersion)
+				}
+
+				status, err = s.Status()
+				if err != nil {
+					return err
+				}
+			} else if !os.IsNotExist(err) {
+				return fmt.Errorf("checking store path: %w", err)
 			}
 
 			if flags.asJSON {
@@ -157,7 +190,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
 }

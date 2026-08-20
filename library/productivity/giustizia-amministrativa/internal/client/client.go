@@ -529,7 +529,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		if authHeader != "" {
 			req.Header.Set("Authorization", authHeader)
 		}
-		req.Header.Set("User-Agent", "giustizia-amministrativa-pp-cli/0.1.0 (+https://github.com/aborruso)")
+		req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/0.1.0 (+https://github.com/aborruso)")
 		req.Header.Set("Accept-Language", "it-IT,it;q=0.9")
 		if c.Config != nil {
 			for k, v := range c.Config.Headers {
@@ -545,7 +545,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			req.Header.Del(BinaryResponseHeader)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "giustizia-amministrativa-pp-cli/0.1.0")
+			req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/0.1.0")
 		}
 		// Go's net/http omits Accept by default; browsers, curl, and other
 		// stdlibs always send it. Fingerprint-checking WAFs (Imperva, Akamai,

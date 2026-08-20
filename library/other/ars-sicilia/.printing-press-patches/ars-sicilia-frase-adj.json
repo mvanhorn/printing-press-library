@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "id": "ars-sicilia-frase-adj",
+  "summary": "Nuovo flag `--frase` su tutti i comandi di ricerca che hanno `--testo`: unisce le parole con l'operatore di adiacenza ISIS (`adj`) invece che con AND, cercando la locuzione. Sugli archivi /bd/ ricade nel gate dei filtri non supportati e fallisce con errore esplicito. `--testo` resta invariato.",
+  "reason": "Complementa ars-sicilia-freetext-and, che converte deliberatamente la free-text multi-parola in AND. La conversione resta giusta come default, ma l'AND vale sull'intero testo del documento: su atti lunghi `--testo \"aree idonee\"` aggancia anche un ddl che ha 'aree' in un articolo e 'idonee' in un altro, riempiendo il --limit di risultati poco pertinenti e senza ordinamento per rilevanza. Mancava l'accesso esplicito al comportamento nativo di ISIS, che per le parole adiacenti e' proprio la ricerca di locuzione. Una parola sola passa invariata e un valore con operatori o parentesi resta verbatim, come in andJoinWords.",
+  "files": [
+    "internal/icaroclient/query.go",
+    "internal/icaroclient/query_test.go",
+    "internal/cli/ddl_cerca.go",
+    "internal/cli/leggi_cerca.go",
+    "internal/cli/odg_cerca.go",
+    "internal/cli/mozioni_cerca.go",
+    "internal/cli/interrogazioni_cerca.go",
+    "internal/cli/interpellanze_cerca.go",
+    "internal/cli/risoluzioni_cerca.go",
+    "internal/cli/resoconti_cerca.go",
+    "internal/cli/commissioni_sommari.go"
+  ],
+  "validated_outcome": "leg 18: `--testo \"aree idonee\"` -> 1140,1139,1138,1105,6030,1052 (peschicoltura, coworking); `--frase \"aree idonee\"` -> 1139,6030,73841,803 ('Norme in materia di aree idonee e non idonee'),789,726 ('Zone idonee e non idonee ad impiantistica fotovoltaica'). Query: (18.LEGISL) E (aree adj idonee). Parola singola -> (rifiuti), invariata. `resoconti cerca --frase` -> exit 1 con l'errore /bd/ che nomina il flag."
+}

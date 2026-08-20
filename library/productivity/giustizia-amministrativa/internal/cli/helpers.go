@@ -773,7 +773,7 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		"price": true, "amount": true, "cost": true, "fare": true,
 		"rate": true, "currency": true,
 		// Metrics
-		"rating": true, "score": true, "count": true,
+		"rating": true, "score": true, "count": true, "duplicati": true, "match_count": true,
 		// Locale / geo
 		"language": true, "locale": true, "country": true, "region": true,
 		"city": true, "domain": true,

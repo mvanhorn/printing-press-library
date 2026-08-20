@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "grants",
+  "cli_name": "grants-pp-cli",
+  "version": "2026.8.2",
+  "released_at": "2026-08-18T16:37:30Z",
+  "source_commit": "54e65e7ef30ebf00beb1fd204a77b20a68ae6c8c",
+  "printing_press_version": "4.25.0",
+  "run_id": "20260705-183000",
+  "changes": [
+    {
+      "title": "fix(grants): NIH and NSF keyword searches returned off-topic and unapplicable awards",
+      "pr": 1689,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1689",
+      "commit": "54e65e7ef30ebf00beb1fd204a77b20a68ae6c8c"
+    }
+  ]
+}

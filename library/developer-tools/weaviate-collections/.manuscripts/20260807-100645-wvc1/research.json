@@ -1,0 +1,202 @@
+{
+  "api_name": "weaviate-collections",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "weaviate-cli",
+      "url": "https://github.com/weaviate/weaviate-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "weave-cli",
+      "url": "https://github.com/maximilien/weave-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-weaviate",
+      "url": "https://github.com/sajal2692/mcp-weaviate",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-07T10:20:00Z",
+  "novel_features": [
+    {
+      "name": "Schema snapshot \u0026 history",
+      "command": "schema snapshot",
+      "description": "Save a point-in-time copy of every collection's config to the local store, then browse history over time.",
+      "rationale": "Weaviate has no config versioning; only a local store can retain point-in-time collection configs.",
+      "example": "weaviate-collections-pp-cli schema snapshot --label pre-migration",
+      "why_it_matters": "Use before any risky schema change so you have a rollback reference.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Schema drift diff",
+      "command": "schema diff",
+      "description": "Diff a collection's live config against a saved snapshot or another collection.",
+      "rationale": "Requires two configs held locally to diff; the API has no diff endpoint.",
+      "example": "weaviate-collections-pp-cli schema diff Article --against pre-migration",
+      "why_it_matters": "Catch unintended config drift between environments or over time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Collection config lint",
+      "command": "collections lint",
+      "description": "Flag risky collection configs: no vectorizer set, replication factor of 1, unindexed high-cardinality properties.",
+      "rationale": "Requires a local rule engine over the fetched config; no such endpoint exists.",
+      "example": "weaviate-collections-pp-cli collections lint Article",
+      "why_it_matters": "Catch production-readiness gaps before they bite in an incident.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Cross-collection tenant audit",
+      "command": "tenants audit",
+      "description": "See tenant counts and activity status across every collection in one view.",
+      "rationale": "Requires fan-out across every collection's tenants; no bulk endpoint exists.",
+      "example": "weaviate-collections-pp-cli tenants audit --json",
+      "why_it_matters": "Spot inactive or overloaded tenants across a multi-tenant deployment at a glance.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Schema export/import bundle",
+      "command": "schema export",
+      "description": "Export every collection's config as one portable JSON bundle for backup or promotion to another environment.",
+      "rationale": "No native schema-only backup feature exists; only a local export/import loop can move collection configs between clusters.",
+      "example": "weaviate-collections-pp-cli schema export --output schema-bundle.json",
+      "why_it_matters": "Promote a schema from staging to production, or restore after an incident, without full data backup.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Schema snapshot \u0026 history",
+      "command": "schema snapshot",
+      "description": "Save a point-in-time copy of every collection's config to the local store, then browse history over time.",
+      "rationale": "Weaviate has no config versioning; only a local store can retain point-in-time collection configs.",
+      "example": "weaviate-collections-pp-cli schema snapshot --label pre-migration",
+      "why_it_matters": "Use before any risky schema change so you have a rollback reference.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Schema drift diff",
+      "command": "schema diff",
+      "description": "Diff a collection's live config against a saved snapshot or another collection.",
+      "rationale": "Requires two configs held locally to diff; the API has no diff endpoint.",
+      "example": "weaviate-collections-pp-cli schema diff Article --against pre-migration",
+      "why_it_matters": "Catch unintended config drift between environments or over time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Collection config lint",
+      "command": "collections lint",
+      "description": "Flag risky collection configs: no vectorizer set, replication factor of 1, unindexed high-cardinality properties.",
+      "rationale": "Requires a local rule engine over the fetched config; no such endpoint exists.",
+      "example": "weaviate-collections-pp-cli collections lint Article",
+      "why_it_matters": "Catch production-readiness gaps before they bite in an incident.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Cross-collection tenant audit",
+      "command": "tenants audit",
+      "description": "See tenant counts and activity status across every collection in one view.",
+      "rationale": "Requires fan-out across every collection's tenants; no bulk endpoint exists.",
+      "example": "weaviate-collections-pp-cli tenants audit --json",
+      "why_it_matters": "Spot inactive or overloaded tenants across a multi-tenant deployment at a glance.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Schema export/import bundle",
+      "command": "schema export",
+      "description": "Export every collection's config as one portable JSON bundle for backup or promotion to another environment.",
+      "rationale": "No native schema-only backup feature exists; only a local export/import loop can move collection configs between clusters.",
+      "example": "weaviate-collections-pp-cli schema export --output schema-bundle.json",
+      "why_it_matters": "Promote a schema from staging to production, or restore after an incident, without full data backup.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "WEAVIATE_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Weaviate Collections",
+    "headline": "Full collection-config control for Weaviate Cloud, plus schema history, drift diffing, and lint that no other Weaviate tool has.",
+    "value_prop": "Manage every aspect of Weaviate collections — vectorizers, replication, sharding, multi-tenancy, and property indexes — from the command line. Unlike the official weaviate-cli or community tools, this CLI keeps a local history of your collection configs so you can diff, lint, and roll back with confidence.",
+    "quickstart": [
+      {
+        "command": "weaviate-collections-pp-cli doctor --dry-run",
+        "comment": "Verify config and connectivity without making a live call"
+      },
+      {
+        "command": "weaviate-collections-pp-cli schema dump",
+        "comment": "See every collection in your cluster"
+      },
+      {
+        "command": "weaviate-collections-pp-cli schema objects-get Article --json",
+        "comment": "Inspect a collection's full config"
+      },
+      {
+        "command": "weaviate-collections-pp-cli schema snapshot --label baseline",
+        "comment": "Save a local snapshot before making changes"
+      },
+      {
+        "command": "weaviate-collections-pp-cli collections lint Article",
+        "comment": "Check for risky config before shipping"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Set WEAVIATE_API_KEY to your Weaviate Cloud API key (Bearer token)."
+      },
+      {
+        "symptom": "Empty collections list on a real cluster",
+        "fix": "Run 'weaviate-collections-pp-cli sync' to refresh the local store from the live API."
+      }
+    ],
+    "when_to_use": "Use this CLI to create, inspect, and tune Weaviate Cloud collections — vectorizer/replication/sharding/multi-tenancy config, property indexes, and shard management — and to track how collection configs change over time.",
+    "anti_triggers": [
+      "Do not use this CLI for inserting, querying, or searching data objects — it only manages collection (schema) config, not object data.",
+      "Do not use this CLI for self-hosted Weaviate cluster administration (nodes, backups, RBAC) — it targets the schema surface only."
+    ],
+    "recipes": [
+      {
+        "title": "Snapshot before a risky change",
+        "command": "weaviate-collections-pp-cli schema snapshot --label pre-change \u0026\u0026 weaviate-collections-pp-cli schema objects-update Article --replication-config-factor 3",
+        "explanation": "Save a rollback reference, then apply the change."
+      },
+      {
+        "title": "Diff a select subset of a large collection config",
+        "command": "weaviate-collections-pp-cli schema objects-get Article --agent --select class,vectorizer,replicationConfig",
+        "explanation": "Pull only the fields that matter instead of the full nested config blob."
+      }
+    ],
+    "trigger_phrases": [
+      "manage weaviate collections",
+      "weaviate schema",
+      "weaviate cloud collections",
+      "tune weaviate vectorizer config",
+      "use weaviate-collections",
+      "run weaviate-collections"
+    ]
+  }
+}

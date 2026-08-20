@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "weaviate-collections-pp-cli"
+display_name = "Weaviate Collections"
+description = "Full collection-config control for Weaviate Cloud, plus schema history, drift diffing, and lint that no other Weaviate tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/weaviate-collections-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+WEAVIATE_API_KEY = true

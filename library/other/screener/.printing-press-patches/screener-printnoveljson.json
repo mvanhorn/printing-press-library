@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "screener-printnoveljson",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-101839-1498209c",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Novel commands emit JSON via printNovelJSON, bypassing --agent's auto-compact that strips heterogeneous fields like YOY percentages.",
+  "reason": "compactFields' data-driven keep rule drops fields present in <80% of rows, silently removing YOY columns from qtrend.",
+  "files": ["internal/cli/screener_parse.go"],
+  "validated_outcome": "qtrend --agent now includes net_profit_yoy_pct for all quarters."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "bulk-set-coercion-must-consult-field-schema",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "items bulk-set must only coerce a --set value to a JSON boolean when the collection schema says the field is a Switch; otherwise a plain-text field whose value is literally \"true\" or \"false\" gets silently retyped and Webflow rejects or mis-stores the write. When the schema itself cannot be determined (no local copy and the live GET fails) and a --set value is literally \"true\"/\"false\", the command must refuse with an explicit error instead of guessing wrong in either direction.",
+  "reason": "stringMapToAny coerced any value matching \"true\"/\"false\" (case-insensitive) to a JSON bool with no reference to the field's actual type. A regen must keep the coercion scoped to fields whose schema type is exactly \"Switch\" (fetched the same way collections_completeness already fetches collection schema: local mirror first, one live GET as fallback). Silently defaulting to \"never coerce\" when the schema fetch fails is its own regression (a real Switch field would then be sent as a string and rejected), so collectionFieldTypes must surface that fetch failure to the caller, and the command must only hard-fail on it when a --set value is actually ambiguous (literally \"true\"/\"false\"); any other --set value is unaffected by not knowing the field's type.",
+  "files": ["internal/cli/items_bulk_set.go"],
+  "validated_outcome": "TestStringMapToAnyOnlyCoercesSwitchFields confirms a PlainText field valued \"false\" stays a JSON string while a Switch field valued \"true\" becomes a JSON bool; TestCollectionFieldTypesPropagatesFetchFailure and TestAmbiguousBooleanSetField confirm the schema-fetch-failure guard fires only when it actually matters.",
+  "upstream_issue": ""
+}

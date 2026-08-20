@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola"
+
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/store"
@@ -86,11 +88,23 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 
 			// Check auth
 			authConfigured := false
-			if cfg != nil {
+			// PATCH(cli-owned-workos-session): a CLI-owned session is auth.
+			// Reporting "not configured" whenever GRANOLA_API_KEY is unset read
+			// as a total auth failure on exactly the installs where the session
+			// is the working path.
+			if granola.HasCLISession() {
+				authConfigured = true
+				report["auth"] = "configured (CLI session)"
+				if os.Getenv("GRANOLA_WORKOS_TOKEN") != "" {
+					// The env override outranks the session in loadTokensRaw, so
+					// a stale value here silently defeats a successful login.
+					report["auth_warning"] = "GRANOLA_WORKOS_TOKEN is set and outranks the CLI session; unset it to use the session"
+				}
+			} else if cfg != nil {
 				header := cfg.AuthHeader()
 				if header == "" {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "export GRANOLA_API_KEY=<your-key>"
+					report["auth_hint"] = "run `granola-pp-cli auth login` (or export GRANOLA_API_KEY=<your-key>)"
 				} else {
 					authConfigured = true
 					report["auth"] = "configured"

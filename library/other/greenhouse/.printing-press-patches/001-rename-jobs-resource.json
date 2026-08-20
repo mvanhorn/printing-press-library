@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "greenhouse-rename-jobs-resource",
+  "applied_at": "2026-07-19",
+  "base_run_id": "greenhouse-job-board-2026-07-19",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Renamed scaffolded resource 'greenhouse-job-board-jobs' to 'jobs' because the engine auto-renamed from a 'jobs/' cobra shadow.",
+  "reason": "The cli-printing-press generate engine flagged the path segment 'jobs' as shadowing a framework cobra command and renamed it to 'greenhouse-job-board-jobs'. The user-facing command tree was awkward ('greenhouse-pp-cli greenhouse-job-board-jobs list <token>'). Renaming back to 'jobs' is consistent with the API resource name and the user's mental model.",
+  "files": [
+    "internal/cli/jobs.go",
+    "internal/cli/jobs_get.go",
+    "internal/cli/jobs_list.go",
+    "internal/mcp/tools.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build passes; jobs list stripe --json returns 524 Stripe jobs; jobs get anthropic <id> --json returns full job detail; doctor reports reachable.",
+  "upstream_issue": null
+}

@@ -9,10 +9,11 @@ import (
 
 func newInternalArticlesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "internal-articles",
-		Short:  "Everything about your Internal Articles",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "internal-articles",
+		Short:       "Everything about your Internal Articles",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newInternalArticlesCreateCmd(flags))

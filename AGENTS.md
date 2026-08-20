@@ -167,7 +167,7 @@ library/<category>/<cli-slug>/      — one published CLI per directory
 
 cli-skills/pp-<slug>/SKILL.md       — generated per-CLI skill mirror for direct installs
 
-npm/                                — @mvanhorn/printing-press npm installer wrapper
+npm/                                — @mvanhorn/printing-press-library npm installer wrapper
 
 registry.json                       — top-level catalog: every CLI's name, category, description, path, MCP metadata
 tools/generate-skills/              — regenerates cli-skills/pp-*
@@ -329,11 +329,11 @@ Do not tie this version to `npm/package.json`. The ClawHub discovery skill and n
 
 ## NPM installer surface
 
-`@mvanhorn/printing-press` lives in `npm/`. The `printing-press` command reads the live `registry.json`, resolves a catalog name to its published Go module path, runs `go install`, and installs the matching `cli-skills/pp-<name>` skill with `skills@latest`.
+`@mvanhorn/printing-press-library` lives in `npm/`. The `printing-press-library` command reads the live `registry.json`, resolves a catalog name to its published Go module path, runs `go install`, and installs the matching `cli-skills/pp-<name>` skill with `skills@latest`. The older `@mvanhorn/printing-press` package was renamed; do not present it as the current installer.
 
 Adding or updating a CLI does not require an npm publish. The package is a thin installer over the catalog; new CLIs become installable as soon as `registry.json`, `library/`, and `cli-skills/` are updated on `main`.
 
-The repo is public, the package is published, and `npx -y @mvanhorn/printing-press install <name>` works end-to-end for unauthenticated users.
+The repo is public, the package is published, and `npx -y @mvanhorn/printing-press-library install <name>` works end-to-end for unauthenticated users.
 
 ## Releasing the npm installer
 
@@ -427,7 +427,7 @@ Known pitfalls the verifier handles:
 - A subcommand sharing a leaf name with a top-level command (e.g. `profile save` vs. top-level `save`) — resolved via `rootCmd.AddCommand` lookup + constructor naming convention (`new{Parent1}{Parent2}{Leaf}Cmd`).
 - `$(...)` command substitution in recipes can look like positional args — reported as `[likely false positive]` and not blocking.
 
-**Watch out for: external-tool flags embedded in SKILL.md install instructions.** Every `--flag` token anywhere in SKILL.md is checked against the printed CLI's source. SKILL.md sometimes embeds install commands from *other* tools (the `npx -y @mvanhorn/printing-press install ... --cli-only` line in the Prerequisites section, `hermes skills install ... --force`, `claude mcp add`, `go install`, etc.) whose flags don't exist in the printed CLI's `internal/cli/*.go`. The verifier's `COMMON_FLAGS` set in `.github/scripts/verify-skill/verify_skill.py` is the allowlist of flags that don't need a CLI-source declaration.
+**Watch out for: external-tool flags embedded in SKILL.md install instructions.** Every `--flag` token anywhere in SKILL.md is checked against the printed CLI's source. SKILL.md sometimes embeds install commands from *other* tools (the `npx -y @mvanhorn/printing-press-library install ... --cli-only` line in the Prerequisites section, `hermes skills install ... --force`, `claude mcp add`, `go install`, etc.) whose flags don't exist in the printed CLI's `internal/cli/*.go`. The verifier's `COMMON_FLAGS` set in `.github/scripts/verify-skill/verify_skill.py` is the allowlist of flags that don't need a CLI-source declaration.
 
 **When you add a new install/usage instruction to SKILL.md that introduces a new `--flag`, add it to `COMMON_FLAGS` in the same change.** Otherwise the verifier will fail across every CLI on the next regen with `[flag-names] (any): --your-flag is referenced in SKILL.md but not declared in any internal/cli/*.go`. Currently allowlisted external flags: `cli-only`, `skill-only`, `registry-url` (npm installer), `force` (hermes).
 

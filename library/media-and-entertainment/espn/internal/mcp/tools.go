@@ -5,161 +5,403 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/store"
+)
+
+const (
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
-		mcplib.NewTool("news_list",
-			mcplib.WithDescription("Get latest news articles for a sport and league"),
+		mcplib.NewTool("injuries_get",
+			mcplib.WithDescription("Get current injury list for a sport and league. Required: sport, league. Returns the Injuries."),
 			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug")),
 			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug")),
-			mcplib.WithString("limit", mcplib.Description("Maximum number of articles to return")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/{sport}/{league}/news", []string{"sport", "league"}),
+		makeAPIHandler("GET", "/{sport}/{league}/injuries", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}}, []string{"sport", "league"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("leaders_get",
+			mcplib.WithDescription("Get statistical leaders for a sport and league with optional category filter. Required: sport, league. Optional: category. Returns the Leaders."),
+			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug")),
+			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug")),
+			mcplib.WithString("category", mcplib.Description("Optional stat category (e.g. passing, rushing, points)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/{sport}/{league}/leaders", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}, {PublicName: "category", WireName: "category", Location: "query"}}, []string{"sport", "league"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("news_list",
+			mcplib.WithDescription("Get latest news articles for a sport and league. Required: sport, league. Optional: limit (default: 25). Returns the NewsResponse."),
+			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug")),
+			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug")),
+			mcplib.WithNumber("limit", mcplib.Description("Maximum number of articles to return")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/{sport}/{league}/news", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "25"}}, []string{"sport", "league"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("plays_get",
+			mcplib.WithDescription("Get plays for a specific event id. Required: sport, league, event. Optional: limit (default: 200). Returns the Plays."),
+			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug")),
+			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug")),
+			mcplib.WithString("event", mcplib.Required(), mcplib.Description("ESPN event or game id")),
+			mcplib.WithNumber("limit", mcplib.Description("Maximum number of plays to return")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/{sport}/{league}/plays", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}, {PublicName: "event", WireName: "event", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "200"}}, []string{"sport", "league"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("rankings_get",
-			mcplib.WithDescription("Get current AP, Coaches, and CFP poll rankings for college sports"),
+			mcplib.WithDescription("Get current AP, Coaches, and CFP poll rankings for college sports. Required: sport, league. Returns the Rankings."),
 			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug (football or basketball)")),
 			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug (college-football, mens-college-basketball, womens-college-basketball)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/{sport}/{league}/rankings", []string{"sport", "league"}),
+		makeAPIHandler("GET", "/{sport}/{league}/rankings", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}}, []string{"sport", "league"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("scoreboard_get",
-			mcplib.WithDescription("Get scoreboard for a sport and league with optional date filtering"),
+			mcplib.WithDescription("Get scoreboard for a sport and league with optional date filtering. Required: sport, league. Optional: dates, limit (default: 100), groups. Returns the Scoreboard."),
 			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug (football, basketball, baseball, hockey, soccer)")),
 			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug (nfl, nba, mlb, nhl, college-football, mens-college-basketball)")),
 			mcplib.WithString("dates", mcplib.Description("Date or date range in YYYYMMDD or YYYYMMDD-YYYYMMDD format")),
-			mcplib.WithString("limit", mcplib.Description("Maximum number of events to return")),
-			mcplib.WithString("groups", mcplib.Description("Group filter for division games (use 50 for all Division I)")),
+			mcplib.WithNumber("limit", mcplib.Description("Maximum number of events to return")),
+			mcplib.WithNumber("groups", mcplib.Description("Group filter for division games (use 50 for all Division I)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/{sport}/{league}/scoreboard", []string{"sport", "league"}),
+		makeAPIHandler("GET", "/{sport}/{league}/scoreboard", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}, {PublicName: "dates", WireName: "dates", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "groups", WireName: "groups", Location: "query"}}, []string{"sport", "league"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("summary_get",
-			mcplib.WithDescription("Get detailed game summary including box score, leaders, scoring plays, odds, and win probability"),
+			mcplib.WithDescription("Get detailed game summary including box score, leaders, scoring plays, odds, and win probability. Required: sport, league, event. Returns the GameSummary."),
 			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug")),
 			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug")),
 			mcplib.WithString("event", mcplib.Required(), mcplib.Description("ESPN event or game ID")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/{sport}/{league}/summary", []string{"sport", "league"}),
+		makeAPIHandler("GET", "/{sport}/{league}/summary", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}, {PublicName: "event", WireName: "event", Location: "query"}}, []string{"sport", "league"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_get",
-			mcplib.WithDescription("Get details for a specific team including record, links, and logos"),
+			mcplib.WithDescription("Get details for a specific team including record, links, and logos. Required: sport, league, team_id. Returns the Team."),
 			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug")),
 			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug")),
 			mcplib.WithString("team_id", mcplib.Required(), mcplib.Description("Team ID number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/{sport}/{league}/teams/{team_id}", []string{"sport", "league", "team_id"}),
+		makeAPIHandler("GET", "/{sport}/{league}/teams/{team_id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}, {PublicName: "team_id", WireName: "team_id", Location: "path"}}, []string{"sport", "league", "team_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_list",
-			mcplib.WithDescription("List all teams in a league"),
+			mcplib.WithDescription("List all teams in a league. Required: sport, league. Optional: limit (default: 100). Returns the TeamsResponse."),
 			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug")),
 			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug")),
-			mcplib.WithString("limit", mcplib.Description("Maximum number of teams")),
+			mcplib.WithNumber("limit", mcplib.Description("Maximum number of teams")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/{sport}/{league}/teams", []string{"sport", "league"}),
+		makeAPIHandler("GET", "/{sport}/{league}/teams", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}}, []string{"sport", "league"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_schedule",
-			mcplib.WithDescription("Get past and upcoming schedule for a specific team"),
+			mcplib.WithDescription("Get past and upcoming schedule for a specific team. Required: sport, league, team_id. Optional: season. Returns the Schedule."),
 			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug")),
 			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug")),
 			mcplib.WithString("team_id", mcplib.Required(), mcplib.Description("Team ID number")),
-			mcplib.WithString("season", mcplib.Description("Season year (e.g. 2025)")),
+			mcplib.WithNumber("season", mcplib.Description("Season year (e.g. 2025)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/{sport}/{league}/teams/{team_id}/schedule", []string{"sport", "league", "team_id"}),
+		makeAPIHandler("GET", "/{sport}/{league}/teams/{team_id}/schedule", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}, {PublicName: "team_id", WireName: "team_id", Location: "path"}, {PublicName: "season", WireName: "season", Location: "query"}}, []string{"sport", "league", "team_id"}),
 	)
-	// Sync tool
+	s.AddTool(
+		mcplib.NewTool("transactions_get",
+			mcplib.WithDescription("Get recent league transactions (trades, signings, waivers). Required: sport, league. Returns the Transactions."),
+			mcplib.WithString("sport", mcplib.Required(), mcplib.Description("Sport slug")),
+			mcplib.WithString("league", mcplib.Required(), mcplib.Description("League slug")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/{sport}/{league}/transactions", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "sport", WireName: "sport", Location: "path"}, {PublicName: "league", WireName: "league", Location: "path"}}, []string{"sport", "league"}),
+	)
+	// Sync tool — preserved ESPN surface from the published CLI.
 	s.AddTool(
 		mcplib.NewTool("sync",
 			mcplib.WithDescription("Sync API data to local SQLite for offline search and analysis"),
 			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync")),
 			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (7d, 24h, 1w)")),
 			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
+			mcplib.WithReadOnlyHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSync,
 	)
-	// SQL tool
+	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Run read-only SQL query against local database"),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only)")),
+			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='injuries'.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
 
-	// About tool — self-describing metadata for this MCP server
+	// Context tool — front-loaded domain knowledge for agents.
+	// Call this first to understand the API taxonomy, query patterns, and capabilities.
+	s.AddTool(
+		mcplib.NewTool("context",
+			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+		),
+		handleContext,
+	)
+
+	// About tool — self-describing metadata for this MCP server.
 	s.AddTool(
 		mcplib.NewTool("about",
 			mcplib.WithDescription("Describe this MCP server's capabilities, auth requirements, and unique features"),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleAbout,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+}
+
+type mcpParamBinding struct {
+	PublicName string
+	WireName   string
+	Location   string
+	Default    string
+}
+
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
+	}
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
 
-		// Build path by substituting positional params
+		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
+		// non-map payloads; GetArguments() returns the map[string]any shape
+		// we rely on here (or an empty map when the payload is something else).
+		args := req.GetArguments()
+
+		// positionalParams mixes real URL path params with CLI positional
+		// args that map to query params (e.g. `search <query>` -> ?query=);
+		// the placeholder check below disambiguates them at runtime.
 		path := pathTemplate
+		knownArgs := make(map[string]bool, len(bindings))
+		pathParams := make(map[string]bool, len(positionalParams))
+		params := make(map[string]string)
+		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcplib.NewToolResultError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcplib.NewToolResultError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
+				}
+			}
+		}
+		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
+		if binaryResponse {
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
+		}
+		for _, binding := range bindings {
+			knownArgs[binding.PublicName] = true
+			v, ok := args[binding.PublicName]
+			if !ok {
+				if binding.Default != "" {
+					v = binding.Default
+				} else {
+					continue
+				}
+			}
+			switch binding.Location {
+			case "path":
+				placeholder := "{" + binding.WireName + "}"
+				pathParams[binding.PublicName] = true
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
+			case "body":
+				bodyArgs[binding.WireName] = v
+			default:
+				params[binding.WireName] = formatMCPParamValue(v)
+			}
+		}
 		for _, p := range positionalParams {
-			if v, ok := req.Params.Arguments[p]; ok {
-				path = strings.Replace(path, "{"+p+"}", fmt.Sprintf("%v", v), 1)
+			placeholder := "{" + p + "}"
+			if !strings.Contains(pathTemplate, placeholder) {
+				continue
+			}
+			pathParams[p] = true
+			if v, ok := args[p]; ok {
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
 			}
 		}
 
-		// Collect non-positional params as query params
-		params := make(map[string]string)
-		for k, v := range req.Params.Arguments {
-			isPositional := false
-			for _, p := range positionalParams {
-				if k == p {
-					isPositional = true
-					break
-				}
+		for k, v := range args {
+			if pathParams[k] || knownArgs[k] {
+				continue
 			}
-			if !isPositional {
-				params[k] = fmt.Sprintf("%v", v)
+			switch method {
+			case "POST", "PUT", "PATCH":
+				bodyArgs[k] = v
+			default:
+				params[k] = formatMCPParamValue(v)
 			}
 		}
 
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			data, err = c.Get(path, params)
+			if len(headers) > 0 {
+				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				break
+			}
+			data, err = c.Get(ctx, path, params)
 		case "POST":
-			body, _ := json.Marshal(req.Params.Arguments)
-			data, _, err = c.Post(path, body)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PUT":
-			body, _ := json.Marshal(req.Params.Arguments)
-			data, _, err = c.Put(path, body)
+			if len(headers) > 0 {
+				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
 		case "PATCH":
-			body, _ := json.Marshal(req.Params.Arguments)
-			data, _, err = c.Patch(path, body)
+			if len(headers) > 0 {
+				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
 		case "DELETE":
-			data, _, err = c.Delete(path)
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
 			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}
@@ -175,7 +417,7 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 					"\n      Run 'espn-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + msg +
-					"\nhint: your credentials are valid but lack access to this resource." +
+					"\nhint: this API is configured without credentials; the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy." +
 					"\n      Run 'espn-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -189,81 +431,305 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
+		if binaryResponse {
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      encoded,
+				"byte_count":       len(data),
+			})
+			if err != nil {
+				return mcplib.NewToolResultError(fmt.Sprintf("encoding binary result: %v", err)), nil
 			}
+			if len(out) > bound.MaxBytes {
+				return mcplib.NewToolResultError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
+			return mcplib.NewToolResultText(string(out)), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultText(method, data, pageConfig, mcpCursor), nil
+		}
+		return mcpToolResultText(method, data), nil
 	}
+}
+
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointResponse(method, data))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	}))
 }
 
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "espn-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, err
+	}
+	return newMCPClientFromConfig(cfg), nil
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 0)
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a DELETE/PATCH
-	// followed by a GET would otherwise return the pre-mutation snapshot for up
-	// to the cache TTL. Skip the cache for the MCP path; the interactive CLI
+	// response cache survives across MCP server invocations, so a
+	// DELETE/PATCH followed by a GET would otherwise return the
+	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	return c
+}
+
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "data.db"), nil
 }
 
 func dbPath() string {
+	path, err := mcpDBPath()
+	if err == nil {
+		return path
+	}
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "espn-pp-cli", "data.db")
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpStoreStatusKind string
 
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: espn-pp-cli sync"), nil
+const (
+	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
+	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run espn-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run espn-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	if len(status) == 0 {
+		return mcpStoreStatusEmpty, nil
+	}
+	return mcpStoreStatusReady, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run espn-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+}
+
+// validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
+// to the host is ReadOnlyHintAnnotation(true); a false annotation on a
+// mutating tool lets MCP hosts auto-approve writes and is treated as a real
+// bug per the project's agent-native security model.
+//
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
+//
+// SELECT and WITH are the only allowed leading keywords. WITH supports
+// SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
+// caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
+// and every other DDL/DML keyword fail at this gate before reaching SQLite.
+func validateReadOnlyQuery(query string) error {
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
+	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
+		return fmt.Errorf("only SELECT queries are allowed")
+	}
+	return nil
+}
+
+// stripLeadingSQLNoise removes leading whitespace, SQL line comments
+// (-- to end of line), block comments (/* ... */), and statement
+// separators (;) from query. SQLite skips these before parsing the first
+// keyword, so a security gate that does not strip them mismatches what the
+// driver actually executes.
+func stripLeadingSQLNoise(query string) string {
+	for {
+		query = strings.TrimLeft(query, " \t\r\n;")
+		switch {
+		case strings.HasPrefix(query, "--"):
+			if idx := strings.IndexByte(query, '\n'); idx >= 0 {
+				query = query[idx+1:]
+				continue
+			}
+			return ""
+		case strings.HasPrefix(query, "/*"):
+			if idx := strings.Index(query[2:], "*/"); idx >= 0 {
+				query = query[2+idx+2:]
+				continue
+			}
+			return ""
+		default:
+			return query
+		}
+	}
+}
+
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
 }
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	query, ok := req.Params.Arguments["query"].(string)
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
-	// Block write operations
-	upper := strings.ToUpper(strings.TrimSpace(query))
-	for _, prefix := range []string{"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"} {
-		if strings.HasPrefix(upper, prefix) {
-			return mcplib.NewToolResultError("only SELECT queries are allowed"), nil
-		}
+	if err := validateReadOnlyQuery(query); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.Open(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	rows, err := db.DB().QueryContext(ctx, query)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -271,23 +737,83 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus))
 }
 
-func handleAbout(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(rows) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(err error) string {
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='injuries', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+// Note: MCP tools use their own dbPath() because they are in a separate package
+// from cli. The CLI default resolver uses the same canonical path.
+func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	_ = ctx
+	args, _ := req.Params.Arguments.(map[string]any)
+	_ = args
+	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: espn-pp-cli sync"), nil
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
+}
+
+func handleAbout(_ context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	args, _ := req.Params.Arguments.(map[string]any)
+	_ = args
 	about := map[string]any{
 		"api":               "espn",
-		"description":       "ESPN Sports API CLI — scores, standings, news, and game data across 17 sports and 139 leagues",
-		"tool_count":        7,
+		"description":       "ESPN Sports API CLI - scores, standings, news, and game data across 17 sports and 139 leagues",
+		"tool_count":        15,
 		"tool_surface":      "MCP exposes the endpoints listed under `resources` (plus sync/search/sql/context utilities when present). Items under `cli_only_capabilities` require running the companion espn-pp-cli binary; the MCP cannot invoke them.",
 		"public_tool_count": 0,
 		"cli_only_capabilities": []map[string]string{
@@ -298,11 +824,111 @@ func handleAbout(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolR
 			{"name": "Head-to-Head Records", "command": "rivals", "description": "Compare historical matchup records between any two teams"},
 		},
 	}
-	data, _ := json.MarshalIndent(about, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(about)
 }
 
-// RegisterNovelFeatureTools registers MCP tools that shell out to the
-// companion CLI binary. Empty body when the spec has no novel features.
+func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
+	ctx := map[string]any{
+		"api":         "espn",
+		"description": "ESPN Sports API CLI — scores, standings, news, and game data across 17 sports and 139 leagues",
+		"archetype":   "content",
+		"tool_count":  15,
+		"paths":       paths,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion espn-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
+		"resources": []map[string]any{
+			{
+				"name":        "injuries",
+				"description": "Active injury reports for a league",
+				"endpoints":   []string{"get"},
+				"searchable":  true,
+			},
+			{
+				"name":        "leaders",
+				"description": "Statistical leaders across categories",
+				"endpoints":   []string{"get"},
+				"searchable":  true,
+			},
+			{
+				"name":        "news",
+				"description": "Latest sports news and headlines",
+				"endpoints":   []string{"list"},
+				"searchable":  true,
+			},
+			{
+				"name":        "plays",
+				"description": "Play-by-play feed for a specific event",
+				"endpoints":   []string{"get"},
+				"searchable":  true,
+			},
+			{
+				"name":        "rankings",
+				"description": "College sports rankings and polls",
+				"endpoints":   []string{"get"},
+				"searchable":  true,
+			},
+			{
+				"name":        "scoreboard",
+				"description": "Live and historical game scores",
+				"endpoints":   []string{"get"},
+				"searchable":  true,
+			},
+			{
+				"name":        "summary",
+				"description": "Game summaries with box scores, play-by-play, and statistics",
+				"endpoints":   []string{"get"},
+				"searchable":  true,
+			},
+			{
+				"name":        "teams",
+				"description": "Team information across all leagues",
+				"endpoints":   []string{"get", "list", "schedule"},
+				"searchable":  true,
+			},
+			{
+				"name":        "transactions",
+				"description": "Recent trades, signings, releases, and waivers",
+				"endpoints":   []string{"get"},
+				"searchable":  true,
+			},
+		},
+		"query_tips": []string{
+			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
+			"Control page size with the limit parameter (default 100).",
+			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
+			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
+			"Prefer sql/search over repeated API calls when the data is already synced.",
+		},
+		"playbook": []map[string]string{
+			{"topic": "Live scores by date", "insight": "Use scoreboard <sport> <league> with --dates YYYYMMDD (or a YYYYMMDD-YYYYMMDD range) for a specific day. The flag is --dates, not --date."},
+			{"topic": "Richest game payload", "insight": "Use summary <sport> <league> <eventId> for the fullest single response: box score, leaders, scoring plays, odds, and win probability."},
+			{"topic": "Offline analysis", "insight": "Run sync once to populate the local store, then rivals, streak, and search answer from synced data without live API calls."},
+		},
+	}
+	return toolResultJSON(ctx)
+}
+
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
 func RegisterNovelFeatureTools(s *server.MCPServer) {
+	_ = s
 }

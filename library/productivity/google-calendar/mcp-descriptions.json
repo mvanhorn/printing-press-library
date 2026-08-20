@@ -1,0 +1,8 @@
+{
+  "descriptions": {
+    "calendars_get": "Fetch core metadata for one calendar: summary, description, location, timeZone, and conference properties. Required: calendarId ('primary' works for the account's primary calendar). Returns the bare Calendar resource; for the user's view of it (accessRole, colors, hidden/selected flags), use users_calendar-calendar-list-get instead.",
+    "users_calendar-settings-get": "Fetch a single Calendar user setting by id, e.g. 'timezone', 'format24HourTime', or 'weekStart'. Required: setting (the setting id). Returns {id, value}; values arrive as strings. Use users_calendar-settings-list first when you don't know the setting id.",
+    "users_calendar-calendar-list-get": "Fetch one entry from the user's calendar list. Required: calendarId. Returns the CalendarListEntry: accessRole, colors, defaultReminders, notificationSettings, and hidden/selected flags. Prefer this over calendars_get when you need the user's relationship to the calendar rather than the calendar's own metadata.",
+    "free-busy_calendar-query": "Query busy intervals for a set of calendars in one call. Provide timeMin and timeMax (RFC3339) plus items (array of {id: calendarId}); optional timeZone and group/calendar expansion caps. Returns per-calendar busy ranges plus per-calendar errors for unreadable calendars. For a cross-account verdict with refusal semantics, prefer the conflicts or slots tools; this is the raw probe they build on."
+  }
+}

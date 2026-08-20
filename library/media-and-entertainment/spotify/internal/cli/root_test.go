@@ -4,9 +4,19 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"reflect"
 	"testing"
+	"time"
+
+	"github.com/spf13/cobra"
 )
 
 // TestIsCobraUsageError covers the six pre-RunE error shapes Cobra and
@@ -23,7 +33,8 @@ func TestIsCobraUsageError(t *testing.T) {
 		{"unknown flag", errors.New("unknown flag: --foob"), true},
 		{"unknown shorthand flag", errors.New("unknown shorthand flag: 'x' in -x"), true},
 		{"unknown command", errors.New("unknown command \"foo\" for \"cli\""), true},
-		{"required flag", errors.New("required flag(s) \"query\" not set"), true},
+		{"required flag (singular)", errors.New("required flag \"query\" not set"), true},
+		{"required flag(s) (plural)", errors.New("required flag(s) \"query\", \"vault\" not set"), true},
 		{"flag needs argument", errors.New("flag needs an argument: --query"), true},
 		{"invalid argument", errors.New("invalid argument \"abc\" for \"--limit\" flag: strconv.ParseInt: parsing \"abc\": invalid syntax"), true},
 		// Non-usage errors must NOT be flagged — they should retain their
@@ -73,5 +84,404 @@ func TestExitCode_UsageError_WrappedAsCode2(t *testing.T) {
 	wrapped := usageErr(errors.New("unknown flag: --foob"))
 	if got := ExitCode(wrapped); got != 2 {
 		t.Errorf("ExitCode(usageErr(...)) = %d, want 2 (POSIX usage convention)", got)
+	}
+}
+
+// TestFilterFields covers --select projection against the four payload
+// shapes printed CLIs see in practice: bare arrays, direct objects,
+// list envelopes (Stripe/GitHub/Notion-style wrapper + array), and
+// flat objects. The envelope cases guard against a regression where
+// wrapper-key + array responses returned `{}` because the selector
+// heads matched the inner record fields, not the wrapper key.
+func TestFilterFields(t *testing.T) {
+	t.Parallel()
+	deepEnvelope := `{"items":[{"id":"a","other":"y"}]}`
+	for i := 0; i <= maxNestedListEnvelopeDepth; i++ {
+		deepEnvelope = `{"nested":` + deepEnvelope + `}`
+	}
+	// The successful boundary: exactly maxNestedListEnvelopeDepth levels of
+	// "nested" wrapping (one fewer than deepEnvelope above) must still
+	// resolve -- the depth bound must reject only what is past the limit,
+	// not the limit itself.
+	atBoundEnvelope := `{"items":[{"id":"a","other":"y"}]}`
+	atBoundWant := `{"items":[{"id":"a"}]}`
+	for i := 0; i < maxNestedListEnvelopeDepth; i++ {
+		atBoundEnvelope = `{"nested":` + atBoundEnvelope + `}`
+		atBoundWant = `{"nested":` + atBoundWant + `}`
+	}
+	cases := []struct {
+		name   string
+		input  string
+		fields string
+		want   string
+	}{
+		{
+			name:   "bare array element-wise",
+			input:  `[{"id":"a","name":"x","other":"y"},{"id":"b","name":"z","other":"w"}]`,
+			fields: "id,name",
+			want:   `[{"id":"a","name":"x"},{"id":"b","name":"z"}]`,
+		},
+		{
+			name:   "direct object top-level match",
+			input:  `{"id":"a","name":"b","other":"c"}`,
+			fields: "id,name",
+			want:   `{"id":"a","name":"b"}`,
+		},
+		{
+			name:   "envelope single array sibling (orgo {projects:[...]})",
+			input:  `{"projects":[{"id":"a","name":"x","other":"y"}]}`,
+			fields: "id,name",
+			want:   `{"projects":[{"id":"a","name":"x"}]}`,
+		},
+		{
+			name:   "envelope with metadata sibling (github {total_count,items:[...]})",
+			input:  `{"total_count":2,"items":[{"id":"a","name":"x","other":"y"},{"id":"b","name":"z","other":"w"}]}`,
+			fields: "id,name",
+			want:   `{"items":[{"id":"a","name":"x"},{"id":"b","name":"z"}],"total_count":2}`,
+		},
+		{
+			name:   "envelope with metadata sibling (stripe {object,data:[...]})",
+			input:  `{"object":"list","data":[{"id":"a","name":"x","other":"y"}]}`,
+			fields: "id,name",
+			want:   `{"data":[{"id":"a","name":"x"}],"object":"list"}`,
+		},
+		{
+			name:   "selector matches envelope key (no descent into array)",
+			input:  `{"projects":[{"id":"a","name":"x","other":"y"}]}`,
+			fields: "projects",
+			want:   `{"projects":[{"id":"a","name":"x","other":"y"}]}`,
+		},
+		{
+			name:   "dotted-path through envelope key still descends",
+			input:  `{"projects":[{"id":"a","name":"x","other":"y"}]}`,
+			fields: "projects.id",
+			want:   `{"projects":[{"id":"a"}]}`,
+		},
+		{
+			// PATCH(amend-2026-08-13): a total miss used to return `{}` here
+			// and the untouched payload on envelope shapes — both read as
+			// success. It now returns a diagnostic naming the fields that
+			// were available, and Execute() exits 2.
+			name:   "flat object no match reports the miss and names available fields",
+			input:  `{"a":1,"b":2}`,
+			fields: "c",
+			want:   `{"error":"--select matched no fields","select":"c","available_fields":["a","b"],"hint":"paths are relative to the payload, not to the JSON envelope: drop a leading \"results.\"/\"data.\" segment, or run without --select once to inspect the shape"}`,
+		},
+		{
+			// Null pagination cursors are common envelope metadata.
+			// json.Unmarshal accepts JSON null into []json.RawMessage as
+			// a nil slice without error, so the array check must reject
+			// nil explicitly or null siblings would be coerced to `[]`.
+			name:   "envelope preserves null sibling verbatim",
+			input:  `{"items":[{"id":"a","name":"x"}],"next_cursor":null}`,
+			fields: "id,name",
+			want:   `{"items":[{"id":"a","name":"x"}],"next_cursor":null}`,
+		},
+		{
+			// Without a real array sibling the envelope fallback does not
+			// fire, so a flat object whose only "extra" key is null still
+			// returns {} for a non-matching selector.
+			name:   "flat object with null sibling no match reports the miss",
+			input:  `{"a":1,"b":null}`,
+			fields: "c",
+			want:   `{"error":"--select matched no fields","select":"c","available_fields":["a","b"],"hint":"paths are relative to the payload, not to the JSON envelope: drop a leading \"results.\"/\"data.\" segment, or run without --select once to inspect the shape"}`,
+		},
+		{
+			// Multiple array siblings at the same level each receive the
+			// selector independently. Documents that the projection fans
+			// out across every array, not just the first one found.
+			name:   "envelope with two array siblings filters both",
+			input:  `{"events":[{"id":"e1","other":"x"}],"speakers":[{"id":"s1","other":"y"}]}`,
+			fields: "id",
+			want:   `{"events":[{"id":"e1"}],"speakers":[{"id":"s1"}]}`,
+		},
+		{
+			name:   "nested spotify type envelope filters items",
+			input:  `{"artists":{"items":[{"id":"a","name":"x","popularity":9}]}}`,
+			fields: "id,name",
+			want:   `{"artists":{"items":[{"id":"a","name":"x"}]}}`,
+		},
+		{
+			name:   "multiple nested spotify type envelopes filter all items",
+			input:  `{"artists":{"items":[{"id":"a","name":"x","popularity":9}]},"tracks":{"items":[{"id":"t","name":"y","duration_ms":1}]}}`,
+			fields: "id,name",
+			want:   `{"artists":{"items":[{"id":"a","name":"x"}]},"tracks":{"items":[{"id":"t","name":"y"}]}}`,
+		},
+		{
+			name:   "nested object without array reports the miss",
+			input:  `{"artists":{"paging":{"cursor":{"after":"a"}}}}`,
+			fields: "id",
+			want:   `{"error":"--select matched no fields","select":"id","available_fields":["artists","artists.paging"],"hint":"paths are relative to the payload, not to the JSON envelope: drop a leading \"results.\"/\"data.\" segment, or run without --select once to inspect the shape"}`,
+		},
+		{
+			name:   "nested HAL embedded envelope still filters items",
+			input:  `{"_embedded":{"items":[{"id":"a","name":"x","other":"y"}]}}`,
+			fields: "id,name",
+			want:   `{"_embedded":{"items":[{"id":"a","name":"x"}]}}`,
+		},
+		{
+			// The available_fields list is capped so an over-deep payload
+			// cannot turn the diagnostic into its own token burn.
+			name:   "nested descent stops at depth bound and reports the miss",
+			input:  deepEnvelope,
+			fields: "id",
+			want:   `{"error":"--select matched no fields","select":"id","available_fields":["nested","nested.nested"],"hint":"paths are relative to the payload, not to the JSON envelope: drop a leading \"results.\"/\"data.\" segment, or run without --select once to inspect the shape"}`,
+		},
+		{
+			name:   "nested descent succeeds exactly at depth bound",
+			input:  atBoundEnvelope,
+			fields: "id",
+			want:   atBoundWant,
+		},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got := filterFields(json.RawMessage(tc.input), tc.fields)
+			// Normalize both sides through json.Unmarshal+Marshal so
+			// map-iteration order does not produce false negatives.
+			var gotV, wantV interface{}
+			if err := json.Unmarshal(got, &gotV); err != nil {
+				t.Fatalf("got is invalid json: %v (raw=%s)", err, string(got))
+			}
+			if err := json.Unmarshal([]byte(tc.want), &wantV); err != nil {
+				t.Fatalf("want is invalid json: %v (raw=%s)", err, tc.want)
+			}
+			gotBytes, _ := json.Marshal(gotV)
+			wantBytes, _ := json.Marshal(wantV)
+			if string(gotBytes) != string(wantBytes) {
+				t.Errorf("filterFields(%q, %q) = %s, want %s",
+					tc.input, tc.fields, string(gotBytes), string(wantBytes))
+			}
+		})
+	}
+
+	// --compact is the structural sibling of --select and must handle the
+	// same envelope shapes: any object-valued sibling is a descent candidate,
+	// bounded by the same maxNestedListEnvelopeDepth. This matters most on
+	// the agent path, where --agent implies --compact. Each case names the
+	// list-item field that proves projection actually ran ("description" is
+	// stripped from list items but not from single objects), so a
+	// passthrough regression cannot pass silently.
+	compactCases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "compact envelope single array sibling",
+			input: `{"items":[{"id":"a","name":"x","description":"long prose"}]}`,
+			want:  `{"items":[{"id":"a","name":"x"}]}`,
+		},
+		{
+			// The divergence this test pins: before the compact path was
+			// generalized, only "_embedded" was a descent candidate, so a
+			// Spotify-shaped {"artists":{"items":[...]}} passed through
+			// whole under --agent while --select handled it correctly.
+			name:  "compact nested spotify type envelope compacts items",
+			input: `{"artists":{"items":[{"id":"a","name":"x","description":"long prose"}]}}`,
+			want:  `{"artists":{"items":[{"id":"a","name":"x"}]}}`,
+		},
+		{
+			name:  "compact multiple nested spotify type envelopes compact all items",
+			input: `{"artists":{"items":[{"id":"a","name":"x","description":"d1"}]},"tracks":{"items":[{"id":"t","name":"y","description":"d2"}]}}`,
+			want:  `{"artists":{"items":[{"id":"a","name":"x"}]},"tracks":{"items":[{"id":"t","name":"y"}]}}`,
+		},
+		{
+			// The formerly hardcoded key must keep working after the
+			// generalization — it is now just one object-valued sibling
+			// among many, not a special case.
+			name:  "compact nested HAL embedded envelope still compacts items",
+			input: `{"_embedded":{"items":[{"id":"a","name":"x","description":"long prose"}]}}`,
+			want:  `{"_embedded":{"items":[{"id":"a","name":"x"}]}}`,
+		},
+		{
+			// Fail-closed: no array anywhere in reach means the envelope
+			// path reports "not an envelope" and the caller falls back to
+			// the plain blocklist strip. Generalized descent must not turn
+			// this into a list projection of unrelated nested objects.
+			name:  "compact flat object with no array falls back to blocklist strip",
+			input: `{"a":1,"b":2,"description":"stripped by the object blocklist"}`,
+			want:  `{"a":1,"b":2}`,
+		},
+		{
+			name:  "compact nested object without array preserved verbatim",
+			input: `{"artists":{"paging":{"cursor":{"after":"a"}}}}`,
+			want:  `{"artists":{"paging":{"cursor":{"after":"a"}}}}`,
+		},
+		{
+			// Same bound as the --select path: past maxNestedListEnvelopeDepth
+			// the descent gives up, the envelope path reports false, and the
+			// blocklist fallback returns the payload untouched.
+			name:  "compact nested descent stops at depth bound",
+			input: deepEnvelope,
+			want:  deepEnvelope,
+		},
+		{
+			// `which --agent` matches are {entry, score}. entry is the
+			// identity of the match — dropping it under compaction leaves a
+			// list of bare scores that identify nothing.
+			name:  "compact which matches keep entry alongside score",
+			input: `{"matches":[{"entry":{"command":"search","description":"find tracks"},"score":3}]}`,
+			want:  `{"matches":[{"entry":{"command":"search","description":"find tracks"},"score":3}]}`,
+		},
+	}
+	for _, tc := range compactCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got := compactFields(json.RawMessage(tc.input))
+			var gotV, wantV interface{}
+			if err := json.Unmarshal(got, &gotV); err != nil {
+				t.Fatalf("got is invalid json: %v (raw=%s)", err, string(got))
+			}
+			if err := json.Unmarshal([]byte(tc.want), &wantV); err != nil {
+				t.Fatalf("want is invalid json: %v (raw=%s)", err, tc.want)
+			}
+			gotBytes, _ := json.Marshal(gotV)
+			wantBytes, _ := json.Marshal(wantV)
+			if string(gotBytes) != string(wantBytes) {
+				t.Errorf("compactFields(%q) = %s, want %s",
+					tc.input, string(gotBytes), string(wantBytes))
+			}
+		})
+	}
+
+	// provenanceMeta and wrapWithProvenance are the two meta builders on the
+	// agent path. They must project the same DataProvenance identically —
+	// they had already drifted over "freshness", which attachFreshness
+	// populates for every resolveRead* caller. Asserting both against the
+	// same provenance pins them in lockstep.
+	t.Run("provenance meta carries freshness", func(t *testing.T) {
+		t.Parallel()
+		prov := DataProvenance{
+			Source:       "local",
+			Reason:       "user_requested",
+			ResourceType: "tracks",
+			Freshness:    map[string]any{"policy": "cached", "max_age_seconds": float64(300)},
+		}
+		meta := provenanceMeta(prov)
+		gotFreshness, ok := meta["freshness"]
+		if !ok {
+			t.Fatalf("provenanceMeta dropped freshness; meta = %v", meta)
+		}
+		if !reflect.DeepEqual(gotFreshness, prov.Freshness) {
+			t.Errorf("provenanceMeta freshness = %v, want %v", gotFreshness, prov.Freshness)
+		}
+
+		wrapped, err := wrapWithProvenance(json.RawMessage(`{"id":"a"}`), prov)
+		if err != nil {
+			t.Fatalf("wrapWithProvenance: %v", err)
+		}
+		var envelope struct {
+			Meta map[string]any `json:"meta"`
+		}
+		if err := json.Unmarshal(wrapped, &envelope); err != nil {
+			t.Fatalf("wrapWithProvenance produced invalid json: %v (raw=%s)", err, string(wrapped))
+		}
+		// Both builders must emit the same meta for the same provenance.
+		wantMeta := map[string]any{}
+		normalized, _ := json.Marshal(meta)
+		if err := json.Unmarshal(normalized, &wantMeta); err != nil {
+			t.Fatalf("provenanceMeta produced unmarshalable meta: %v", err)
+		}
+		if !reflect.DeepEqual(envelope.Meta, wantMeta) {
+			t.Errorf("wrapWithProvenance meta = %v, want %v (provenanceMeta output)", envelope.Meta, wantMeta)
+		}
+	})
+}
+
+// TestSelectOnSingleObjectCommandsReturnsScalarFields covers --select on the
+// four commands that were changed to return the whole resource object
+// instead of a nested artwork array (see the "ReturnsWholeObject" tests in
+// single_object_response_path_test.go: me get-current-users-profile,
+// playlists get, users, browse get-a-category). The nested-descent change in
+// filterFields affects these object-shaped payloads too: an object with
+// scalar fields plus a nested "images" array must project down to the
+// requested scalar fields under --select, not fall back to `{}` (as if no
+// top-level selector matched) and not pass the images array through
+// untouched.
+func TestSelectOnSingleObjectCommandsReturnsScalarFields(t *testing.T) {
+	t.Parallel()
+	// Profile-shaped payload: scalar fields plus a nested array sibling,
+	// the same shape TestCurrentUserProfileReturnsWholeObject exercises
+	// without --select.
+	payload := `{"display_name":"Ada","id":"user-1","country":"IT","images":[{"url":"https://example.com/profile.jpg"}]}`
+
+	cases := []struct {
+		name       string
+		newCommand func(*rootFlags) *cobra.Command
+		args       []string
+	}{
+		{"me get-current-users-profile", newMeGetCurrentUsersProfileCmd, nil},
+		{"playlists get", newPlaylistsGetCmd, []string{"playlist-1"}},
+		{"users", newUsersPromotedCmd, []string{"user-1"}},
+		{"browse get-a-category", newBrowseGetACategoryCmd, []string{"focus"}},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(payload))
+			}))
+			defer server.Close()
+
+			configPath := filepath.Join(t.TempDir(), "config.toml")
+			if err := os.WriteFile(configPath, []byte("base_url = \""+server.URL+"\"\n"), 0o600); err != nil {
+				t.Fatalf("write config: %v", err)
+			}
+
+			flags := &rootFlags{
+				asJSON:       true,
+				configPath:   configPath,
+				noCache:      true,
+				timeout:      5 * time.Second,
+				selectFields: "display_name,id",
+			}
+			cmd := tc.newCommand(flags)
+			// newUsersPromotedCmd wires a "playlists" subcommand onto
+			// "users", so executing it standalone (no parent) trips cobra's
+			// legacyArgs subcommand-validity check, which only applies to a
+			// parentless command with children — see
+			// github.com/spf13/cobra@v1.9.1/args.go legacyArgs. Wrapping
+			// every case in a synthetic root command matches how root.go
+			// actually wires these commands and sidesteps that check
+			// uniformly, whether or not the leaf command has children.
+			root := &cobra.Command{Use: "root"}
+			root.AddCommand(cmd)
+			var output bytes.Buffer
+			root.SetOut(&output)
+			root.SetErr(&output)
+			root.SetArgs(append([]string{cmd.Name()}, tc.args...))
+			if err := root.Execute(); err != nil {
+				t.Fatalf("execute command: %v", err)
+			}
+
+			var envelope struct {
+				Results json.RawMessage `json:"results"`
+			}
+			if err := json.Unmarshal(output.Bytes(), &envelope); err != nil {
+				t.Fatalf("decode command output %q: %v", output.String(), err)
+			}
+
+			var got map[string]json.RawMessage
+			if err := json.Unmarshal(envelope.Results, &got); err != nil {
+				t.Fatalf("expected a filtered object, got %s: %v", envelope.Results, err)
+			}
+			if string(got["display_name"]) != `"Ada"` || string(got["id"]) != `"user-1"` {
+				t.Fatalf("--select display_name,id did not return the requested scalar fields, got %s", envelope.Results)
+			}
+			if _, ok := got["images"]; ok {
+				t.Fatalf("--select must not pass the nested images array through untouched, got %s", envelope.Results)
+			}
+			if _, ok := got["country"]; ok {
+				t.Fatalf("--select must not include unrequested fields, got %s", envelope.Results)
+			}
+		})
 	}
 }

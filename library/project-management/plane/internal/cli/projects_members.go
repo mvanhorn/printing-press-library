@@ -11,7 +11,7 @@ func newProjectsMembersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "members",
 		Short:       "**Team Member Management** Manage team members, roles, and permissions within projects and workspaces.",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 

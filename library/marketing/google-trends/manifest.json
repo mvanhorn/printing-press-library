@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "google-trends-pp-mcp",
+  "display_name": "Google Trends",
+  "version": "0.1.0",
+  "description": "Every Google Trends workflow pytrends offered, plus the local history and rate-limit resilience that archived, frozen wrapper never had.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/google-trends-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/google-trends-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

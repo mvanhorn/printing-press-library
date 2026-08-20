@@ -7,7 +7,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -89,6 +91,132 @@ func TestSchemaVersion_RefusesNewerDB(t *testing.T) {
 	_, err = Open(dbPath)
 	if err == nil {
 		t.Fatalf("expected open to fail on newer schema, got nil")
+	}
+}
+
+// granolaProvenanceSchemaVersion is the version the provenance round was
+// stamped at: row_source on folders / panel_templates / recipes /
+// recipes_usage, plus the folder description and is_favourited columns, all
+// added by granola.EnsureSchema.
+//
+// Asserted as a floor rather than an equality so a later, unrelated bump does
+// not have to edit this test. The failure it exists to catch is the opposite
+// one — shipping the migration without moving StoreSchemaVersion at all, which
+// leaves a pre-bump binary free to open the migrated database and write these
+// tables without row_source.
+const granolaProvenanceSchemaVersion = 4
+
+// TestSchemaVersion_CoversGranolaProvenanceColumns pins the bump that the
+// provenance columns require, and that a fresh database is stamped with it.
+func TestSchemaVersion_CoversGranolaProvenanceColumns(t *testing.T) {
+	if StoreSchemaVersion < granolaProvenanceSchemaVersion {
+		t.Fatalf("StoreSchemaVersion = %d, want >= %d: the row_source / folder-metadata migration changes table shape, "+
+			"so an older binary must be locked out rather than allowed to write rows without row_source",
+			StoreSchemaVersion, granolaProvenanceSchemaVersion)
+	}
+
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open fresh db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v < granolaProvenanceSchemaVersion {
+		t.Fatalf("fresh db stamped %d, want >= %d", v, granolaProvenanceSchemaVersion)
+	}
+}
+
+// TestSchemaVersion_RefusesDBStampedAboveBinary is the downgrade half of the
+// same contract, expressed the only way a test compiled at the current version
+// can: a database one version above this binary. It is the exact relationship
+// a version-4 database has to a version-3 binary, and the message must tell the
+// operator to upgrade the binary rather than leaving them with a bare SQL
+// error from a column their build does not know about.
+func TestSchemaVersion_RefusesDBStampedAboveBinary(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(fmt.Sprintf(`PRAGMA user_version = %d`, StoreSchemaVersion+1)); err != nil {
+		t.Fatalf("stamp next version: %v", err)
+	}
+	raw.Close()
+
+	_, err = Open(dbPath)
+	if err == nil {
+		t.Fatalf("expected Open to refuse a database stamped %d against a binary at %d",
+			StoreSchemaVersion+1, StoreSchemaVersion)
+	}
+	want := fmt.Sprintf("database schema version %d is newer than supported version %d; upgrade the CLI binary or open an older database",
+		StoreSchemaVersion+1, StoreSchemaVersion)
+	if !strings.Contains(err.Error(), want) {
+		t.Fatalf("Open error = %q, want it to contain %q", err.Error(), want)
+	}
+}
+
+// TestMigrate_StampsPreProvenanceDBInPlace verifies the upgrade direction: a
+// database an older binary left at version 3 opens, migrates to the current
+// version, and keeps its rows.
+func TestMigrate_StampsPreProvenanceDBInPlace(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	// The version-3 shape: resources already on the composite key, so the
+	// only thing this open should change is the version stamp.
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v3 resources: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('kept', 'note', '{"kind":"note"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("insert v3 resource: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 3`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v3: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open v3 db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("migrated version = %d, want %d", v, StoreSchemaVersion)
+	}
+	if v < granolaProvenanceSchemaVersion {
+		t.Fatalf("migrated version = %d, want >= %d", v, granolaProvenanceSchemaVersion)
+	}
+
+	data, err := s.Get("note", "kept")
+	if err != nil {
+		t.Fatalf("get row carried across the migration: %v", err)
+	}
+	if string(data) != `{"kind":"note"}` {
+		t.Fatalf("row after migration = %s, want {\"kind\":\"note\"}", data)
 	}
 }
 
